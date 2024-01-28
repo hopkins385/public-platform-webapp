@@ -1,0 +1,12 @@
+{
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "login_with": "Login with %{provider}",
+    "signup_with": "Register with %{provider}",
+    "error": {
+      "login": "Username or password is invalid"
+    }
+  }
+}

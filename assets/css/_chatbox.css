@@ -1,0 +1,47 @@
+.chatbox__text-box h1 {
+  @apply py-2 text-2xl font-bold;
+}
+
+.chatbox__text-box h2 {
+  @apply pb-2 pt-3 text-lg font-semibold;
+}
+
+.chatbox__text-box h3 {
+  @apply py-2 font-semibold;
+}
+
+.chatbox__text-box p {
+  @apply my-2;
+}
+
+.chatbox__text-box ol {
+  @apply my-5 ml-5 list-decimal space-y-4;
+}
+
+.chatbox__text-box ul {
+  @apply my-4 ml-4 list-disc space-y-1;
+}
+
+.chatbox__text-box pre {
+  @apply my-4 mr-4 w-full rounded-md bg-gray-200 p-4;
+}
+
+.chatbox__text-box code {
+  @apply w-full whitespace-pre break-all font-sans text-sm;
+}
+
+.chatbox__text-box table {
+  @apply my-4 mr-4 table-auto rounded-md bg-gray-200 p-4;
+}
+
+.chatbox__text-box table th {
+  @apply border border-gray-400 bg-gray-300 p-2;
+}
+
+.chatbox__text-box table td {
+  @apply border border-gray-400 p-2;
+}
+
+.chatbox__text-box table tr:nth-child(odd) {
+  @apply bg-gray-100;
+}

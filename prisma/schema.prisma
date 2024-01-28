@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String      @id
+  deviceId           String?     @map("device_id")
+  email              String      @unique
+  name               String
+  firstName          String?     @map("first_name")
+  lastName           String?     @map("last_name")
+  password           String
+  isActive           Boolean     @default(false) @map("is_active")
+  isAdmin            Boolean     @default(false) @map("is_admin")
+  googleRefreshToken String?     @map("google_refresh_token")
+  googleAccessToken  String?     @map("google_access_token")
+  azureAccountInfo   Json?       @map("azure_account_info") @db.Json
+  azureAccessToken   String?     @map("azure_access_token")
+  emailVerifiedAt    DateTime?   @map("email_verified_at")
+  createdAt          DateTime    @default(now()) @map("created_at")
+  updatedAt          DateTime    @updatedAt @map("updated_at")
+  deletedAt          DateTime?   @map("deleted_at")
+  chats              Chat[]
+  assistants         Assistant[]
+
+  @@map("users")
+}
+
+model Chat {
+  id          String        @id
+  title       String
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  deletedAt   DateTime?     @map("deleted_at")
+  messages    ChatMessage[]
+  user        User          @relation(references: [id], fields: [userId])
+  userId      String        @map("user_id")
+  assistant   Assistant     @relation(fields: [assistantId], references: [id])
+  assistantId String        @map("assistant_id")
+
+  @@map("chats")
+}
+
+model ChatMessage {
+  id        String    @id
+  chatId    String    @map("chat_id")
+  message   String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+  Chat      Chat      @relation(fields: [chatId], references: [id])
+
+  @@map("chat_messages")
+}
+
+model Assistant {
+  id                     String    @id()
+  title                  String
+  description            String
+  systemPrompt           String    @map("system_prompt") @db.Text
+  systemPromptTokenCount Int       @map("system_prompt_token_count")
+  isShared               Boolean   @default(false) @map("is_shared")
+  isGeneral              Boolean   @default(false) @map("is_general")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
+  deletedAt              DateTime? @map("deleted_at")
+  user                   User?     @relation(fields: [userId], references: [id])
+  userId                 String?   @map("user_id")
+  Chat                   Chat[]
+
+  @@map("assistants")
+}
+
+// model Subscription {
+//   id               String    @id @default(uuid())
+//   stripeId         String?
+//   stripeCustomerId String
+//   status           String?
+//   stripePriceId    String?
+//   trialEndsAt      DateTime?
+//   endsAt           DateTime?
+//   createdAt        DateTime  @default(now())
+//   updatedAt        DateTime  @updatedAt
+//   user             User      @relation(fields: [userId], references: [id])
+//   userId           String    @unique
+//
+//   @@map("subscriptions")
+// }

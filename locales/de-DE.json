@@ -1,0 +1,77 @@
+{
+  "auth": {
+    "meta": {
+      "title": "Anmelden",
+      "description": "Anmelden"
+    },
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "register": "Registrieren",
+    "login_with": "Anmelden mit %{provider}",
+    "signup_with": "Registrieren mit %{provider}",
+    "button": {
+      "google": "Anmelden mit Google"
+    },
+    "error": {
+      "login": "Benutzername oder Passwort falsch"
+    }
+  },
+  "admin": {
+    "assistant": {
+      "meta": {
+        "title": "Assistent",
+        "description": "Assistent"
+      },
+      "form": {
+        "systemPrompt": {
+          "label": "Persönlichkeit",
+          "description": "Beschreibe, wer der Assistent ist und wie er sich verhalten soll."
+        }
+      }
+    }
+  },
+  "user": {
+    "placeholder": "Ich",
+    "meta": {
+      "title": "Benutzer",
+      "description": "Benutzer"
+    },
+    "title": "Benutzer",
+    "name": "Name",
+    "email": "E-Mail",
+    "password": "Passwort"
+  },
+  "editor": {
+    "meta": {
+      "title": "Editor"
+    }
+  },
+  "chat": {
+    "meta": {
+      "title": "Chat",
+      "description": "Chat"
+    },
+    "notification": "Unterhaltung mit künstlicher Intelligenz. Ausgaben können Fehler enthalten. Überprüfe wichtige Informationen.",
+    "title": "Chat",
+    "send": "Senden",
+    "placeholder": "Schreibe eine Nachricht..."
+  },
+  "assistant": {
+    "placeholder": "Svenson",
+    "meta": {
+      "title": "Assistent",
+      "description": "Assistent"
+    }
+  },
+  "file": {
+    "search": {
+      "button": "Suchen",
+      "placeholder": "Suche nach Dateien..."
+    }
+  },
+  "OR": "ODER",
+  "Password": "Passwort",
+  "Title": "Titel",
+  "Description": "Beschreibung",
+  "Next Page": "Nächste Seite"
+}

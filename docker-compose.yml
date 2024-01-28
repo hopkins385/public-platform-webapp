@@ -1,0 +1,58 @@
+version: '3.9'
+name: nuxt_app
+
+volumes:
+  postgres_data:
+  redis_data:
+
+services:
+  # app:
+  #   container_name: nuxt_app
+  #   restart: unless-stopped
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - .:/app
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #   networks:
+  #     - nuxt_app_net
+
+  # postgres:
+  #   image: postgres:16.0-alpine
+  #   container_name: nuxt_app_postgresql
+  #   restart: always
+  #   environment:
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD}
+  #     POSTGRES_USER: ${DB_USERNAME}
+  #     POSTGRES_DB: ${DB_DATABASE}
+  #     PGDATA: /var/lib/postgresql/data/pgdata
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data/
+  #   security_opt:
+  #     - no-new-privileges:true
+  #   networks:
+  #     - nuxt_app_net
+
+  # redis:
+  #   image: redis:7.2.3-alpine
+  #   container_name: nuxt_app_redis
+  #   restart: always
+  #   volumes:
+  #     - redis_data:/data
+  #   command: 'redis-server --save 60 1 --loglevel warning --requirepass ${REDIS_PASSWORD}'
+  #   security_opt:
+  #     - no-new-privileges:true
+  #   networks:
+  #     - nuxt_app_net
+  #   healthcheck:
+  #     test: ['CMD', 'redis-cli', 'ping']
+  #     interval: 30s
+  #     retries: 3
+  #     timeout: 5s
+
+networks:
+  nuxt_app_net:
+    name: nuxt_app_network
+    driver: bridge

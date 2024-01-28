@@ -1,0 +1,234 @@
+<script setup lang="ts">
+  import { useElementVisibility } from '@vueuse/core';
+  import { ArrowBigDownDashIcon, ShareIcon, SquareIcon } from 'lucide-vue-next';
+
+  import type { ChatMessage } from '~/interfaces/chat.interfaces';
+
+  const chatMessages = ref<ChatMessage[]>([]);
+  const inputMessage = ref('');
+  const messageChunk = ref('');
+  const isPending = ref(false);
+  const isStreaming = ref(false);
+  const showShareDialog = ref(false);
+  const chatHasError = ref(false);
+  const chatErrorMessage = ref('');
+
+  const showPresets = computed(() => chatMessages.value.length === 0);
+
+  const route = useRoute();
+  const chatStore = useChatStore();
+  const { locale } = useI18n();
+  const { render } = useMarkdown();
+  const { postConversation } = useChatConversation();
+
+  let ac: AbortController;
+
+  const resetForm = () => {
+    if (ac) {
+      ac.abort();
+    }
+    messageChunk.value = '';
+    isPending.value = false;
+    isStreaming.value = false;
+  };
+
+  const resetError = () => {
+    chatHasError.value = false;
+    chatErrorMessage.value = '';
+  };
+
+  const onAbort = () => {
+    addMessage(messageChunk.value, 'assistant');
+    resetForm();
+  };
+
+  const showErrorMessage = (message: string) => {
+    chatHasError.value = true;
+    chatErrorMessage.value = message;
+    resetForm();
+  };
+
+  const addMessage = (
+    content: ChatMessage['content'],
+    role: ChatMessage['role'],
+  ) => {
+    const messageObject = {
+      role,
+      content,
+    } as ChatMessage;
+
+    chatMessages.value.push(messageObject);
+  };
+
+  const onSubmit = async () => {
+    if (!inputMessage.value || isPending.value || isStreaming.value) {
+      return;
+    }
+
+    resetError();
+    addMessage(inputMessage.value, 'user');
+    inputMessage.value = '';
+
+    isPending.value = true;
+    messageChunk.value = '';
+
+    const assistantId = route.query.assistantId as string;
+
+    ac = new AbortController();
+    const stream = await postConversation(ac.signal, {
+      model: chatStore.model,
+      lang: locale.value,
+      messages: chatMessages.value,
+      assistantId,
+    });
+
+    isPending.value = false;
+
+    if (!(stream instanceof ReadableStream)) {
+      showErrorMessage('Ups something went wrong');
+      return;
+    }
+
+    try {
+      const reader = stream.getReader();
+      let done = false;
+
+      isStreaming.value = true;
+      while (!done) {
+        const { value, done: _done } = await reader.read();
+        done = _done;
+        messageChunk.value += new TextDecoder().decode(value);
+      }
+      isStreaming.value = false;
+
+      addMessage(messageChunk.value, 'assistant');
+      messageChunk.value = '';
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        return;
+      }
+      showErrorMessage('Ups something went wrong');
+    }
+  };
+
+  const onPresetClick = (value: string) => {
+    inputMessage.value = value;
+    onSubmit();
+  };
+
+  const chatMessagesWrapperRef = ref<HTMLElement | null>(null);
+  const chatWrapperRef = ref<HTMLElement | null>(null);
+  const visibilityTargetRef = ref<HTMLElement | null>(null);
+
+  const targetIsVisible = useElementVisibility(visibilityTargetRef);
+
+  const scrollToBottom = () => {
+    chatMessagesWrapperRef.value?.scrollTo({
+      top: chatMessagesWrapperRef.value.scrollHeight,
+      behavior: 'smooth',
+    });
+  };
+</script>
+
+<template>
+  <BoxContainer
+    id="chatWrapper"
+    ref="chatWrapperRef"
+    class="relative flex h-full flex-col px-20 py-10 lg:px-40 xl:px-60"
+  >
+    <div
+      class="absolute left-0 top-0 z-10 flex w-full items-center justify-between px-8 py-5"
+    >
+      <div>
+        <ChatModelSelector />
+      </div>
+      <div>
+        <ChatShareDialog v-model="showShareDialog" />
+        <Button
+          size="icon"
+          variant="outline"
+          class="group"
+          @click="showShareDialog = true"
+        >
+          <ShareIcon class="size-4 stroke-1.5 group-hover:stroke-2" />
+        </Button>
+      </div>
+    </div>
+    <div
+      id="chatMessagesWrapper"
+      ref="chatMessagesWrapperRef"
+      class="relative grow overflow-y-scroll rounded-lg"
+    >
+      <ChatPresets
+        v-if="showPresets"
+        id="chatPresets"
+        class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border-0"
+        style="width: 100%; max-width: 800px; max-height: 80%"
+        @clicked="(value) => onPresetClick(value)"
+      />
+      <ChatMessageBox
+        v-for="(message, index) in chatMessages"
+        :key="index"
+        :message="render(message.content)"
+        :role="message.role"
+      />
+      <ChatMessageBox v-if="isPending" message="..." role="assistant" />
+      <ChatMessageBox
+        v-if="messageChunk"
+        id="chatMessage"
+        :message="render(messageChunk)"
+        role="assistant"
+      />
+      <div v-if="chatHasError" class="px-20 text-sm text-destructive">
+        {{ chatErrorMessage }}
+      </div>
+      <div ref="visibilityTargetRef" class="-mt-4 h-2 border-0"></div>
+      <div
+        v-if="!targetIsVisible && chatMessages.length > 0"
+        class="sticky bottom-2 right-1/2 opacity-95"
+        style="transform: translateX(50%)"
+      >
+        <Button
+          variant="outline"
+          size="icon"
+          class="group rounded-full border bg-slate-200 shadow-md"
+          @click="scrollToBottom"
+        >
+          <ArrowBigDownDashIcon
+            class="size-5 stroke-1.5 group-hover:stroke-2"
+          />
+        </Button>
+      </div>
+    </div>
+    <div id="chatInputWrapper" class="relative shrink-0 pt-5">
+      <form class="flex items-center space-x-2" @submit.prevent="onSubmit">
+        <Input
+          v-model="inputMessage"
+          :placeholder="$t('chat.placeholder')"
+          class="rounded-2xl py-6"
+        />
+        <Button
+          type="submit"
+          :disabled="!inputMessage || isPending || isStreaming"
+        >
+          {{ $t('chat.send') }}
+        </Button>
+      </form>
+      <Button
+        v-if="isStreaming"
+        variant="outline"
+        size="icon"
+        class="group absolute right-24 top-7 mr-1 size-8 rounded-full bg-slate-100"
+        @click="onAbort"
+      >
+        <SquareIcon class="size-3 text-slate-500 group-hover:text-slate-900" />
+      </Button>
+    </div>
+    <div
+      class="absolute bottom-3 left-0 w-full text-center text-slate-500"
+      style="font-size: 0.65rem"
+    >
+      <p>{{ $t('chat.notification') }}</p>
+    </div>
+  </BoxContainer>
+</template>

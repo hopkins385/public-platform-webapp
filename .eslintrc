@@ -1,0 +1,29 @@
+{
+  "env": {
+    "browser": true,
+    "node": true,
+    "es6": true
+  },
+  "root": true,
+  "parser": "vue-eslint-parser",
+  "plugins": ["security-node"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:security-node/recommended",
+    "plugin:anti-trojan-source/recommended",
+    "plugin:vue/recommended",
+    "plugin:json/recommended-with-comments",
+    "plugin:markdown/recommended",
+    "plugin:tailwindcss/recommended",
+    "@nuxtjs/eslint-config-typescript",
+    "prettier"
+  ],
+  "rules": {
+    //"security-node/detect-crlf": 0,
+    "no-console": 0,
+    "tailwindcss/no-custom-classname": "off",
+    "vue/multi-word-component-names": "off",
+    "vue/require-default-prop": "off"
+    // "tailwindcss/no-custom-classname": "warn"
+  }
+}

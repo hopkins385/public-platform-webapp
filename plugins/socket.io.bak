@@ -1,0 +1,20 @@
+import { io } from 'socket.io-client';
+
+export default defineNuxtPlugin(() => {
+  const socketConfig = useRuntimeConfig().public.socket;
+
+  const socket = io(`${socketConfig.host}:${socketConfig.port}`, {
+    autoConnect: false,
+    transports: ['websocket', 'polling'],
+  });
+
+  socket.onAny((event, ...args) => {
+    console.log('socket event', event, args);
+  });
+
+  return {
+    provide: {
+      socket,
+    },
+  };
+});

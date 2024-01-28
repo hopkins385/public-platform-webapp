@@ -1,0 +1,36 @@
+{
+  "css.validate": false,
+  "svg.preview.background": "black",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      "source.fixAll.stylelint": "explicit"
+  },
+  "[vue]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "[javascript]": {
+     "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+  "[html]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.guides.bracketPairs": true,
+  "workbench.colorTheme": "Default Light+",
+  "workbench.iconTheme": "vscode-icons",
+  "eslint.validate": ["javascript", "typescript", "vue"],
+  // Tailwind Support, see https://tailwindcss.nuxt.dev/tailwind/editor-support
+  "tailwindCSS.experimental.configFile": "tailwind.config.ts",
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+}
