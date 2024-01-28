@@ -139,6 +139,7 @@
             <div v-if="file?.size">
               <Button
                 variant="outline"
+                size="icon"
                 class="group"
                 @click="downloadFile(file?.id)"
               >
