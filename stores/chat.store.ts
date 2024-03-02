@@ -1,6 +1,6 @@
 export const useChatStore = defineStore('chatStore', {
   state: () => ({
-    model: 'local',
+    model: 'open-mixtral-8x7b',
   }),
   getters: {
     selectedModel: (state) => state.model,

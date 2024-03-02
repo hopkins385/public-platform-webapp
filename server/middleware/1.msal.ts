@@ -5,6 +5,12 @@ import {
 } from '@azure/msal-node';
 // import { NativeBrokerPlugin } from '@azure/msal-node-extensions';
 
+declare module 'h3' {
+  interface H3EventContext {
+    msalClient: ConfidentialClientApplication;
+  }
+}
+
 let client: ConfidentialClientApplication | null = null;
 
 export default eventHandler((event) => {

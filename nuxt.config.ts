@@ -1,7 +1,7 @@
 import { isDevelopment } from 'std-env';
 
 export default defineNuxtConfig({
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   telemetry: false,
   modules: [
     '@nuxtjs/tailwindcss',

@@ -2,6 +2,7 @@
   import { toTypedSchema } from '@vee-validate/zod';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
+  import { useDebounceFn } from '@vueuse/core';
 
   definePageMeta({
     title: 'assistant.meta.one.title',
@@ -10,17 +11,17 @@
   const { successDuration, errorDuration } = useAppConfig().toast;
   const { setAssistantId, getOneAssistant, updateAssistant } =
     useManageAssistants();
-  const { $toast } = useNuxtApp();
+  const { $toast, $client } = useNuxtApp();
   const route = useRoute();
 
   setAssistantId(route.params.id);
-  const { data: assistant, refresh } = await getOneAssistant();
+  const { data: assistant } = await getOneAssistant();
 
   const assistantFormSchema = toTypedSchema(
     z.object({
       title: z.string().min(3).max(255),
       description: z.string().min(3).max(255),
-      systemPrompt: z.string().min(3).max(2500),
+      systemPrompt: z.string().min(3).max(6000),
       isShared: z.boolean().default(false),
     }),
   );
@@ -55,6 +56,18 @@
         duration: errorDuration,
       });
     }
+  });
+  const tokenCount = ref(0);
+  const systemPrompt = ref(assistant.value?.systemPrompt);
+  const getTokenCount = useDebounceFn(async () => {
+    const data = await $client.tokenizer.getTokens.query({
+      content: systemPrompt.value || '',
+    });
+    tokenCount.value = data.tokenCount;
+  }, 250);
+
+  onBeforeMount(async () => {
+    await getTokenCount();
   });
 </script>
 
@@ -106,16 +119,21 @@
           </FormItem>
         </FormField>
 
-        <FormField v-slot="{ componentField }" name="systemPrompt">
+        <FormField
+          v-slot="{ componentField }"
+          v-model="systemPrompt"
+          name="systemPrompt"
+        >
           <FormItem>
             <FormLabel>
               {{ $t('admin.assistant.form.systemPrompt.label') }}
             </FormLabel>
             <FormControl>
-              <Textarea v-bind="componentField" />
+              <Textarea v-bind="componentField" @input="getTokenCount()" />
             </FormControl>
             <FormDescription>
-              {{ $t('admin.assistant.form.systemPrompt.description') }}
+              {{ $t('admin.assistant.form.systemPrompt.description') }} [Used
+              Tokens: {{ tokenCount }}]
             </FormDescription>
             <FormMessage />
           </FormItem>

@@ -40,6 +40,7 @@ export const middleware = t.middleware((opts) => {
     ctx: {
       prisma: null,
       user: null,
+      vectorStore: null,
     },
   });
 });

@@ -1,10 +1,12 @@
 <script setup lang="ts">
-  import { useElementVisibility } from '@vueuse/core';
-  import { ArrowBigDownDashIcon, ShareIcon, SquareIcon } from 'lucide-vue-next';
+  import { useElementVisibility, useMutationObserver } from '@vueuse/core';
+  import {
+    ArrowBigDownDashIcon,
+    MessageSquareXIcon,
+    ShareIcon,
+    SquareIcon,
+  } from 'lucide-vue-next';
 
-  import type { ChatMessage } from '~/interfaces/chat.interfaces';
-
-  const chatMessages = ref<ChatMessage[]>([]);
   const inputMessage = ref('');
   const messageChunk = ref('');
   const isPending = ref(false);
@@ -13,13 +15,19 @@
   const chatHasError = ref(false);
   const chatErrorMessage = ref('');
 
-  const showPresets = computed(() => chatMessages.value.length === 0);
-
   const route = useRoute();
   const chatStore = useChatStore();
+  const { $client } = useNuxtApp();
   const { locale } = useI18n();
   const { render } = useMarkdown();
   const { postConversation } = useChatConversation();
+  const {
+    messages,
+    hasMessages,
+    addMessage,
+    getFormattedMessages,
+    clearMessages,
+  } = useChatMessages();
 
   let ac: AbortController;
 
@@ -48,22 +56,33 @@
     resetForm();
   };
 
-  const addMessage = (
-    content: ChatMessage['content'],
-    role: ChatMessage['role'],
-  ) => {
-    const messageObject = {
-      role,
-      content,
-    } as ChatMessage;
-
-    chatMessages.value.push(messageObject);
+  const clearChatMessages = () => {
+    const chatId = route.query.id as string;
+    $client.chat.clearMessages.query({ chatId }).catch(() => {
+      showErrorMessage('Ups something went wrong');
+    });
+    clearMessages();
+    resetForm();
   };
 
   const onSubmit = async () => {
     if (!inputMessage.value || isPending.value || isStreaming.value) {
       return;
     }
+
+    const chatId = route.query.id as string;
+
+    $client.chat.createMessage
+      .query({
+        chatId,
+        chatMessage: {
+          role: 'user',
+          content: inputMessage.value,
+        },
+      })
+      .catch(() => {
+        showErrorMessage('Ups something went wrong');
+      });
 
     resetError();
     addMessage(inputMessage.value, 'user');
@@ -72,14 +91,12 @@
     isPending.value = true;
     messageChunk.value = '';
 
-    const assistantId = route.query.assistantId as string;
-
     ac = new AbortController();
     const stream = await postConversation(ac.signal, {
       model: chatStore.model,
       lang: locale.value,
-      messages: chatMessages.value,
-      assistantId,
+      messages: getFormattedMessages(),
+      chatId,
     });
 
     isPending.value = false;
@@ -97,7 +114,9 @@
       while (!done) {
         const { value, done: _done } = await reader.read();
         done = _done;
-        messageChunk.value += new TextDecoder().decode(value);
+        messageChunk.value += new TextDecoder().decode(value, {
+          stream: true,
+        });
       }
       isStreaming.value = false;
 
@@ -116,24 +135,39 @@
     onSubmit();
   };
 
-  const chatMessagesWrapperRef = ref<HTMLElement | null>(null);
-  const chatWrapperRef = ref<HTMLElement | null>(null);
-  const visibilityTargetRef = ref<HTMLElement | null>(null);
+  const chatMessagesContainerRef = ref<HTMLElement | null>(null);
 
+  const visibilityTargetRef = ref<HTMLElement | null>(null);
   const targetIsVisible = useElementVisibility(visibilityTargetRef);
 
   const scrollToBottom = () => {
-    chatMessagesWrapperRef.value?.scrollTo({
-      top: chatMessagesWrapperRef.value.scrollHeight,
-      behavior: 'smooth',
+    nextTick(() => {
+      chatMessagesContainerRef.value?.scrollTo({
+        top: chatMessagesContainerRef.value.scrollHeight,
+        behavior: 'smooth',
+      });
     });
   };
+
+  // observer
+  useMutationObserver(
+    chatMessagesContainerRef,
+    (mutations) => {
+      mutations.forEach(() => {
+        scrollToBottom();
+      });
+    },
+    {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    },
+  );
 </script>
 
 <template>
   <BoxContainer
     id="chatWrapper"
-    ref="chatWrapperRef"
     class="relative flex h-full flex-col px-20 py-10 lg:px-40 xl:px-60"
   >
     <div
@@ -142,7 +176,10 @@
       <div>
         <ChatModelSelector />
       </div>
-      <div>
+      <div class="flex space-x-3">
+        <Button size="icon" variant="outline" @click="clearChatMessages">
+          <MessageSquareXIcon class="size-4 stroke-1.5 group-hover:stroke-2" />
+        </Button>
         <ChatShareDialog v-model="showShareDialog" />
         <Button
           size="icon"
@@ -155,19 +192,19 @@
       </div>
     </div>
     <div
-      id="chatMessagesWrapper"
-      ref="chatMessagesWrapperRef"
+      id="chatMessagesContainer"
+      ref="chatMessagesContainerRef"
       class="relative grow overflow-y-scroll rounded-lg"
     >
       <ChatPresets
-        v-if="showPresets"
+        v-if="!hasMessages"
         id="chatPresets"
         class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border-0"
         style="width: 100%; max-width: 800px; max-height: 80%"
         @clicked="(value) => onPresetClick(value)"
       />
       <ChatMessageBox
-        v-for="(message, index) in chatMessages"
+        v-for="(message, index) in messages"
         :key="index"
         :message="render(message.content)"
         :role="message.role"
@@ -182,10 +219,11 @@
       <div v-if="chatHasError" class="px-20 text-sm text-destructive">
         {{ chatErrorMessage }}
       </div>
-      <div ref="visibilityTargetRef" class="-mt-4 h-2 border-0"></div>
+      <div class="h-10 border-0"></div>
+      <!-- ref="visibilityTargetRef" -->
       <div
-        v-if="!targetIsVisible && chatMessages.length > 0"
-        class="sticky bottom-2 right-1/2 opacity-95"
+        v-if="!targetIsVisible && hasMessages"
+        class="sticky bottom-2 right-1/2 hidden opacity-95"
         style="transform: translateX(50%)"
       >
         <Button

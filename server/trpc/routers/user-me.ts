@@ -1,3 +1,5 @@
+import fs from 'fs';
+import { join } from 'path';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 
@@ -36,4 +38,14 @@ export const userMeRouter = router({
         data: { name, ...data },
       });
     }),
+  getUploads: protectedProcedure.query(({ ctx }) => {
+    const files = fs.readdirSync(
+      join(process.cwd(), 'public', 'uploads', ctx.user?.id),
+    );
+    return files.map((file) => ({
+      name: file,
+      path: join(process.cwd(), 'public', 'uploads', ctx.user?.id, file),
+      url: `/uploads/${ctx.user?.id}/${file}`,
+    }));
+  }),
 });

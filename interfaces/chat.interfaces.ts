@@ -7,5 +7,5 @@ export interface ChatConversation {
   messages: ChatMessage[];
   model: string;
   lang: string;
-  assistantId?: string | null;
+  chatId?: string | null;
 }

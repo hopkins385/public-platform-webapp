@@ -23,7 +23,7 @@ export default function useChatConversation() {
         ...payload,
       },
       responseType: 'stream',
-    }) as Promise<ReadableStream>;
+    });
   };
 
   return {

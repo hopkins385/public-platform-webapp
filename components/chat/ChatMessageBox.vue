@@ -8,7 +8,7 @@
 
 <template>
   <div
-    class="chatbox__text-box rounded-lg border-0 bg-white px-10 py-5 text-sm hover:border"
+    class="chatbox__text-box rounded-lg border-0 bg-white px-10 py-5 text-sm"
   >
     <div class="flex space-x-3">
       <div class="size-6 shrink-0 rounded-full bg-slate-200"></div>

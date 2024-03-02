@@ -29,9 +29,9 @@ export default defineEventHandler(async (_event) => {
     maxFiles: 10,
     maxFilesSize: 5 * 1024 * 1024,
     maxFields: 8,
-    filter: function ({ name, originalFilename, mimetype }) {
-      return mimetype && mimetype.includes('pdf');
-    },
+    // filter: function ({ name, originalFilename, mimetype }) {
+    //   return mimetype && mimetype.includes('pdf') && mimetype.includes('plain');
+    // },
   } as FormidableOptions;
 
   try {
@@ -39,22 +39,23 @@ export default defineEventHandler(async (_event) => {
 
     if (!files.clientFiles) {
       throw createError({
-        statusCode: 400,
-        statusMessage: 'No files found',
+        statusCode: 500,
+        statusMessage: 'Client file(s) not found',
       });
     }
 
     for (const file of files.clientFiles) {
-      const fileName = `${Date.now()}-${file.newFilename}.${
-        file.mimetype?.split('/')[1]
-      }`;
+      const mimeType =
+        file.mimetype?.split('/')[1] !== 'plain'
+          ? file.mimetype?.split('/')[1]
+          : 'txt';
+      const fileName = `${Date.now()}-${file.newFilename}.${mimeType}`;
       const newPath = `${path.join('public', 'uploads', session.user.id, fileName)}`;
       fs.copyFileSync(file.filepath, newPath);
     }
 
-    // store file in public/uploads
-
     return { success: true };
+    //
   } catch (error) {
     throw createError({
       statusCode: 400,

@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { ulid } from 'ulidx';
 import { protectedProcedure, router } from '../trpc';
+import { ULID } from '~/server/utils/ulid';
 
 export const assistantRouter = router({
   // create assistant
@@ -18,7 +18,7 @@ export const assistantRouter = router({
       const userId = ctx.user?.id;
       return ctx.prisma.assistant.create({
         data: {
-          id: ulid().toLowerCase(),
+          id: ULID(),
           userId,
           title: input.title,
           description: input.description,
