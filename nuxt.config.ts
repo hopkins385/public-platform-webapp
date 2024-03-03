@@ -71,6 +71,10 @@ export default defineNuxtConfig({
       baseUrl: process.env.MISTRAL_BASE_URL,
       apiKey: process.env.MISTRAL_API_KEY,
     },
+    groq: {
+      baseUrl: process.env.GROQ_BASE_URL,
+      apiKey: process.env.GROQ_API_KEY,
+    },
   },
   build: {
     transpile: ['trpc-nuxt', 'vue-sonner'],

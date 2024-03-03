@@ -1,4 +1,5 @@
 import type { RuntimeConfig } from 'nuxt/schema';
+import { ModelEnum } from './../../utils/modelEnum';
 import type { ChatMessage } from '~/interfaces/chat.interfaces';
 import { ULID } from '~/server/utils/ulid';
 
@@ -132,6 +133,16 @@ export class ChatService {
     let model: string;
 
     switch (value) {
+      case ModelEnum.GroqLlama4K:
+        baseURL = config.groq.baseUrl;
+        apiKey = config.groq.apiKey;
+        model = ModelEnum.GroqLlama4K;
+        break;
+      case ModelEnum.GroqMixtral32K:
+        baseURL = config.groq.baseUrl;
+        apiKey = config.groq.apiKey;
+        model = ModelEnum.GroqMixtral32K;
+        break;
       case ModelEnum.Mistral7B:
         baseURL = config.mistral.baseUrl;
         apiKey = config.mistral.apiKey;

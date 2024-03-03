@@ -6,21 +6,21 @@
     ShareIcon,
     SquareIcon,
   } from 'lucide-vue-next';
+  import ChatSettings from './ChatSettings.vue';
 
   const inputMessage = ref('');
   const messageChunk = ref('');
   const isPending = ref(false);
   const isStreaming = ref(false);
   const showShareDialog = ref(false);
-  const chatHasError = ref(false);
-  const chatErrorMessage = ref('');
 
   const route = useRoute();
   const chatStore = useChatStore();
   const { $client } = useNuxtApp();
   const { locale } = useI18n();
   const { render } = useMarkdown();
-  const { postConversation } = useChatConversation();
+  const { postConversation, hasError, errorMessage, setError, clearError } =
+    useChatConversation();
   const {
     messages,
     hasMessages,
@@ -40,29 +40,19 @@
     isStreaming.value = false;
   };
 
-  const resetError = () => {
-    chatHasError.value = false;
-    chatErrorMessage.value = '';
-  };
-
   const onAbort = () => {
     addMessage(messageChunk.value, 'assistant');
-    resetForm();
-  };
-
-  const showErrorMessage = (message: string) => {
-    chatHasError.value = true;
-    chatErrorMessage.value = message;
     resetForm();
   };
 
   const clearChatMessages = () => {
     const chatId = route.query.id as string;
     $client.chat.clearMessages.query({ chatId }).catch(() => {
-      showErrorMessage('Ups something went wrong');
+      setError('Ups something went wrong');
     });
     clearMessages();
     resetForm();
+    clearError();
   };
 
   const onSubmit = async () => {
@@ -71,20 +61,21 @@
     }
 
     const chatId = route.query.id as string;
+    if (chatId) {
+      $client.chat.createMessage
+        .query({
+          chatId,
+          chatMessage: {
+            role: 'user',
+            content: inputMessage.value,
+          },
+        })
+        .catch(() => {
+          setError('Ups something went wrong');
+        });
+    }
 
-    $client.chat.createMessage
-      .query({
-        chatId,
-        chatMessage: {
-          role: 'user',
-          content: inputMessage.value,
-        },
-      })
-      .catch(() => {
-        showErrorMessage('Ups something went wrong');
-      });
-
-    resetError();
+    clearError();
     addMessage(inputMessage.value, 'user');
     inputMessage.value = '';
 
@@ -92,21 +83,21 @@
     messageChunk.value = '';
 
     ac = new AbortController();
-    const stream = await postConversation(ac.signal, {
-      model: chatStore.model,
-      lang: locale.value,
-      messages: getFormattedMessages(),
-      chatId,
-    });
-
-    isPending.value = false;
-
-    if (!(stream instanceof ReadableStream)) {
-      showErrorMessage('Ups something went wrong');
-      return;
-    }
-
     try {
+      const stream = await postConversation(ac.signal, {
+        model: chatStore.model,
+        lang: locale.value,
+        messages: getFormattedMessages(),
+        chatId,
+      });
+
+      isPending.value = false;
+
+      if (!(stream instanceof ReadableStream)) {
+        setError('Ups something went wrong');
+        return;
+      }
+
       const reader = stream.getReader();
       let done = false;
 
@@ -126,7 +117,7 @@
       if (error.name === 'AbortError') {
         return;
       }
-      showErrorMessage('Ups something went wrong');
+      setError(error.message);
     }
   };
 
@@ -189,12 +180,13 @@
         >
           <ShareIcon class="size-4 stroke-1.5 group-hover:stroke-2" />
         </Button>
+        <ChatSettings />
       </div>
     </div>
     <div
       id="chatMessagesContainer"
       ref="chatMessagesContainerRef"
-      class="relative grow overflow-y-scroll rounded-lg"
+      class="no-scrollbar relative grow overflow-y-scroll rounded-lg"
     >
       <ChatPresets
         v-if="!hasMessages"
@@ -216,8 +208,9 @@
         :message="render(messageChunk)"
         role="assistant"
       />
-      <div v-if="chatHasError" class="px-20 text-sm text-destructive">
-        {{ chatErrorMessage }}
+      <div v-if="hasError" class="px-20 text-sm text-destructive">
+        <p class="pb-2 font-semibold">Ups, something went wrong:</p>
+        <p>{{ errorMessage }}</p>
       </div>
       <div class="h-10 border-0"></div>
       <!-- ref="visibilityTargetRef" -->

@@ -21,6 +21,16 @@
 
   const models = [
     {
+      value: ModelEnum.GroqLlama4K,
+      label: 'Groq Llama 4K',
+      premium: false,
+    },
+    {
+      value: ModelEnum.GroqMixtral32K,
+      label: 'Groq Mixtral 32K',
+      premium: false,
+    },
+    {
       value: ModelEnum.Mixtral7B,
       label: 'Mixtral MoE 8x7B',
       premium: false,

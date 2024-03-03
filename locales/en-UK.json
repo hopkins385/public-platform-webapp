@@ -8,5 +8,30 @@
     "error": {
       "login": "Username or password is invalid"
     }
+  },
+  "chat": {
+    "meta": {
+      "title": "Chat",
+      "description": "Chat"
+    },
+    "notification": "Unterhaltung mit künstlicher Intelligenz. Ausgaben können Fehler enthalten. Überprüfe wichtige Informationen.",
+    "title": "Chat",
+    "send": "Senden",
+    "placeholder": "Schreibe eine Nachricht...",
+    "settings": {
+      "title": "Einstellungen",
+      "temperature": {
+        "title": "Temperature",
+        "description": "The temperature regulates the randomness, or creativity, of the AI's responses. A higher temperature value typically makes the output more diverse and creative but might also increase its likelihood of straying from the context (e.g. system prompt). If you need the model to stay very focused, use zero as a starting point."
+      },
+      "presencePenalty": {
+        "title": "Presence Penalty",
+        "description": "The presence penalty prevents the model from repeating phrases too often in its response. If you want the model to generate diverse or creative text, you might want to use a higher presence penalty (e.g. 0.5). Or, if you need the model to stay focused, try using a lower presence penalty."
+      },
+      "maxTokens": {
+        "title": "Max Tokens",
+        "description": "The maximum number of tokens (words) to generate in the response. A higher value will make the model generate longer responses."
+      }
+    }
   }
 }

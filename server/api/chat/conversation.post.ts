@@ -15,12 +15,16 @@ const langRule = z.enum(['en', 'de']);
 const modelRule = z
   .string()
   .refine((model) => Object.values(ModelEnum).includes(model as ModelEnum));
+const chatIdSchema = z.string().toUpperCase().ulid().optional();
 
 const bodySchema = z.object({
   messages: z.array(mMessageSchema),
   model: modelRule,
   lang: langRule,
-  chatId: z.string().toUpperCase().ulid().optional(),
+  chatId: chatIdSchema,
+  maxTokens: z.number().int().gte(0),
+  temperature: z.number().gte(0).lte(1),
+  // presencePenalty: z.number().gte(-2).lte(2),
 });
 
 export default defineEventHandler(async (_event) => {
@@ -42,10 +46,9 @@ export default defineEventHandler(async (_event) => {
   );
 
   if (!validatedBody.success) {
-    console.error(validatedBody.error);
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad request',
+      statusMessage: JSON.stringify(validatedBody.error),
     });
   }
 
@@ -72,10 +75,8 @@ export default defineEventHandler(async (_event) => {
     chat?.assistantId,
   );
 
-  // console.log('systemPrompt: ', systemPrompt);
-  console.log('messages: ', validatedBody.data.messages);
-
   try {
+    // Hint: The OpenAI chat.completions methos is used for all chat completions, even if not openai
     const response = await openai.chat.completions.create({
       model: params.model,
       messages: [
@@ -85,6 +86,8 @@ export default defineEventHandler(async (_event) => {
         },
         ...validatedBody.data.messages,
       ],
+      max_tokens: validatedBody.data.maxTokens,
+      temperature: validatedBody.data.temperature,
       stream: true,
     });
 
@@ -132,6 +135,7 @@ export default defineEventHandler(async (_event) => {
     });
 
     return sendStream(_event, bufferStream);
+    //
   } catch (error) {
     console.error(error);
     throw createError({

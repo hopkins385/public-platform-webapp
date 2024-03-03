@@ -54,7 +54,22 @@
     "notification": "Unterhaltung mit künstlicher Intelligenz. Ausgaben können Fehler enthalten. Überprüfe wichtige Informationen.",
     "title": "Chat",
     "send": "Senden",
-    "placeholder": "Schreibe eine Nachricht..."
+    "placeholder": "Schreibe eine Nachricht...",
+    "settings": {
+      "title": "Einstellungen",
+      "temperature": {
+        "title": "Temperatur",
+        "description": "Die Temperatur regelt die Kreativität der Antworten des KI-Systems. Ein höherer Temperaturwert macht die Ausgabe in der Regel vielfältiger und kreativer, erhöht aber auch die Wahrscheinlichkeit, dass sie vom Kontext (z.B. Systemvorgabe) abweicht. Wenn Sie möchten, dass das Modell sehr fokussiert bleibt, verwenden Sie null als Ausgangspunkt."
+      },
+      "presencePenalty": {
+        "title": "Präsenzstrafe",
+        "description": "Die Präsenzstrafe verhindert, dass die KI Sätze zu oft wiederholt. Wenn sie möchten, dass die KI vielfältigen oder kreativen Text generiert, könnten sie eine höhere Präsenzstrafe verwenden (z.B. 0.5). Oder, wenn sie möchten, dass das Modell fokussiert bleibt, versuchen sie eine niedrigere Präsenzstrafe zu verwenden."
+      },
+      "maxTokens": {
+        "title": "Maximale Tokens",
+        "description": "Die maximale Anzahl von Tokens (Wörtern), die generiert werden. Ein höherer Wert führt dazu, dass die KI längere Antworten generiert."
+      }
+    }
   },
   "assistant": {
     "placeholder": "Assistent",
@@ -73,5 +88,6 @@
   "Password": "Passwort",
   "Title": "Titel",
   "Description": "Beschreibung",
-  "Next Page": "Nächste Seite"
+  "Next Page": "Nächste Seite",
+  "Settings": "Einstellungen"
 }
