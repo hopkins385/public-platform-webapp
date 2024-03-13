@@ -15,6 +15,9 @@ let client: ConfidentialClientApplication | null = null;
 
 export default eventHandler((event) => {
   const config = useRuntimeConfig().azure;
+  if (!config) {
+    throw new Error('Azure config is not set');
+  }
   const msalConfig: Configuration = {
     auth: {
       clientId: config.clientId,
