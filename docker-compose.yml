@@ -1,31 +1,32 @@
 version: '3.9'
 name: svenson_platform
 
-volumes:
-  qdrant_data:
+# volumes:
+#   qdrant_data:
 
 services:
-  # app:
-  #   container_name: svenson_platform
-  #   restart: unless-stopped
-  #   working_dir: /app
-  #   env_file:
-  #     - .env
-  #   volumes:
-  #     - .:/app
-  #   networks:
-  #     - app_net
-
-  qdrant:
-    container_name: svenson_qdrant
+  app:
+    container_name: svenson_platform
+    image: svenson.ai/webapp
     restart: unless-stopped
-    image: qdrant/qdrant
-    environment:
-      QDRANT__TELEMETRY_DISABLED: true
+    working_dir: /app
+    env_file:
+      - .env
     volumes:
-      - qdrant_data:/qdrant/storage
+      - .:/app
     networks:
       - app_net
+
+#   qdrant:
+#     container_name: svenson_qdrant
+#     restart: unless-stopped
+#     image: qdrant/qdrant
+#     environment:
+#       QDRANT__TELEMETRY_DISABLED: true
+#     volumes:
+#       - qdrant_data:/qdrant/storage
+#     networks:
+#       - app_net
 
 networks:
   app_net:
