@@ -14,15 +14,12 @@ declare module 'h3' {
 let client: ConfidentialClientApplication | null = null;
 
 export default eventHandler((event) => {
-  const config = useRuntimeConfig().azure;
-  if (!config) {
-    throw new Error('Azure config is not set');
-  }
+  const config = useRuntimeConfig();
   const msalConfig: Configuration = {
     auth: {
-      clientId: config.clientId,
-      authority: config.authority,
-      clientSecret: config.clientSecret,
+      clientId: config.azure.clientId,
+      authority: config.azure.authority,
+      clientSecret: config.azure.clientSecret,
     },
     system: {
       loggerOptions: {
@@ -52,8 +49,8 @@ export default eventHandler((event) => {
     },
   };
 
-  if (!client) {
-    client = new ConfidentialClientApplication(msalConfig);
-  }
-  event.context.msalClient = client;
+  // if (!client) {
+  //   client = new ConfidentialClientApplication(msalConfig);
+  // }
+  // event.context.msalClient = client;
 });
