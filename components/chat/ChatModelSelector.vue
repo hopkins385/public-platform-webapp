@@ -39,7 +39,12 @@
     { value: ModelEnum.MistralLarge, label: 'Mistral Large', premium: false },
     { value: ModelEnum.ChatGPT3, label: 'ChatGPT 3.5 Turbo', premium: false },
     { value: ModelEnum.ChatGPT4, label: 'ChatGPT 4.0', premium: false },
-    { value: ModelEnum.Claude, label: 'Claude 2.1', premium: true },
+    {
+      value: ModelEnum.Claude3Sonnet,
+      label: 'Claude 3 Sonnet',
+      premium: false,
+    },
+    { value: ModelEnum.Claude3Opus, label: 'Claude 3 Opus', premium: false },
     { value: ModelEnum.Luminous, label: 'Luminous', premium: true },
     { value: ModelEnum.Local, label: 'Local', premium: false },
   ];

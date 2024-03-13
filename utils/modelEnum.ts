@@ -8,7 +8,8 @@ export enum ModelEnum {
   MistralLarge = 'mistral-large-latest',
   ChatGPT4 = 'gpt-4',
   ChatGPT3 = 'gpt-3.5-turbo',
-  Claude = 'claude',
+  Claude3Opus = 'claude-3-opus-20240229',
+  Claude3Sonnet = 'claude-3-sonnet-20240229',
   Luminous = 'luminous',
   Local = 'local',
 }

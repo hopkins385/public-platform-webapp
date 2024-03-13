@@ -2,10 +2,12 @@ import { Readable, Transform } from 'stream';
 import { sendStream } from 'h3';
 import { OpenAI } from 'openai';
 import { z } from 'zod';
+import type { Anthropic } from '@anthropic-ai/sdk';
 import { ModelEnum } from '../../utils/modelEnum';
 import { ChatService } from './../../services/chat.service';
 import { getServerSession } from '#auth';
 import { AssistantService } from '~/server/services/assistant.service';
+import { CompletionFactory } from '~/server/factories/completionFactory';
 
 const mMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
@@ -52,16 +54,6 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
-  const params = chatService.getChatCompletionParams(
-    validatedBody.data.model,
-    config,
-  );
-
-  const openai = new OpenAI({
-    baseURL: params.baseURL,
-    apiKey: params.apiKey,
-  });
-
   const chat = await chatService.getFirst(validatedBody.data.chatId);
   // if (!chat) {
   //   throw createError({
@@ -76,9 +68,8 @@ export default defineEventHandler(async (_event) => {
   );
 
   try {
-    // Hint: The OpenAI chat.completions methos is used for all chat completions, even if not openai
-    const response = await openai.chat.completions.create({
-      model: params.model,
+    const completion = new CompletionFactory(validatedBody.data.model, config);
+    const response = await completion.create({
       messages: [
         {
           role: 'system',
@@ -86,9 +77,8 @@ export default defineEventHandler(async (_event) => {
         },
         ...validatedBody.data.messages,
       ],
-      max_tokens: validatedBody.data.maxTokens,
+      maxTokens: validatedBody.data.maxTokens,
       temperature: validatedBody.data.temperature,
-      stream: true,
     });
 
     let llmResponseMessage = '';
@@ -97,9 +87,18 @@ export default defineEventHandler(async (_event) => {
     const bufferStream = new Transform({
       objectMode: true,
       transform(chunk, _, callback) {
-        const data = chunk as OpenAI.ChatCompletionChunk;
-        llmResponseMessage += data.choices[0]?.delta?.content || '';
-        callback(null, data.choices[0]?.delta?.content || '');
+        if (
+          validatedBody.data.model === ModelEnum.Claude3Opus ||
+          validatedBody.data.model === ModelEnum.Claude3Sonnet
+        ) {
+          const data = chunk;
+          llmResponseMessage += data.delta?.text || '';
+          callback(null, data.delta?.text || '');
+        } else {
+          const data = chunk as OpenAI.ChatCompletionChunk;
+          llmResponseMessage += data.choices[0]?.delta?.content || '';
+          callback(null, data.choices[0]?.delta?.content || '');
+        }
       },
     });
     stream.pipe(bufferStream);

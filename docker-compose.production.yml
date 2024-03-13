@@ -1,0 +1,19 @@
+version: '3.9'
+services:
+  # app:
+  #   image: nuxt-app-dev
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #     target: dev
+  #   volumes:
+  #     - /app/node_modules
+  #   ports:
+  #     - 3000:3000
+  #   # command: npx prisma generate
+  #   # command: npx prisma migrate deploy
+  #   command: npx nuxt dev
+
+  qdrant:
+    ports:
+      - '6333:6333'

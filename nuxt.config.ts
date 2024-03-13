@@ -75,6 +75,10 @@ export default defineNuxtConfig({
       baseUrl: process.env.GROQ_BASE_URL,
       apiKey: process.env.GROQ_API_KEY,
     },
+    anthropic: {
+      baseUrl: process.env.ANTHROPIC_BASE_URL,
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    },
   },
   build: {
     transpile: ['trpc-nuxt', 'vue-sonner'],

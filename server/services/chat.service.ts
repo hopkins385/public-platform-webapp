@@ -1,5 +1,3 @@
-import type { RuntimeConfig } from 'nuxt/schema';
-import { ModelEnum } from './../../utils/modelEnum';
 import type { ChatMessage } from '~/interfaces/chat.interfaces';
 import { ULID } from '~/server/utils/ulid';
 
@@ -125,60 +123,5 @@ export class ChatService {
         chatId,
       },
     });
-  }
-
-  getChatCompletionParams(value: string, config: RuntimeConfig) {
-    let baseURL: string;
-    let apiKey: string;
-    let model: string;
-
-    switch (value) {
-      case ModelEnum.GroqLlama4K:
-        baseURL = config.groq.baseUrl;
-        apiKey = config.groq.apiKey;
-        model = ModelEnum.GroqLlama4K;
-        break;
-      case ModelEnum.GroqMixtral32K:
-        baseURL = config.groq.baseUrl;
-        apiKey = config.groq.apiKey;
-        model = ModelEnum.GroqMixtral32K;
-        break;
-      case ModelEnum.Mistral7B:
-        baseURL = config.mistral.baseUrl;
-        apiKey = config.mistral.apiKey;
-        model = ModelEnum.Mistral7B;
-        break;
-      case ModelEnum.Mixtral7B:
-        baseURL = config.mistral.baseUrl;
-        apiKey = config.mistral.apiKey;
-        model = ModelEnum.Mixtral7B;
-        break;
-      case ModelEnum.MistralSmall:
-        baseURL = config.mistral.baseUrl;
-        apiKey = config.mistral.apiKey;
-        model = ModelEnum.MistralSmall;
-        break;
-      case ModelEnum.MistralMedium:
-        baseURL = config.mistral.baseUrl;
-        apiKey = config.mistral.apiKey;
-        model = ModelEnum.MistralMedium;
-        break;
-      case ModelEnum.MistralLarge:
-        baseURL = config.mistral.baseUrl;
-        apiKey = config.mistral.apiKey;
-        model = ModelEnum.MistralLarge;
-        break;
-      case ModelEnum.Local:
-        baseURL = 'http://127.0.0.1:8093/v1';
-        apiKey = '';
-        model = ModelEnum.Local;
-        break;
-      default:
-        baseURL = config.openai.baseUrl;
-        apiKey = config.openai.apiKey;
-        model = ModelEnum.ChatGPT3;
-        break;
-    }
-    return { baseURL, apiKey, model };
   }
 }
