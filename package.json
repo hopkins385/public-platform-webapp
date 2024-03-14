@@ -13,6 +13,7 @@
     "lint": "eslint --max-warnings 0 .",
     "typecheck": "nuxt typecheck",
     "start": "NODE_ENV=production node .output/server/index.mjs",
+    "migrate:prod": "prisma migrate deploy",
     "do:upgrade": "ncu -u && npm install"
   },
   "devDependencies": {
