@@ -8,8 +8,6 @@ WORKDIR /app
 COPY --chown=node:node . .
 
 RUN npm ci
-#Install ts-node
-RUN npm install -g ts-node
 
 # Set to production environment
 ENV NODE_ENV production
@@ -19,7 +17,6 @@ RUN npx nuxt build
 
 # Prisma
 RUN npx prisma generate
-RUN npx prisma migrate deploy
 
 # Set Docker as a non-root user
 USER node
@@ -32,13 +29,14 @@ FROM node:21-alpine as prod
 WORKDIR /app
 
 # Copy only the necessary files
-# COPY --chown=node:node --from=build /app/node_modules ./node_modules
+COPY --chown=node:node --from=build /app/node_modules ./node_modules
 # COPY --chown=node:node --from=build /app/assets ./assets
 COPY --chown=node:node --from=build /app/.output ./.output
+COPY --chown=node:node --from=build /app/package.json ./package.json
+COPY --chown=node:node --from=build /app/prisma ./prisma
 
-# Prisma
-COPY --chown=node:node --from=build /app/prisma/schema.prisma ./prisma/schema.prisma
-# COPY --chown=node:node --from=build /app/prisma ./prisma
+#Install ts-node
+RUN npm install -g ts-node
 
 # Set Docker as non-root user
 USER node
