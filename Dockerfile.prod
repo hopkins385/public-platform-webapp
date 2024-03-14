@@ -29,7 +29,7 @@ FROM node:21-alpine as prod
 WORKDIR /app
 
 # Copy only the necessary files
-COPY --chown=node:node --from=build /app/node_modules ./node_modules
+# COPY --chown=node:node --from=build /app/node_modules ./node_modules
 # COPY --chown=node:node --from=build /app/assets ./assets
 COPY --chown=node:node --from=build /app/.output ./.output
 # COPY --chown=node:node --from=build /app/package.json ./package.json
