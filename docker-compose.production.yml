@@ -17,9 +17,15 @@ services:
         ipv4_address: 172.18.0.17
       sv_api_net:
 
+  postgres:
+    networks:
+      - wgnet
+
 networks:
   sv_api_net:
     name: svenson_api_network
     external: true
   traefik_net:
+    external: true
+  wgnet:
     external: true
