@@ -32,11 +32,11 @@ WORKDIR /app
 COPY --chown=node:node --from=build /app/node_modules ./node_modules
 # COPY --chown=node:node --from=build /app/assets ./assets
 COPY --chown=node:node --from=build /app/.output ./.output
-COPY --chown=node:node --from=build /app/package.json ./package.json
-COPY --chown=node:node --from=build /app/prisma ./prisma
+# COPY --chown=node:node --from=build /app/package.json ./package.json
+# COPY --chown=node:node --from=build /app/prisma ./prisma
 
-#Install ts-node
-RUN npm install -g ts-node
+# Prisma Client
+# COPY --chown=node:node --from=build /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
 # Set Docker as non-root user
 USER node
