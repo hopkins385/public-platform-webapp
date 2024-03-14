@@ -11,7 +11,6 @@ services:
     container_name: svenson_platform
     restart: unless-stopped
     working_dir: /app
-    command: ['node', '.output/server/index.mjs']
     env_file:
       - .env
     security_opt:
