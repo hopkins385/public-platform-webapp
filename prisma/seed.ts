@@ -22,7 +22,7 @@ async function main() {
       password: await hashPassword(process.env.ADMIN_PASSWORD!),
     },
   });
-  // console.log({ sven });
+  console.log({ sven });
 }
 
 main()
