@@ -8,6 +8,8 @@ WORKDIR /app
 COPY --chown=node:node . .
 
 RUN npm ci
+# Install ts-node
+RUN npm install -g ts-node
 
 # Set to production environment
 ENV NODE_ENV production

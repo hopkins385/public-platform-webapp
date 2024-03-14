@@ -1,6 +1,7 @@
 version: '3.9'
 services:
   app:
+    image: svenson.ai/webapp
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.webapp.rule=Host(`app.svenson.ai`)'

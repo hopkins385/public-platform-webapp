@@ -1,40 +1,23 @@
 import { PrismaClient } from '@prisma/client';
 import { hashPassword } from '../utils/bcrypt';
+import { ulid } from 'ulidx';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const alice = await prisma.user.upsert({
+  const sven = await prisma.user.upsert({
     where: { email: 'sven@svenson.ai' },
     update: {},
     create: {
-      name: 'Sven',
+      id: ulid().toLowerCase(),
+      name: 'Sven Stadhouders',
+      firstName: 'Sven',
+      lastName: 'Stadhouders',
       email: 'sven@svenson.ai',
-      password: await hashPassword('password'),
-      lastLoginAt: new Date(),
+      password: await hashPassword(process.env.ADMIN_PASSWORD!),
     },
   });
-  const bob = await prisma.user.upsert({
-    where: { email: 'bob@prisma.io' },
-    update: {},
-    create: {
-      name: 'Bob',
-      email: 'bob@prisma.io',
-      password: await hashPassword('123456789'),
-      lastLoginAt: new Date(),
-    },
-  });
-  const peter = await prisma.user.upsert({
-    where: { email: 'peter@pan.de' },
-    update: {},
-    create: {
-      name: 'Peter',
-      email: 'peter@pan.de',
-      password: await hashPassword('123456789'),
-      lastLoginAt: new Date(),
-    },
-  });
-  console.log({ alice, bob, peter });
+  // console.log({ sven });
 }
 
 main()
