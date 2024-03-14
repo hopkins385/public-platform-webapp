@@ -11,8 +11,11 @@ services:
     container_name: svenson_platform
     restart: unless-stopped
     working_dir: /app
-    env_file:
-      - .env
+    environment:
+      APP_URL: ${APP_URL}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    # env_file:
+    #   - .env
     security_opt:
       - no-new-privileges:true
     networks:
