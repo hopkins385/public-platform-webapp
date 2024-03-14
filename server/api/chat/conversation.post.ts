@@ -68,7 +68,11 @@ export default defineEventHandler(async (_event) => {
   );
 
   try {
-    const completion = new CompletionFactory(validatedBody.data.model, config);
+    const completion = new CompletionFactory(
+      validatedBody.data.model,
+      config,
+      prisma,
+    );
     const response = await completion.create({
       messages: [
         {

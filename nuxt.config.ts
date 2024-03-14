@@ -97,7 +97,7 @@ export default defineNuxtConfig({
     },
   },
   security: {
-    enabled: true,
+    enabled: process.env.NODE_ENV === 'production',
     headers: {
       referrerPolicy: 'strict-origin-when-cross-origin',
     },

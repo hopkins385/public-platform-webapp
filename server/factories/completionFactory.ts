@@ -1,7 +1,7 @@
+import { LLMService } from './../services/llm.service';
 import type { RuntimeConfig } from 'nuxt/schema';
 import { OpenAI } from 'openai';
 import { Anthropic } from '@anthropic-ai/sdk';
-import { ModelEnum } from './../../utils/modelEnum';
 
 interface CreatePayload {
   messages: any[];
@@ -9,20 +9,40 @@ interface CreatePayload {
   maxTokens: number;
 }
 
+interface CompletionParams {
+  baseURL: string;
+  apiKey: string;
+  model: string;
+  provider: string;
+}
+
 export class CompletionFactory {
   model: string;
-  params: any;
+  config: RuntimeConfig;
+  params: CompletionParams;
+  llmService: LLMService;
 
-  constructor(model: string, config: RuntimeConfig) {
+  constructor(
+    model: string,
+    config: RuntimeConfig,
+    prisma: ExtendedPrismaClient,
+  ) {
     this.model = model;
-    this.params = this.getChatCompletionParams(model, config);
+    this.config = config;
+    this.llmService = new LLMService(prisma);
+    this.params = {
+      baseURL: '',
+      apiKey: '',
+      model: '',
+      provider: '',
+    };
   }
 
-  create(payload: CreatePayload) {
-    switch (this.params.model) {
-      case ModelEnum.Claude3Opus:
-      case ModelEnum.Claude3Sonnet:
-        return this.createClaude(payload);
+  async create(payload: CreatePayload) {
+    this.params = await this.getChatCompletionParams();
+    switch (this.params.provider) {
+      case 'anthropic':
+        return this.createAnthropic(payload);
       default:
         return this.createOpenAI(payload);
     }
@@ -42,7 +62,7 @@ export class CompletionFactory {
     });
   }
 
-  createClaude(payload: CreatePayload) {
+  createAnthropic(payload: CreatePayload) {
     const anthropic = new Anthropic({
       apiKey: this.params.apiKey,
     });
@@ -58,68 +78,45 @@ export class CompletionFactory {
     });
   }
 
-  getChatCompletionParams(value: string, config: RuntimeConfig) {
+  async getChatCompletionParams() {
     let baseURL: string;
     let apiKey: string;
     let model: string;
 
-    switch (value) {
-      case ModelEnum.Claude3Opus:
-        baseURL = config.anthropic.baseUrl;
-        apiKey = config.anthropic.apiKey;
-        model = ModelEnum.Claude3Opus;
+    const dbModels = await this.llmService.getCachedModels();
+    const provider = dbModels.find((m) => m?.apiName === this.model)?.provider;
+
+    switch (provider) {
+      case 'openai':
+        baseURL = this.config.openai.baseUrl;
+        apiKey = this.config.openai.apiKey;
+        model = this.model;
         break;
-      case ModelEnum.Claude3Sonnet:
-        baseURL = config.anthropic.baseUrl;
-        apiKey = config.anthropic.apiKey;
-        model = ModelEnum.Claude3Sonnet;
+      case 'anthropic':
+        baseURL = this.config.anthropic.baseUrl;
+        apiKey = this.config.anthropic.apiKey;
+        model = this.model;
         break;
-      case ModelEnum.GroqLlama4K:
-        baseURL = config.groq.baseUrl;
-        apiKey = config.groq.apiKey;
-        model = ModelEnum.GroqLlama4K;
+      case 'groq':
+        baseURL = this.config.groq.baseUrl;
+        apiKey = this.config.groq.apiKey;
+        model = this.model;
         break;
-      case ModelEnum.GroqMixtral32K:
-        baseURL = config.groq.baseUrl;
-        apiKey = config.groq.apiKey;
-        model = ModelEnum.GroqMixtral32K;
+      case 'mistral':
+        baseURL = this.config.mistral.baseUrl;
+        apiKey = this.config.mistral.apiKey;
+        model = this.model;
         break;
-      case ModelEnum.Mistral7B:
-        baseURL = config.mistral.baseUrl;
-        apiKey = config.mistral.apiKey;
-        model = ModelEnum.Mistral7B;
-        break;
-      case ModelEnum.Mixtral7B:
-        baseURL = config.mistral.baseUrl;
-        apiKey = config.mistral.apiKey;
-        model = ModelEnum.Mixtral7B;
-        break;
-      case ModelEnum.MistralSmall:
-        baseURL = config.mistral.baseUrl;
-        apiKey = config.mistral.apiKey;
-        model = ModelEnum.MistralSmall;
-        break;
-      case ModelEnum.MistralMedium:
-        baseURL = config.mistral.baseUrl;
-        apiKey = config.mistral.apiKey;
-        model = ModelEnum.MistralMedium;
-        break;
-      case ModelEnum.MistralLarge:
-        baseURL = config.mistral.baseUrl;
-        apiKey = config.mistral.apiKey;
-        model = ModelEnum.MistralLarge;
-        break;
+      default:
+        throw new Error('Provider not found');
+      /*
       case ModelEnum.Local:
         baseURL = 'http://127.0.0.1:8093/v1';
         apiKey = '';
         model = ModelEnum.Local;
         break;
-      default:
-        baseURL = config.openai.baseUrl;
-        apiKey = config.openai.apiKey;
-        model = ModelEnum.ChatGPT3;
-        break;
+        */
     }
-    return { baseURL, apiKey, model };
+    return { baseURL, apiKey, model, provider } as CompletionParams;
   }
 }

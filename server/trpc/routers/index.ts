@@ -5,8 +5,10 @@ import { userMeRouter } from './user-me';
 import { assistantRouter } from './admin-assistants';
 import { tokenizerRouter } from './tokenizer';
 import { chatRouter } from './chat';
+import { chatModelsRouter } from './llm-models';
 
 export const appRouter = router({
+  chatModels: chatModelsRouter,
   chat: chatRouter,
   embed: embedRouter,
   tokenizer: tokenizerRouter,

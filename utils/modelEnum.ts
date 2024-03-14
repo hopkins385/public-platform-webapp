@@ -1,6 +1,7 @@
 export enum ModelEnum {
   GroqLlama4K = 'llama2-70b-4096',
   GroqMixtral32K = 'mixtral-8x7b-32768',
+  GroqGemma7b = 'gemma-7b-it',
   Mistral7B = 'open-mistral-7b',
   Mixtral7B = 'open-mixtral-8x7b',
   MistralSmall = 'mistral-small-latest',
@@ -8,6 +9,7 @@ export enum ModelEnum {
   MistralLarge = 'mistral-large-latest',
   ChatGPT4 = 'gpt-4',
   ChatGPT3 = 'gpt-3.5-turbo',
+  Claude3Haiku = 'claude-3-haiku-20240307',
   Claude3Opus = 'claude-3-opus-20240229',
   Claude3Sonnet = 'claude-3-sonnet-20240229',
   Luminous = 'luminous',

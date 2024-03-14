@@ -64,7 +64,7 @@ model ChatMessage {
 }
 
 model Assistant {
-  id                     String    @id()
+  id                     String    @id
   title                  String
   description            String
   systemPrompt           String    @map("system_prompt") @db.Text
@@ -79,6 +79,24 @@ model Assistant {
   Chat                   Chat[]
 
   @@map("assistants")
+}
+
+model LargeLangModels {
+  id          String    @id
+  apiName     String    @map("api_name")
+  displayName String    @map("display_name")
+  description String
+  provider    String
+  contextSize Int       @map("context_size")
+  maxTokens   Int       @map("max_tokens")
+  multiModal  Boolean   @default(false) @map("multi_modal")
+  hidden      Boolean   @default(false)
+  free        Boolean   @default(false)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@map("llms")
 }
 
 // model Subscription {

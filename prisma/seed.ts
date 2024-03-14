@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import { ulid } from 'ulidx';
 import * as bcrypt from 'bcrypt';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 async function hashPassword(password: string): Promise<string> {
   const salt = await bcrypt.genSalt();
@@ -23,6 +25,26 @@ async function main() {
     },
   });
   console.log({ sven });
+  // read json file and insert into db
+  const path = join(__dirname, 'llm_providers.json');
+  const data = readFileSync(path, 'utf8');
+  const providers = JSON.parse(data);
+  for (const provider of providers) {
+    await prisma.largeLangModels.create({
+      data: {
+        id: ulid().toLowerCase(),
+        provider: provider.provider,
+        apiName: provider.apiName,
+        description: provider.description,
+        displayName: provider.displayName,
+        contextSize: provider.contextSize,
+        maxTokens: provider.maxTokens,
+        multiModal: provider.multiModal,
+        hidden: provider.hidden,
+        free: provider.free,
+      },
+    });
+  }
 }
 
 main()
