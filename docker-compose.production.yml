@@ -1,9 +1,24 @@
 version: '3.9'
 services:
   app:
-    ports:
-      - 3000:3000
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.webapp.rule=Host(`app.svenson.ai`)'
+      - 'traefik.http.routers.webapp.entrypoints=https'
+      - 'traefik.http.services.webapp.loadbalancer.server.port=3000'
+      - 'traefik.http.routers.webapp.service=webapp'
+      - 'traefik.http.routers.webapp.middlewares=crowdsec-bouncer@file,default@file'
+      - 'traefik.http.routers.webapp.tls=true'
+      - 'traefik.http.routers.webapp.tls.certresolver=http'
+      - 'traefik.docker.network=traefik_net'
+    networks:
+      traefik_net:
+        ipv4_address: 172.18.0.17
+      sv_api_net:
 
-  # qdrant:
-  #   ports:
-  #     - '6333:6333'
+networks:
+  sv_api_net:
+    name: svenson_api_network
+    external: true
+  traefik_net:
+    external: true

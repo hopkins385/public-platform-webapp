@@ -42,6 +42,8 @@
       authFailed.value = true;
     }
   });
+
+  const google = false;
 </script>
 
 <template>
@@ -97,19 +99,21 @@
           {{ $t('auth.login') }}
         </LoadingButton>
       </form>
-      <div class="flex w-full items-center justify-center px-20 py-2">
-        <hr class="w-full" />
-        <span class="px-5 text-sm text-slate-500">{{ $t('OR') }}</span>
-        <hr class="w-full" />
+      <div v-if="google">
+        <div class="flex w-full items-center justify-center px-20 py-2">
+          <hr class="w-full" />
+          <span class="px-5 text-sm text-slate-500">{{ $t('OR') }}</span>
+          <hr class="w-full" />
+        </div>
+        <button
+          class="flex w-full items-center justify-center rounded-md bg-[#4285f4] text-center text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-0 lg:max-w-sm"
+          role="button"
+          @click="signIn('google')"
+        >
+          <IconGoogle class="size-10" />
+          <span class="-ml-8 flex-1">{{ $t('auth.button.google') }}</span>
+        </button>
       </div>
-      <button
-        class="flex w-full items-center justify-center rounded-md bg-[#4285f4] text-center text-sm font-medium text-white shadow-sm focus:outline-none focus:ring-0 lg:max-w-sm"
-        role="button"
-        @click="signIn('google')"
-      >
-        <IconGoogle class="size-10" />
-        <span class="-ml-8 flex-1">{{ $t('auth.button.google') }}</span>
-      </button>
     </div>
   </div>
 </template>
