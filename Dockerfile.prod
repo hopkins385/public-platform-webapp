@@ -8,8 +8,6 @@ WORKDIR /app
 COPY --chown=node:node . .
 
 RUN npm ci
-# Install ts-node
-RUN npm install -g ts-node
 
 # Set to production environment
 ENV NODE_ENV production
@@ -34,8 +32,13 @@ WORKDIR /app
 # COPY --chown=node:node --from=build /app/node_modules ./node_modules
 # COPY --chown=node:node --from=build /app/assets ./assets
 COPY --chown=node:node --from=build /app/.output ./.output
-COPY --chown=node:node --from=build /app/package.json ./package.json
+
+# Prisma
+# COPY --chown=node:node --from=build /app/prisma/schema.prisma ./prisma/schema.prisma
 COPY --chown=node:node --from=build /app/prisma ./prisma
+
+#Install ts-node
+RUN npm install -g ts-node
 
 # Set Docker as non-root user
 USER node
