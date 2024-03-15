@@ -1,5 +1,4 @@
 import { isDevelopment } from 'std-env';
-require('dotenv').config();
 
 export default defineNuxtConfig({
   devtools: { enabled: false },
