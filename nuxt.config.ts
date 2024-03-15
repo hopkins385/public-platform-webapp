@@ -1,4 +1,5 @@
 import { isDevelopment } from 'std-env';
+require('dotenv').config();
 
 export default defineNuxtConfig({
   devtools: { enabled: false },
@@ -62,6 +63,7 @@ export default defineNuxtConfig({
     redis: {
       host: process.env.REDIS_HOST,
       port: process.env.REDIS_PORT,
+      password: process.env.REDIS_PASSWORD,
     },
     openai: {
       baseUrl: process.env.OPENAI_BASE_URL,
