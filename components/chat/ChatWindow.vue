@@ -7,6 +7,12 @@
     SquareIcon,
   } from 'lucide-vue-next';
   import ChatSettings from './ChatSettings.vue';
+  import type { ChatMessage } from '~/interfaces/chat.interfaces';
+
+  const props = defineProps<{
+    chatId?: string | null;
+    chatMessages?: ChatMessage[];
+  }>();
 
   const inputMessage = ref('');
   const messageChunk = ref('');
@@ -14,7 +20,6 @@
   const isStreaming = ref(false);
   const showShareDialog = ref(false);
 
-  const route = useRoute();
   const chatStore = useChatStore();
   const { $client } = useNuxtApp();
   const { locale } = useI18n();
@@ -27,6 +32,7 @@
     addMessage,
     getFormattedMessages,
     clearMessages,
+    initMessages,
   } = useChatMessages();
 
   let ac: AbortController;
@@ -46,10 +52,11 @@
   };
 
   const clearChatMessages = () => {
-    const chatId = route.query.id as string;
-    $client.chat.clearMessages.query({ chatId }).catch(() => {
-      setError('Ups something went wrong');
-    });
+    if (props.chatId) {
+      $client.chat.clearMessages.query({ chatId: props.chatId }).catch(() => {
+        setError('Ups something went wrong');
+      });
+    }
     clearMessages();
     resetForm();
     clearError();
@@ -60,11 +67,10 @@
       return;
     }
 
-    const chatId = route.query.id as string;
-    if (chatId) {
+    if (props.chatId) {
       $client.chat.createMessage
         .query({
-          chatId,
+          chatId: props.chatId,
           chatMessage: {
             role: 'user',
             content: inputMessage.value,
@@ -88,7 +94,7 @@
         model: chatStore.model,
         lang: locale.value,
         messages: getFormattedMessages(),
-        chatId,
+        chatId: props.chatId,
       });
 
       isPending.value = false;
@@ -154,6 +160,13 @@
       characterData: true,
     },
   );
+
+  onMounted(() => {
+    if (props.chatMessages && props.chatMessages.length > 0) {
+      initMessages(props.chatMessages);
+      scrollToBottom();
+    }
+  });
 </script>
 
 <template>

@@ -2,11 +2,13 @@ import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { ChatService } from './../../services/chat.service';
 
+const ulidRule = z.string().toUpperCase().ulid();
+
 export const chatRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        assistantId: z.string().toUpperCase().ulid(),
+        assistantId: ulidRule,
       }),
     )
     .query(({ ctx, input }) => {
@@ -18,7 +20,7 @@ export const chatRouter = router({
   createMessage: protectedProcedure
     .input(
       z.object({
-        chatId: z.string().toUpperCase().ulid(),
+        chatId: ulidRule,
         chatMessage: z.object({
           role: z.enum(['user', 'assistant']),
           content: z.string(),
@@ -32,25 +34,31 @@ export const chatRouter = router({
         chatMessage: input.chatMessage,
       });
     }),
-  // get one chat
-  getAll: protectedProcedure
-    .input(
-      z.object({
-        id: z.string().toUpperCase().ulid(),
-      }),
-    )
-    .query(({ ctx, input }) => {
-      const chatService = new ChatService(ctx.prisma);
-      return chatService.getAllForUser(ctx.user?.id);
-    }),
+  allForUser: protectedProcedure.query(({ ctx, input }) => {
+    const chatService = new ChatService(ctx.prisma);
+    return chatService.getAllForUser(ctx.user?.id);
+  }),
   clearMessages: protectedProcedure
     .input(
       z.object({
-        chatId: z.string().toUpperCase().ulid(),
+        chatId: ulidRule,
       }),
     )
     .query(({ ctx, input }) => {
       const chatService = new ChatService(ctx.prisma);
       return chatService.clearMessages(input.chatId.toLowerCase());
+    }),
+  forUser: protectedProcedure
+    .input(
+      z.object({
+        chatId: ulidRule,
+      }),
+    )
+    .query(({ ctx, input }) => {
+      const chatService = new ChatService(ctx.prisma);
+      return chatService.getChatForUser(
+        input.chatId.toLowerCase(),
+        ctx.user?.id,
+      );
     }),
 });

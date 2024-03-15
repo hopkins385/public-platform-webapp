@@ -44,6 +44,7 @@
   };
 
   const examples = [
+    /*
     'Wer ist Christian Underwood?',
     'Was muss ich verstehen bevor ich loslegen kann?',
     'Was ist das Spannungsfeld?',
@@ -53,6 +54,7 @@
     'Erkläre Design Thinking',
     'Was sind die Leitfragen für die Durchführung einer Trendanalyse',
     'Wie kann ich mein Unternehmen Krisenfest aufstellen?',
+    */
   ];
 </script>
 

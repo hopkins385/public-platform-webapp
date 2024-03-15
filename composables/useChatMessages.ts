@@ -22,6 +22,10 @@ export default function useChatMessages() {
     chatMessages.value = [];
   }
 
+  function initMessages(messages: ChatMessage[]) {
+    chatMessages.value = messages;
+  }
+
   const messages = computed(() => chatMessages.value);
   const hasMessages = computed(() => chatMessages.value.length > 0);
 
@@ -32,5 +36,6 @@ export default function useChatMessages() {
     getRawMessages,
     getFormattedMessages,
     clearMessages,
+    initMessages,
   };
 }

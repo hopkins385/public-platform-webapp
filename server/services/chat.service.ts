@@ -73,11 +73,50 @@ export class ChatService {
 
   getAllForUser(userId: string) {
     return this.prisma.chat.findMany({
+      select: {
+        id: true,
+        title: true,
+        createdAt: true,
+        /*assistant: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },*/
+      },
       where: {
         userId,
       },
-      include: {
-        user: true,
+    });
+  }
+
+  getChatForUser(chatId: string, userId: string) {
+    if (!chatId || !userId) {
+      return null;
+    }
+    return this.prisma.chat.findFirst({
+      select: {
+        id: true,
+        title: true,
+        // with messages relation
+        messages: {
+          select: {
+            id: true,
+            role: true,
+            content: true,
+            tokenCount: true,
+          },
+        },
+        assistant: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+      where: {
+        id: chatId.toLowerCase(),
+        userId,
       },
     });
   }

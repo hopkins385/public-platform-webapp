@@ -16,7 +16,7 @@
   const onStartClick = async () => {
     const chat = await createChat();
     if (!chat) return;
-    navigateTo(`/chat?id=${chat.id}`);
+    navigateTo(`/chat/${chat.id}`);
   };
 </script>
 

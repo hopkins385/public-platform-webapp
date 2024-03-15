@@ -8,6 +8,7 @@
     PenLineIcon,
     FolderClosedIcon,
   } from 'lucide-vue-next';
+  const playground = false;
 </script>
 
 <template>
@@ -40,7 +41,7 @@
           <FolderClosedIcon class="nav-icon" />
         </NuxtLink>
       </li>
-      <li class="nav-item">
+      <li v-if="playground" class="nav-item">
         <NuxtLink href="/playground">
           <BoltIcon class="nav-icon" />
         </NuxtLink>
