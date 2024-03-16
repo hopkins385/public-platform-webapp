@@ -62,7 +62,7 @@ export default defineNuxtConfig({
     redis: {
       host: process.env.REDIS_HOST,
       port: process.env.REDIS_PORT,
-      password: process.env.REDIS_PASSWORD,
+      // password: process.env.REDIS_PASSWORD,
     },
     openai: {
       baseUrl: process.env.OPENAI_BASE_URL,
@@ -191,9 +191,9 @@ export default defineNuxtConfig({
         driver: 'redis',
         /* redis connector options */
         port: process.env.REDIS_PORT,
-        host: process.env.REDIS_HOST,
+        host: process.env.REDIS_HOST || 'svenson_platform_redis',
         // username: process.env.REDIS_USERNAME,
-        password: process.env.REDIS_PASSWORD,
+        // password: process.env.REDIS_PASSWORD,
         // db: 0, // Defaults to 0
         // tls: {}, // tls/ssl
       },
