@@ -1,14 +1,14 @@
-import { PrismaClient, type User } from '@prisma/client';
+import type { User } from '@prisma/client';
 import type { LoginDto } from './dto/login.dto';
 import type { LastLoginDto } from './dto/last-login.dto';
 import type { GoogleAuthTokens } from '~/interfaces/google.token.interface';
-import { comparePasswords } from '~/utils/bcrypt';
+import { comparePasswords, hashPassword } from '~/utils/bcrypt';
 import type { AzureAuthTokens } from '~/interfaces/azure.token.interfaces';
 
 export class UserService {
-  private readonly prisma: PrismaClient;
+  private readonly prisma: ExtendedPrismaClient;
 
-  constructor(prisma: PrismaClient) {
+  constructor(prisma: ExtendedPrismaClient) {
     if (!prisma) throw new Error('UserService is missing prisma client');
     this.prisma = prisma;
   }
@@ -23,6 +23,28 @@ export class UserService {
       return null;
     }
     return user;
+  }
+
+  async updatePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    const result = await comparePasswords(currentPassword, user.password);
+    if (!result) {
+      throw new Error('Invalid password');
+    }
+    const hashedPassword = await hashPassword(newPassword);
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
   }
 
   getUserByEmail(email: string) {

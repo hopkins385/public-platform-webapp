@@ -30,6 +30,7 @@ model User {
   deletedAt          DateTime?   @map("deleted_at")
   chats              Chat[]
   assistants         Assistant[]
+  credit             Credit[]
 
   @@map("users")
 }
@@ -81,7 +82,7 @@ model Assistant {
   @@map("assistants")
 }
 
-model LargeLangModels {
+model LargeLangModel {
   id          String    @id
   apiName     String    @map("api_name")
   displayName String    @map("display_name")
@@ -97,6 +98,18 @@ model LargeLangModels {
   deletedAt   DateTime? @map("deleted_at")
 
   @@map("llms")
+}
+
+model Credit {
+  id        String    @id
+  amount    Int
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+  user      User      @relation(fields: [userId], references: [id])
+  userId    String    @unique @map("user_id")
+
+  @@map("credits")
 }
 
 // model Subscription {

@@ -14,7 +14,6 @@
     user: {
       id: User['id'];
       name: User['name'];
-      email: User['email'];
       firstName: User['firstName'];
       lastName: User['lastName'];
     };
@@ -84,32 +83,6 @@
 
     <FormField
       v-slot="{ componentField }"
-      name="email"
-      :model-value="user?.email ?? ''"
-    >
-      <FormItem>
-        <FormLabel>
-          <div class="flex items-center">
-            Email
-            <InfoTip
-              text="Your email address is used to log in to your account and to send you important notifications. It cannot be changed."
-            />
-          </div>
-        </FormLabel>
-        <FormControl>
-          <Input
-            type="text"
-            placeholder="email"
-            v-bind="componentField"
-            disabled
-          />
-        </FormControl>
-        <FormMessage />
-      </FormItem>
-    </FormField>
-
-    <FormField
-      v-slot="{ componentField }"
       name="firstName"
       :model-value="user?.firstName ?? ''"
     >
@@ -136,7 +109,7 @@
       </FormItem>
     </FormField>
 
-    <LoadingButton :is-loading="isLoading" type="submit">
+    <LoadingButton variant="outline" :is-loading="isLoading" type="submit">
       Update Profile
     </LoadingButton>
   </form>

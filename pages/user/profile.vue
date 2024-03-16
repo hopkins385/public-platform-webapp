@@ -7,7 +7,6 @@
 
   const { getMe } = useManageMyUserProfile();
   const { data: user, refresh } = await getMe();
-  const { signOut } = useAuth();
   const { getCheckoutUrl } = useStripe();
 
   const onManageSubscriptionClick = async () => {
@@ -31,7 +30,7 @@
       subtitle="On this page you can edit your personal profile settings"
     >
       <template #button>
-        <Button variant="outline" @click="signOut">Logout</Button>
+        <Button variant="outline" @click="navigateTo('/logout')">Logout</Button>
       </template>
     </SectionHeading>
     <div class="grid grid-cols-4 gap-5">
@@ -40,18 +39,31 @@
           :user="{
             id: user?.id ?? '',
             name: user?.name ?? '',
-            email: user?.email ?? '',
             firstName: user?.firstName ?? '',
             lastName: user?.lastName ?? '',
           }"
           @refresh="refresh"
         />
       </BoxContainer>
-      <BoxContainer class="col-span-1 text-sm">
-        <h2 class="pb-5">Security Settings</h2>
-        <UserEmailVerified :verified-at="user?.emailVerifiedAt ?? null" />
+      <BoxContainer class="col-span-1 space-y-6 text-sm">
+        <div>
+          <h2 class="pb-5 font-semibold">Account Security</h2>
+          <UserEmailVerified :verified-at="user?.emailVerifiedAt ?? null" />
+        </div>
+        <div>
+          <h2 class="pb-5">Credits</h2>
+          <p>{{ user?.credit?.amount }}</p>
+        </div>
       </BoxContainer>
     </div>
+    <BoxContainer class="mt-5">
+      <UserEditLoginForm
+        :user="{
+          id: user?.id ?? '',
+          email: user?.email ?? '',
+        }"
+      />
+    </BoxContainer>
     <BoxContainer class="mt-5">
       <h2 class="pb-5">Subscription</h2>
       <LoadingButton

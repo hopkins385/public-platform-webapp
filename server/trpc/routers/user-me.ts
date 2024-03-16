@@ -1,3 +1,4 @@
+import { UserService } from '~/server/services/user.service';
 import fs from 'fs';
 import { join } from 'path';
 import { z } from 'zod';
@@ -6,7 +7,7 @@ import { protectedProcedure, router } from '../trpc';
 export const userMeRouter = router({
   // get me
   one: protectedProcedure.query(({ ctx }) => {
-    return ctx.prisma.user.findUnique({
+    return ctx.prisma.user.findFirst({
       where: { id: ctx.user?.id },
       select: {
         id: true,
@@ -17,6 +18,11 @@ export const userMeRouter = router({
         password: false,
         isAdmin: true,
         emailVerifiedAt: true,
+        credit: {
+          select: {
+            amount: true,
+          },
+        },
       },
     });
   }),
@@ -37,6 +43,21 @@ export const userMeRouter = router({
         where: { id: ctx.user?.id },
         data: { name, ...data },
       });
+    }),
+  updatePassword: protectedProcedure
+    .input(
+      z.object({
+        currentPassword: z.string().min(6).max(100),
+        newPassword: z.string().min(6).max(100),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const userService = new UserService(ctx.prisma);
+      return userService.updatePassword(
+        ctx.user!.id,
+        input.currentPassword,
+        input.newPassword,
+      );
     }),
   getUploads: protectedProcedure.query(({ ctx }) => {
     const files = fs.readdirSync(

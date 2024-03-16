@@ -12,7 +12,7 @@ async function hashPassword(password: string): Promise<string> {
 const prisma = new PrismaClient();
 
 async function main() {
-  const sven = await prisma.user.upsert({
+  const user = await prisma.user.upsert({
     where: { email: 'sven@svenson.ai' },
     update: {},
     create: {
@@ -24,13 +24,22 @@ async function main() {
       password: await hashPassword(process.env.ADMIN_PASSWORD!),
     },
   });
-  console.log({ sven });
+  // create credit
+  await prisma.credit.create({
+    data: {
+      id: ulid().toLowerCase(),
+      user: { connect: { id: user.id } },
+      amount: 1000,
+    },
+  });
+
+  // console.log({ sven });
   // read json file and insert into db
   const path = join(__dirname, 'llm_providers.json');
   const data = readFileSync(path, 'utf8');
   const providers = JSON.parse(data);
   for (const provider of providers) {
-    await prisma.largeLangModels.create({
+    await prisma.largeLangModel.create({
       data: {
         id: ulid().toLowerCase(),
         provider: provider.provider,

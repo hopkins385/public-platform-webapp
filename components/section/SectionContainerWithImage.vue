@@ -3,7 +3,7 @@
   const backgroundStyles = computed(() => {
     const imgUrl = img('/images/bg_1.jpeg', {
       height: 2000,
-      quality: 100,
+      quality: 80,
       format: 'webp',
     });
     return {
