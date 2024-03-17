@@ -1,5 +1,4 @@
 import { createTransport } from 'nodemailer';
-import { consola } from 'consola';
 import type { Transporter, TransportOptions } from 'nodemailer';
 import type { RuntimeConfig } from 'nuxt/schema';
 import handlebars from 'handlebars';
@@ -41,7 +40,7 @@ export class MailerService {
         html: compileSource(payload.body),
       });
     } catch (error) {
-      consola.error(error);
+      console.error(error);
     }
   }
 
@@ -64,7 +63,7 @@ export class MailerService {
         }),
       });
     } catch (error) {
-      consola.error(error);
+      console.error(error);
       throw new Error('Error sending mail');
     }
   }

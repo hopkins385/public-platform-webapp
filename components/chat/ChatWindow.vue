@@ -178,7 +178,10 @@
       class="absolute left-0 top-0 z-10 flex w-full items-center justify-between px-8 py-5"
     >
       <div>
-        <ChatModelSelector />
+        <Suspense>
+          <ChatModelSelector />
+          <template #fallback> Loading... </template>
+        </Suspense>
       </div>
       <div class="flex space-x-3">
         <Button size="icon" variant="outline" @click="clearChatMessages">

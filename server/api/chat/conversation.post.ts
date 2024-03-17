@@ -2,7 +2,6 @@ import { Readable, Transform } from 'stream';
 import { sendStream } from 'h3';
 import { OpenAI } from 'openai';
 import { z } from 'zod';
-import type { Anthropic } from '@anthropic-ai/sdk';
 import { ModelEnum } from '../../utils/modelEnum';
 import { ChatService } from './../../services/chat.service';
 import { getServerSession } from '#auth';
@@ -54,17 +53,14 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
-  const chat = await chatService.getFirst(validatedBody.data.chatId);
-  // if (!chat) {
-  //   throw createError({
-  //     statusCode: 404,
-  //     statusMessage: 'Not found',
-  //   });
-  // }
+  const chat = await chatService.getChatForUser(
+    validatedBody.data.chatId ?? '',
+    session.user.id,
+  );
 
   const systemPrompt = await assistantService.getSystemPrompt(
     validatedBody.data.lang,
-    chat?.assistantId,
+    chat?.assistant.id,
   );
 
   try {
@@ -79,7 +75,7 @@ export default defineEventHandler(async (_event) => {
           role: 'system',
           content: systemPrompt,
         },
-        ...validatedBody.data.messages,
+        ...validatedBody.data.messages, // TODO: handle context size of llm and reduce messages
       ],
       maxTokens: validatedBody.data.maxTokens,
       temperature: validatedBody.data.temperature,
@@ -92,6 +88,7 @@ export default defineEventHandler(async (_event) => {
       objectMode: true,
       transform(chunk, _, callback) {
         if (
+          validatedBody.data.model === ModelEnum.Claude3Haiku ||
           validatedBody.data.model === ModelEnum.Claude3Opus ||
           validatedBody.data.model === ModelEnum.Claude3Sonnet
         ) {

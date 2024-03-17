@@ -1,4 +1,4 @@
-import type { LargeLangModels } from '@prisma/client';
+import type { LargeLangModel } from '@prisma/client';
 
 export class LLMService {
   private readonly prisma: ExtendedPrismaClient;
@@ -11,7 +11,7 @@ export class LLMService {
   }
 
   getModels() {
-    return this.prisma.largeLangModels.findMany({
+    return this.prisma.largeLangModel.findMany({
       select: {
         id: true,
         provider: true,
@@ -26,13 +26,13 @@ export class LLMService {
     });
   }
 
-  async getCachedModels(): Promise<Partial<LargeLangModels[]>> {
+  async getCachedModels(): Promise<Partial<LargeLangModel[]>> {
     const models = await useStorage('redis').getItem('llm-models');
     if (models) {
-      return models as Partial<LargeLangModels[]>;
+      return models as Partial<LargeLangModel[]>;
     }
     const freshModels = await this.getModels();
     await useStorage('redis').setItem('llm-models', freshModels);
-    return freshModels as Partial<LargeLangModels[]>;
+    return freshModels as Partial<LargeLangModel[]>;
   }
 }

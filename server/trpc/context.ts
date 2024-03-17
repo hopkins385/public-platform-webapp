@@ -12,7 +12,7 @@ export async function createContext(_event: H3Event) {
   return {
     prisma: _event.context.prisma,
     user: session?.user ?? null,
-    vectorStore: _event.context.vectorStore,
+    // vectorStore: _event.context.vectorStore,
   };
 }
 

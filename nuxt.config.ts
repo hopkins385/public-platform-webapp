@@ -1,8 +1,14 @@
 import { isDevelopment } from 'std-env';
 
 export default defineNuxtConfig({
-  devtools: { enabled: false },
+  experimental: {
+    typedPages: false,
+  },
+  devtools: {
+    enabled: false,
+  },
   telemetry: false,
+  debug: false,
   modules: [
     '@nuxtjs/tailwindcss',
     'shadcn-nuxt',
@@ -62,7 +68,7 @@ export default defineNuxtConfig({
     redis: {
       host: process.env.REDIS_HOST,
       port: process.env.REDIS_PORT,
-      // password: process.env.REDIS_PASSWORD,
+      password: process.env.REDIS_PASSWORD,
     },
     openai: {
       baseUrl: process.env.OPENAI_BASE_URL,
@@ -163,9 +169,6 @@ export default defineNuxtConfig({
       'de-DE': 'de',
     },
   },
-  vue: {
-    defineModel: true,
-  },
   macros: {
     setupSFC: true,
     betterDefine: false,
@@ -191,9 +194,9 @@ export default defineNuxtConfig({
         driver: 'redis',
         /* redis connector options */
         port: process.env.REDIS_PORT,
-        host: process.env.REDIS_HOST || 'svenson_platform_redis',
+        host: process.env.REDIS_HOST,
         // username: process.env.REDIS_USERNAME,
-        // password: process.env.REDIS_PASSWORD,
+        password: process.env.REDIS_PASSWORD,
         // db: 0, // Defaults to 0
         // tls: {}, // tls/ssl
       },

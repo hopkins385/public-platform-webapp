@@ -1,6 +1,5 @@
 import type msal from '@azure/msal-node';
 import { z } from 'zod';
-import { consola } from 'consola';
 import { getServerSession } from '#auth';
 import { UserService } from '~/server/services/user.service';
 
@@ -44,7 +43,7 @@ export default defineEventHandler(async (_event) => {
   try {
     response = await msalClient.acquireTokenByCode(tokenRequest);
   } catch (error) {
-    consola.error(error);
+    console.error(error);
     throw createError({
       statusCode: 400,
       statusMessage: 'Bad Request [invalid request]',
@@ -76,7 +75,7 @@ export default defineEventHandler(async (_event) => {
       accessToken: response.accessToken,
     });
   } catch (error) {
-    consola.error(error);
+    console.error(error);
     throw createError({
       statusCode: 400,
       statusMessage: 'Bad Request [user update failed]',

@@ -111,6 +111,7 @@ export class ChatService {
           select: {
             id: true,
             title: true,
+            // systemPrompt: true,
           },
         },
       },
@@ -158,6 +159,14 @@ export class ChatService {
 
   clearMessages(chatId: string) {
     return this.prisma.chatMessage.deleteMany({
+      where: {
+        chatId,
+      },
+    });
+  }
+
+  getChatMessages(chatId: string) {
+    return this.prisma.chatMessage.findMany({
       where: {
         chatId,
       },

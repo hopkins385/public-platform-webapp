@@ -20,7 +20,7 @@ const t = initTRPC.context<Context>().create({
       ...shape,
       data: {
         ...shape.data,
-        // stack: null, // TODO: don't send stack traces to the client
+        stack: null, // don't send stack traces to the client
         zodError:
           error.code === 'BAD_REQUEST' && error.cause instanceof ZodError
             ? error.cause.flatten()
@@ -54,10 +54,5 @@ const isAuthed = t.middleware((opts) => {
     throw new TRPCError({ code: 'UNAUTHORIZED' });
   }
   return opts.next();
-  // return opts.next({
-  //   ctx: {
-  //     user: ctx.user,
-  //   },
-  // });
 });
 export const protectedProcedure = t.procedure.use(isAuthed);

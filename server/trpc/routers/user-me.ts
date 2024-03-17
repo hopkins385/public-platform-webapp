@@ -6,9 +6,9 @@ import { protectedProcedure, router } from '../trpc';
 
 export const userMeRouter = router({
   // get me
-  one: protectedProcedure.query(({ ctx }) => {
+  user: protectedProcedure.query(({ ctx }) => {
     return ctx.prisma.user.findFirst({
-      where: { id: ctx.user?.id },
+      where: { id: ctx.user.id },
       select: {
         id: true,
         name: true,
@@ -40,7 +40,7 @@ export const userMeRouter = router({
       const { data } = input;
       const name = `${data.firstName} ${data.lastName}`;
       return ctx.prisma.user.update({
-        where: { id: ctx.user?.id },
+        where: { id: ctx.user.id },
         data: { name, ...data },
       });
     }),
@@ -61,11 +61,11 @@ export const userMeRouter = router({
     }),
   getUploads: protectedProcedure.query(({ ctx }) => {
     const files = fs.readdirSync(
-      join(process.cwd(), 'public', 'uploads', ctx.user?.id),
+      join(process.cwd(), 'public', 'uploads', ctx.user.id),
     );
     return files.map((file) => ({
       name: file,
-      path: join(process.cwd(), 'public', 'uploads', ctx.user?.id, file),
+      path: join(process.cwd(), 'public', 'uploads', ctx.user.id, file),
       url: `/uploads/${ctx.user?.id}/${file}`,
     }));
   }),

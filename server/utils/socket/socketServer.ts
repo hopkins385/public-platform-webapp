@@ -1,0 +1,53 @@
+import type { H3Event } from 'h3';
+import { Server } from 'socket.io';
+import { SocketEvent } from './socketEnum';
+import { getServerSession } from '#auth';
+import { useRuntimeConfig } from '#imports';
+
+let count = 0;
+let io: Server | null = null;
+
+export function getSocketConnection() {
+  if (!io) {
+    console.log('[server] create new socket server');
+    const port = Number(useRuntimeConfig().public.socket.port);
+    io = new Server(port, {
+      serveClient: false,
+      cors: {
+        origin: '*',
+      },
+    });
+
+    // middleware
+    // io.use(async (socket, next) => {
+    //   const token = socket.handshake.auth.token;
+    //   const { data } = await getServerSession(_event);
+    //   next();
+    // });
+
+    io.on('connection', (socket) => {
+      console.log('[server] socket connected');
+
+      socket.on(SocketEvent.join, (roomId) => {
+        console.log('[server] socket join', roomId);
+        socket.join(roomId);
+      });
+
+      socket.on(SocketEvent.up, (data: { value: number; room: string }) => {
+        count = count + data.value;
+        io?.to(data.room).emit(SocketEvent.new_count, count);
+      });
+
+      socket.on(SocketEvent.down, (data: { value: number; room: string }) => {
+        count = count - data.value;
+        io?.to(data.room).emit(SocketEvent.new_count, count);
+      });
+
+      socket.on('disconnect', () => {
+        console.log('[server] socket disconnected');
+      });
+    });
+  }
+
+  return io;
+}
