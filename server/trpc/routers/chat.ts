@@ -38,6 +38,17 @@ export const chatRouter = router({
     const chatService = new ChatService(ctx.prisma);
     return chatService.getAllForUser(ctx.user?.id);
   }),
+  allForUserPaginate: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().default(1),
+      }),
+    )
+    .query(({ ctx, input }) => {
+      const { page } = input;
+      const chatService = new ChatService(ctx.prisma);
+      return chatService.getAllForUserPaginate(ctx.user.id, page);
+    }),
   clearMessages: protectedProcedure
     .input(
       z.object({
@@ -60,5 +71,15 @@ export const chatRouter = router({
         input.chatId.toLowerCase(),
         ctx.user?.id,
       );
+    }),
+  delete: protectedProcedure
+    .input(
+      z.object({
+        chatId: ulidRule,
+      }),
+    )
+    .query(({ ctx, input }) => {
+      const chatService = new ChatService(ctx.prisma);
+      return chatService.softDelete(ctx.user.id, input.chatId.toLowerCase());
     }),
 });

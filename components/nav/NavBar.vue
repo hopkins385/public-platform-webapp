@@ -3,10 +3,12 @@
     UserIcon,
     BotIcon,
     MessageSquareTextIcon,
+    MessagesSquareIcon,
     BoltIcon,
     Disc3Icon,
     PenLineIcon,
     FolderClosedIcon,
+    SquareGanttChartIcon,
   } from 'lucide-vue-next';
   const playground = false;
 </script>
@@ -28,12 +30,17 @@
       </li>
       <li class="nav-item">
         <NuxtLink href="/">
-          <MessageSquareTextIcon class="nav-icon" />
+          <MessagesSquareIcon class="nav-icon" />
         </NuxtLink>
       </li>
       <li class="nav-item">
         <NuxtLink href="/assistant">
           <BotIcon class="nav-icon" />
+        </NuxtLink>
+      </li>
+      <li class="nav-item">
+        <NuxtLink href="/chat/history">
+          <SquareGanttChartIcon class="nav-icon" />
         </NuxtLink>
       </li>
       <li class="nav-item">

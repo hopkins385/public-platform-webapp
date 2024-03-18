@@ -30,7 +30,12 @@
         </div>
       </div>
       <div class="mt-5">
-        <AssistantCardList />
+        <Suspense>
+          <AssistantCardList />
+          <template #fallback>
+            <TableSkeleton />
+          </template>
+        </Suspense>
       </div>
     </BoxContainer>
   </SectionContainerWithImage>

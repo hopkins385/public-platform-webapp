@@ -16,6 +16,16 @@
       "login": "Benutzername oder Passwort falsch"
     }
   },
+  "register": {
+    "meta": {
+      "title": "Registrieren",
+      "description": "Registrieren"
+    },
+    "first_name": "Vorname",
+    "last_name": "Nachname",
+    "email": "E-Mail",
+    "password": "Passwort"
+  },
   "admin": {
     "assistant": {
       "meta": {
@@ -89,5 +99,9 @@
   "Title": "Titel",
   "Description": "Beschreibung",
   "Next Page": "Nächste Seite",
-  "Settings": "Einstellungen"
+  "Settings": "Einstellungen",
+  "Already have an account?": "Sie haben bereits ein Konto?",
+  "Don't have an account?": "Sie haben noch kein Konto?",
+  "I accept the": "Ich akzeptiere die",
+  "terms and conditions": "Nutzungsbedingungen"
 }

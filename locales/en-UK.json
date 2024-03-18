@@ -9,6 +9,16 @@
       "login": "Username or password is invalid"
     }
   },
+  "register": {
+    "meta": {
+      "title": "Register",
+      "description": "Register"
+    },
+    "first_name": "First Name",
+    "last_name": "Last Name",
+    "email": "Email",
+    "password": "Password"
+  },
   "chat": {
     "meta": {
       "title": "Chat",

@@ -1,6 +1,6 @@
+import { AssistantService } from '~/server/services/assistant.service';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
-import { ULID } from '~/server/utils/ulid';
 
 export const assistantRouter = router({
   // create assistant
@@ -10,24 +10,19 @@ export const assistantRouter = router({
         title: z.string(),
         description: z.string(),
         systemPrompt: z.string(),
-        isShared: z.boolean().optional(),
+        isShared: z.boolean().default(false).optional(),
         systemPromptTokenCount: z.number(),
       }),
     )
     .mutation(({ ctx, input }) => {
-      const userId = ctx.user?.id;
-      return ctx.prisma.assistant.create({
-        data: {
-          id: ULID(),
-          userId,
-          title: input.title,
-          description: input.description,
-          systemPrompt: input.systemPrompt,
-          isShared: input.isShared,
-          systemPromptTokenCount: input.systemPromptTokenCount,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
+      const assistantService = new AssistantService(ctx.prisma);
+      return assistantService.create({
+        userId: ctx.user.id,
+        title: input.title,
+        description: input.description,
+        systemPrompt: input.systemPrompt,
+        isShared: input.isShared,
+        systemPromptTokenCount: input.systemPromptTokenCount,
       });
     }),
   // get assistant by id
@@ -38,15 +33,10 @@ export const assistantRouter = router({
       }),
     )
     .query(({ ctx, input }) => {
-      const userId = ctx.user?.id;
-      return ctx.prisma.assistant.findFirst({
-        where: {
-          userId,
-          id: input.id.toLowerCase(),
-        },
-        include: {
-          user: true,
-        },
+      const assistantService = new AssistantService(ctx.prisma);
+      return assistantService.findFirst({
+        userId: ctx.user.id,
+        assistantId: input.id,
       });
     }),
   // get all assistants
@@ -57,25 +47,11 @@ export const assistantRouter = router({
       }),
     )
     .query(({ ctx, input }) => {
-      const userId = ctx.user?.id;
-      const { page } = input;
-      return ctx.prisma.assistant
-        .paginate({
-          where: {
-            userId,
-          },
-          select: {
-            id: true,
-            title: true,
-            description: true,
-            isShared: true,
-          },
-        })
-        .withPages({
-          limit: 10,
-          page,
-          includePageCount: true,
-        });
+      const assistantService = new AssistantService(ctx.prisma);
+      return assistantService.findAll({
+        userId: ctx.user.id,
+        page: input.page,
+      });
     }),
   // update assistant by id
   update: protectedProcedure
@@ -90,20 +66,15 @@ export const assistantRouter = router({
       }),
     )
     .mutation(({ ctx, input }) => {
-      const userId = ctx.user?.id;
-      return ctx.prisma.assistant.update({
-        where: {
-          userId,
-          id: input.id,
-        },
-        data: {
-          title: input.title,
-          description: input.description,
-          systemPrompt: input.systemPrompt,
-          isShared: input.isShared,
-          systemPromptTokenCount: input.systemPromptTokenCount,
-          updatedAt: new Date(),
-        },
+      const assistantService = new AssistantService(ctx.prisma);
+      return assistantService.update({
+        userId: ctx.user.id,
+        assistantId: input.id,
+        title: input.title,
+        description: input.description,
+        systemPrompt: input.systemPrompt,
+        isShared: input.isShared,
+        systemPromptTokenCount: input.systemPromptTokenCount,
       });
     }),
   // delete assistant by id
@@ -114,12 +85,10 @@ export const assistantRouter = router({
       }),
     )
     .mutation(({ ctx, input }) => {
-      const userId = ctx.user?.id;
-      return ctx.prisma.assistant.delete({
-        where: {
-          userId,
-          id: input.id,
-        },
+      const assistantService = new AssistantService(ctx.prisma);
+      return assistantService.softDelete({
+        userId: ctx.user.id,
+        assistantId: input.id,
       });
     }),
 });

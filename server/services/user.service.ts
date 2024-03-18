@@ -4,6 +4,15 @@ import type { LastLoginDto } from './dto/last-login.dto';
 import type { GoogleAuthTokens } from '~/interfaces/google.token.interface';
 import { comparePasswords, hashPassword } from '~/utils/bcrypt';
 import type { AzureAuthTokens } from '~/interfaces/azure.token.interfaces';
+import { ULID } from '~/server/utils/ulid';
+
+interface RegisterNewUser {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  terms: boolean;
+}
 
 export class UserService {
   private readonly prisma: ExtendedPrismaClient;
@@ -11,6 +20,27 @@ export class UserService {
   constructor(prisma: ExtendedPrismaClient) {
     if (!prisma) throw new Error('UserService is missing prisma client');
     this.prisma = prisma;
+  }
+
+  async createNewUser(data: RegisterNewUser) {
+    const user = await this.getUserByEmail(data.email);
+    if (user) {
+      throw new Error('User already exists');
+    }
+    const hashedPassword = await hashPassword(data.password);
+    return await this.prisma.user.create({
+      data: {
+        id: ULID(),
+        email: data.email,
+        password: hashedPassword,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        name: `${data.firstName} ${data.lastName}`,
+        isConfirmed: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    });
   }
 
   async getAuthUser(payload: LoginDto) {

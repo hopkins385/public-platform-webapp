@@ -1,7 +1,7 @@
 export default function useForHumans() {
   const { locale } = useI18n();
 
-  const getDateTimeForHumans = (value: string) => {
+  const getDateTimeForHumans = (value: string | number | Date) => {
     const date = new Date(value);
     const options = {
       year: 'numeric',

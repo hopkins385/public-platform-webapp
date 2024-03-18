@@ -86,8 +86,29 @@ export class ChatService {
       },
       where: {
         userId,
+        deletedAt: null,
       },
     });
+  }
+
+  getAllForUserPaginate(userId: string, page: number) {
+    return this.prisma.chat
+      .paginate({
+        select: {
+          id: true,
+          title: true,
+          createdAt: true,
+        },
+        where: {
+          userId,
+          deletedAt: null,
+        },
+      })
+      .withPages({
+        limit: 10,
+        page,
+        includePageCount: true,
+      });
   }
 
   getChatForUser(chatId: string, userId: string) {
@@ -118,6 +139,7 @@ export class ChatService {
       where: {
         id: chatId.toLowerCase(),
         userId,
+        deletedAt: null,
       },
     });
   }
@@ -169,6 +191,18 @@ export class ChatService {
     return this.prisma.chatMessage.findMany({
       where: {
         chatId,
+      },
+    });
+  }
+
+  softDelete(userId: string, chatId: string) {
+    return this.prisma.chat.update({
+      where: {
+        id: chatId.toLowerCase(),
+        userId,
+      },
+      data: {
+        deletedAt: new Date(),
       },
     });
   }
