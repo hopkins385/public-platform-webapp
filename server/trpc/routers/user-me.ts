@@ -36,10 +36,12 @@ export const userMeRouter = router({
         }),
       }),
     )
-    .mutation(({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
       const { data } = input;
       const name = `${data.firstName} ${data.lastName}`;
-      return ctx.prisma.user.update({
+      // wait for 500 ms to show the loading state
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      return await ctx.prisma.user.update({
         where: { id: ctx.user.id },
         data: { name, ...data },
       });

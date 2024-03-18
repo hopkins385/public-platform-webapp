@@ -4,13 +4,7 @@
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
 
-  const { successDuration, errorDuration } = useAppConfig().toast;
-  const { updateMe, setUserId } = useManageMyUserProfile();
-  const { $toast } = useNuxtApp();
-
-  const isLoading = ref(false);
-
-  const props = defineProps<{
+  defineProps<{
     user: {
       id: User['id'];
       name: User['name'];
@@ -22,6 +16,10 @@
   const emits = defineEmits<{
     refresh: [void];
   }>();
+
+  const { successDuration, errorDuration } = useAppConfig().toast;
+  const { updateMe } = useManageMyUserProfile();
+  const { $toast } = useNuxtApp();
 
   const userFormSchema = toTypedSchema(
     z.object({
@@ -35,11 +33,10 @@
     validationSchema: userFormSchema,
   });
 
+  const isLoading = ref(false);
+
   const onSubmit = handleSubmit(async (values, { resetForm }) => {
     isLoading.value = true;
-    // wait for 500 ms to show the loading state
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    setUserId(props.user.id);
     try {
       await updateMe({
         ...values,

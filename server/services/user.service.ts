@@ -1,3 +1,4 @@
+import { SlackService } from './slack.service';
 import type { User } from '@prisma/client';
 import type { LoginDto } from './dto/login.dto';
 import type { LastLoginDto } from './dto/last-login.dto';
@@ -16,6 +17,7 @@ interface RegisterNewUser {
 
 export class UserService {
   private readonly prisma: ExtendedPrismaClient;
+  private readonly slackService = new SlackService();
 
   constructor(prisma: ExtendedPrismaClient) {
     if (!prisma) throw new Error('UserService is missing prisma client');
@@ -28,7 +30,7 @@ export class UserService {
       throw new Error('User already exists');
     }
     const hashedPassword = await hashPassword(data.password);
-    return await this.prisma.user.create({
+    const newUser = await this.prisma.user.create({
       data: {
         id: ULID(),
         email: data.email,
@@ -41,6 +43,8 @@ export class UserService {
         updatedAt: new Date(),
       },
     });
+    await this.slackService.sendNewUserRegistrationNotification();
+    return newUser;
   }
 
   async getAuthUser(payload: LoginDto) {
