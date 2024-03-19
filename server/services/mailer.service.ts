@@ -5,6 +5,7 @@ import handlebars from 'handlebars';
 import { SendMailDto } from './dto/send-mail.dto';
 import { ConfirmMailDto } from './dto/confirm-mail.dto';
 import { useRuntimeConfig } from '#imports';
+import jwt from 'jsonwebtoken';
 
 export class MailerService {
   private readonly transporter: Transporter;
@@ -50,6 +51,14 @@ export class MailerService {
     );
     if (!mailTemplate) throw new Error('mailTemplate not found');
 
+    const tokenPayload = {
+      email: payload.toEmail,
+      url: this.config.confirmBaseUrl,
+    };
+    const token = jwt.sign(tokenPayload, this.config.jwtSecret, {
+      expiresIn: '1d',
+    });
+
     const compileSource = handlebars.compile(mailTemplate);
 
     try {
@@ -59,7 +68,7 @@ export class MailerService {
         subject: 'Confirm your email address',
         html: compileSource({
           name: payload.firstName,
-          url: 'http://localhost:3000/confirm/mail',
+          url: `${this.config.confirmBaseUrl}/${payload.userId}?token=${token}`,
         }),
       });
     } catch (error) {

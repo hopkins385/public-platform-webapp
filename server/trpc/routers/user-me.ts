@@ -6,25 +6,9 @@ import { protectedProcedure, router } from '../trpc';
 
 export const userMeRouter = router({
   // get me
-  user: protectedProcedure.query(({ ctx }) => {
-    return ctx.prisma.user.findFirst({
-      where: { id: ctx.user.id },
-      select: {
-        id: true,
-        name: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        password: false,
-        isAdmin: true,
-        emailVerifiedAt: true,
-        credit: {
-          select: {
-            amount: true,
-          },
-        },
-      },
-    });
+  user: protectedProcedure.query(async ({ ctx }) => {
+    const userService = new UserService(ctx.prisma);
+    return await userService.getUserById(ctx.user!.id);
   }),
   // update me
   update: protectedProcedure
@@ -61,7 +45,7 @@ export const userMeRouter = router({
         input.newPassword,
       );
     }),
-  getUploads: protectedProcedure.query(({ ctx }) => {
+  /*getUploads: protectedProcedure.query(({ ctx }) => {
     const files = fs.readdirSync(
       join(process.cwd(), 'public', 'uploads', ctx.user.id),
     );
@@ -70,5 +54,5 @@ export const userMeRouter = router({
       path: join(process.cwd(), 'public', 'uploads', ctx.user.id, file),
       url: `/uploads/${ctx.user?.id}/${file}`,
     }));
-  }),
+  }),*/
 });

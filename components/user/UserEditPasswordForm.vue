@@ -12,6 +12,8 @@
 
   const isLoading = ref(false);
   const error = ref<string>('');
+  const { successDuration } = useAppConfig().toast;
+  const { $toast } = useNuxtApp();
 
   const passwordFormSchema = toTypedSchema(
     z
@@ -41,6 +43,10 @@
       })
       .then(() => {
         emit('success');
+        $toast.success('Success', {
+          description: 'Your password has been updated', // TODO: translate
+          duration: successDuration,
+        });
       })
       .catch((err) => {
         error.value = err.message;
@@ -60,7 +66,11 @@
       <FormItem>
         <FormLabel>Current Password</FormLabel>
         <FormControl>
-          <Input type="password" v-bind="componentField" />
+          <Input
+            type="password"
+            autocomplete="current-password"
+            v-bind="componentField"
+          />
         </FormControl>
         <FormMessage />
       </FormItem>
@@ -69,7 +79,11 @@
       <FormItem>
         <FormLabel>New Password</FormLabel>
         <FormControl>
-          <Input type="password" v-bind="componentField" />
+          <Input
+            type="password"
+            autocomplete="new-password"
+            v-bind="componentField"
+          />
         </FormControl>
         <FormMessage />
       </FormItem>
@@ -78,7 +92,11 @@
       <FormItem>
         <FormLabel>Confirm New Password</FormLabel>
         <FormControl>
-          <Input type="password" v-bind="componentField" />
+          <Input
+            type="password"
+            autocomplete="new-password"
+            v-bind="componentField"
+          />
         </FormControl>
         <FormMessage />
       </FormItem>

@@ -40,7 +40,22 @@ export default function useRegister() {
     });
   }
 
+  function confirmEmail(payload: { userId: string; token: string }) {
+    return useAsyncData(async () => {
+      return await $client.register.confirmEmail.query(
+        {
+          userId: payload.userId,
+          token: payload.token,
+        },
+        {
+          signal: ac.signal,
+        },
+      );
+    });
+  }
+
   return {
     register,
+    confirmEmail,
   };
 }

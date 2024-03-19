@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  // previewFeatures = ["relationJoins"]
 }
 
 datasource db {
@@ -18,7 +19,6 @@ model User {
   firstName          String?     @map("first_name")
   lastName           String?     @map("last_name")
   password           String
-  isConfirmed        Boolean     @default(false) @map("is_confirmed")
   isActive           Boolean     @default(false) @map("is_active")
   isAdmin            Boolean     @default(false) @map("is_admin")
   googleRefreshToken String?     @map("google_refresh_token")
@@ -60,7 +60,7 @@ model ChatMessage {
   createdAt  DateTime                @default(now()) @map("created_at")
   updatedAt  DateTime                @updatedAt @map("updated_at")
   deletedAt  DateTime?               @map("deleted_at")
-  Chat       Chat                    @relation(fields: [chatId], references: [id])
+  Chat       Chat                    @relation(fields: [chatId], references: [id], onDelete: Cascade)
 
   @@map("chat_messages")
 }
@@ -76,7 +76,7 @@ model Assistant {
   createdAt              DateTime  @default(now()) @map("created_at")
   updatedAt              DateTime  @updatedAt @map("updated_at")
   deletedAt              DateTime? @map("deleted_at")
-  user                   User?     @relation(fields: [userId], references: [id])
+  user                   User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId                 String?   @map("user_id")
   Chat                   Chat[]
 
@@ -107,7 +107,7 @@ model Credit {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
-  user      User      @relation(fields: [userId], references: [id])
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String    @unique @map("user_id")
 
   @@map("credits")

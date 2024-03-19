@@ -19,6 +19,13 @@
     "email": "Email",
     "password": "Password"
   },
+  "confirm": {
+    "meta": {
+      "title": "Confirm",
+      "description": "Confirm"
+    },
+    "email": "Email Confirmation"
+  },
   "chat": {
     "meta": {
       "title": "Chat",

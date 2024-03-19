@@ -26,6 +26,13 @@
     "email": "E-Mail",
     "password": "Passwort"
   },
+  "confirm": {
+    "meta": {
+      "title": "Bestätigen",
+      "description": "Bestätigen"
+    },
+    "email": "E-Mail Bestätigung"
+  },
   "admin": {
     "assistant": {
       "meta": {
@@ -103,5 +110,7 @@
   "Already have an account?": "Sie haben bereits ein Konto?",
   "Don't have an account?": "Sie haben noch kein Konto?",
   "I accept the": "Ich akzeptiere die",
-  "terms and conditions": "Nutzungsbedingungen"
+  "terms and conditions": "Nutzungsbedingungen",
+  "Success": "Erfolgreich",
+  "Go to Homepage": "Zur Startseite"
 }

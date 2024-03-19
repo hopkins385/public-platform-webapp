@@ -206,4 +206,16 @@ export class ChatService {
       },
     });
   }
+
+  delete(userId: string, chatId: string) {
+    return this.prisma.chat.delete({
+      where: {
+        id: chatId.toLowerCase(),
+        userId,
+      },
+      include: {
+        messages: true,
+      },
+    });
+  }
 }

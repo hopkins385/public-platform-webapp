@@ -1,3 +1,4 @@
+import { MailerService } from './mailer.service';
 import { SlackService } from './slack.service';
 import type { User } from '@prisma/client';
 import type { LoginDto } from './dto/login.dto';
@@ -6,6 +7,9 @@ import type { GoogleAuthTokens } from '~/interfaces/google.token.interface';
 import { comparePasswords, hashPassword } from '~/utils/bcrypt';
 import type { AzureAuthTokens } from '~/interfaces/azure.token.interfaces';
 import { ULID } from '~/server/utils/ulid';
+import { useRuntimeConfig } from '#imports';
+import type { RuntimeConfig } from 'nuxt/schema';
+import jwt from 'jsonwebtoken';
 
 interface RegisterNewUser {
   email: string;
@@ -18,10 +22,13 @@ interface RegisterNewUser {
 export class UserService {
   private readonly prisma: ExtendedPrismaClient;
   private readonly slackService = new SlackService();
+  private readonly mailerService = new MailerService();
+  private readonly config: RuntimeConfig['mailer'];
 
   constructor(prisma: ExtendedPrismaClient) {
     if (!prisma) throw new Error('UserService is missing prisma client');
     this.prisma = prisma;
+    this.config = useRuntimeConfig().mailer;
   }
 
   async createNewUser(data: RegisterNewUser) {
@@ -38,12 +45,28 @@ export class UserService {
         firstName: data.firstName,
         lastName: data.lastName,
         name: `${data.firstName} ${data.lastName}`,
-        isConfirmed: false,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
     });
-    await this.slackService.sendNewUserRegistrationNotification();
+    // create credit for new user
+    await this.prisma.credit.create({
+      data: {
+        id: ULID(),
+        userId: newUser.id,
+        amount: 1000,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    });
+    // send confirm email
+    await this.mailerService.sendConfirmMail({
+      userId: newUser.id,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      toEmail: data.email,
+    });
+    // await this.slackService.sendNewUserRegistrationNotification();
     return newUser;
   }
 
@@ -64,7 +87,7 @@ export class UserService {
     currentPassword: string,
     newPassword: string,
   ) {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prisma.user.findFirst({
       where: { id: userId },
     });
     if (!user) {
@@ -81,8 +104,29 @@ export class UserService {
     });
   }
 
+  getUserById(id: string) {
+    return this.prisma.user.findFirst({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        password: false,
+        isAdmin: true,
+        emailVerifiedAt: true,
+        credit: {
+          select: {
+            amount: true,
+          },
+        },
+      },
+    });
+  }
+
   getUserByEmail(email: string) {
-    return this.prisma.user.findUnique({
+    return this.prisma.user.findFirst({
       where: { email },
       select: {
         id: true,
@@ -96,7 +140,7 @@ export class UserService {
   }
 
   async getAzureUserById(id: string) {
-    return await this.prisma.user.findUnique({
+    return await this.prisma.user.findFirst({
       where: { id },
       select: {
         id: true,
@@ -171,5 +215,31 @@ export class UserService {
       );
       return null;
     }
+  }
+
+  async confirmEmail(payload: { userId: string; token: string }) {
+    const userId = payload.userId.toLowerCase();
+    const user = await this.prisma.user.findFirst({
+      select: {
+        id: true,
+        email: true,
+        emailVerifiedAt: true,
+      },
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    if (user.emailVerifiedAt) {
+      return user;
+    }
+    const tokenPayload = jwt.verify(payload.token, this.config.jwtSecret);
+    if (tokenPayload?.email !== user.email) {
+      throw new Error('Invalid token');
+    }
+    return this.prisma.user.update({
+      where: { id: user.id },
+      data: { emailVerifiedAt: new Date() },
+    });
   }
 }

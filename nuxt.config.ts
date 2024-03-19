@@ -64,6 +64,8 @@ export default defineNuxtConfig({
       port: process.env.MAIL_PORT,
       username: process.env.MAIL_USERNAME,
       password: process.env.MAIL_PASSWORD,
+      jwtSecret: process.env.MAIL_JWT_SECRET,
+      confirmBaseUrl: process.env.MAIL_CONFIRM_BASE_URL,
     },
     redis: {
       host: process.env.REDIS_HOST,

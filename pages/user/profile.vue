@@ -52,7 +52,7 @@
         </div>
         <div>
           <h2 class="pb-5">Credits</h2>
-          <p>{{ user?.credit?.amount }}</p>
+          <p>{{ user?.credit[0]?.amount }}</p>
         </div>
       </BoxContainer>
     </div>

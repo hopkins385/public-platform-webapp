@@ -22,6 +22,9 @@ async function main() {
       lastName: 'Stadhouders',
       email: 'sven@svenson.ai',
       password: await hashPassword(process.env.ADMIN_PASSWORD!),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      emailVerifiedAt: new Date(),
     },
   });
   // create credit

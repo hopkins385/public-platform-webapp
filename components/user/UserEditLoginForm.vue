@@ -63,6 +63,7 @@
                 type="password"
                 placeholder=""
                 v-bind="componentField"
+                autocomplete="current-password"
                 disabled
               />
             </div>
