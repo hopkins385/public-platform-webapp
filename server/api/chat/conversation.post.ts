@@ -7,6 +7,7 @@ import { ChatService } from './../../services/chat.service';
 import { getServerSession } from '#auth';
 import { AssistantService } from '~/server/services/assistant.service';
 import { CompletionFactory } from '~/server/factories/completionFactory';
+import { CreditService } from '~/server/services/credit.service';
 
 const mMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
@@ -34,6 +35,7 @@ export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);
   const chatService = new ChatService(prisma);
   const assistantService = new AssistantService(prisma);
+  const creditService = new CreditService(prisma);
 
   if (!session?.user || !session.user.id) {
     throw createError({
@@ -53,9 +55,24 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
+  const credit = await creditService.getCreditAmount(session.user.id);
+
+  if (!credit || credit.amount < 1) {
+    throw createError({
+      statusCode: 402,
+      statusMessage: 'Insufficient credits',
+    });
+  }
+
   const chat = await chatService.getChatForUser(
     validatedBody.data.chatId ?? '',
     session.user.id,
+  );
+
+  const history = chatService.getHistory(
+    chat,
+    4095,
+    validatedBody.data.maxTokens,
   );
 
   const systemPrompt = await assistantService.getSystemPrompt(
@@ -76,6 +93,7 @@ export default defineEventHandler(async (_event) => {
           content: systemPrompt,
         },
         ...validatedBody.data.messages, // TODO: handle context size of llm and reduce messages
+        // ...history,
       ],
       maxTokens: validatedBody.data.maxTokens,
       temperature: validatedBody.data.temperature,
@@ -105,33 +123,30 @@ export default defineEventHandler(async (_event) => {
     stream.pipe(bufferStream);
 
     stream.on('error', (error) => {
-      console.error(error);
       throw createError({
         statusCode: 500,
-        statusMessage: 'Internal server error',
+        statusMessage: 'Internal server error (stream error)',
       });
     });
 
     stream.on('end', () => {
-      console.log('stream finished');
+      //
     });
 
-    _event.node.res.on('close', () => {
-      console.log('response closed');
+    _event.node.res.on('close', async () => {
       stream.destroy();
 
       // store assistant message in the database
-      chatService
-        .createMessage({
+      try {
+        await chatService.createMessage({
           chatId: chat?.id || '',
           chatMessage: { role: 'assistant', content: llmResponseMessage },
-        })
-        .then((res) => {
-          console.log('storeMessage result: ', res);
-        })
-        .catch((error) => {
-          console.error(error);
         });
+      } catch (error) {
+        // silently fail
+      }
+
+      await creditService.reduceCredit(session.user.id, 1);
     });
 
     return sendStream(_event, bufferStream);

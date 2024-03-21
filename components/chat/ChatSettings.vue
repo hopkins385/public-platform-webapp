@@ -73,8 +73,8 @@
         </div>
         <Slider
           v-model="settings.maxTokens"
-          :default-value="[1024]"
-          :max="4096"
+          :default-value="[500]"
+          :max="3500"
           :step="1"
           class="slider"
         />

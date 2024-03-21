@@ -1,3 +1,4 @@
+import type { Chat } from '@prisma/client';
 import type { ChatMessage } from '~/interfaces/chat.interfaces';
 import { ULID } from '~/server/utils/ulid';
 
@@ -19,6 +20,10 @@ interface StoreChatMessage {
   chatMessage: ChatMessage;
 }
 
+function notLowerZero(value: number) {
+  return value < 0 ? 0 : value;
+}
+
 export class ChatService {
   private readonly prisma: ExtendedPrismaClient;
 
@@ -29,8 +34,31 @@ export class ChatService {
     this.prisma = prisma;
   }
 
-  getHistory(chatId: string) {
-    console.log('getChatHistory');
+  getHistory(
+    chat: any,
+    totalAvailableTokens: number,
+    requestedCompletionTokens: number,
+  ) {
+    if (!chat || !chat.messages) {
+      throw new Error('Chat not found or has no messages');
+    }
+    const chatMessages = chat.messages;
+    const messagesCount = chatMessages.length;
+    const availableHistoryTokens = notLowerZero(
+      totalAvailableTokens - requestedCompletionTokens,
+    );
+    let tokenCount = 0;
+    let i = messagesCount - 1; // start from the end of the array
+    let messages = [];
+
+    while (i > 0 && tokenCount <= availableHistoryTokens) {
+      const message = chatMessages[i];
+      tokenCount += message.tokenCount || 0;
+      messages.push(message);
+      i--;
+    }
+
+    return messages;
   }
 
   upsertMessages(payload: UpsertChatMessages) {

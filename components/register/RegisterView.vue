@@ -34,7 +34,7 @@
   const onSubmit = handleSubmit(async (values, { resetForm }) => {
     formError.value = null;
     isLoading.value = true;
-    const { data, error } = await register({
+    const { error } = await register({
       firstName: values.firstName,
       lastName: values.lastName,
       email: values.email,
@@ -45,7 +45,7 @@
       isLoading.value = false;
       formError.value = error.value.message;
     } else {
-      const result = await signIn('credentials', {
+      await signIn('credentials', {
         email: values.email,
         password: values.password,
         redirect: true,

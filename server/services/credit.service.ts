@@ -49,6 +49,20 @@ export class CreditService {
     });
   }
 
+  reduceCredit(userId: string, amount: number) {
+    return this.prisma.credit.update({
+      where: {
+        userId: idToLowerCase(userId),
+      },
+      data: {
+        amount: {
+          decrement: amount,
+        },
+        updatedAt: new Date(),
+      },
+    });
+  }
+
   deleteCredit(userId: string) {
     return this.prisma.credit.delete({
       where: {

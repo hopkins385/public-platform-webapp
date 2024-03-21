@@ -60,13 +60,22 @@ export class UserService {
       },
     });
     // send confirm email
-    await this.mailerService.sendConfirmMail({
-      userId: newUser.id,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      toEmail: data.email,
-    });
-    // await this.slackService.sendNewUserRegistrationNotification();
+    try {
+      await this.mailerService.sendConfirmMail({
+        userId: newUser.id,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        toEmail: data.email,
+      });
+    } catch (error: any) {
+      console.log('Cannot send confirm email, Error is: ', error);
+    }
+    // send slack notification
+    try {
+      await this.slackService.sendNewUserRegistrationNotification();
+    } catch (error: any) {
+      console.log('Cannot send slack notification, Error is: ', error);
+    }
     return newUser;
   }
 
