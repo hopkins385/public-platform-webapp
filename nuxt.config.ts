@@ -5,7 +5,7 @@ export default defineNuxtConfig({
     typedPages: false,
   },
   devtools: {
-    enabled: false,
+    enabled: true,
   },
   telemetry: false,
   debug: false,
@@ -19,7 +19,6 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     'nuxt-security',
     '@sidebase/nuxt-auth',
-    'nuxt-headlessui',
     ['@pinia/nuxt', { autoImports: ['defineStore', 'acceptHMRUpdate'] }],
     '@pinia-plugin-persistedstate/nuxt',
     ['unplugin-icons/nuxt', { autoInstall: true }],
@@ -191,6 +190,9 @@ export default defineNuxtConfig({
     },
   },
   nitro: {
+    experimental: {
+      websocket: false,
+    },
     storage: {
       redis: {
         driver: 'redis',

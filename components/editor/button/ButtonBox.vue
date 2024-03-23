@@ -7,7 +7,7 @@
 <template>
   <button
     :class="{ 'text-indigo-600': active }"
-    class="flex w-full items-center space-x-2 p-1 text-left"
+    class="flex w-full shrink-0 items-center space-x-2 text-left"
   >
     <slot />
   </button>

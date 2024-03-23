@@ -7,35 +7,40 @@
   import { StarterKit } from '@tiptap/starter-kit';
   import { Highlight } from '@tiptap/extension-highlight';
   import { Underline } from '@tiptap/extension-underline';
-  import useCompletion from './composables/useCompletion';
+  import { AI } from './extensions/ai-extension';
 
   const props = defineProps<{
     modelValue: string;
   }>();
 
   const emits = defineEmits(['update:modelValue']);
+  const { locale } = useI18n();
 
   const editorWrapperRef = ref<Element | null>(null);
   const showInstructionMenu = ref(false);
-  const toggleInstructionMenu = () => {
-    showInstructionMenu.value = !showInstructionMenu.value;
-  };
-
-  const { onOneClick, isLoading } = useCompletion();
-
-  const showLoading = computed(() => {
-    return isLoading.value;
-  });
 
   const editor = new Editor({
     content: props.modelValue,
-    extensions: [StarterKit, Highlight, Underline],
+    extensions: [
+      StarterKit,
+      Highlight,
+      Underline,
+      AI.configure({ lang: locale.value }),
+    ],
     onUpdate: ({ editor }) => {
       emits('update:modelValue', editor.getHTML());
     },
   });
 
-  const setFocus = () => {
+  const editorMeta = computed(() => {
+    return editor.state.tr.getMeta('ai-status');
+  });
+
+  const showLoading = computed(() => {
+    return false;
+  });
+
+  function setFocus() {
     const editorWrapper = window.document.getElementById(
       'editor-content-wrapper',
     );
@@ -45,7 +50,11 @@
         child.focus();
       }
     }
-  };
+  }
+
+  function toggleInstructionMenu() {
+    showInstructionMenu.value = !showInstructionMenu.value;
+  }
 
   onMounted(() => {
     nextTick(() => {
@@ -83,8 +92,10 @@
       :editor="editor"
       :tippy-options="{ duration: 100, placement: 'bottom' }"
     >
-      <button @click="onOneClick(editor)">One</button>
-      <div v-if="isLoading">loading</div>
+      <button @click="editor.chain().focus().aiAction('random').run()">
+        One
+      </button>
+      <div v-if="showLoading">loading</div>
     </BubbleBox>
     <!-- Bubble Box END -->
     <!-- Editor -->
@@ -96,49 +107,3 @@
     <!-- Editor END -->
   </div>
 </template>
-
-<style>
-  #text-editor {
-    .ProseMirror {
-      height: calc(100dvh - 10rem);
-      width: 100%;
-      overflow-y: auto;
-      padding: 0.5em 1em;
-      outline: none;
-      font-size: 1.025rem;
-      font-weight: 400;
-      color: rgb(15 23 42 / var(--tw-text-opacity));
-
-      > p:first-child {
-        margin-top: 0.5em;
-      }
-
-      > h1,
-      h2,
-      h3,
-      h4,
-      h5,
-      h6 {
-        &:first-child {
-          margin-top: 0.5em;
-        }
-      }
-
-      > p:last-child {
-        margin-bottom: 0.5em;
-      }
-
-      h1 {
-        font-size: 1.5rem;
-        line-height: 2rem;
-        font-weight: bold;
-      }
-
-      h2 {
-        font-size: 1.25rem;
-        line-height: 1.75rem;
-        font-weight: bolder;
-      }
-    }
-  }
-</style>

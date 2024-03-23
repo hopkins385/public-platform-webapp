@@ -12,24 +12,25 @@ export function getCursorPosition(editor: Editor) {
   return editor.state.selection.$anchor.pos;
 }
 
-export async function getCompletionText(text: string) {
-  // simulate async call
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  const data = 'completion';
-  return data;
-}
-
-interface CursorPosAndText {
+interface SelectionText {
   cursorPosition: number;
   selectedText: string;
+  textContent: string;
+  pos: { from: number; to: number };
 }
 
-export function getCursorPosAndText(editor: Editor) {
-  if (!editor) return {} as CursorPosAndText;
+export function getSelectionText(editor: Editor) {
+  if (!editor) return {} as SelectionText;
   const { from, to } = editor.state.selection;
   const cursorPosition = editor.state.selection.$anchor.pos;
   const selectedText = editor.state.doc.textBetween(from, to) || '';
-  return { cursorPosition, selectedText } as CursorPosAndText;
+  const textContent = editor.state.doc.textContent || '';
+  return {
+    cursorPosition,
+    selectedText,
+    textContent,
+    pos: { from, to },
+  } as SelectionText;
 }
 
 /*

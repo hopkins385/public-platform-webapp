@@ -7,11 +7,12 @@ import { isValid } from 'ulidx';
 import { NuxtAuthHandler } from '#auth';
 import { UserService } from '~/server/services/user.service';
 
-const prisma = new PrismaClient();
-const userService = new UserService(prisma);
 const eventEmitter = new EventEmitter();
 
 eventEmitter.once('user-logged-in', async (user) => {
+  const nuxtApp = useNuxtApp();
+  // const prisma = new PrismaClient();
+  // const userService = new UserService(prisma);
   // await userService.updateLastLogin(user.id);
   // const slackService = new SlackService();
   // await slackService.sendNewUserRegistrationNotification();
