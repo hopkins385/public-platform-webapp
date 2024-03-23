@@ -7,7 +7,7 @@ export async function isAuthed(event: H3Event): Promise<boolean> {
   return session?.user && session.user.id;
 }
 
-export async function getAuthUser(event: H3Event): Promise<null | User> {
+export async function getAuthUser(event: H3Event): Promise<User> {
   const session = await getServerSession(event);
   const user = session?.user;
 

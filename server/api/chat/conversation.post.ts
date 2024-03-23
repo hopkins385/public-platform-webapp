@@ -1,61 +1,23 @@
 import { Readable, Transform } from 'stream';
 import { sendStream } from 'h3';
 import { OpenAI } from 'openai';
-import { z } from 'zod';
-import { ModelEnum } from '../../utils/modelEnum';
 import { ChatService } from './../../services/chat.service';
-import { getServerSession } from '#auth';
 import { AssistantService } from '~/server/services/assistant.service';
 import { CompletionFactory } from '~/server/factories/completionFactory';
 import { CreditService } from '~/server/services/credit.service';
+import { getConversationBody } from '~/server/utils/request/chatConversationBody';
 
-const mMessageSchema = z.object({
-  role: z.enum(['user', 'assistant']),
-  content: z.string().min(1),
-});
-const langRule = z.enum(['en', 'de']);
-const modelRule = z
-  .string()
-  .refine((model) => Object.values(ModelEnum).includes(model as ModelEnum));
-const chatIdSchema = z.string().toUpperCase().ulid().optional();
-
-const bodySchema = z.object({
-  messages: z.array(mMessageSchema),
-  model: modelRule,
-  lang: langRule,
-  chatId: chatIdSchema,
-  maxTokens: z.number().int().gte(0),
-  temperature: z.number().gte(0).lte(1),
-  // presencePenalty: z.number().gte(-2).lte(2),
-});
+const config = useRuntimeConfig();
 
 export default defineEventHandler(async (_event) => {
   const { prisma } = _event.context;
-  const config = useRuntimeConfig();
-  const session = await getServerSession(_event);
   const chatService = new ChatService(prisma);
   const assistantService = new AssistantService(prisma);
   const creditService = new CreditService(prisma);
 
-  if (!session?.user || !session.user.id) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: 'Not found',
-    });
-  }
-
-  const validatedBody = await readValidatedBody(_event, (body) =>
-    bodySchema.safeParse(body),
-  );
-
-  if (!validatedBody.success) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: JSON.stringify(validatedBody.error),
-    });
-  }
-
-  const credit = await creditService.getCreditAmount(session.user.id);
+  const user = await getAuthUser(_event);
+  const body = await getConversationBody(_event);
+  const credit = await creditService.getCreditAmount(user.id);
 
   if (!credit || credit.amount < 1) {
     throw createError({
@@ -64,39 +26,28 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
-  const chat = await chatService.getChatForUser(
-    validatedBody.data.chatId ?? '',
-    session.user.id,
-  );
+  const chat = await chatService.getChatForUser(body.chatId ?? '', user.id);
 
-  const history = chatService.getHistory(
-    chat,
-    4095,
-    validatedBody.data.maxTokens,
-  );
+  const history = chatService.getHistory(chat, 4095, body.maxTokens);
 
   const systemPrompt = await assistantService.getSystemPrompt(
-    validatedBody.data.lang,
+    body.lang,
     chat?.assistant.id,
   );
 
   try {
-    const completion = new CompletionFactory(
-      validatedBody.data.model,
-      config,
-      prisma,
-    );
+    const completion = new CompletionFactory(body.model, config, prisma);
     const response = await completion.create({
       messages: [
         {
           role: 'system',
           content: systemPrompt,
         },
-        ...validatedBody.data.messages, // TODO: handle context size of llm and reduce messages
+        ...body.messages, // TODO: handle context size of llm and reduce messages
         // ...history,
       ],
-      maxTokens: validatedBody.data.maxTokens,
-      temperature: validatedBody.data.temperature,
+      maxTokens: body.maxTokens,
+      temperature: body.temperature,
     });
 
     let llmResponseMessage = '';
@@ -106,9 +57,9 @@ export default defineEventHandler(async (_event) => {
       objectMode: true,
       transform(chunk, _, callback) {
         if (
-          validatedBody.data.model === ModelEnum.Claude3Haiku ||
-          validatedBody.data.model === ModelEnum.Claude3Opus ||
-          validatedBody.data.model === ModelEnum.Claude3Sonnet
+          body.model === ModelEnum.Claude3Haiku ||
+          body.model === ModelEnum.Claude3Opus ||
+          body.model === ModelEnum.Claude3Sonnet
         ) {
           const data = chunk;
           llmResponseMessage += data.delta?.text || '';
@@ -146,7 +97,7 @@ export default defineEventHandler(async (_event) => {
         // silently fail
       }
 
-      await creditService.reduceCredit(session.user.id, 1);
+      await creditService.reduceCredit(user.id, 1);
     });
 
     return sendStream(_event, bufferStream);
