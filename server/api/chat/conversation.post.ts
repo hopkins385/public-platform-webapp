@@ -1,3 +1,4 @@
+import { getServerSession } from '#auth';
 import { Readable, Transform } from 'stream';
 import { sendStream } from 'h3';
 import { OpenAI } from 'openai';
@@ -15,7 +16,9 @@ export default defineEventHandler(async (_event) => {
   const assistantService = new AssistantService(prisma);
   const creditService = new CreditService(prisma);
 
-  const user = await getAuthUser(_event);
+  const session = await getServerSession(_event);
+  const user = getAuthUser(session);
+
   const body = await getConversationBody(_event);
   const credit = await creditService.getCreditAmount(user.id);
 

@@ -1,16 +1,17 @@
+import { NuxtAuthHandler } from '#auth';
 import { EventEmitter } from 'node:events';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
-import { PrismaClient } from '@prisma/client';
-// import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { isValid } from 'ulidx';
-import { NuxtAuthHandler } from '#auth';
+import { PrismaClient } from '@prisma/client';
 import { UserService } from '~/server/services/user.service';
 
 const eventEmitter = new EventEmitter();
+const prisma = new PrismaClient();
+const userService = new UserService(prisma);
 
 eventEmitter.once('user-logged-in', async (user) => {
-  const nuxtApp = useNuxtApp();
+  // const nuxtApp = useNuxtApp();
   // const prisma = new PrismaClient();
   // const userService = new UserService(prisma);
   // await userService.updateLastLogin(user.id);
@@ -65,6 +66,9 @@ export default NuxtAuthHandler({
             email: credentials.email,
             password: credentials.password,
           });
+          if (!user) {
+            return null;
+          }
           return user;
         } catch (error: any) {
           console.log('auth error: ', error);
