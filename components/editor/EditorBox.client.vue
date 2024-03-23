@@ -8,6 +8,7 @@
   import { Highlight } from '@tiptap/extension-highlight';
   import { Underline } from '@tiptap/extension-underline';
   import { AI } from './extensions/ai-extension';
+  import useRunCompletion from './composables/useRunCompletion';
 
   const props = defineProps<{
     modelValue: string;
@@ -15,6 +16,7 @@
 
   const emits = defineEmits(['update:modelValue']);
   const { locale } = useI18n();
+  const { runCompletion, isLoading } = useRunCompletion();
 
   const editorWrapperRef = ref<Element | null>(null);
   const showInstructionMenu = ref(false);
@@ -25,7 +27,10 @@
       StarterKit,
       Highlight,
       Underline,
-      AI.configure({ lang: locale.value }),
+      AI.configure({
+        lang: locale.value,
+        completionHandler: runCompletion,
+      }),
     ],
     onUpdate: ({ editor }) => {
       emits('update:modelValue', editor.getHTML());
@@ -37,7 +42,7 @@
   });
 
   const showLoading = computed(() => {
-    return false;
+    return isLoading.value;
   });
 
   function setFocus() {

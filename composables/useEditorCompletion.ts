@@ -6,7 +6,7 @@ export interface EditorCompletionPayload {
   prompt: string;
 }
 
-export default function useCompletion() {
+export default function useEditorCompletion() {
   const isLoading = ref(false);
   const ac = new AbortController();
 

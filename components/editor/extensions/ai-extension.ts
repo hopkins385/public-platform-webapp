@@ -1,6 +1,6 @@
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Extension } from '@tiptap/vue-3';
-import useRunCompletion from '../composables/useRunCompletion';
+import type { Editor } from '@tiptap/core';
 
 export const pluginKey = new PluginKey('ai-extension');
 
@@ -12,15 +12,18 @@ declare module '@tiptap/core' {
       aiAction: (action: string) => ReturnType;
     };
   }
+  interface EditorOptions {
+    lang: string | null;
+    completionHandler: (editor: Editor, action: string, lang: string) => void;
+  }
 }
-
-const { runCompletion } = useRunCompletion();
 
 export const AI = Extension.create({
   name: 'ai',
   addOptions() {
     return {
       lang: null,
+      completionHandler: () => {},
     };
   },
   addProseMirrorPlugins() {
@@ -34,9 +37,9 @@ export const AI = Extension.create({
     return {
       aiAction:
         (action: string) =>
-        ({ tr, editor }) => {
-          const { lang } = this.options;
-          runCompletion(editor, action, lang);
+        ({ editor }) => {
+          const { lang, completionHandler } = this.options;
+          completionHandler(editor, action, lang);
           return true;
         },
     };
