@@ -11,13 +11,21 @@ import { getConversationBody } from '~/server/utils/request/chatConversationBody
 const config = useRuntimeConfig();
 
 export default defineEventHandler(async (_event) => {
+  const session = await getServerSession(_event);
+
+  if (!session) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Unauthorized',
+    });
+  }
+
+  const user = getAuthUser(session);
+
   const { prisma } = _event.context;
   const chatService = new ChatService(prisma);
   const assistantService = new AssistantService(prisma);
   const creditService = new CreditService(prisma);
-
-  const session = await getServerSession(_event);
-  const user = getAuthUser(session);
 
   const body = await getConversationBody(_event);
   const credit = await creditService.getCreditAmount(user.id);

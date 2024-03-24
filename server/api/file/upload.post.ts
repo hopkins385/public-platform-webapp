@@ -8,7 +8,7 @@ import { getServerSession } from '#auth';
 export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);
 
-  if (!session?.user || !session.user.id) {
+  if (!session || !session?.user || !session.user.id) {
     throw createError({
       statusCode: 404,
       statusMessage: 'Not found',

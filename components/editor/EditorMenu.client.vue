@@ -139,10 +139,14 @@
         @spelling-grammar-click="() => onSpellingGrammarClick()"
         @translate-click="(lang) => onTranslateClick(lang)"
         :disabled="!hasTextSelected"
+        :is-loading="isLoading"
       />
+      <div v-if="isLoading" class="flex items-center justify-center">
+        <Loader2Icon class="size-6 animate-spin text-slate-300" />
+      </div>
     </div>
-    <div v-if="isLoading" class="flex items-center justify-center">
+    <!-- div v-if="isLoading" class="flex items-center justify-center">
       <Loader2Icon class="size-6 animate-spin text-slate-100" />
-    </div>
+    </div !-->
   </div>
 </template>

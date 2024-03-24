@@ -43,9 +43,9 @@
   });
 
   // if is loading set editable to false
-  // watch(showLoading, (value) => {
-  //   editor.setOptions({ editable: !value });
-  // });
+  watch(showLoading, (value) => {
+    editor.setOptions({ editable: !value });
+  });
 
   function setFocus() {
     const editorWrapper = window.document.getElementById(
@@ -110,6 +110,9 @@
       id="editor-content-wrapper"
       ref="editorWrapperRef"
       :editor="editor"
+      :class="
+        showLoading ? 'pointer-events-none opacity-50' : 'pointer-events-auto'
+      "
     />
     <!-- Editor END -->
   </div>
