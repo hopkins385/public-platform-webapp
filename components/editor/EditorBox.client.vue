@@ -9,6 +9,7 @@
   import { Underline } from '@tiptap/extension-underline';
   import { AI } from './extensions/ai-extension';
   import useRunCompletion from './composables/useRunCompletion';
+  import BubbleBoxAIMenu from './components/BubbleBoxAIMenu.vue';
 
   const props = defineProps<{
     modelValue: string;
@@ -37,13 +38,14 @@
     },
   });
 
-  const editorMeta = computed(() => {
-    return editor.state.tr.getMeta('ai-status');
-  });
-
   const showLoading = computed(() => {
     return isLoading.value;
   });
+
+  // if is loading set editable to false
+  // watch(showLoading, (value) => {
+  //   editor.setOptions({ editable: !value });
+  // });
 
   function setFocus() {
     const editorWrapper = window.document.getElementById(
@@ -85,23 +87,23 @@
     />
     <!-- Menu END-->
     <!-- Instruction Menu -->
+    <!--
     <EditorInstructionPopup
       v-if="showInstructionMenu"
       @close="toggleInstructionMenu"
     />
+    -->
     <!-- Instruction Menu END -->
     <!-- Bubble Box -->
+    <!--
     <BubbleBox
-      v-if="editor"
-      class="rounded-lg bg-slate-200 px-5 py-2 shadow-lg"
+      class="w-96"
       :editor="editor"
       :tippy-options="{ duration: 100, placement: 'bottom' }"
     >
-      <button @click="editor.chain().focus().aiAction('random').run()">
-        One
-      </button>
-      <div v-if="showLoading">loading</div>
+      <BubbleBoxAIMenu :editor="editor" :is-loading="showLoading" />
     </BubbleBox>
+    -->
     <!-- Bubble Box END -->
     <!-- Editor -->
     <EditorContent

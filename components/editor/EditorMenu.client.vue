@@ -12,6 +12,7 @@
     Undo2Icon,
     Redo2Icon,
   } from 'lucide-vue-next';
+  import useEditorActions from './composables/useEditorActions';
 
   const props = defineProps<{
     editor: Editor;
@@ -20,98 +21,32 @@
 
   const emits = defineEmits(['toggle-instruction-menu']);
 
-  const onH1Click = () => {
-    if (!props.editor) return;
-    props.editor.chain().setHeading({ level: 1 }).run();
-    props.editor.commands.focus();
-  };
+  const {
+    onImproveClick,
+    onExtendClick,
+    onShortenClick,
+    onSummarizeClick,
+    onSimplifyClick,
+    onSpellingGrammarClick,
+    onRephraseClick,
+    onH1Click,
+    onH2Click,
+    onBoldClick,
+    onItalicClick,
+    onUnderlineClick,
+    onStrikeClick,
+    onHighlightClick,
+    onUndoClick,
+    onRedoClick,
+  } = useEditorActions(props.editor);
 
-  const onH2Click = () => {
-    if (!props.editor) return;
-    props.editor.chain().setHeading({ level: 2 }).run();
-    props.editor.commands.focus();
-  };
-
-  const onItalicClick = () => {
-    if (!props.editor) return;
-    props.editor.chain().toggleMark('italic').run();
-    props.editor.commands.focus();
-  };
-
-  const onBoldClick = () => {
-    if (!props.editor) return;
-    props.editor.chain().toggleMark('bold').run();
-    props.editor.commands.focus();
-  };
-
-  const onUnderlineClick = () => {
-    if (!props.editor) return;
-    props.editor.chain().toggleMark('underline').run();
-    props.editor.commands.focus();
-  };
-
-  const onStrikeClick = () => {
-    if (!props.editor) return;
-    props.editor.chain().toggleMark('strike').run();
-    props.editor.commands.focus();
-  };
-
-  const onHighlightClick = () => {
-    if (!props.editor) return;
-    props.editor.chain().toggleMark('highlight').run();
-    props.editor.commands.focus();
-  };
+  const hasTextSelected = computed(() => {
+    const { from, to } = props.editor.state.selection;
+    return from !== to;
+  });
 
   const onInstructionClick = () => {
-    if (!props.editor) return;
     emits('toggle-instruction-menu');
-  };
-
-  const onUndoClick = () => {
-    if (!props.editor) return;
-    props.editor.chain().undo().run();
-    props.editor.commands.focus();
-  };
-
-  const onRedoClick = () => {
-    if (!props.editor) return;
-    props.editor.chain().redo().run();
-    props.editor.commands.focus();
-  };
-
-  const onImproveClick = () => {
-    if (!props.editor) return;
-    props.editor.chain().focus().aiAction('improve').run();
-  };
-
-  const onExtendClick = () => {
-    if (!props.editor) return;
-    props.editor.chain().focus().aiAction('extend').run();
-  };
-
-  const onShortenClick = () => {
-    if (!props.editor) return;
-    props.editor.chain().focus().aiAction('shorten').run();
-  };
-
-  const onRephraseClick = () => {
-    if (!props.editor) return;
-    props.editor.chain().focus().aiAction('rephrase').run();
-  };
-
-  const onSummarizeClick = () => {
-    if (!props.editor) return;
-    props.editor.chain().focus().aiAction('summarize').run();
-  };
-
-  const onSimplifyClick = () => {
-    if (!props.editor) return;
-    props.editor.chain().focus().aiAction('simplify').run();
-  };
-
-  const onSpellingGrammarClick = () => {
-    if (!props.editor) return;
-    props.editor.chain().focus().aiAction('spelling').run();
   };
 
   const onTranslateClick = (lang: string) => {
@@ -122,7 +57,7 @@
 <template>
   <div
     v-if="editor"
-    class="flex justify-between bg-slate-900 px-4 py-3 text-white"
+    class="relative flex justify-between bg-slate-900 px-4 py-3 text-white"
   >
     <div class="flex space-x-2">
       <div
@@ -203,6 +138,7 @@
         @simplify-click="() => onSimplifyClick()"
         @spelling-grammar-click="() => onSpellingGrammarClick()"
         @translate-click="(lang) => onTranslateClick(lang)"
+        :disabled="!hasTextSelected"
       />
     </div>
     <div v-if="isLoading" class="flex items-center justify-center">

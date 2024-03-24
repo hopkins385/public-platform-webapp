@@ -3,7 +3,7 @@
     height: calc(100dvh - 10rem);
     width: 100%;
     overflow-y: auto;
-    padding: 0.5em 1em;
+    padding: 0.5em 2em;
     outline: none;
     font-size: 1.025rem;
     font-weight: 400;

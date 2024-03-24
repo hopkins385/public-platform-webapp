@@ -7,18 +7,21 @@ export default function useRunCompletion() {
   const { toMarkdown } = useTurndown();
   const { getEditorCompletion, isLoading } = useEditorCompletion();
 
-  const runCompletion = (editor: Editor, action: string, lang: string) => {
+  const runCompletion = (
+    editor: Editor,
+    options: { lang: string; action: string; prompt: string | undefined },
+  ) => {
     if (!editor) return;
     const { selectedText, pos } = getSelectionText(editor);
 
     const markdown = toMarkdown(editor.getHTML());
 
     const payload = {
-      lang,
-      action,
+      lang: options.lang,
+      action: options.action,
       selectedText,
       fullText: markdown,
-      prompt: '',
+      prompt: options.prompt || '',
     };
 
     getEditorCompletion(payload)

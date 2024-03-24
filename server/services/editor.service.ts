@@ -23,6 +23,11 @@ export class EditorService {
       payload.action as EditorActionEnum,
     );
 
+    const userPrompt =
+      payload.action === EditorActionEnum.CUSTOM
+        ? payload.prompt + ' ' + payload.selectedText
+        : payload.selectedText;
+
     const response = await this.openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [
@@ -32,7 +37,7 @@ export class EditorService {
         },
         {
           role: 'user',
-          content: payload.selectedText,
+          content: userPrompt,
         },
       ],
       temperature: 0.7,
@@ -48,41 +53,44 @@ export class EditorService {
   }
 
   getSystemPrompt(action: EditorActionEnum) {
-    const initPrompt =
+    const initSysPrompt =
       'This is a conversation between a user and an AI writing assistant. ';
-    let prompt = '';
+    let sysPrompt = '';
     switch (action) {
       case EditorActionEnum.IMPROVE:
-        prompt =
+        sysPrompt =
           'You are an AI writing assistant that improves existing text. ' +
           'Limit your response to no more than 200 characters, but make sure to construct complete sentences.';
         break;
       case EditorActionEnum.EXTEND:
-        prompt =
+        sysPrompt =
           'You are an AI writing assistant that continues existing text based on context from prior text. ' +
           'Give more weight/priority to the later characters than the beginning ones. ' +
           'Limit your response to no more than 200 characters, but make sure to construct complete sentences.';
         break;
       case EditorActionEnum.SHORTEN:
-        prompt =
+        sysPrompt =
           'You are an AI writing assistant that shortens existing text. ';
         break;
       case EditorActionEnum.REPHRASE:
-        prompt = 'Rephrase the text.';
+        sysPrompt = 'Rephrase the text.';
         break;
       case EditorActionEnum.SUMMARIZE:
-        prompt = 'Summarize the text.';
+        sysPrompt = 'Summarize the text.';
         break;
       case EditorActionEnum.SIMPLIFY:
-        prompt = 'Simplify the text.';
+        sysPrompt = 'Simplify the text.';
         break;
       case EditorActionEnum.SPELLING:
-        prompt = 'Correct the spelling.';
+        sysPrompt = 'Correct the spelling.';
+        break;
+      case EditorActionEnum.CUSTOM:
+        sysPrompt = 'You are an AI writing assistant who helps the user. ';
         break;
       default:
-        prompt = 'Improve the text.';
+        sysPrompt = 'Improve the text.';
         break;
     }
-    return initPrompt + prompt;
+    return initSysPrompt + sysPrompt;
   }
 }

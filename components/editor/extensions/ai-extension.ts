@@ -2,19 +2,31 @@ import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Extension } from '@tiptap/vue-3';
 import type { Editor } from '@tiptap/core';
 
-export const pluginKey = new PluginKey('ai-extension');
+export const aiPluginKey = new PluginKey('ai-extension');
 
-let controller: AbortController | null = null;
+interface AiActionOptions {
+  action: string;
+  prompt?: string;
+}
+
+interface CompletionHandlerOptions {
+  lang: string;
+  action: string;
+  prompt?: string;
+}
 
 declare module '@tiptap/core' {
   interface Commands<ReturnType> {
     ai: {
-      aiAction: (action: string) => ReturnType;
+      aiAction: (aiActionOptions: AiActionOptions) => ReturnType;
     };
   }
   interface EditorOptions {
     lang: string | null;
-    completionHandler: (editor: Editor, action: string, lang: string) => void;
+    completionHandler: (
+      editor: Editor,
+      options: CompletionHandlerOptions,
+    ) => void;
   }
 }
 
@@ -29,17 +41,22 @@ export const AI = Extension.create({
   addProseMirrorPlugins() {
     return [
       new Plugin({
-        key: pluginKey,
+        key: aiPluginKey,
       }),
     ];
   },
   addCommands() {
     return {
       aiAction:
-        (action: string) =>
+        (aiActionOptions: AiActionOptions) =>
         ({ editor }) => {
           const { lang, completionHandler } = this.options;
-          completionHandler(editor, action, lang);
+          const handlerOptions = {
+            lang,
+            action: aiActionOptions.action,
+            prompt: aiActionOptions.prompt,
+          };
+          completionHandler(editor, handlerOptions);
           return true;
         },
     };

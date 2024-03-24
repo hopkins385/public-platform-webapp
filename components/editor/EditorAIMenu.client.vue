@@ -12,6 +12,10 @@
     ChevronRightIcon,
   } from 'lucide-vue-next';
 
+  defineProps<{
+    disabled: boolean;
+  }>();
+
   defineEmits<{
     improveClick: [void];
     extendClick: [void];
@@ -34,7 +38,15 @@
         <span class="pb-1"><SparklesIcon class="size-3" /></span>
       </button>
     </DropdownMenuTrigger>
-    <DropdownMenuContent class="w-52 p-2">
+    <DropdownMenuContent class="relative w-52 p-2">
+      <div
+        v-if="disabled"
+        class="pointer-events-none absolute left-0 top-0 z-10 flex h-full w-full justify-center rounded-lg bg-white/80 backdrop-blur-sm"
+      >
+        <p class="px-4 pt-10 text-center text-sm font-semibold text-slate-900">
+          Please first select some text to activate AI features.
+        </p>
+      </div>
       <DropdownMenuItem class="p-2">
         <EditorButtonBox :active="false" @click="() => $emit('improveClick')">
           <CheckCheckIcon class="size-4" />
