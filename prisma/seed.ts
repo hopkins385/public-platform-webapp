@@ -12,6 +12,7 @@ async function hashPassword(password: string): Promise<string> {
 const prisma = new PrismaClient();
 
 async function main() {
+  // create user
   const user = await prisma.user.upsert({
     where: { email: 'sven@svenson.ai' },
     update: {},
@@ -27,6 +28,33 @@ async function main() {
       emailVerifiedAt: new Date(),
     },
   });
+
+  // create organization
+  const org = await prisma.organisation.create({
+    data: {
+      id: ulid().toLowerCase(),
+      name: 'Svenson Organisation',
+    },
+  });
+
+  // create team
+  const team = await prisma.team.create({
+    data: {
+      id: ulid().toLowerCase(),
+      name: 'Svenson Team',
+      organisation: { connect: { id: org.id } },
+    },
+  });
+
+  // create team user
+  await prisma.teamUser.create({
+    data: {
+      id: ulid().toLowerCase(),
+      user: { connect: { id: user.id } },
+      team: { connect: { id: team.id } },
+    },
+  });
+
   // create credit
   await prisma.credit.create({
     data: {

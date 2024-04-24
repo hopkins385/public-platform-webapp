@@ -5,7 +5,7 @@ export default defineNuxtConfig({
     typedPages: false,
   },
   devtools: {
-    enabled: true,
+    enabled: false,
   },
   telemetry: false,
   debug: false,
@@ -23,6 +23,7 @@ export default defineNuxtConfig({
     '@pinia-plugin-persistedstate/nuxt',
     ['unplugin-icons/nuxt', { autoInstall: true }],
     '@vue-macros/nuxt',
+    "@nuxtjs/device"
   ],
   runtimeConfig: {
     public: {
@@ -129,9 +130,6 @@ export default defineNuxtConfig({
   },
   tailwindcss: {
     cssPath: '~/assets/css/main.css',
-  },
-  headlessui: {
-    prefix: 'Headless',
   },
   shadcn: {
     prefix: '',

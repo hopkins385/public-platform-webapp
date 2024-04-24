@@ -130,12 +130,17 @@ export class UserService {
             amount: true,
           },
         },
+        teams: {
+          select: {
+            teamId: true,
+          },
+        },
       },
     });
   }
 
-  getUserByEmail(email: string) {
-    return this.prisma.user.findFirst({
+  async getUserByEmail(email: string) {
+    return await this.prisma.user.findFirst({
       where: { email },
       select: {
         id: true,
@@ -144,6 +149,11 @@ export class UserService {
         lastName: true,
         email: true,
         password: true,
+        teams: {
+          select: {
+            teamId: true,
+          },
+        },
       },
     });
   }

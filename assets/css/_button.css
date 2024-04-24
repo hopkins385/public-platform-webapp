@@ -1,0 +1,16 @@
+button.add-to-backlog-button {
+  @apply absolute bottom-0 right-0 hidden size-7 flex-1 shrink-0 items-center justify-center rounded-full bg-slate-200 shadow-md;
+}
+
+button.add-to-backlog-button:hover {
+  @apply bg-slate-300;
+}
+
+/* parent class */
+.backlog-button-container {
+  @apply relative;
+}
+
+.backlog-button-container:hover .add-to-backlog-button {
+  @apply block;
+}

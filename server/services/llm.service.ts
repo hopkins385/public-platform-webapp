@@ -27,12 +27,12 @@ export class LLMService {
   }
 
   async getCachedModels(): Promise<Partial<LargeLangModel[]>> {
-    const models = await useStorage('redis').getItem('llm-models');
-    if (models) {
-      return models as Partial<LargeLangModel[]>;
-    }
+    // const models = await useStorage('redis').getItem('llm-models');
+    // if (models) {
+    //   return models as Partial<LargeLangModel[]>;
+    // }
     const freshModels = await this.getModels();
-    await useStorage('redis').setItem('llm-models', freshModels);
+    // await useStorage('redis').setItem('llm-models', freshModels);
     return freshModels as Partial<LargeLangModel[]>;
   }
 }

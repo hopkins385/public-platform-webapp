@@ -10,6 +10,7 @@
   const { successDuration, errorDuration } = useAppConfig().toast;
   const { createAssistant } = useManageAssistants();
   const { $toast } = useNuxtApp();
+  const { data: auth } = useAuth();
 
   const assistantFormSchema = toTypedSchema(
     z.object({
@@ -25,9 +26,11 @@
   });
 
   const onSubmit = handleSubmit(async (values, { resetForm }) => {
+    console.log('values', values);
     try {
       const assistant = await createAssistant({
         ...values,
+        teamId: auth.value?.user.teamId,
         systemPromptTokenCount: 1, // TODO: calculate token count
       });
       $toast('Success', {
@@ -106,13 +109,13 @@
           name="isShared"
         >
           <FormItem>
-            <FormLabel>Public Shared</FormLabel>
+            <FormLabel>Shared</FormLabel>
             <FormControl>
               <Switch :checked="value" @update:checked="handleChange" />
             </FormControl>
             <FormDescription>
-              If the assistant is shared it will also be available to users
-              outside of your organisation.
+              If the assistant is shared it will be available to your whole
+              organization.
             </FormDescription>
             <FormMessage />
           </FormItem>

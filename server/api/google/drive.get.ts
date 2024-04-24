@@ -12,20 +12,14 @@ const querySchema = z.object({
 
 export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);
-
-  if (!session || !session.user) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-    });
-  }
+  const authUser = getAuthUser(session); // do not remove this line
 
   const { prisma } = _event.context;
 
   let user: Partial<User> | null = null;
   user = await prisma.user.findUnique({
     where: {
-      id: session.user.id,
+      id: authUser.id,
     },
     select: {
       id: true,
@@ -51,7 +45,7 @@ export default defineEventHandler(async (_event) => {
   oauth2Client.on('tokens', async (tokens) => {
     if (tokens && tokens.access_token) {
       const userService = new UserService(prisma);
-      user = await userService.updateGoogleAuthTokens(session.user.id, {
+      user = await userService.updateGoogleAuthTokens(authUser.id, {
         accessToken: tokens.access_token,
         refreshToken: tokens.refresh_token ?? undefined,
       });

@@ -8,13 +8,6 @@ const editorService = new EditorService(config.openai.apiKey);
 
 export default defineEventHandler(async (event) => {
   const session = await getServerSession(event);
-
-  if (!session) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-    });
-  }
   const user = getAuthUser(session); // do not remove this line
   const body = await getEditorCompletionBody(event);
 

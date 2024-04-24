@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  const { isMobile, isTablet } = useDevice();
   const route = useRoute();
   const { t } = useI18n();
   const head = useLocaleHead({
@@ -30,6 +31,7 @@
       />
     </Head>
     <Body>
+      <MobileWarning v-if="isMobile || isTablet" />
       <LangSwitcher class="text-secondary lg:text-primary" />
       <div class="h-screen lg:grid lg:grid-cols-2">
         <div class="bg-primary">

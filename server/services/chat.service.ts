@@ -131,6 +131,9 @@ export class ChatService {
           userId,
           deletedAt: null,
         },
+        orderBy: {
+          createdAt: 'desc',
+        },
       })
       .withPages({
         limit: 10,

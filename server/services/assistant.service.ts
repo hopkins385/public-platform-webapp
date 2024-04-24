@@ -1,11 +1,10 @@
-interface CreateAssistant {
-  userId: string;
-  title: string;
-  description: string;
-  systemPrompt: string;
-  isShared?: boolean;
-  systemPromptTokenCount: number;
-}
+import type {
+  FindAllAssistantsDto,
+  FindAssistantDto,
+  UpdateAssistantDto,
+  CreateAssistantDto,
+  DeleteAssistantDto,
+} from './dto/assistant.dto';
 
 export class AssistantService {
   private readonly prisma: ExtendedPrismaClient;
@@ -17,8 +16,8 @@ export class AssistantService {
     }
     this.prisma = prisma;
     this.defaultSystemPrompt = {
-      de: `Sie sind ein freundlicher und hilfsbereiter Assistent, der für Svenson.ai arbeitet.\n`,
-      en: `You are a friendly and helpful assistant working for Svenson.ai.\n`,
+      de: `Sie sind ein freundlicher und hilfsbereiter Assistent.\n`,
+      en: `You are a friendly and helpful assistant.\n`,
     };
   }
 
@@ -42,40 +41,53 @@ export class AssistantService {
     }
   }
 
-  create(input: CreateAssistant) {
+  create(payload: CreateAssistantDto) {
     return this.prisma.assistant.create({
       data: {
         id: ULID(),
-        userId: input.userId,
-        title: input.title,
-        description: input.description,
-        systemPrompt: input.systemPrompt,
-        isShared: input.isShared || false,
-        systemPromptTokenCount: input.systemPromptTokenCount,
+        teamId: payload.teamId.toLowerCase(),
+        title: payload.title,
+        description: payload.description,
+        systemPrompt: payload.systemPrompt,
+        isShared: payload.isShared || false,
+        systemPromptTokenCount: payload.systemPromptTokenCount,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
     });
   }
 
-  findFirst(payload: { userId: string; assistantId: string }) {
+  findFirst(payload: FindAssistantDto) {
     return this.prisma.assistant.findFirst({
       where: {
-        userId: payload.userId,
         id: payload.assistantId.toLowerCase(),
         deletedAt: null,
-      },
-      include: {
-        user: true,
       },
     });
   }
 
-  findAll(payload: { userId: string; page: number }) {
+  getDetails(payload: FindAssistantDto) {
+    return this.prisma.assistant.findFirst({
+      where: {
+        id: payload.assistantId.toLowerCase(),
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        systemPrompt: false,
+        isShared: true,
+        systemPromptTokenCount: false,
+      },
+    });
+  }
+
+  findAll(payload: FindAllAssistantsDto) {
     return this.prisma.assistant
       .paginate({
         where: {
-          userId: payload.userId,
+          teamId: payload.teamId.toLowerCase(),
           deletedAt: null,
         },
         select: {
@@ -92,35 +104,27 @@ export class AssistantService {
       });
   }
 
-  update(payload: {
-    userId: string;
-    assistantId: string;
-    title: string;
-    description: string;
-    systemPrompt: string;
-    isShared?: boolean;
-    systemPromptTokenCount: number;
-  }) {
+  update(payload: UpdateAssistantDto) {
     return this.prisma.assistant.update({
       where: {
-        userId: payload.userId,
+        teamId: payload.teamId.toLowerCase(),
         id: payload.assistantId.toLowerCase(),
       },
       data: {
         title: payload.title,
         description: payload.description,
         systemPrompt: payload.systemPrompt,
-        isShared: payload.isShared,
+        isShared: payload.isShared || false,
         systemPromptTokenCount: payload.systemPromptTokenCount,
         updatedAt: new Date(),
       },
     });
   }
 
-  softDelete(payload: { userId: string; assistantId: string }) {
+  softDelete(payload: DeleteAssistantDto) {
     return this.prisma.assistant.update({
       where: {
-        userId: payload.userId,
+        teamId: payload.teamId.toLowerCase(),
         id: payload.assistantId.toLowerCase(),
       },
       data: {

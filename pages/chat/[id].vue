@@ -8,8 +8,11 @@
 
   const { $client } = useNuxtApp();
   const route = useRoute();
+  const { id } = route.params;
+  const chatId = Array.isArray(id) ? id[0] : id;
+
   const chat = await $client.chat.forUser.query({
-    chatId: route.params?.id,
+    chatId,
   });
   if (!chat || !chat.id) {
     navigateTo('/404');
@@ -18,6 +21,10 @@
 
 <template>
   <SectionContainerWithImage>
-    <ChatWindow :chat-id="chat?.id" :chat-messages="chat?.messages" />
+    <ChatWindow
+      :chat-id="chat?.id"
+      :chat-messages="chat?.messages"
+      :assistant="chat?.assistant"
+    />
   </SectionContainerWithImage>
 </template>

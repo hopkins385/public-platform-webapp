@@ -10,7 +10,7 @@ export const useChatSettingsStore = defineStore('chat-settings', {
   state: (): IChatSettings => ({
     temperature: [80],
     presencePenalty: [0],
-    maxTokens: [500],
+    maxTokens: [1500],
   }),
   getters: {
     getTemperature(state) {

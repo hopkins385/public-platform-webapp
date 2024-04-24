@@ -1,5 +1,7 @@
 export enum ModelEnum {
-  GroqLlama4K = 'llama2-70b-4096',
+  GroqLlama270B = 'llama2-70b-4096',
+  GroqLlama38B = 'llama3-8b-8192',
+  GroqLlama370B = 'llama3-70b-8192',
   GroqMixtral32K = 'mixtral-8x7b-32768',
   GroqGemma7b = 'gemma-7b-it',
   Mistral7B = 'open-mistral-7b',

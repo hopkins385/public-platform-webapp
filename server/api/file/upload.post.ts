@@ -4,23 +4,18 @@ import path from 'path';
 import { readFiles } from 'h3-formidable';
 import type { Options as FormidableOptions } from 'formidable';
 import { getServerSession } from '#auth';
+import { getAuthUser } from '~/server/utils/auth/permission';
 
 export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);
-
-  if (!session || !session?.user || !session.user.id) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: 'Not found',
-    });
-  }
+  const user = getAuthUser(session); // do not remove this line
 
   if (!fs.existsSync('public/uploads')) {
     fs.mkdirSync(path.join('public', 'uploads'));
   }
 
-  if (!fs.existsSync(`public/uploads/${session.user.id}`)) {
-    fs.mkdirSync(path.join('public', 'uploads', session.user.id));
+  if (!fs.existsSync(`public/uploads/${user.id}`)) {
+    fs.mkdirSync(path.join('public', 'uploads', user.id));
   }
 
   const options = {
@@ -39,8 +34,9 @@ export default defineEventHandler(async (_event) => {
 
     if (!files.clientFiles) {
       throw createError({
-        statusCode: 500,
-        statusMessage: 'Client file(s) not found',
+        statusCode: 406,
+        statusMessage: 'Not Acceptable',
+        message: 'Client file(s) cannot be empty.',
       });
     }
 
@@ -50,16 +46,18 @@ export default defineEventHandler(async (_event) => {
           ? file.mimetype?.split('/')[1]
           : 'txt';
       const fileName = `${Date.now()}-${file.newFilename}.${mimeType}`;
-      const newPath = `${path.join('public', 'uploads', session.user.id, fileName)}`;
+      const newPath = `${path.join('public', 'uploads', user.id, fileName)}`;
       fs.copyFileSync(file.filepath, newPath);
     }
 
     return { success: true };
     //
   } catch (error) {
+    console.error(error);
     throw createError({
-      statusCode: 400,
-      statusMessage: error?.message,
+      statusCode: 500,
+      statusMessage: 'Internal Server Error',
+      message: 'An error occurred while uploading the file(s)',
     });
   }
 });

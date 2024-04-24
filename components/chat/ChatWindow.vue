@@ -11,6 +11,7 @@
 
   const props = defineProps<{
     chatId?: string | null;
+    assistant?: any;
     chatMessages?: ChatMessage[];
   }>();
 
@@ -175,15 +176,20 @@
     class="relative flex h-full flex-col px-20 py-10 lg:px-40 xl:px-60"
   >
     <div
-      class="absolute left-0 top-0 z-10 flex w-full items-center justify-between px-8 py-5"
+      id="chatHeader"
+      class="pointer-events-none absolute left-0 top-0 z-10 flex w-full items-center justify-between px-8 py-5"
     >
-      <div>
+      <div class="pointer-events-auto">
         <Suspense>
           <ChatModelSelector />
           <template #fallback> Loading... </template>
         </Suspense>
+        <div>
+          <AssistantDetailsActive :assistant="assistant" />
+        </div>
       </div>
-      <div class="flex space-x-3">
+
+      <div class="pointer-events-auto flex space-x-3">
         <Button size="icon" variant="outline" @click="clearChatMessages">
           <MessageSquareXIcon class="size-4 stroke-1.5 group-hover:stroke-2" />
         </Button>
@@ -239,7 +245,7 @@
           variant="outline"
           size="icon"
           class="group rounded-full border bg-slate-200 shadow-md"
-          @click="scrollToBottom"
+          @click="() => scrollToBottom()"
         >
           <ArrowBigDownDashIcon
             class="size-5 stroke-1.5 group-hover:stroke-2"
@@ -249,11 +255,13 @@
     </div>
     <div id="chatInputWrapper" class="relative shrink-0 pt-5">
       <form class="flex items-center space-x-2" @submit.prevent="onSubmit">
-        <Input
-          v-model="inputMessage"
-          :placeholder="$t('chat.placeholder')"
-          class="rounded-2xl py-6"
-        />
+        <div class="z-10 max-h-96 w-full">
+          <Textarea
+            v-model="inputMessage"
+            :placeholder="$t('chat.placeholder')"
+            class="rounded-2xl py-6 focus:shadow-lg"
+          />
+        </div>
         <Button
           type="submit"
           :disabled="!inputMessage || isPending || isStreaming"
@@ -265,8 +273,8 @@
         v-if="isStreaming"
         variant="outline"
         size="icon"
-        class="group absolute right-24 top-7 mr-1 size-8 rounded-full bg-slate-100"
-        @click="onAbort"
+        class="group absolute right-24 top-7 z-20 mr-1 size-8 rounded-full bg-slate-100"
+        @click="() => onAbort()"
       >
         <SquareIcon class="size-3 text-slate-500 group-hover:text-slate-900" />
       </Button>

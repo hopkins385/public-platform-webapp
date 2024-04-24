@@ -11,6 +11,7 @@
   const { $toast } = useNuxtApp();
   const { getAllAssistants, deleteAssistant, setPage } = useManageAssistants();
   const { data, refresh } = await getAllAssistants();
+  const { data: auth } = useAuth();
 
   const assistants = computed(() => data.value?.assistants || []);
   const meta = computed(() => {
@@ -27,7 +28,7 @@
   const handleDelete = async () => {
     const id = deleteAssistantId.value;
     try {
-      await deleteAssistant(id);
+      await deleteAssistant(id, auth.value?.user.teamId);
       deleteAssistantId.value = '';
       $toast.success('Success', {
         description: 'Assistant has been deleted successfully.',
@@ -87,7 +88,7 @@
           </TableCell>
           <TableCell>{{ assistant.title }}</TableCell>
           <TableCell>
-            {{ assistant.isShared ? 'Shared' : 'Not Shared' }}
+            {{ assistant.isShared ? 'Not Shared' : 'Shared' }}
           </TableCell>
           <TableCell class="space-x-2 text-right">
             <Button variant="outline" size="icon" @click="onEdit(assistant.id)">

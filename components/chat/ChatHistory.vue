@@ -2,7 +2,7 @@
   import { FileEditIcon, Trash2Icon } from 'lucide-vue-next';
 
   const { getDateTimeForHumans } = useForHumans();
-  const { getAllChatsForUser, deleteChat } = useChat();
+  const { getAllChatsForUser, deleteChat, setPage } = useChat();
   const { data, refresh } = await getAllChatsForUser();
 
   const chats = computed(() => data.value?.chats || []);
@@ -20,7 +20,10 @@
   const showConfirmDialog = ref(false);
   const chatIdToDelete = ref('');
 
-  const onPageChange = (page: number) => {};
+  const onPageChange = (value: number) => {
+    setPage(value);
+    refresh();
+  };
 
   const onEdit = (chatId: string) => {
     navigateTo(`/chat/${chatId}`);

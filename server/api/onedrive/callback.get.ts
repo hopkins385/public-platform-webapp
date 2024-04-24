@@ -6,20 +6,14 @@ import { UserService } from '~/server/services/user.service';
 const querySchema = z.object({
   code: z.string(),
 });
+const config = useRuntimeConfig().azure;
 
 export default defineEventHandler(async (_event) => {
-  const config = useRuntimeConfig().azure;
   const { msalClient, prisma } = _event.context;
   const userService = new UserService(prisma);
 
   const session = await getServerSession(_event);
-
-  if (!session || !session.user) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-    });
-  }
+  const authUser = getAuthUser(session); // do not remove this line
 
   const query = await getValidatedQuery(_event, (query) =>
     querySchema.safeParse(query),
@@ -28,7 +22,7 @@ export default defineEventHandler(async (_event) => {
   if (!query.success) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request [invalid code]',
+      statusMessage: 'Bad Request',
     });
   }
 
@@ -45,20 +39,22 @@ export default defineEventHandler(async (_event) => {
   } catch (error) {
     console.error(error);
     throw createError({
-      statusCode: 400,
-      statusMessage: 'Bad Request [invalid request]',
+      statusCode: 500,
+      statusMessage: 'Internal server error',
+      message: 'Failed to get access token',
     });
   }
 
   if (!response || !response.account || !response.accessToken) {
     throw createError({
-      statusCode: 400,
-      statusMessage: 'Bad Request [invalid response]',
+      statusCode: 500,
+      statusMessage: 'Internal server error',
+      message: 'Account or Token not found',
     });
   }
 
   try {
-    await userService.updateAzureAuthTokens(session.user.id, {
+    await userService.updateAzureAuthTokens(authUser.id, {
       accountInfo: {
         homeAccountId: response.account.homeAccountId,
         environment: response.account.environment,
@@ -77,8 +73,9 @@ export default defineEventHandler(async (_event) => {
   } catch (error) {
     console.error(error);
     throw createError({
-      statusCode: 400,
-      statusMessage: 'Bad Request [user update failed]',
+      statusCode: 500,
+      statusMessage: 'Internal server error',
+      message: 'Failed to update user',
     });
   }
 

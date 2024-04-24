@@ -11,15 +11,15 @@ declare module 'h3' {
   }
 }
 
+const config = useRuntimeConfig().azure;
 let client: ConfidentialClientApplication | null = null;
 
 export default eventHandler((event) => {
-  const config = useRuntimeConfig();
   const msalConfig: Configuration = {
     auth: {
-      clientId: config.azure.clientId,
-      authority: config.azure.authority,
-      clientSecret: config.azure.clientSecret,
+      clientId: config.clientId,
+      authority: config.authority,
+      clientSecret: config.clientSecret,
     },
     system: {
       loggerOptions: {
@@ -49,8 +49,17 @@ export default eventHandler((event) => {
     },
   };
 
-  // if (!client) {
-  //   client = new ConfidentialClientApplication(msalConfig);
-  // }
-  // event.context.msalClient = client;
+  if (!client) {
+    try {
+      client = new ConfidentialClientApplication(msalConfig);
+    } catch (err) {
+      console.error('[msal] [client]', err);
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Internal server error',
+        message: 'Failed to create MSAL client',
+      });
+    }
+  }
+  event.context.msalClient = client;
 });

@@ -1,9 +1,44 @@
 <script setup lang="ts">
   import 'highlight.js/styles/stackoverflow-light.min.css';
-  defineProps<{
+
+  const props = defineProps<{
     message: string;
     role: 'user' | 'assistant';
   }>();
+
+  const messageContentRef = ref<HTMLElement | null>(null);
+
+  function buttonClick(event: Event) {
+    console.log('Button clicked');
+    // content of the node that the button is attached to
+    const content = event.target?.parentNode?.textContent;
+    if (content) {
+      console.log(content);
+    }
+  }
+
+  onMounted(() => {
+    if (props.role == 'assistant' && messageContentRef.value) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(props.message, 'text/html');
+      doc.querySelectorAll('p, li').forEach((el) => {
+        el.classList.add('backlog-button-container');
+        const button = doc.createElement('button');
+        // add id to button
+        button.id = 'add-to-backlog-button';
+        button.classList.add('add-to-backlog-button');
+        button.textContent = '+';
+        el.appendChild(button);
+      });
+      messageContentRef.value.innerHTML = doc.body.innerHTML;
+
+      messageContentRef.value
+        .querySelectorAll('#add-to-backlog-button')
+        .forEach((button) => {
+          button.addEventListener('click', buttonClick);
+        });
+    }
+  });
 </script>
 
 <template>
@@ -18,7 +53,11 @@
               : $t('assistant.placeholder')
           }}
         </div>
-        <div v-dompurify-html="message" class="w-full pr-10"></div>
+        <div
+          v-dompurify-html="message"
+          class="w-full pr-10"
+          ref="messageContentRef"
+        ></div>
       </div>
     </div>
   </div>

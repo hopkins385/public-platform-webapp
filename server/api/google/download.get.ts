@@ -13,20 +13,14 @@ const fileSchema = z.object({
 
 export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);
-
-  if (!session || !session.user) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-    });
-  }
+  const authUser = getAuthUser(session); // do not remove this line
 
   const { prisma } = _event.context;
 
   let user: Partial<User> | null = null;
   user = await prisma.user.findUnique({
     where: {
-      id: session.user.id,
+      id: authUser.id,
     },
     select: {
       id: true,
@@ -52,7 +46,7 @@ export default defineEventHandler(async (_event) => {
   oauth2Client.on('tokens', async (tokens) => {
     if (tokens && tokens.access_token) {
       const userService = new UserService(prisma);
-      user = await userService.updateGoogleAuthTokens(session.user?.id, {
+      user = await userService.updateGoogleAuthTokens(authUser.id, {
         accessToken: tokens.access_token,
         refreshToken: tokens.refresh_token ?? undefined,
       });
@@ -81,8 +75,8 @@ export default defineEventHandler(async (_event) => {
     fs.mkdirSync(path.join('public', 'uploads'));
   }
 
-  if (!fs.existsSync(path.join('public', 'uploads', session.user.id))) {
-    fs.mkdirSync(path.join('public', 'uploads', session.user.id));
+  if (!fs.existsSync(path.join('public', 'uploads', authUser.id))) {
+    fs.mkdirSync(path.join('public', 'uploads', authUser.id));
   }
 
   // get file metadata from google drive
@@ -105,12 +99,7 @@ export default defineEventHandler(async (_event) => {
 
   const newFilename = `${Date.now().toString()}-${fileNameMd5}.${file.data.fileExtension}`;
 
-  const newPath = `${path.join(
-    'public',
-    'uploads',
-    session.user.id,
-    newFilename,
-  )}`;
+  const newPath = `${path.join('public', 'uploads', authUser.id, newFilename)}`;
 
   // save file to public/uploads
   const writer = fs.createWriteStream(newPath);

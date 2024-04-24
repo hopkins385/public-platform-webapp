@@ -13,12 +13,14 @@
     useManageAssistants();
   const { $toast, $client } = useNuxtApp();
   const route = useRoute();
+  const { data } = useAuth();
 
   setAssistantId(route.params.id);
   const { data: assistant } = await getOneAssistant();
 
   const assistantFormSchema = toTypedSchema(
     z.object({
+      teamId: z.string(),
       title: z.string().min(3).max(255),
       description: z.string().min(3).max(255),
       systemPrompt: z.string().min(3).max(6000),
@@ -29,6 +31,7 @@
   const { handleSubmit } = useForm({
     validationSchema: assistantFormSchema,
     initialValues: {
+      teamId: data.value?.user.teamId,
       title: assistant.value?.title,
       description: assistant.value?.description,
       systemPrompt: assistant.value?.systemPrompt,

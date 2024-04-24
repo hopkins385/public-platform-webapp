@@ -15,8 +15,6 @@ eventEmitter.once('user-logged-in', async (user) => {
   // const prisma = new PrismaClient();
   // const userService = new UserService(prisma);
   // await userService.updateLastLogin(user.id);
-  // const slackService = new SlackService();
-  // await slackService.sendNewUserRegistrationNotification();
 });
 
 export default NuxtAuthHandler({
@@ -37,13 +35,19 @@ export default NuxtAuthHandler({
       }
       return true;
     },
-    session: ({ session, token }) => ({
-      ...session,
-      user: {
-        id: isValid(token.sub ?? '') ? token.sub : null,
-        ...session.user,
-      },
-    }),
+    jwt: async ({ token, user }) => {
+      const isSignIn = user ? true : false;
+      if (isSignIn) {
+        token.id = user ? user.id || '' : '';
+        token.teams = user ? (user as any).teams || '' : '';
+      }
+      return Promise.resolve(token);
+    },
+    session: async ({ session, token }) => {
+      (session as any).user.id = token.id;
+      (session as any).user.teamId = (token as any).teams[0].teamId;
+      return Promise.resolve(session);
+    },
   },
   providers: [
     // @ts-expect-error
@@ -58,23 +62,29 @@ export default NuxtAuthHandler({
           return null;
         }
 
-        try {
-          // wait for
-          await new Promise((resolve) => setTimeout(resolve, 300));
-          // get user
-          const user = await userService.getAuthUser({
-            email: credentials.email,
-            password: credentials.password,
+        // wait for
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        // get user
+        const user = await userService.getAuthUser({
+          email: credentials.email,
+          password: credentials.password,
+        });
+
+        if (!user) {
+          throw createError({
+            statusCode: 403,
+            statusMessage: 'Credentials wrong',
           });
-          if (!user) {
-            return null;
-          }
-          return user;
-        } catch (error: any) {
-          console.log('auth error: ', error);
         }
 
-        return null;
+        const sessionUser = {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          teams: user.teams,
+        };
+
+        return sessionUser;
       },
     }),
   ],

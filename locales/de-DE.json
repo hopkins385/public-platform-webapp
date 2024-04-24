@@ -92,7 +92,11 @@
     "placeholder": "Assistent",
     "meta": {
       "title": "Assistent",
-      "description": "Assistent"
+      "description": "Assistent",
+      "one": {
+        "title": "Assistent",
+        "description": "Assistent"
+      }
     }
   },
   "file": {

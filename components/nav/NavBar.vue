@@ -2,13 +2,13 @@
   import {
     UserIcon,
     BotIcon,
-    MessageSquareTextIcon,
     MessagesSquareIcon,
     BoltIcon,
     Disc3Icon,
     PenLineIcon,
     FolderClosedIcon,
     SquareGanttChartIcon,
+    Table2Icon,
   } from 'lucide-vue-next';
   const playground = false;
 </script>
@@ -23,6 +23,11 @@
       </li>
     </ul>
     <ul class="space-y-4 pt-8">
+      <li class="nav-item">
+        <NuxtLink href="/workflow">
+          <Table2Icon class="nav-icon" />
+        </NuxtLink>
+      </li>
       <li class="nav-item">
         <NuxtLink href="/editor">
           <PenLineIcon class="nav-icon" />

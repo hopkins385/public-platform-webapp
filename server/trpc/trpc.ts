@@ -50,7 +50,7 @@ export const middleware = t.middleware((opts) => {
  */
 const isAuthed = t.middleware((opts) => {
   const { ctx } = opts;
-  if (!ctx.user) {
+  if (!ctx.user || !ctx.user.id) {
     throw new TRPCError({ code: 'UNAUTHORIZED' });
   }
   return opts.next();

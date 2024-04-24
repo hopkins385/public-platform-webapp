@@ -35,7 +35,10 @@ function getAuthenticatedClient(
       );
 
       if (!user || !accountInfo || !accountInfo.homeAccountId) {
-        throw new Error('Invalid user');
+        const err = `Invalid user state. User: ${user ? 'present' : 'missing'}, Account Info: ${accountInfo ? 'present' : 'missing'}`;
+        console.error('[msal] [account not found]', err);
+        done('invalid user', null);
+        return;
       }
 
       try {
@@ -101,18 +104,13 @@ async function getDriveItems(
   return result;
 }
 
+const config = useRuntimeConfig().azure;
+
 export default defineEventHandler(async (_event) => {
-  const config = useRuntimeConfig().azure;
+  const session = await getServerSession(_event);
+  const authUser = getAuthUser(session); // do not remove this line
   const { msalClient, prisma } = _event.context;
   const userService = new UserService(prisma);
-  const session = await getServerSession(_event);
-
-  if (!session || !session.user) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-    });
-  }
 
   let user: Partial<User> | null = null;
   try {
@@ -120,7 +118,7 @@ export default defineEventHandler(async (_event) => {
   } catch (error) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request [invalid user]',
+      statusMessage: 'Bad Request',
     });
   }
 
@@ -149,10 +147,10 @@ export default defineEventHandler(async (_event) => {
   try {
     response = await getDriveItems(msalClient, user, config, query);
   } catch (error) {
-    console.log(error);
+    console.error('[msal] [client]', error);
     throw createError({
       statusCode: 400,
-      statusMessage: 'Bad Request [invalid response]',
+      statusMessage: 'Bad Request',
     });
   }
 

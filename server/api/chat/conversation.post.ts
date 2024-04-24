@@ -12,15 +12,7 @@ const config = useRuntimeConfig();
 
 export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);
-
-  if (!session) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-    });
-  }
-
-  const user = getAuthUser(session);
+  const user = getAuthUser(session); // do not remove this line
 
   const { prisma } = _event.context;
   const chatService = new ChatService(prisma);
