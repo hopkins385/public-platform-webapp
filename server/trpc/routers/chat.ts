@@ -1,14 +1,13 @@
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { ChatService } from './../../services/chat.service';
-
-const ulidRule = z.string().toUpperCase().ulid();
+import { ulidRule } from '~/server/utils/validation/ulid.rule';
 
 export const chatRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        assistantId: ulidRule,
+        assistantId: ulidRule(),
       }),
     )
     .query(({ ctx, input }) => {
@@ -20,7 +19,7 @@ export const chatRouter = router({
   createMessage: protectedProcedure
     .input(
       z.object({
-        chatId: ulidRule,
+        chatId: ulidRule(),
         chatMessage: z.object({
           role: z.enum(['user', 'assistant']),
           content: z.string(),
@@ -52,7 +51,7 @@ export const chatRouter = router({
   clearMessages: protectedProcedure
     .input(
       z.object({
-        chatId: ulidRule,
+        chatId: ulidRule(),
       }),
     )
     .query(({ ctx, input }) => {
@@ -62,7 +61,7 @@ export const chatRouter = router({
   forUser: protectedProcedure
     .input(
       z.object({
-        chatId: ulidRule,
+        chatId: ulidRule(),
       }),
     )
     .query(({ ctx, input }) => {
@@ -75,7 +74,7 @@ export const chatRouter = router({
   delete: protectedProcedure
     .input(
       z.object({
-        chatId: ulidRule,
+        chatId: ulidRule(),
       }),
     )
     .query(({ ctx, input }) => {

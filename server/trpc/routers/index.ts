@@ -2,12 +2,13 @@ import { router } from '../trpc';
 import { embedRouter } from './embed';
 import { getStripeCheckoutUrl } from './stripe';
 import { userMeRouter } from './user-me';
-import { adminAssistantRouter } from './admin-assistants';
+import { assistantRouter } from './assistant';
 import { tokenizerRouter } from './tokenizer';
 import { chatRouter } from './chat';
 import { chatModelsRouter } from './llm-models';
 import { registerRouter } from './register';
-import { assistantRouter } from './assistant';
+import { projectRouter } from './project';
+import { requirementRouter } from './requirement';
 
 export const appRouter = router({
   register: registerRouter,
@@ -16,9 +17,10 @@ export const appRouter = router({
   embed: embedRouter,
   tokenizer: tokenizerRouter,
   assistant: assistantRouter,
-  adminAssistant: adminAssistantRouter,
   me: userMeRouter,
   getStripeCheckoutUrl,
+  project: projectRouter,
+  requirement: requirementRouter,
 });
 
 // export type definition of API

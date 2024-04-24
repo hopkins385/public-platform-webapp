@@ -75,19 +75,6 @@ model TeamUser {
   @@map("team_users")
 }
 
-model Project {
-  id          String    @id
-  Team        Team      @relation(fields: [teamId], references: [id])
-  teamId      String    @map("team_id")
-  name        String
-  description String
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  deletedAt   DateTime? @map("deleted_at")
-
-  @@map("projects")
-}
-
 model Chat {
   id          String        @id
   user        User          @relation(fields: [userId], references: [id])
@@ -183,4 +170,100 @@ model Credit {
 enum chat_messages_role_enum {
   user
   assistant
+}
+
+// Project, Documents, Requirements, and Workflows
+
+model Project {
+  id          String     @id
+  team        Team       @relation(fields: [teamId], references: [id])
+  teamId      String     @map("team_id")
+  name        String
+  description String
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  deletedAt   DateTime?  @map("deleted_at")
+  documents   Document[]
+
+  @@map("projects")
+}
+
+model Document {
+  id           String        @id
+  project      Project       @relation(fields: [projectId], references: [id])
+  projectId    String        @map("project_id")
+  name         String
+  description  String
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  deletedAt    DateTime?     @map("deleted_at")
+  requirements Requirement[]
+
+  @@map("documents")
+}
+
+model Requirement {
+  id               String             @id
+  document         Document           @relation(fields: [documentId], references: [id])
+  documentId       String             @map("document_id")
+  name             String
+  description      String
+  createdAt        DateTime           @default(now()) @map("created_at")
+  updatedAt        DateTime           @updatedAt @map("updated_at")
+  deletedAt        DateTime?          @map("deleted_at")
+  requirementables RequirementAbles[]
+
+  @@map("requirements")
+}
+
+model RequirementAbles {
+  id            String      @id
+  requirement   Requirement @relation(fields: [requirementId], references: [id])
+  requirementId String      @map("requirement_id")
+  model_type    String      @map("model_type")
+  model_id      String      @map("model_id")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+  deletedAt     DateTime?   @map("deleted_at")
+
+  @@map("requirement_ables")
+}
+
+model Workflow {
+  id        String         @id
+  name      String
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+  deletedAt DateTime?      @map("deleted_at")
+  steps     WorkflowStep[]
+
+  @@map("workflows")
+}
+
+model WorkflowStep {
+  id                String              @id
+  workflow          Workflow            @relation(fields: [workflowId], references: [id])
+  workflowId        String              @map("workflow_id")
+  order_column      Int                 @map("order_column") @db.SmallInt
+  name              String
+  description       String
+  createdAt         DateTime            @default(now()) @map("created_at")
+  updatedAt         DateTime            @updatedAt @map("updated_at")
+  deletedAt         DateTime?           @map("deleted_at")
+  workflowstepables WorkflowStepAbles[]
+
+  @@map("workflow_steps")
+}
+
+model WorkflowStepAbles {
+  id             String       @id
+  workflowStep   WorkflowStep @relation(fields: [workflowStepId], references: [id])
+  workflowStepId String       @map("workflow_step_id")
+  model_type     String       @map("model_type")
+  model_id       String       @map("model_id")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  deletedAt      DateTime?    @map("deleted_at")
+
+  @@map("workflow_step_ables")
 }

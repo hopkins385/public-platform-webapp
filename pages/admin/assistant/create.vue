@@ -26,7 +26,6 @@
   });
 
   const onSubmit = handleSubmit(async (values, { resetForm }) => {
-    console.log('values', values);
     try {
       const assistant = await createAssistant({
         ...values,

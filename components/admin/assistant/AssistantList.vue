@@ -88,7 +88,7 @@
           </TableCell>
           <TableCell>{{ assistant.title }}</TableCell>
           <TableCell>
-            {{ assistant.isShared ? 'Not Shared' : 'Shared' }}
+            {{ assistant.isShared ? 'Shared' : 'Not Shared' }}
           </TableCell>
           <TableCell class="space-x-2 text-right">
             <Button variant="outline" size="icon" @click="onEdit(assistant.id)">

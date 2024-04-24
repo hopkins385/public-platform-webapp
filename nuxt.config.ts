@@ -23,7 +23,7 @@ export default defineNuxtConfig({
     '@pinia-plugin-persistedstate/nuxt',
     ['unplugin-icons/nuxt', { autoInstall: true }],
     '@vue-macros/nuxt',
-    "@nuxtjs/device"
+    '@nuxtjs/device',
   ],
   runtimeConfig: {
     public: {

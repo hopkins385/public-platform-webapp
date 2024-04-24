@@ -1,8 +1,6 @@
 import { z } from 'zod';
 import type { H3Event } from 'h3';
 import { ModelEnum } from '~/server/utils/enums/modelEnum';
-import { langRule } from '~/server/utils/rules/langRule';
-import { ulidRule } from '~/server/utils/rules/ulidRule';
 
 const mMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
@@ -16,8 +14,8 @@ const modelRule = z
 const bodySchema = z.object({
   messages: z.array(mMessageSchema),
   model: modelRule,
-  lang: langRule,
-  chatId: ulidRule.optional(),
+  lang: langRule(),
+  chatId: ulidRule().optional(),
   maxTokens: z.number().int().gte(0),
   temperature: z.number().gte(0).lte(1),
   // presencePenalty: z.number().gte(-2).lte(2),

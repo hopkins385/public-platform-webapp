@@ -40,7 +40,7 @@ export const userMeRouter = router({
     .mutation(async ({ ctx, input }) => {
       const userService = new UserService(ctx.prisma);
       return userService.updatePassword(
-        ctx.user!.id,
+        ctx.user.id,
         input.currentPassword,
         input.newPassword,
       );

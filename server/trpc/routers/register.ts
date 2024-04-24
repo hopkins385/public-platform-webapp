@@ -3,8 +3,6 @@ import { publicProcedure, router } from '../trpc';
 import { z } from 'zod';
 import { verifyEmail } from '@devmehq/email-validator-js';
 
-const ulidRule = z.string().toUpperCase().ulid();
-
 export const registerRouter = router({
   newUser: publicProcedure
     .input(
@@ -38,7 +36,7 @@ export const registerRouter = router({
   confirmEmail: publicProcedure
     .input(
       z.object({
-        userId: ulidRule,
+        userId: ulidRule(),
         token: z.string(),
       }),
     )

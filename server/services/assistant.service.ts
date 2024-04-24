@@ -31,7 +31,7 @@ export class AssistantService {
     try {
       const assistant = await this.prisma.assistant.findFirst({
         where: {
-          id: assistantId.toLowerCase(),
+          id: assistantId,
         },
       });
       return assistant?.systemPrompt || '';
@@ -45,7 +45,7 @@ export class AssistantService {
     return this.prisma.assistant.create({
       data: {
         id: ULID(),
-        teamId: payload.teamId.toLowerCase(),
+        teamId: payload.teamId,
         title: payload.title,
         description: payload.description,
         systemPrompt: payload.systemPrompt,
@@ -60,7 +60,7 @@ export class AssistantService {
   findFirst(payload: FindAssistantDto) {
     return this.prisma.assistant.findFirst({
       where: {
-        id: payload.assistantId.toLowerCase(),
+        id: payload.assistantId,
         deletedAt: null,
       },
     });
@@ -69,7 +69,7 @@ export class AssistantService {
   getDetails(payload: FindAssistantDto) {
     return this.prisma.assistant.findFirst({
       where: {
-        id: payload.assistantId.toLowerCase(),
+        id: payload.assistantId,
         deletedAt: null,
       },
       select: {
@@ -87,7 +87,7 @@ export class AssistantService {
     return this.prisma.assistant
       .paginate({
         where: {
-          teamId: payload.teamId.toLowerCase(),
+          teamId: payload.teamId,
           deletedAt: null,
         },
         select: {
@@ -107,8 +107,8 @@ export class AssistantService {
   update(payload: UpdateAssistantDto) {
     return this.prisma.assistant.update({
       where: {
-        teamId: payload.teamId.toLowerCase(),
-        id: payload.assistantId.toLowerCase(),
+        teamId: payload.teamId,
+        id: payload.assistantId,
       },
       data: {
         title: payload.title,
@@ -124,8 +124,8 @@ export class AssistantService {
   softDelete(payload: DeleteAssistantDto) {
     return this.prisma.assistant.update({
       where: {
-        teamId: payload.teamId.toLowerCase(),
-        id: payload.assistantId.toLowerCase(),
+        teamId: payload.teamId,
+        id: payload.assistantId,
       },
       data: {
         deletedAt: new Date(),

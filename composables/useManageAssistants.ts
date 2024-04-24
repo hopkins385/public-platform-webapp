@@ -33,7 +33,7 @@ export default function useManageAssistants() {
   }
 
   function createAssistant(payload: AssistantDto) {
-    return $client.adminAssistant.create.mutate(
+    return $client.assistant.create.mutate(
       { ...payload },
       {
         signal: ac.signal,
@@ -43,7 +43,7 @@ export default function useManageAssistants() {
 
   function getAllAssistants() {
     return useAsyncData(async () => {
-      const [assistants, meta] = await $client.adminAssistant.all.query(
+      const [assistants, meta] = await $client.assistant.all.query(
         { page },
         {
           signal: ac.signal,
@@ -56,7 +56,7 @@ export default function useManageAssistants() {
   function getOneAssistant() {
     return useAsyncData(async () => {
       if (!assistantId) return;
-      const assistant = await $client.adminAssistant.one.query(
+      const assistant = await $client.assistant.one.query(
         { id: assistantId },
         {
           signal: ac.signal,
@@ -67,7 +67,7 @@ export default function useManageAssistants() {
   }
 
   function updateAssistant(payload: UpdateAssistantDto) {
-    return $client.adminAssistant.update.mutate(
+    return $client.assistant.update.mutate(
       { ...payload },
       {
         signal: ac.signal,
@@ -76,7 +76,7 @@ export default function useManageAssistants() {
   }
 
   function deleteAssistant(id: string, teamId: string) {
-    return $client.adminAssistant.delete.mutate(
+    return $client.assistant.delete.mutate(
       { id, teamId },
       {
         signal: ac.signal,

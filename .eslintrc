@@ -16,7 +16,8 @@
     "plugin:markdown/recommended",
     "plugin:tailwindcss/recommended",
     "@nuxtjs/eslint-config-typescript",
-    "prettier"
+    "prettier",
+    "vitest"
   ],
   "rules": {
     //"security-node/detect-crlf": 0,
