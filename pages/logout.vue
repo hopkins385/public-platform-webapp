@@ -1,6 +1,9 @@
 <script setup lang="ts">
   const { signOut } = useAuth();
-  await signOut();
+  await signOut({
+    redirect: true,
+    callbackUrl: '/login',
+  });
 </script>
 
 <template>

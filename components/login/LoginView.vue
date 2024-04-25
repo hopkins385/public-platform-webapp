@@ -34,6 +34,7 @@
       email: values.email,
       password: values.password,
       redirect: false,
+      redirectUrl: '/',
     });
 
     isLoading.value = false;
