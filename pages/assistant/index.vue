@@ -8,6 +8,9 @@
 
 <template>
   <SectionContainerWithImage>
+    <BoxContainer class="-mt-6 mb-4 py-5">
+      <div class="text-xl font-semibold">Assistants</div>
+    </BoxContainer>
     <BoxContainer class="w-full">
       <div class="flex justify-between">
         <div>
@@ -32,9 +35,7 @@
       <div class="mt-5">
         <Suspense>
           <AssistantCardList />
-          <template #fallback>
-            <TableSkeleton />
-          </template>
+          <template #fallback> Loading ... </template>
         </Suspense>
       </div>
     </BoxContainer>

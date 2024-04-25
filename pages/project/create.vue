@@ -48,7 +48,7 @@
         <FormField v-slot="{ componentField }" name="name">
           <FormItem>
             <FormLabel>
-              {{ $t('Project Name') }}
+              {{ $t('Projectname') }}
             </FormLabel>
             <FormControl>
               <Input type="text" v-bind="componentField" autocomplete="off" />

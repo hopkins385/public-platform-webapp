@@ -4,7 +4,7 @@
   import * as z from 'zod';
 
   definePageMeta({
-    title: 'project.meta.create.title',
+    title: 'project.meta.update.title',
   });
 
   const { successDuration, errorDuration } = useAppConfig().toast;

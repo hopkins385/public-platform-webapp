@@ -184,83 +184,105 @@ model Project {
   updatedAt   DateTime   @updatedAt @map("updated_at")
   deletedAt   DateTime?  @map("deleted_at")
   documents   Document[]
+  Workflow    Workflow[]
 
   @@map("projects")
 }
 
 model Document {
-  id           String        @id
-  project      Project       @relation(fields: [projectId], references: [id])
-  projectId    String        @map("project_id")
-  name         String
-  description  String
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
-  deletedAt    DateTime?     @map("deleted_at")
-  requirements Requirement[]
+  id            String         @id
+  project       Project        @relation(fields: [projectId], references: [id])
+  projectId     String         @map("project_id")
+  name          String
+  description   String
+  fileUrl       String?        @map("file_url")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  deletedAt     DateTime?      @map("deleted_at")
+  documentItems DocumentItem[]
 
   @@map("documents")
 }
 
-model Requirement {
-  id               String             @id
-  document         Document           @relation(fields: [documentId], references: [id])
-  documentId       String             @map("document_id")
-  name             String
-  description      String
-  createdAt        DateTime           @default(now()) @map("created_at")
-  updatedAt        DateTime           @updatedAt @map("updated_at")
-  deletedAt        DateTime?          @map("deleted_at")
-  requirementables RequirementAbles[]
+model DocumentItem {
+  id                String             @id
+  document          Document           @relation(fields: [documentId], references: [id])
+  documentId        String             @map("document_id")
+  orderColumn       Int                @map("order_column") @db.SmallInt
+  status            Json
+  type              String
+  content           String             @db.Text
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  deletedAt         DateTime?          @map("deleted_at")
+  documentItemAbles DocumentItemAble[]
 
-  @@map("requirements")
+  @@map("document_items")
 }
 
-model RequirementAbles {
-  id            String      @id
-  requirement   Requirement @relation(fields: [requirementId], references: [id])
-  requirementId String      @map("requirement_id")
-  model_type    String      @map("model_type")
-  model_id      String      @map("model_id")
-  createdAt     DateTime    @default(now()) @map("created_at")
-  updatedAt     DateTime    @updatedAt @map("updated_at")
-  deletedAt     DateTime?   @map("deleted_at")
+model DocumentItemAble {
+  id             String       @id
+  documentItem   DocumentItem @relation(fields: [documentItemId], references: [id])
+  documentItemId String       @map("document_item_id")
+  modelType      String       @map("model_type")
+  modelId        String       @map("model_id")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  deletedAt      DateTime?    @map("deleted_at")
 
-  @@map("requirement_ables")
+  @@map("document_item_ables")
 }
 
 model Workflow {
-  id        String         @id
-  name      String
-  createdAt DateTime       @default(now()) @map("created_at")
-  updatedAt DateTime       @updatedAt @map("updated_at")
-  deletedAt DateTime?      @map("deleted_at")
-  steps     WorkflowStep[]
+  id            String         @id
+  project       Project        @relation(fields: [projectId], references: [id])
+  projectId     String         @map("project_id")
+  name          String
+  description   String
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  deletedAt     DateTime?      @map("deleted_at")
+  workflowables WorkflowAble[]
+  steps         WorkflowStep[]
 
   @@map("workflows")
 }
 
+model WorkflowAble {
+  id         String    @id
+  workflow   Workflow  @relation(fields: [workflowId], references: [id])
+  workflowId String    @map("workflow_id")
+  modelType  String    @map("model_type")
+  modelId    String    @map("model_id")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  @@map("workflow_ables")
+}
+
 model WorkflowStep {
-  id                String              @id
-  workflow          Workflow            @relation(fields: [workflowId], references: [id])
-  workflowId        String              @map("workflow_id")
-  order_column      Int                 @map("order_column") @db.SmallInt
+  id                String             @id
+  workflow          Workflow           @relation(fields: [workflowId], references: [id])
+  workflowId        String             @map("workflow_id")
+  orderColumn       Int                @map("order_column") @db.SmallInt
   name              String
   description       String
-  createdAt         DateTime            @default(now()) @map("created_at")
-  updatedAt         DateTime            @updatedAt @map("updated_at")
-  deletedAt         DateTime?           @map("deleted_at")
-  workflowstepables WorkflowStepAbles[]
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  deletedAt         DateTime?          @map("deleted_at")
+  workflowstepables WorkflowStepAble[]
 
   @@map("workflow_steps")
 }
 
-model WorkflowStepAbles {
+model WorkflowStepAble {
   id             String       @id
   workflowStep   WorkflowStep @relation(fields: [workflowStepId], references: [id])
   workflowStepId String       @map("workflow_step_id")
-  model_type     String       @map("model_type")
-  model_id       String       @map("model_id")
+  modelType      String       @map("model_type")
+  modelId        String       @map("model_id")
+  role           String
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
   deletedAt      DateTime?    @map("deleted_at")

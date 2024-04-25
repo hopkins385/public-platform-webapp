@@ -152,6 +152,7 @@ CREATE TABLE "documents" (
     "project_id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
+    "file_url" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "deleted_at" TIMESTAMP(3),
@@ -160,40 +161,57 @@ CREATE TABLE "documents" (
 );
 
 -- CreateTable
-CREATE TABLE "requirements" (
+CREATE TABLE "document_items" (
     "id" TEXT NOT NULL,
     "document_id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
+    "order_column" SMALLINT NOT NULL,
+    "status" JSONB NOT NULL,
+    "type" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "deleted_at" TIMESTAMP(3),
 
-    CONSTRAINT "requirements_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "document_items_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "requirement_ables" (
+CREATE TABLE "document_item_ables" (
     "id" TEXT NOT NULL,
-    "requirement_id" TEXT NOT NULL,
+    "document_item_id" TEXT NOT NULL,
     "model_type" TEXT NOT NULL,
     "model_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "deleted_at" TIMESTAMP(3),
 
-    CONSTRAINT "requirement_ables_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "document_item_ables_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "workflows" (
     "id" TEXT NOT NULL,
+    "project_id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "deleted_at" TIMESTAMP(3),
 
     CONSTRAINT "workflows_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "workflow_ables" (
+    "id" TEXT NOT NULL,
+    "workflow_id" TEXT NOT NULL,
+    "model_type" TEXT NOT NULL,
+    "model_id" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "deleted_at" TIMESTAMP(3),
+
+    CONSTRAINT "workflow_ables_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -216,6 +234,7 @@ CREATE TABLE "workflow_step_ables" (
     "workflow_step_id" TEXT NOT NULL,
     "model_type" TEXT NOT NULL,
     "model_id" TEXT NOT NULL,
+    "role" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "deleted_at" TIMESTAMP(3),
@@ -260,10 +279,16 @@ ALTER TABLE "projects" ADD CONSTRAINT "projects_team_id_fkey" FOREIGN KEY ("team
 ALTER TABLE "documents" ADD CONSTRAINT "documents_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "requirements" ADD CONSTRAINT "requirements_document_id_fkey" FOREIGN KEY ("document_id") REFERENCES "documents"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "document_items" ADD CONSTRAINT "document_items_document_id_fkey" FOREIGN KEY ("document_id") REFERENCES "documents"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "requirement_ables" ADD CONSTRAINT "requirement_ables_requirement_id_fkey" FOREIGN KEY ("requirement_id") REFERENCES "requirements"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "document_item_ables" ADD CONSTRAINT "document_item_ables_document_item_id_fkey" FOREIGN KEY ("document_item_id") REFERENCES "document_items"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "workflows" ADD CONSTRAINT "workflows_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "workflow_ables" ADD CONSTRAINT "workflow_ables_workflow_id_fkey" FOREIGN KEY ("workflow_id") REFERENCES "workflows"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "workflow_steps" ADD CONSTRAINT "workflow_steps_workflow_id_fkey" FOREIGN KEY ("workflow_id") REFERENCES "workflows"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

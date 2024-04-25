@@ -7,10 +7,11 @@
     Disc3Icon,
     PenLineIcon,
     FolderClosedIcon,
-    SquareGanttChartIcon,
-    Table2Icon,
     FileTextIcon,
     WorkflowIcon,
+    ArchiveIcon,
+    LayoutGridIcon,
+    LayoutListIcon,
   } from 'lucide-vue-next';
   const playground = false;
 </script>
@@ -27,12 +28,12 @@
     <ul class="space-y-4 pt-8">
       <li class="nav-item">
         <NuxtLink href="/project">
-          <FolderClosedIcon class="nav-icon" />
+          <LayoutGridIcon class="nav-icon" />
         </NuxtLink>
       </li>
       <li class="nav-item">
         <NuxtLink href="/requirement">
-          <FileTextIcon class="nav-icon" />
+          <LayoutListIcon class="nav-icon" />
         </NuxtLink>
       </li>
       <li class="nav-item">
@@ -57,7 +58,7 @@
       </li>
       <li class="nav-item">
         <NuxtLink href="/chat/history">
-          <SquareGanttChartIcon class="nav-icon" />
+          <ArchiveIcon class="nav-icon" />
         </NuxtLink>
       </li>
       <li class="nav-item">

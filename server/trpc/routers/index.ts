@@ -9,6 +9,7 @@ import { chatModelsRouter } from './llm-models';
 import { registerRouter } from './register';
 import { projectRouter } from './project';
 import { requirementRouter } from './requirement';
+import { workflowRouter } from './workflow';
 
 export const appRouter = router({
   register: registerRouter,
@@ -21,6 +22,7 @@ export const appRouter = router({
   getStripeCheckoutUrl,
   project: projectRouter,
   requirement: requirementRouter,
+  workflow: workflowRouter,
 });
 
 // export type definition of API

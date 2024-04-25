@@ -175,7 +175,7 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      titleTemplate: '%s - Svenson.ai',
+      titleTemplate: '%s - RAGNA Cloud',
       meta: [
         { charset: 'utf-8' },
         {

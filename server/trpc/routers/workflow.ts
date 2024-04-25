@@ -1,0 +1,86 @@
+import {
+  CreateWorkflowDto,
+  FindAllWorkflowsDto,
+  UpdateWorkflowDto,
+} from './../../services/dto/workflow.dto';
+import { WorkflowService } from './../../services/workflow.service';
+import { z } from 'zod';
+import { protectedProcedure, router } from '../trpc';
+import { ulidRule } from '~/server/utils/validation/ulid.rule';
+
+export const workflowRouter = router({
+  // create workflow
+  create: protectedProcedure
+    .input(
+      z.object({
+        projectId: ulidRule(),
+        name: z.string(),
+        description: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const workflowService = new WorkflowService(ctx.prisma);
+      const payload = CreateWorkflowDto.fromRequest(input);
+      return workflowService.create(payload);
+    }),
+  // find workflow including steps
+  full: protectedProcedure
+    .input(
+      z.object({
+        projectId: ulidRule(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const workflowService = new WorkflowService(ctx.prisma);
+      return workflowService.findFirstWithSteps(input.projectId);
+    }),
+  // find workflow settings
+  settings: protectedProcedure
+    .input(
+      z.object({
+        projectId: ulidRule(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const workflowService = new WorkflowService(ctx.prisma);
+      return workflowService.findFirst(input.projectId);
+    }),
+  // find all workflows
+  all: protectedProcedure
+    .input(
+      z.object({
+        projectId: ulidRule(),
+        page: z.number().default(1),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const workflowService = new WorkflowService(ctx.prisma);
+      const payload = FindAllWorkflowsDto.fromRequest(input);
+      return workflowService.findAll(payload);
+    }),
+  // update workflow
+  update: protectedProcedure
+    .input(
+      z.object({
+        workflowId: ulidRule(),
+        name: z.string(),
+        description: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const workflowService = new WorkflowService(ctx.prisma);
+      const payload = UpdateWorkflowDto.fromRequest(input);
+      return workflowService.update(payload);
+    }),
+  // delete workflow
+  delete: protectedProcedure
+    .input(
+      z.object({
+        workflowId: ulidRule(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const workflowService = new WorkflowService(ctx.prisma);
+      return workflowService.delete(input.workflowId);
+    }),
+});
