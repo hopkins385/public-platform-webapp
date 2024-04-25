@@ -8,7 +8,7 @@ import {
   CondenseQuestionChatEngine,
 } from 'llamaindex';
 import type { VectorStore, ChatMessage } from 'llamaindex';
-import { FileParserFactory } from './../factories/fileParserFactory';
+import { FileReaderFactory } from './../factories/fileReaderFactory';
 // import type { ChatMessage } from './../../interfaces/chat.interfaces';
 
 export interface EmbedDocumentPayload {
@@ -38,8 +38,8 @@ export default function useEmbedDocuments() {
   async function embedDocument(payload: EmbedDocumentPayload) {
     const type = payload.path.split('.').pop() || ''; // determine type from file extension
     try {
-      const parser = new FileParserFactory(type, payload.path);
-      const documents = await parser.loadData();
+      const reader = new FileReaderFactory(type, payload.path);
+      const documents = await reader.loadData();
 
       await VectorStoreIndex.fromDocuments(documents, {
         vectorStore: payload.vectorStore,

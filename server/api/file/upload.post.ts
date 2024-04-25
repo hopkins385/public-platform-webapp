@@ -6,6 +6,20 @@ import type { Options as FormidableOptions } from 'formidable';
 import { getServerSession } from '#auth';
 import { getAuthUser } from '~/server/utils/auth/permission';
 
+function getFileExtension(mimeType: string) {
+  return {
+    'application/pdf': 'pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+      'docx',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+    'text/markdown': 'md',
+    'text/csv': 'csv',
+    'text/html': 'html',
+    'text/plain': 'txt',
+    plain: 'txt',
+  }[mimeType];
+}
+
 export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);
   const user = getAuthUser(session); // do not remove this line
@@ -41,10 +55,21 @@ export default defineEventHandler(async (_event) => {
     }
 
     for (const file of files.clientFiles) {
-      const mimeType =
-        file.mimetype?.split('/')[1] !== 'plain'
-          ? file.mimetype?.split('/')[1]
-          : 'txt';
+      if (!file.mimetype) {
+        throw createError({
+          statusCode: 406,
+          statusMessage: 'Not Acceptable',
+          message: 'File mimetype is required.',
+        });
+      }
+      const mimeType = getFileExtension(file.mimetype);
+      if (!mimeType) {
+        throw createError({
+          statusCode: 406,
+          statusMessage: 'Not Acceptable',
+          message: 'Unsupported file type: ' + file.mimetype,
+        });
+      }
       const fileName = `${Date.now()}-${file.newFilename}.${mimeType}`;
       const newPath = `${path.join('public', 'uploads', user.id, fileName)}`;
       fs.copyFileSync(file.filepath, newPath);

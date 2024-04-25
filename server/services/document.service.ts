@@ -1,4 +1,5 @@
-import type { CreateDocumnentDto, UpdateDocumentDto } from './dto/document.dto';
+import { FileParserFactory } from '../factories/fileParserFactory';
+import type { CreateDocumentDto, UpdateDocumentDto } from './dto/document.dto';
 
 export class DocumentService {
   private readonly prisma: ExtendedPrismaClient;
@@ -10,7 +11,7 @@ export class DocumentService {
     this.prisma = prisma;
   }
 
-  create(payload: CreateDocumnentDto) {
+  create(payload: CreateDocumentDto) {
     return this.prisma.document.create({
       data: {
         id: ULID(),
@@ -35,10 +36,10 @@ export class DocumentService {
     return this.prisma.document.findMany();
   }
 
-  update(documentId: string, payload: UpdateDocumentDto) {
+  update(payload: UpdateDocumentDto) {
     return this.prisma.document.update({
       where: {
-        id: documentId.toLowerCase(),
+        id: payload.documentId,
       },
       data: {
         name: payload.name,
@@ -52,6 +53,17 @@ export class DocumentService {
     return this.prisma.document.delete({
       where: {
         id: documentId.toLowerCase(),
+      },
+    });
+  }
+
+  softDelete(documentId: string) {
+    return this.prisma.document.update({
+      where: {
+        id: documentId.toLowerCase(),
+      },
+      data: {
+        deletedAt: new Date(),
       },
     });
   }
@@ -84,6 +96,25 @@ export class DocumentService {
         },
       },
     });
+  }
+
+  async parse(documentId: string) {
+    // first get the document
+    const document = await this.findFirst(documentId);
+    if (
+      !document ||
+      !document.filePath ||
+      !document.fileName ||
+      !document.fileExtension
+    ) {
+      throw new Error(
+        'Document not found or missing file path, name or extension',
+      );
+    }
+    const path = `${document.filePath}/${document.fileName}`;
+    const parser = new FileParserFactory(document.fileExtension, path);
+    const data = await parser.loadData();
+    return data;
   }
 
   addWorkflow(documentId: string, workflowId: string) {

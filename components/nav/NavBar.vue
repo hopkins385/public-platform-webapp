@@ -32,7 +32,7 @@
         </NuxtLink>
       </li>
       <li class="nav-item">
-        <NuxtLink href="/requirement">
+        <NuxtLink href="/document">
           <LayoutListIcon class="nav-icon" />
         </NuxtLink>
       </li>

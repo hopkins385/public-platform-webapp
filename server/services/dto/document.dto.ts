@@ -1,4 +1,4 @@
-export class CreateDocumnentDto {
+export class CreateDocumentDto {
   readonly name: string;
   readonly description: string;
   readonly status: string;
@@ -21,8 +21,8 @@ export class CreateDocumnentDto {
     description: string;
     status: string;
     projectId: string;
-  }): CreateDocumnentDto {
-    return new CreateDocumnentDto(
+  }): CreateDocumentDto {
+    return new CreateDocumentDto(
       input.name,
       input.description,
       input.status,
@@ -32,21 +32,34 @@ export class CreateDocumnentDto {
 }
 
 export class UpdateDocumentDto {
+  readonly documentId: string;
   readonly name: string;
   readonly description: string;
   readonly status: string;
 
-  constructor(name: string, description: string, status: string) {
+  constructor(
+    documentId: string,
+    name: string,
+    description: string,
+    status: string,
+  ) {
+    this.documentId = documentId;
     this.name = name;
     this.description = description;
     this.status = status;
   }
 
   static fromRequest(input: {
+    documentId: string;
     name: string;
     description: string;
     status: string;
   }): UpdateDocumentDto {
-    return new UpdateDocumentDto(input.name, input.description, input.status);
+    return new UpdateDocumentDto(
+      input.documentId,
+      input.name,
+      input.description,
+      input.status,
+    );
   }
 }

@@ -52,10 +52,10 @@ export class WorkflowStepService {
     });
   }
 
-  update(workflowStepId: string, payload: UpdateWorkflowStepDto) {
+  update(payload: UpdateWorkflowStepDto) {
     return this.prisma.workflowStep.update({
       where: {
-        id: workflowStepId.toLowerCase(),
+        id: payload.workflowStepId,
       },
       data: {
         name: payload.name,

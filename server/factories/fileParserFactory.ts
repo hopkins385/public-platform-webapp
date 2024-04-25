@@ -1,43 +1,31 @@
-import {
-  PDFReader,
-  DocxReader,
-  MarkdownReader,
-  PapaCSVReader as CSVReader,
-  TextFileReader,
-  HTMLReader,
-} from 'llamaindex';
-import type { FileReader } from 'llamaindex';
+import { CSVParser } from '../parser/csv.parser';
+import { XLSXParser } from '../parser/xlsx.parser';
+
+export interface FileParser {
+  loadData(filePath: string): Promise<any>;
+}
 
 export class FileParserFactory {
   type: string;
   filePath: string;
-  reader: FileReader;
+  parser: FileParser;
 
   constructor(type: string, filePath: string) {
     this.type = type;
     this.filePath = filePath;
-    this.reader = this.getReader();
+    this.parser = this.getParser();
   }
 
   loadData() {
-    return this.reader.loadData(this.filePath);
+    return this.parser.loadData(this.filePath);
   }
 
-  getReader() {
+  getParser() {
     switch (this.type) {
-      case 'txt':
-      case 'plain':
-        return new TextFileReader();
-      case 'pdf':
-        return new PDFReader();
-      case 'docx':
-        return new DocxReader();
-      case 'md':
-        return new MarkdownReader();
+      case 'xlsx':
+        return new XLSXParser();
       case 'csv':
-        return new CSVReader();
-      case 'html':
-        return new HTMLReader();
+        return new CSVParser();
       default:
         throw new Error(`Unsupported file type: ${this.type}`);
     }

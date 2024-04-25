@@ -8,8 +8,8 @@ import { chatRouter } from './chat';
 import { chatModelsRouter } from './llm-models';
 import { registerRouter } from './register';
 import { projectRouter } from './project';
-import { requirementRouter } from './requirement';
 import { workflowRouter } from './workflow';
+import { documentRouter } from './document';
 
 export const appRouter = router({
   register: registerRouter,
@@ -21,7 +21,7 @@ export const appRouter = router({
   me: userMeRouter,
   getStripeCheckoutUrl,
   project: projectRouter,
-  requirement: requirementRouter,
+  document: documentRouter,
   workflow: workflowRouter,
 });
 
