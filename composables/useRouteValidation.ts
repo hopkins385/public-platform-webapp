@@ -1,11 +1,29 @@
 import { z } from 'zod';
 
 export default function useRouteValidation() {
+  const ulidRegex = new RegExp('^[0-9a-z]{26}$');
+
   function isValidRouteUlid(params: any) {
     // id is a ulid e.g 01hs0wxy2bfts50e3tp4xvdtv5
-    const ulidRegex = new RegExp('^[0-7][0-9a-hjkmnp-tv-z]{24}');
     const idSchema = z.object({
-      id: z.string().min(26).max(26).toLowerCase().regex(ulidRegex),
+      id: z.string().regex(ulidRegex),
+    });
+    const res = idSchema.safeParse(params);
+    return res.success;
+  }
+
+  function hasValidProjectId(params: any) {
+    const idSchema = z.object({
+      projectId: z.string().regex(ulidRegex),
+    });
+    const res = idSchema.safeParse(params);
+    return res.success;
+  }
+
+  function hasValidProjectWorkflowId(params: any) {
+    const idSchema = z.object({
+      projectId: z.string().regex(ulidRegex),
+      workflowId: z.string().regex(ulidRegex),
     });
     const res = idSchema.safeParse(params);
     return res.success;
@@ -13,5 +31,7 @@ export default function useRouteValidation() {
 
   return {
     isValidRouteUlid,
+    hasValidProjectId,
+    hasValidProjectWorkflowId,
   };
 }

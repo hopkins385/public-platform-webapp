@@ -1,14 +1,23 @@
 <script setup lang="ts">
+  /**
+   * Project Edit - Edit a project
+   * Route: /project/${projectId}/edit
+   */
   import { toTypedSchema } from '@vee-validate/zod';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
 
   definePageMeta({
     title: 'project.meta.update.title',
+    validate: async (route) => {
+      const validator = useRouteValidation();
+      return validator.hasValidProjectId(route.params);
+    },
   });
 
   const { successDuration, errorDuration } = useAppConfig().toast;
   const { getProject, updateProject } = useManageProjects();
+  const { projectId } = useRoute().params;
 
   const createProjectSchema = toTypedSchema(
     z.object({
@@ -17,8 +26,7 @@
     }),
   );
 
-  const route = useRoute();
-  const { data: project, refresh } = await getProject(route.params.id);
+  const { data: project, refresh } = await getProject(projectId);
 
   const { handleSubmit } = useForm({
     validationSchema: createProjectSchema,

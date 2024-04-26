@@ -1,4 +1,8 @@
 <script setup lang="ts">
+  /**
+   * Project Index - Grid view of all projects of the Organization
+   * Route: /project
+   */
   import { PlusIcon, SettingsIcon } from 'lucide-vue-next';
 </script>
 

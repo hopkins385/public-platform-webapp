@@ -5,3 +5,4 @@ npm-debug.log
 .output
 .vscode
 .env
+.DS_Store

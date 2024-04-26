@@ -1,4 +1,8 @@
 <script setup lang="ts">
+  /**
+   * Project Create - Create a new project
+   * Route: /project/create
+   */
   import { toTypedSchema } from '@vee-validate/zod';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';

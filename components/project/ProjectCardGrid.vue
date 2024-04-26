@@ -15,5 +15,8 @@
     />
     <div class="hidden p-5 text-sm text-slate-300">{{ meta }}</div>
   </div>
-  <div v-else>Nothing to show</div>
+  <div v-else class="py-4 text-sm">
+    You do not have a project yet.<br />
+    Create a new one by clicking on the + button.
+  </div>
 </template>

@@ -31,16 +31,16 @@
           <LayoutGridIcon class="nav-icon" />
         </NuxtLink>
       </li>
-      <li class="nav-item">
+      <!-- li class="nav-item">
         <NuxtLink href="/document">
           <LayoutListIcon class="nav-icon" />
         </NuxtLink>
-      </li>
-      <li class="nav-item">
+      </!-->
+      <!-- li class="nav-item">
         <NuxtLink href="/workflow">
           <WorkflowIcon class="nav-icon" />
         </NuxtLink>
-      </li>
+      </!-->
       <li class="nav-item">
         <NuxtLink href="/editor">
           <PenLineIcon class="nav-icon" />

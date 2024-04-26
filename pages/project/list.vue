@@ -1,4 +1,9 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+  /**
+   * Project List - List view of all projects of the Organization
+   * Route: /project/list
+   */
+</script>
 
 <template>
   <SectionContainer>

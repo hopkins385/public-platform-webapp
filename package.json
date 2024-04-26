@@ -17,7 +17,7 @@
     "migrate:reset": "prisma migrate dev --name init",
     "do:upgrade": "ncu -u && npm install",
     "test": "vitest run",
-    "test:e2e": "npx playwright test"
+    "test:e2e": "npx playwright test --ui"
   },
   "devDependencies": {
     "@azure/msal-node-extensions": "^1.0.12",

@@ -1,3 +1,5 @@
+import type { AsyncDataOptions } from '#app';
+
 export interface ICreateWorkflow {
   projectId: string;
   name: string;
@@ -34,7 +36,10 @@ export default function useManageWorkflows() {
     );
   }
 
-  function getAllWorkflows(projectId: string | string[] | undefined | null) {
+  function getProjectWorkflows(
+    projectId: string | string[] | undefined | null,
+    options: AsyncDataOptions<any> = {},
+  ) {
     return useAsyncData(async () => {
       const [workflows, meta] = await $client.workflow.all.query(
         {
@@ -46,10 +51,13 @@ export default function useManageWorkflows() {
         },
       );
       return { workflows, meta };
-    });
+    }, options);
   }
 
-  function getFullWorkflow(id: string | string[] | undefined | null) {
+  function getFullWorkflow(
+    id: string | string[] | undefined | null,
+    options: AsyncDataOptions<any> = {},
+  ) {
     setWorkflowId(id);
     return useAsyncData(async () => {
       if (!workflowId) return;
@@ -60,10 +68,13 @@ export default function useManageWorkflows() {
         },
       );
       return workflow;
-    });
+    }, options);
   }
 
-  function getWorkflowSettings(id: string | string[] | undefined | null) {
+  function getWorkflowSettings(
+    id: string | string[] | undefined | null,
+    options: AsyncDataOptions<any> = {},
+  ) {
     setWorkflowId(id);
     return useAsyncData(async () => {
       if (!workflowId) return;
@@ -74,7 +85,7 @@ export default function useManageWorkflows() {
         },
       );
       return workflow;
-    });
+    }, options);
   }
 
   function updateWorkflow(payload: ICreateWorkflow) {
@@ -86,7 +97,8 @@ export default function useManageWorkflows() {
     );
   }
 
-  function deleteWorkflow() {
+  function deleteWorkflow(id: string | string[] | undefined | null) {
+    setWorkflowId(id);
     return $client.workflow.delete.mutate(
       { workflowId },
       {
@@ -99,7 +111,7 @@ export default function useManageWorkflows() {
     setPage,
     setWorkflowId,
     createWorkflow,
-    getAllWorkflows,
+    getProjectWorkflows,
     getFullWorkflow,
     getWorkflowSettings,
     updateWorkflow,

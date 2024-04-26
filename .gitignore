@@ -9,4 +9,6 @@ dist
 *.sqlite
 .DS_Store
 **/.DS_Store
+tests/e2e/reports*
 playwright*
+test-reports

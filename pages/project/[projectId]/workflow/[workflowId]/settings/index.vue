@@ -1,4 +1,8 @@
 <script setup lang="ts">
+  /**
+   * Workflow Settings - Edit Workflow Settings
+   * Route: /project/${projectId}/workflow/${workflowId}/settings
+   */
   import { toTypedSchema } from '@vee-validate/zod';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
@@ -7,14 +11,12 @@
     title: 'workflow.meta.settings.title',
   });
 
-  const route = useRoute();
   const { successDuration, errorDuration } = useAppConfig().toast;
+  const { projectId, workflowId } = useRoute().params;
 
   // workflow settings
   const { updateWorkflow, getWorkflowSettings } = useManageWorkflows();
-  const { data: workflow, refresh } = await getWorkflowSettings(
-    route.params.workflowId,
-  );
+  const { data: workflow, refresh } = await getWorkflowSettings(workflowId);
 
   // projects
   const { getAllProjects } = useManageProjects();

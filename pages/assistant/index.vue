@@ -34,7 +34,7 @@
       </div>
       <div class="mt-5">
         <Suspense>
-          <AssistantCardList />
+          <AssistantCardGrid />
           <template #fallback> Loading ... </template>
         </Suspense>
       </div>

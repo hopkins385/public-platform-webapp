@@ -1,3 +1,5 @@
+import type { AsyncDataOptions } from '#app';
+
 interface CreateProjectDto {
   name: string;
   description: string;
@@ -38,7 +40,10 @@ export default function useManageProjects() {
     );
   }
 
-  function getProject(id: string | string[] | undefined | null) {
+  function getProject(
+    id: string | string[] | undefined | null,
+    options: AsyncDataOptions<any> = {},
+  ) {
     setProjectId(id);
     return useAsyncData(async () => {
       const project = await $client.project.first.query(
@@ -48,10 +53,10 @@ export default function useManageProjects() {
         },
       );
       return project;
-    });
+    }, options);
   }
 
-  function getAllProjects() {
+  function getAllProjects(options: AsyncDataOptions<any> = {}) {
     return useAsyncData(async () => {
       const [projects, meta] = await $client.project.all.query(
         { page },
@@ -60,7 +65,7 @@ export default function useManageProjects() {
         },
       );
       return { projects, meta };
-    });
+    }, options);
   }
 
   function updateProject(payload: UpdateProjectDto) {

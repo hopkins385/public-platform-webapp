@@ -9,12 +9,13 @@
 <template>
   <div
     class="group relative max-w-sm cursor-pointer rounded-lg border p-10 hover:border-slate-400"
+    @click="() => navigateTo(`/project/${project.id}`)"
   >
     <div class="group/icon absolute right-1 top-1 hidden group-hover:block">
       <Button
         size="icon"
         variant="ghost"
-        @click.stop="() => navigateTo(`/project/${project.id}`)"
+        @click.stop="() => navigateTo(`/project/${project.id}/edit`)"
       >
         <EditIcon
           class="size-4 stroke-1.5 opacity-50 group-hover/icon:stroke-2"

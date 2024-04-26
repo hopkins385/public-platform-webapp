@@ -1,4 +1,8 @@
 <script setup lang="ts">
+  /**
+   * Workflow Create - Create a new workflow
+   * Route: /project/${projectId}/workflow/create
+   */
   import { toTypedSchema } from '@vee-validate/zod';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
@@ -7,22 +11,14 @@
     title: 'workflow.meta.create.title',
   });
 
-  const { getAllProjects } = useManageProjects();
-  const { data: allProjects } = await getAllProjects();
-
-  const projects = computed(() => {
-    // just keep the id and name and remove other fields
-    return allProjects.value?.projects.map((project) => {
-      return {
-        id: project.id,
-        name: project.name,
-      };
-    });
-  });
+  const route = useRoute();
+  const { getProject } = useManageProjects();
+  const { data: project } = await getProject(route.params.projectId);
 
   const createWorkflowSchema = toTypedSchema(
     z.object({
       projectId: z.string().min(3).max(255),
+      projectName: z.string().min(3).max(255),
       name: z.string().min(3).max(255),
       description: z.string().min(3).max(255),
     }),
@@ -30,6 +26,12 @@
 
   const { handleSubmit } = useForm({
     validationSchema: createWorkflowSchema,
+    initialValues: {
+      projectId: project.value?.id,
+      projectName: project.value?.name,
+      name: '',
+      description: '',
+    },
   });
 
   const { successDuration, errorDuration } = useAppConfig().toast;
@@ -44,7 +46,8 @@
         duration: successDuration,
       });
       resetForm();
-      return await navigateTo('/workflow');
+      const localePath = useLocalePath();
+      return await navigateTo(localePath(`/project/${project.value?.id}`));
     } catch (error: any) {
       $toast('Error', {
         description: 'Ups, something went wrong.',
@@ -59,29 +62,19 @@
     <SectionHeading title="Create Workflow" />
     <div class="rounded-lg border bg-white p-10">
       <form class="space-y-8" @submit="onSubmit">
-        <FormField v-slot="{ componentField }" name="projectId">
+        <FormField v-slot="{ componentField }" name="projectName">
           <FormItem>
             <FormLabel>
               {{ $t('Project') }}
             </FormLabel>
-            <Select v-bind="componentField">
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a project" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem
-                    v-for="project in projects"
-                    :key="project.id"
-                    :value="project.id"
-                  >
-                    {{ project.name }}
-                  </SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            <FormControl>
+              <Input
+                type="text"
+                v-bind="componentField"
+                autocomplete="off"
+                disabled
+              />
+            </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
