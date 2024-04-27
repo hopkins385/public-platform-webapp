@@ -51,16 +51,16 @@
         description: 'Workflow has been deleted successfully.',
         duration: successDuration,
       });
-      refresh();
+      await refresh();
     } catch (error: any) {
       errorAlert.show = true;
       errorAlert.message = error?.message;
     }
   }
 
-  function onPageChange(value: number) {
+  async function onPageChange(value: number) {
     setPage(value);
-    refresh();
+    await refresh();
   }
 </script>
 

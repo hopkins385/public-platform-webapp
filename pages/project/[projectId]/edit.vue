@@ -44,7 +44,7 @@
         description: 'Project updated successfully',
         duration: successDuration,
       });
-      refresh();
+      await refresh();
     } catch (error: any) {
       $toast('Error', {
         description: 'Ups, something went wrong.',

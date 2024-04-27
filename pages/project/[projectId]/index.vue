@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { PlusIcon } from 'lucide-vue-next';
+
   /**
    * Project Workflows Index - List all workflows of this project
    * Route: /project/${projectId}
@@ -24,6 +26,20 @@
       </div>
     </BoxContainer>
     <BoxContainer>
+      <div class="flex justify-between pb-6">
+        <div>
+          <Button
+            variant="outline"
+            size="icon"
+            @click="() => navigateTo(`/project/${projectId}/workflow/create`)"
+          >
+            <PlusIcon class="size-4" />
+          </Button>
+        </div>
+        <div>
+          <!-- placeholder for later -->
+        </div>
+      </div>
       <Suspense>
         <WorkflowProjectTable :project-id="projectId" />
         <template #fallback>

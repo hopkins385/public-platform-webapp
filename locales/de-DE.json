@@ -105,6 +105,26 @@
       "placeholder": "Suche nach Dateien..."
     }
   },
+  "project": {
+    "meta": {
+      "index": {
+        "title": "Projects",
+        "description": "Projects"
+      }
+    }
+  },
+  "workflow": {
+    "meta": {
+      "full": {
+        "title": "Show Workflow",
+        "description": "Show Workflow"
+      },
+      "index": {
+        "title": "Workflows %{project}",
+        "description": "Workflows %{project}"
+      }
+    }
+  },
   "OR": "ODER",
   "Password": "Passwort",
   "Title": "Titel",

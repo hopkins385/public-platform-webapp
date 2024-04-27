@@ -1,21 +1,25 @@
+import { WorkflowStepService } from '~/server/services/workflow-step.service';
+import { CreateWorkflowDto } from './dto/workflow.dto';
 import type {
-  CreateWorkflowDto,
   FindAllWorkflowsDto,
   UpdateWorkflowDto,
 } from './dto/workflow.dto';
+import { CreateWorkflowStepDto } from './dto/workflow-step.dto';
 
 export class WorkflowService {
   private readonly prisma: ExtendedPrismaClient;
+  private readonly workflowStepService: WorkflowStepService;
 
   constructor(prisma: ExtendedPrismaClient) {
     if (!prisma) {
       throw new Error('WorkflowService is missing a PrismaClient instance');
     }
     this.prisma = prisma;
+    this.workflowStepService = new WorkflowStepService(prisma);
   }
 
-  create(payload: CreateWorkflowDto) {
-    return this.prisma.workflow.create({
+  async create(payload: CreateWorkflowDto) {
+    const workflow = await this.prisma.workflow.create({
       data: {
         id: ULID(),
         projectId: payload.projectId,
@@ -25,20 +29,32 @@ export class WorkflowService {
         updatedAt: new Date(),
       },
     });
+    // create the first step for the workflow
+    const stepPayload = CreateWorkflowStepDto.fromRequest({
+      workflowId: workflow.id,
+      projectId: payload.projectId,
+      name: 'First Step',
+      description: 'First Step of the Workflow',
+      orderColumn: 0,
+    });
+    const workflowStep = await this.workflowStepService.create(stepPayload);
+    return workflow;
   }
 
   findFirst(workflowId: string) {
     return this.prisma.workflow.findFirst({
       where: {
         id: workflowId.toLowerCase(),
+        deletedAt: null,
       },
     });
   }
 
-  findFirstWithSteps(workflowId: string) {
-    return this.prisma.workflow.findFirst({
+  async findFirstWithSteps(workflowId: string) {
+    const workflow = await this.prisma.workflow.findFirst({
       where: {
         id: workflowId.toLowerCase(),
+        deletedAt: null,
       },
       select: {
         id: true,
@@ -49,19 +65,63 @@ export class WorkflowService {
             name: true,
           },
         },
-        steps: {
+      },
+    });
+
+    if (!workflow) {
+      return null;
+    }
+
+    const workflowSteps = await this.prisma.workflowStep.findMany({
+      relationLoadStrategy: 'join', // or "query"
+      where: {
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        orderColumn: true,
+        createdAt: true,
+        updatedAt: true,
+        document: {
           select: {
             id: true,
             name: true,
             description: true,
-            orderColumn: true,
-            createdAt: true,
-            updatedAt: true,
+            documentItems: {
+              select: {
+                id: true,
+                orderColumn: true,
+                content: true,
+                type: true,
+              },
+              orderBy: {
+                orderColumn: 'asc',
+              },
+            },
+          },
+        },
+        assistant: {
+          select: {
+            id: true,
+            title: true,
+            description: true,
           },
         },
       },
+      orderBy: {
+        orderColumn: 'asc',
+      },
     });
+
+    return {
+      ...workflow,
+      steps: workflowSteps,
+    };
   }
+
+  async findFirstWithStepsJoins(workflowId: string) {}
 
   findAll(payload: FindAllWorkflowsDto) {
     return this.prisma.workflow

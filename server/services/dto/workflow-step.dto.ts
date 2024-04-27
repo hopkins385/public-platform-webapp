@@ -1,16 +1,19 @@
 export class CreateWorkflowStepDto {
   readonly workflowId: string;
+  readonly projectId: string;
   readonly name: string;
   readonly description: string;
   readonly orderColumn: number;
 
   constructor(
     workflowId: string,
+    projectId: string,
     name: string,
     description: string,
     orderColumn: number,
   ) {
     this.workflowId = workflowId.toLowerCase();
+    this.projectId = projectId.toLowerCase();
     this.name = name;
     this.description = description;
     this.orderColumn = orderColumn;
@@ -18,12 +21,14 @@ export class CreateWorkflowStepDto {
 
   static fromRequest(input: {
     workflowId: string;
+    projectId: string;
     name: string;
     description: string;
     orderColumn: number;
   }): CreateWorkflowStepDto {
     return new CreateWorkflowStepDto(
       input.workflowId,
+      input.projectId,
       input.name,
       input.description,
       input.orderColumn,
@@ -61,6 +66,23 @@ export class UpdateWorkflowStepDto {
       input.description,
       input.orderColumn,
     );
+  }
+}
+
+export class UpdateWorkflowStepNameDto {
+  readonly workflowStepId: string;
+  readonly name: string;
+
+  constructor(workflowStepId: string, name: string) {
+    this.workflowStepId = workflowStepId.toLowerCase();
+    this.name = name;
+  }
+
+  static fromRequest(input: {
+    workflowStepId: string;
+    name: string;
+  }): UpdateWorkflowStepNameDto {
+    return new UpdateWorkflowStepNameDto(input.workflowStepId, input.name);
   }
 }
 

@@ -28,6 +28,7 @@ export class ProjectService {
     return this.prisma.project.findFirst({
       where: {
         id: projectId.toLowerCase(),
+        deletedAt: null,
       },
     });
   }
@@ -41,7 +42,7 @@ export class ProjectService {
         },
       })
       .withPages({
-        limit: 10,
+        limit: 20,
         page,
         includePageCount: true,
       });

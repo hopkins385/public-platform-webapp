@@ -33,7 +33,7 @@ async function main() {
   const org = await prisma.organisation.create({
     data: {
       id: ulid().toLowerCase(),
-      name: 'Svenson Organisation',
+      name: 'Organisation',
     },
   });
 
@@ -41,12 +41,12 @@ async function main() {
   const team = await prisma.team.create({
     data: {
       id: ulid().toLowerCase(),
-      name: 'Svenson Team',
+      name: 'Team',
       organisation: { connect: { id: org.id } },
     },
   });
 
-  // create team user
+  // connect user with a team
   await prisma.teamUser.create({
     data: {
       id: ulid().toLowerCase(),
@@ -63,6 +63,78 @@ async function main() {
       amount: 1000,
     },
   });
+
+  for (let i = 0; i < 1; i++) {
+    // create project
+    const project = await prisma.project.create({
+      data: {
+        id: ulid().toLowerCase(),
+        name: 'Project Nr. ' + i,
+        description: 'This is a project',
+        team: { connect: { id: team.id } },
+      },
+    });
+
+    // create workflow
+    const workflow = await prisma.workflow.create({
+      data: {
+        id: ulid().toLowerCase(),
+        name: 'Workflow',
+        description: 'This is a workflow',
+        project: { connect: { id: project.id } },
+      },
+    });
+
+    // create i workflow steps
+    for (let i = 0; i < 3; i++) {
+      // create assistant
+      const assistant = await prisma.assistant.create({
+        data: {
+          id: ulid().toLowerCase(),
+          team: { connect: { id: team.id } },
+          title: 'Assistant Nr. ' + i,
+          description: 'This is an assistant',
+          systemPrompt: 'What do you want to do?',
+          systemPromptTokenCount: 5,
+        },
+      });
+
+      // create document
+      const document = await prisma.document.create({
+        data: {
+          id: ulid().toLowerCase(),
+          name: 'Document Nr. ' + i,
+          description: 'This is a document',
+          project: { connect: { id: project.id } },
+        },
+      });
+
+      // create foreach document 10 document items
+      for (let j = 0; j < 10; j++) {
+        await prisma.documentItem.create({
+          data: {
+            id: ulid().toLowerCase(),
+            document: { connect: { id: document.id } },
+            orderColumn: j,
+            content: 'This is a document item',
+            type: 'text',
+          },
+        });
+      }
+
+      const workflowStep = await prisma.workflowStep.create({
+        data: {
+          id: ulid().toLowerCase(),
+          name: `Step ${i}`,
+          description: 'This is a workflow step',
+          orderColumn: i,
+          workflow: { connect: { id: workflow.id } },
+          document: { connect: { id: document.id } },
+          assistant: { connect: { id: assistant.id } },
+        },
+      });
+    }
+  }
 
   // console.log({ sven });
   // read json file and insert into db

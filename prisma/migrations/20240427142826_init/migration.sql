@@ -168,7 +168,7 @@ CREATE TABLE "document_items" (
     "id" TEXT NOT NULL,
     "document_id" TEXT NOT NULL,
     "order_column" SMALLINT NOT NULL,
-    "status" JSONB NOT NULL,
+    "status" JSONB,
     "type" TEXT NOT NULL,
     "content" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -221,6 +221,8 @@ CREATE TABLE "workflow_ables" (
 CREATE TABLE "workflow_steps" (
     "id" TEXT NOT NULL,
     "workflow_id" TEXT NOT NULL,
+    "document_id" TEXT,
+    "assistant_id" TEXT,
     "order_column" SMALLINT NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
@@ -237,6 +239,7 @@ CREATE TABLE "workflow_step_ables" (
     "workflow_step_id" TEXT NOT NULL,
     "model_type" TEXT NOT NULL,
     "model_id" TEXT NOT NULL,
+    "order_column" SMALLINT,
     "role" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -295,6 +298,12 @@ ALTER TABLE "workflow_ables" ADD CONSTRAINT "workflow_ables_workflow_id_fkey" FO
 
 -- AddForeignKey
 ALTER TABLE "workflow_steps" ADD CONSTRAINT "workflow_steps_workflow_id_fkey" FOREIGN KEY ("workflow_id") REFERENCES "workflows"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "workflow_steps" ADD CONSTRAINT "workflow_steps_document_id_fkey" FOREIGN KEY ("document_id") REFERENCES "documents"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "workflow_steps" ADD CONSTRAINT "workflow_steps_assistant_id_fkey" FOREIGN KEY ("assistant_id") REFERENCES "assistants"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "workflow_step_ables" ADD CONSTRAINT "workflow_step_ables_workflow_step_id_fkey" FOREIGN KEY ("workflow_step_id") REFERENCES "workflow_steps"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

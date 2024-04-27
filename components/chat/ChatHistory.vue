@@ -20,21 +20,21 @@
   const showConfirmDialog = ref(false);
   const chatIdToDelete = ref('');
 
-  const onPageChange = (value: number) => {
+  async function onPageChange(value: number) {
     setPage(value);
-    refresh();
-  };
+    await refresh();
+  }
 
-  const onEdit = (chatId: string) => {
+  function onEdit(chatId: string) {
     navigateTo(`/chat/${chatId}`);
-  };
+  }
 
-  const onDelete = (chatId: string) => {
+  function onDelete(chatId: string) {
     showConfirmDialog.value = true;
     chatIdToDelete.value = chatId;
-  };
+  }
 
-  const handleDelete = async () => {
+  async function handleDelete() {
     showConfirmDialog.value = false;
     const { error } = await deleteChat(chatIdToDelete.value);
     if (error.value) {
@@ -43,7 +43,7 @@
     }
     chatIdToDelete.value = '';
     await refresh();
-  };
+  }
 </script>
 
 <template>

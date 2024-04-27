@@ -9,6 +9,10 @@
 
   definePageMeta({
     title: 'workflow.meta.settings.title',
+    validate: async (route) => {
+      const validator = useRouteValidation();
+      return validator.hasValidProjectWorkflowId(route.params);
+    },
   });
 
   const { successDuration, errorDuration } = useAppConfig().toast;
@@ -57,7 +61,7 @@
         description: 'Workflow updated successfully',
         duration: successDuration,
       });
-      refresh();
+      await refresh();
     } catch (error: any) {
       $toast('Error', {
         description: 'Ups, something went wrong.',

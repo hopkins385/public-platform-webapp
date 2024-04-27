@@ -27,26 +27,26 @@ export const workflowRouter = router({
   full: protectedProcedure
     .input(
       z.object({
-        projectId: ulidRule(),
+        workflowId: ulidRule(),
       }),
     )
     .query(async ({ ctx, input }) => {
       const workflowService = new WorkflowService(ctx.prisma);
-      return workflowService.findFirstWithSteps(input.projectId);
+      return workflowService.findFirstWithSteps(input.workflowId);
     }),
   // find workflow settings
   settings: protectedProcedure
     .input(
       z.object({
-        projectId: ulidRule(),
+        workflowId: ulidRule(),
       }),
     )
     .query(async ({ ctx, input }) => {
       const workflowService = new WorkflowService(ctx.prisma);
-      return workflowService.findFirst(input.projectId);
+      return workflowService.findFirst(input.workflowId);
     }),
-  // find all workflows
-  all: protectedProcedure
+  // find all workflows for a project
+  allForProject: protectedProcedure
     .input(
       z.object({
         projectId: ulidRule(),

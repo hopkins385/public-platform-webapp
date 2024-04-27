@@ -10,6 +10,7 @@ import { registerRouter } from './register';
 import { projectRouter } from './project';
 import { workflowRouter } from './workflow';
 import { documentRouter } from './document';
+import { workflowStepRouter } from './workflow-step';
 
 export const appRouter = router({
   register: registerRouter,
@@ -23,6 +24,7 @@ export const appRouter = router({
   project: projectRouter,
   document: documentRouter,
   workflow: workflowRouter,
+  workflowStep: workflowStepRouter,
 });
 
 // export type definition of API

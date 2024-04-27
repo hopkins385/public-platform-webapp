@@ -1,23 +1,37 @@
+import { DocumentService } from './document.service';
+import { CreateDocumentDto } from './dto/document.dto';
 import type {
   CreateWorkflowStepDto,
   UpdateWorkflowStepDto,
+  UpdateWorkflowStepNameDto,
 } from './dto/workflow-step.dto';
 
 export class WorkflowStepService {
   private readonly prisma: ExtendedPrismaClient;
+  private readonly documentService: DocumentService;
 
   constructor(prisma: ExtendedPrismaClient) {
     if (!prisma) {
       throw new Error('WorkflowStepService is missing a PrismaClient instance');
     }
     this.prisma = prisma;
+    this.documentService = new DocumentService(prisma);
   }
 
-  create(payload: CreateWorkflowStepDto) {
+  async create(payload: CreateWorkflowStepDto) {
+    const docPayload = CreateDocumentDto.fromRequest({
+      name: 'New Document',
+      description: 'New Document Description',
+      projectId: payload.projectId,
+      status: 'draft',
+    });
+    const document = await this.documentService.create(docPayload);
+
     return this.prisma.workflowStep.create({
       data: {
         id: ULID(),
         workflowId: payload.workflowId,
+        documentId: document.id,
         name: payload.name,
         description: payload.description,
         orderColumn: payload.orderColumn,
@@ -31,6 +45,7 @@ export class WorkflowStepService {
     return this.prisma.workflowStep.findFirst({
       where: {
         id: workflowStepId.toLowerCase(),
+        deletedAt: null,
       },
     });
   }
@@ -39,6 +54,7 @@ export class WorkflowStepService {
     return this.prisma.workflowStep.findFirst({
       where: {
         id: workflowStepId.toLowerCase(),
+        deletedAt: null,
       },
       select: {
         id: true,
@@ -61,6 +77,18 @@ export class WorkflowStepService {
         name: payload.name,
         description: payload.description,
         orderColumn: payload.orderColumn,
+        updatedAt: new Date(),
+      },
+    });
+  }
+
+  updateName(payload: UpdateWorkflowStepNameDto) {
+    return this.prisma.workflowStep.update({
+      where: {
+        id: payload.workflowStepId,
+      },
+      data: {
+        name: payload.name,
         updatedAt: new Date(),
       },
     });

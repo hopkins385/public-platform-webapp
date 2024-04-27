@@ -4,6 +4,10 @@
    * Route: /project
    */
   import { PlusIcon, SettingsIcon } from 'lucide-vue-next';
+
+  definePageMeta({
+    title: 'project.meta.index.title',
+  });
 </script>
 
 <template>

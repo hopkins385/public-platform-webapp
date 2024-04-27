@@ -9,11 +9,15 @@
 
   definePageMeta({
     title: 'workflow.meta.create.title',
+    validate: async (route) => {
+      const validator = useRouteValidation();
+      return validator.hasValidProjectId(route.params);
+    },
   });
 
-  const route = useRoute();
+  const { projectId } = useRoute().params;
   const { getProject } = useManageProjects();
-  const { data: project } = await getProject(route.params.projectId);
+  const { data: project } = await getProject(projectId);
 
   const createWorkflowSchema = toTypedSchema(
     z.object({

@@ -41,7 +41,7 @@ export default function useManageWorkflows() {
     options: AsyncDataOptions<any> = {},
   ) {
     return useAsyncData(async () => {
-      const [workflows, meta] = await $client.workflow.all.query(
+      const [workflows, meta] = await $client.workflow.allForProject.query(
         {
           projectId,
           page,
@@ -62,7 +62,7 @@ export default function useManageWorkflows() {
     return useAsyncData(async () => {
       if (!workflowId) return;
       const workflow = await $client.workflow.full.query(
-        { projectId: workflowId },
+        { workflowId },
         {
           signal: ac.signal,
         },
@@ -79,7 +79,7 @@ export default function useManageWorkflows() {
     return useAsyncData(async () => {
       if (!workflowId) return;
       const workflow = await $client.workflow.settings.query(
-        { projectId: workflowId },
+        { workflowId },
         {
           signal: ac.signal,
         },

@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-  // previewFeatures = ["relationJoins"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {
@@ -105,18 +105,19 @@ model ChatMessage {
 }
 
 model Assistant {
-  id                     String    @id
-  team                   Team      @relation(fields: [teamId], references: [id])
-  teamId                 String    @map("team_id")
+  id                     String         @id
+  team                   Team           @relation(fields: [teamId], references: [id])
+  teamId                 String         @map("team_id")
   title                  String
   description            String
-  systemPrompt           String    @map("system_prompt") @db.Text
-  systemPromptTokenCount Int       @map("system_prompt_token_count")
-  isShared               Boolean   @default(false) @map("is_shared")
-  createdAt              DateTime  @default(now()) @map("created_at")
-  updatedAt              DateTime  @updatedAt @map("updated_at")
-  deletedAt              DateTime? @map("deleted_at")
+  systemPrompt           String         @map("system_prompt") @db.Text
+  systemPromptTokenCount Int            @map("system_prompt_token_count")
+  isShared               Boolean        @default(false) @map("is_shared")
+  createdAt              DateTime       @default(now()) @map("created_at")
+  updatedAt              DateTime       @updatedAt @map("updated_at")
+  deletedAt              DateTime?      @map("deleted_at")
   Chat                   Chat[]
+  WorkflowStep           WorkflowStep[]
 
   @@map("assistants")
 }
@@ -203,6 +204,7 @@ model Document {
   updatedAt     DateTime       @updatedAt @map("updated_at")
   deletedAt     DateTime?      @map("deleted_at")
   documentItems DocumentItem[]
+  WorkflowStep  WorkflowStep[]
 
   @@map("documents")
 }
@@ -212,7 +214,7 @@ model DocumentItem {
   document          Document           @relation(fields: [documentId], references: [id])
   documentId        String             @map("document_id")
   orderColumn       Int                @map("order_column") @db.SmallInt
-  status            Json
+  status            Json?
   type              String
   content           String             @db.Text
   createdAt         DateTime           @default(now()) @map("created_at")
@@ -268,6 +270,10 @@ model WorkflowStep {
   id                String             @id
   workflow          Workflow           @relation(fields: [workflowId], references: [id])
   workflowId        String             @map("workflow_id")
+  document          Document?          @relation(fields: [documentId], references: [id])
+  documentId        String?            @map("document_id")
+  assistant         Assistant?         @relation(fields: [assistantId], references: [id])
+  assistantId       String?            @map("assistant_id")
   orderColumn       Int                @map("order_column") @db.SmallInt
   name              String
   description       String
@@ -285,6 +291,7 @@ model WorkflowStepAble {
   workflowStepId String       @map("workflow_step_id")
   modelType      String       @map("model_type")
   modelId        String       @map("model_id")
+  orderColumn    Int?         @map("order_column") @db.SmallInt
   role           String
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
