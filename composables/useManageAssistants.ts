@@ -1,5 +1,6 @@
 class AssistantDto {
   teamId: string = '';
+  llmId: string = '';
   title: string = '';
   description: string = '';
   systemPrompt: string = '';
@@ -53,9 +54,9 @@ export default function useManageAssistants() {
     });
   }
 
-  function getOneAssistant() {
+  function getOneAssistant(id: string | string[] | undefined | null) {
+    setAssistantId(id);
     return useAsyncData(async () => {
-      if (!assistantId) return;
       const assistant = await $client.assistant.one.query(
         { id: assistantId },
         {

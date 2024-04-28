@@ -32,10 +32,13 @@ export default function useManageDocuments() {
     );
   }
 
-  function getAllDocuments() {
+  function getAllDocuments(projectId: string | string[] | undefined | null) {
     return useAsyncData(async () => {
       const [documents, meta] = await $client.document.findAll.query(
-        { page },
+        {
+          projectId: projectId as string,
+          page,
+        },
         {
           signal: ac.signal,
         },

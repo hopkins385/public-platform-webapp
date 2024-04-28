@@ -2,7 +2,7 @@
   import { PlusIcon, SettingsIcon } from 'lucide-vue-next';
 
   definePageMeta({
-    title: 'assistant.meta.title',
+    title: 'assistant.meta.index.title',
   });
 </script>
 
@@ -17,7 +17,7 @@
           <Button
             variant="outline"
             size="icon"
-            @click="navigateTo('/admin/assistant/create')"
+            @click="navigateTo('/assistant/create')"
           >
             <PlusIcon class="size-4" />
           </Button>
@@ -26,7 +26,7 @@
           <Button
             variant="outline"
             size="icon"
-            @click="navigateTo('/admin/assistant')"
+            @click="navigateTo('/assistant/list')"
           >
             <SettingsIcon class="size-4 stroke-1.5" />
           </Button>

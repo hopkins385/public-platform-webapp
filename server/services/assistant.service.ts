@@ -46,6 +46,7 @@ export class AssistantService {
       data: {
         id: ULID(),
         teamId: payload.teamId,
+        llmId: payload.llmId,
         title: payload.title,
         description: payload.description,
         systemPrompt: payload.systemPrompt,
@@ -62,6 +63,25 @@ export class AssistantService {
       where: {
         id: payload.assistantId,
         deletedAt: null,
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        systemPrompt: true,
+        isShared: true,
+        systemPromptTokenCount: true,
+        llm: {
+          select: {
+            id: true,
+            apiName: true,
+            displayName: true,
+            contextSize: true,
+            multiModal: true,
+            provider: true,
+            hidden: true,
+          },
+        },
       },
     });
   }
@@ -112,6 +132,7 @@ export class AssistantService {
       },
       data: {
         title: payload.title,
+        llmId: payload.llmId,
         description: payload.description,
         systemPrompt: payload.systemPrompt,
         isShared: payload.isShared || false,

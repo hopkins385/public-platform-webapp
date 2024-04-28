@@ -5,16 +5,17 @@ import { userMeRouter } from './user-me';
 import { assistantRouter } from './assistant';
 import { tokenizerRouter } from './tokenizer';
 import { chatRouter } from './chat';
-import { chatModelsRouter } from './llm-models';
+import { llmsRouter } from './llm-models';
 import { registerRouter } from './register';
 import { projectRouter } from './project';
 import { workflowRouter } from './workflow';
 import { documentRouter } from './document';
 import { workflowStepRouter } from './workflow-step';
+import { workflowExecRouter } from './workflow-exec';
 
 export const appRouter = router({
   register: registerRouter,
-  chatModels: chatModelsRouter,
+  llms: llmsRouter,
   chat: chatRouter,
   embed: embedRouter,
   tokenizer: tokenizerRouter,
@@ -25,6 +26,7 @@ export const appRouter = router({
   document: documentRouter,
   workflow: workflowRouter,
   workflowStep: workflowStepRouter,
+  workflowExec: workflowExecRouter,
 });
 
 // export type definition of API

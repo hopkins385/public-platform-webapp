@@ -32,6 +32,25 @@ export class DocumentService {
     });
   }
 
+  findAll(payload: FindAllDocumentsDto) {
+    return this.prisma.document
+      .paginate({
+        where: {
+          projectId: payload.projectId,
+          deletedAt: null,
+        },
+        select: {
+          id: true,
+          name: true,
+        },
+      })
+      .withPages({
+        limit: 10,
+        page: payload.page,
+        includePageCount: true,
+      });
+  }
+
   findMany() {
     return this.prisma.document.findMany();
   }

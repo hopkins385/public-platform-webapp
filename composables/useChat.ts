@@ -24,6 +24,19 @@ export default function useChat() {
     });
   }
 
+  function getChatForUser(chatId: string) {
+    return useAsyncData(async () => {
+      return await $client.chat.forUser.query(
+        {
+          chatId,
+        },
+        {
+          signal: ac.signal,
+        },
+      );
+    });
+  }
+
   function deleteChat(chatId: string) {
     return useAsyncData(async () => {
       return await $client.chat.delete.query(
@@ -36,6 +49,7 @@ export default function useChat() {
   }
 
   return {
+    getChatForUser,
     getAllChatsForUser,
     deleteChat,
     setPage,

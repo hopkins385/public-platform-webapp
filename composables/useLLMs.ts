@@ -1,4 +1,6 @@
-export default function useChatModels() {
+import type { AsyncDataOptions } from '#app';
+
+export default function useLLMs() {
   const { $client } = useNuxtApp();
   const ac = new AbortController();
 
@@ -6,13 +8,12 @@ export default function useChatModels() {
     ac.abort();
   });
 
-  function getAllModels() {
+  function getAllModels(options: AsyncDataOptions<any> = {}) {
     return useAsyncData(async () => {
-      const models = await $client.chatModels.getAll.query(undefined, {
+      return await $client.llms.all.query(undefined, {
         signal: ac.signal,
       });
-      return models;
-    });
+    }, options);
   }
 
   return {

@@ -5,22 +5,27 @@
   import { useDebounceFn } from '@vueuse/core';
 
   definePageMeta({
-    title: 'assistant.meta.one.title',
+    title: 'assistant.meta.edit.title',
+    validate: async (route) => {
+      const validator = useRouteValidation();
+      return validator.hasValidAssistantId(route.params);
+    },
   });
 
   const { successDuration, errorDuration } = useAppConfig().toast;
-  const { setAssistantId, getOneAssistant, updateAssistant } =
-    useManageAssistants();
+  const { getOneAssistant, updateAssistant } = useManageAssistants();
   const { $toast, $client } = useNuxtApp();
-  const route = useRoute();
-  const { data } = useAuth();
+  const { assistantId } = useRoute().params;
+  const { data: auth } = useAuth();
+  const { getAllModels } = useLLMs();
 
-  setAssistantId(route.params.id);
-  const { data: assistant } = await getOneAssistant();
+  const { data: assistant } = await getOneAssistant(assistantId);
+  const { data: models } = await getAllModels({ lazy: true });
 
   const assistantFormSchema = toTypedSchema(
     z.object({
       teamId: z.string(),
+      llmId: z.string().min(3).max(255),
       title: z.string().min(3).max(255),
       description: z.string().min(3).max(255),
       systemPrompt: z.string().min(3).max(6000),
@@ -31,7 +36,8 @@
   const { handleSubmit } = useForm({
     validationSchema: assistantFormSchema,
     initialValues: {
-      teamId: data.value?.user.teamId,
+      teamId: auth.value?.user.teamId,
+      llmId: assistant.value?.llm.id,
       title: assistant.value?.title,
       description: assistant.value?.description,
       systemPrompt: assistant.value?.systemPrompt,
@@ -122,6 +128,33 @@
           </FormItem>
         </FormField>
 
+        <FormField v-slot="{ componentField }" name="llmId">
+          <FormItem>
+            <FormLabel>
+              {{ $t('Ai Model') }}
+            </FormLabel>
+            <Select v-bind="componentField">
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select an Ai Model" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem
+                    v-for="model in models"
+                    :key="model.id"
+                    :value="model.id"
+                  >
+                    {{ model.displayName }}
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+
         <FormField
           v-slot="{ componentField }"
           v-model="systemPrompt"
@@ -129,14 +162,14 @@
         >
           <FormItem>
             <FormLabel>
-              {{ $t('admin.assistant.form.systemPrompt.label') }}
+              {{ $t('assistant.form.systemPrompt.label') }}
             </FormLabel>
             <FormControl>
               <Textarea v-bind="componentField" @input="getTokenCount()" />
             </FormControl>
             <FormDescription>
-              {{ $t('admin.assistant.form.systemPrompt.description') }} [Used
-              Tokens: {{ tokenCount }}]
+              {{ $t('assistant.form.systemPrompt.description') }} [Used Tokens:
+              {{ tokenCount }}]
             </FormDescription>
             <FormMessage />
           </FormItem>
@@ -153,7 +186,8 @@
               <Switch :checked="value" @update:checked="handleChange" />
             </FormControl>
             <FormDescription>
-              If the assistant is shared, it will be available to all users.
+              If the assistant is shared, it will be available to your whole
+              organization.
             </FormDescription>
             <FormMessage />
           </FormItem>

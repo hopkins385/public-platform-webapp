@@ -42,7 +42,7 @@ model Organisation {
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
-  Team      Team[]
+  teams     Team[]
 
   @@map("organisations")
 }
@@ -57,7 +57,7 @@ model Team {
   deletedAt      DateTime?    @map("deleted_at")
   projects       Project[]
   users          TeamUser[]
-  Assistant      Assistant[]
+  assistants     Assistant[]
 
   @@map("teams")
 }
@@ -108,6 +108,8 @@ model Assistant {
   id                     String         @id
   team                   Team           @relation(fields: [teamId], references: [id])
   teamId                 String         @map("team_id")
+  llm                    LargeLangModel @relation(fields: [llmId], references: [id])
+  llmId                  String         @map("llm_id")
   title                  String
   description            String
   systemPrompt           String         @map("system_prompt") @db.Text
@@ -116,26 +118,27 @@ model Assistant {
   createdAt              DateTime       @default(now()) @map("created_at")
   updatedAt              DateTime       @updatedAt @map("updated_at")
   deletedAt              DateTime?      @map("deleted_at")
-  Chat                   Chat[]
-  WorkflowStep           WorkflowStep[]
+  chats                  Chat[]
+  workflowSteps          WorkflowStep[]
 
   @@map("assistants")
 }
 
 model LargeLangModel {
-  id          String    @id
-  apiName     String    @map("api_name")
-  displayName String    @map("display_name")
+  id          String      @id
+  apiName     String      @map("api_name")
+  displayName String      @map("display_name")
   description String
   provider    String
-  contextSize Int       @map("context_size")
-  maxTokens   Int       @map("max_tokens")
-  multiModal  Boolean   @default(false) @map("multi_modal")
-  hidden      Boolean   @default(false)
-  free        Boolean   @default(false)
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  deletedAt   DateTime? @map("deleted_at")
+  contextSize Int         @map("context_size")
+  maxTokens   Int         @map("max_tokens")
+  multiModal  Boolean     @default(false) @map("multi_modal")
+  hidden      Boolean     @default(false)
+  free        Boolean     @default(false)
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  deletedAt   DateTime?   @map("deleted_at")
+  assistants  Assistant[]
 
   @@map("llms")
 }
@@ -185,7 +188,7 @@ model Project {
   updatedAt   DateTime   @updatedAt @map("updated_at")
   deletedAt   DateTime?  @map("deleted_at")
   documents   Document[]
-  Workflow    Workflow[]
+  workflows   Workflow[]
 
   @@map("projects")
 }
@@ -204,7 +207,7 @@ model Document {
   updatedAt     DateTime       @updatedAt @map("updated_at")
   deletedAt     DateTime?      @map("deleted_at")
   documentItems DocumentItem[]
-  WorkflowStep  WorkflowStep[]
+  workflowSteps WorkflowStep[]
 
   @@map("documents")
 }
@@ -247,7 +250,7 @@ model Workflow {
   createdAt     DateTime       @default(now()) @map("created_at")
   updatedAt     DateTime       @updatedAt @map("updated_at")
   deletedAt     DateTime?      @map("deleted_at")
-  workflowables WorkflowAble[]
+  workflowAbles WorkflowAble[]
   steps         WorkflowStep[]
 
   @@map("workflows")
@@ -280,7 +283,7 @@ model WorkflowStep {
   createdAt         DateTime           @default(now()) @map("created_at")
   updatedAt         DateTime           @updatedAt @map("updated_at")
   deletedAt         DateTime?          @map("deleted_at")
-  workflowstepables WorkflowStepAble[]
+  workflowStepAbles WorkflowStepAble[]
 
   @@map("workflow_steps")
 }

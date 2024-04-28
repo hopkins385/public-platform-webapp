@@ -9,13 +9,17 @@
 
   const { successDuration, errorDuration } = useAppConfig().toast;
   const { createAssistant } = useManageAssistants();
+  const { getAllModels } = useLLMs();
   const { $toast } = useNuxtApp();
   const { data: auth } = useAuth();
+
+  const { data: models } = await getAllModels({ lazy: true });
 
   const assistantFormSchema = toTypedSchema(
     z.object({
       title: z.string().min(3).max(255),
       description: z.string().min(3).max(255),
+      llmId: z.string().min(3).max(255),
       systemPrompt: z.string().min(3).max(2500),
       isShared: z.boolean().default(false),
     }),
@@ -84,23 +88,50 @@
           </FormItem>
         </FormField>
 
+        <FormField v-slot="{ componentField }" name="llmId">
+          <FormItem>
+            <FormLabel>
+              {{ $t('Ai Model') }}
+            </FormLabel>
+            <Select v-bind="componentField">
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select an Ai Model" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem
+                    v-for="model in models"
+                    :key="model.id"
+                    :value="model.id"
+                  >
+                    {{ model.displayName }}
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+
         <FormField v-slot="{ componentField }" name="systemPrompt">
           <FormItem>
             <FormLabel>
-              {{ $t('admin.assistant.form.systemPrompt.label') }}
+              {{ $t('assistant.form.systemPrompt.label') }}
             </FormLabel>
             <FormControl>
               <Textarea v-bind="componentField" />
             </FormControl>
             <FormDescription>
-              {{ $t('admin.assistant.form.systemPrompt.description') }}
+              {{ $t('assistant.form.systemPrompt.description') }}
             </FormDescription>
             <FormMessage />
           </FormItem>
         </FormField>
 
-        <div class="text-sm">Capababilities<br />tbd</div>
-        <div class="text-sm">Knowledge Base<br />tbd</div>
+        <div class="hidden text-sm">Capababilities<br />tbd</div>
+        <div class="hidden text-sm">Knowledge Base<br />tbd</div>
 
         <FormField
           v-slot="{ handleChange, value }"

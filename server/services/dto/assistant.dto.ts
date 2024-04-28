@@ -26,6 +26,7 @@ export class FindAllAssistantsDto {
 
 export class CreateAssistantDto {
   readonly teamId: string;
+  readonly llmId: string;
   readonly title: string;
   readonly description: string;
   readonly systemPrompt: string;
@@ -34,6 +35,7 @@ export class CreateAssistantDto {
 
   constructor(
     teamId: string,
+    llmId: string,
     title: string,
     description: string,
     systemPrompt: string,
@@ -41,6 +43,7 @@ export class CreateAssistantDto {
     systemPromptTokenCount: number,
   ) {
     this.teamId = teamId.toLowerCase();
+    this.llmId = llmId.toLowerCase();
     this.title = title;
     this.description = description;
     this.systemPrompt = systemPrompt;
@@ -50,6 +53,7 @@ export class CreateAssistantDto {
 
   static fromRequest(input: {
     teamId: string;
+    llmId: string;
     title: string;
     description: string;
     systemPrompt: string;
@@ -58,6 +62,7 @@ export class CreateAssistantDto {
   }): CreateAssistantDto {
     return new CreateAssistantDto(
       input.teamId,
+      input.llmId,
       input.title,
       input.description,
       input.systemPrompt,
@@ -69,6 +74,7 @@ export class CreateAssistantDto {
 
 export class UpdateAssistantDto {
   readonly teamId: string;
+  readonly llmId: string;
   readonly assistantId: string;
   readonly title: string;
   readonly description: string;
@@ -78,6 +84,7 @@ export class UpdateAssistantDto {
 
   constructor(
     teamId: string,
+    llmId: string,
     assistantId: string,
     title: string,
     description: string,
@@ -86,6 +93,7 @@ export class UpdateAssistantDto {
     systemPromptTokenCount: number,
   ) {
     this.teamId = teamId.toLowerCase();
+    this.llmId = llmId.toLowerCase();
     this.assistantId = assistantId.toLowerCase();
     this.title = title;
     this.description = description;
@@ -96,6 +104,7 @@ export class UpdateAssistantDto {
 
   static fromRequest(input: {
     teamId: string;
+    llmId: string;
     id: string;
     title: string;
     description: string;
@@ -105,6 +114,7 @@ export class UpdateAssistantDto {
   }): UpdateAssistantDto {
     return new UpdateAssistantDto(
       input.teamId,
+      input.llmId,
       input.id,
       input.title,
       input.description,

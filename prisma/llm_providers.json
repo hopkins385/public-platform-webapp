@@ -1,7 +1,7 @@
 [
   {
     "apiName": "llama3-8b-8192",
-    "displayName": "Groq Llama 3 8K",
+    "displayName": "Groq Llama 3 8B",
     "provider": "groq",
     "description": "",
     "contextSize": 8,
@@ -12,18 +12,7 @@
   },
   {
     "apiName": "llama3-70b-4096",
-    "displayName": "Groq Llama 3 4K",
-    "provider": "groq",
-    "description": "",
-    "contextSize": 4,
-    "maxTokens": 0,
-    "multiModal": false,
-    "hidden": false,
-    "free": true
-  },
-  {
-    "apiName": "llama2-70b-4096",
-    "displayName": "Groq Llama 2 4K",
+    "displayName": "Groq Llama 3 70B",
     "provider": "groq",
     "description": "",
     "contextSize": 4,
@@ -34,7 +23,7 @@
   },
   {
     "apiName": "mixtral-8x7b-32768",
-    "displayName": "Groq Mixtral 32K",
+    "displayName": "Groq Mixtral 8x7B",
     "provider": "groq",
     "description": "",
     "contextSize": 32,
@@ -45,7 +34,7 @@
   },
   {
     "apiName": "gemma-7b-it",
-    "displayName": "Groq Gemma 7b",
+    "displayName": "Groq Gemma 7B",
     "provider": "groq",
     "description": "",
     "contextSize": 8,
@@ -63,7 +52,7 @@
     "maxTokens": 0,
     "multiModal": false,
     "hidden": false,
-    "free": true
+    "free": false
   },
   {
     "apiName": "open-mixtral-8x7b",
@@ -74,7 +63,7 @@
     "maxTokens": 0,
     "multiModal": false,
     "hidden": false,
-    "free": true
+    "free": false
   },
   {
     "apiName": "mistral-small-latest",
@@ -85,7 +74,7 @@
     "maxTokens": 0,
     "multiModal": false,
     "hidden": false,
-    "free": true
+    "free": false
   },
   {
     "apiName": "mistral-medium-latest",
@@ -96,7 +85,7 @@
     "maxTokens": 0,
     "multiModal": false,
     "hidden": false,
-    "free": true
+    "free": false
   },
   {
     "apiName": "mistral-large-latest",
@@ -107,7 +96,7 @@
     "maxTokens": 0,
     "multiModal": false,
     "hidden": false,
-    "free": true
+    "free": false
   },
   {
     "apiName": "gpt-3.5-turbo",
@@ -118,7 +107,7 @@
     "maxTokens": 4,
     "multiModal": false,
     "hidden": false,
-    "free": true
+    "free": false
   },
   {
     "apiName": "gpt-4",
@@ -129,7 +118,7 @@
     "maxTokens": 0,
     "multiModal": false,
     "hidden": false,
-    "free": true
+    "free": false
   },
   {
     "apiName": "claude-3-haiku-20240307",
@@ -140,7 +129,7 @@
     "maxTokens": 4,
     "multiModal": true,
     "hidden": false,
-    "free": true
+    "free": false
   },
   {
     "apiName": "claude-3-sonnet-20240229",
@@ -151,7 +140,7 @@
     "maxTokens": 4,
     "multiModal": true,
     "hidden": false,
-    "free": true
+    "free": false
   },
   {
     "apiName": "claude-3-opus-20240229",
@@ -162,6 +151,6 @@
     "maxTokens": 4,
     "multiModal": true,
     "hidden": false,
-    "free": true
+    "free": false
   }
 ]

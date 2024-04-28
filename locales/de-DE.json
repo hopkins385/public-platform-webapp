@@ -33,20 +33,6 @@
     },
     "email": "E-Mail Bestätigung"
   },
-  "admin": {
-    "assistant": {
-      "meta": {
-        "title": "Assistent",
-        "description": "Assistent"
-      },
-      "form": {
-        "systemPrompt": {
-          "label": "Persönlichkeit",
-          "description": "Beschreibe, wer der Assistent ist und wie er sich verhalten soll."
-        }
-      }
-    }
-  },
   "user": {
     "placeholder": "Ich",
     "meta": {
@@ -65,6 +51,10 @@
   },
   "chat": {
     "meta": {
+      "index": {
+        "title": "Chat",
+        "description": "Chat"
+      },
       "title": "Chat",
       "description": "Chat"
     },
@@ -91,11 +81,23 @@
   "assistant": {
     "placeholder": "Assistent",
     "meta": {
-      "title": "Assistent",
-      "description": "Assistent",
-      "one": {
-        "title": "Assistent",
-        "description": "Assistent"
+      "create": {
+        "title": "Assistent erstellen",
+        "description": "Assistent erstellen"
+      },
+      "index": {
+        "title": "Assistenten",
+        "description": "Assistenten"
+      },
+      "edit": {
+        "title": "Assistent bearbeiten",
+        "description": "Assistent bearbeiten"
+      }
+    },
+    "form": {
+      "systemPrompt": {
+        "label": "Persönlichkeit",
+        "description": "Beschreibe wie der Assistent sich verhalten soll."
       }
     }
   },
@@ -122,6 +124,14 @@
       "index": {
         "title": "Workflows %{project}",
         "description": "Workflows %{project}"
+      }
+    }
+  },
+  "document": {
+    "meta": {
+      "index": {
+        "title": "Dokumente",
+        "description": "Dokumente"
       }
     }
   },

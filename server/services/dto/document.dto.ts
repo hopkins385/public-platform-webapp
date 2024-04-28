@@ -63,3 +63,20 @@ export class UpdateDocumentDto {
     );
   }
 }
+
+export class FindAllDocumentsDto {
+  readonly projectId: string;
+  readonly page: number;
+
+  constructor(projectId: string, page: number) {
+    this.projectId = projectId.toLowerCase();
+    this.page = page;
+  }
+
+  static fromRequest(input: {
+    projectId: string;
+    page: number;
+  }): FindAllDocumentsDto {
+    return new FindAllDocumentsDto(input.projectId, input.page);
+  }
+}

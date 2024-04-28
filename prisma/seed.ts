@@ -12,6 +12,28 @@ async function hashPassword(password: string): Promise<string> {
 const prisma = new PrismaClient();
 
 async function main() {
+  // read json file and insert into db
+  const path = join(__dirname, 'llm_providers.json');
+  const data = readFileSync(path, 'utf8');
+  const providers = JSON.parse(data);
+  for (const provider of providers) {
+    await prisma.largeLangModel.create({
+      data: {
+        id: ulid().toLowerCase(),
+        provider: provider.provider,
+        apiName: provider.apiName,
+        description: provider.description,
+        displayName: provider.displayName,
+        contextSize: provider.contextSize,
+        maxTokens: provider.maxTokens,
+        multiModal: provider.multiModal,
+        hidden: provider.hidden,
+        free: provider.free,
+      },
+    });
+  }
+  const llms = await prisma.largeLangModel.findMany();
+
   // create user
   const user = await prisma.user.upsert({
     where: { email: 'sven@svenson.ai' },
@@ -87,15 +109,18 @@ async function main() {
 
     // create i workflow steps
     for (let i = 0; i < 3; i++) {
+      const randomLlm = llms[Math.floor(Math.random() * llms.length)];
       // create assistant
       const assistant = await prisma.assistant.create({
         data: {
           id: ulid().toLowerCase(),
           team: { connect: { id: team.id } },
+          llm: { connect: { id: randomLlm.id } },
           title: 'Assistant Nr. ' + i,
-          description: 'This is an assistant',
-          systemPrompt: 'What do you want to do?',
-          systemPromptTokenCount: 5,
+          description: 'This is an assistant description',
+          systemPrompt:
+            'You are a friendly and helpful assistant. Your goal is to help the user.',
+          systemPromptTokenCount: 10,
         },
       });
 
@@ -134,28 +159,6 @@ async function main() {
         },
       });
     }
-  }
-
-  // console.log({ sven });
-  // read json file and insert into db
-  const path = join(__dirname, 'llm_providers.json');
-  const data = readFileSync(path, 'utf8');
-  const providers = JSON.parse(data);
-  for (const provider of providers) {
-    await prisma.largeLangModel.create({
-      data: {
-        id: ulid().toLowerCase(),
-        provider: provider.provider,
-        apiName: provider.apiName,
-        description: provider.description,
-        displayName: provider.displayName,
-        contextSize: provider.contextSize,
-        maxTokens: provider.maxTokens,
-        multiModal: provider.multiModal,
-        hidden: provider.hidden,
-        free: provider.free,
-      },
-    });
   }
 }
 

@@ -37,7 +37,7 @@
         <div class="bg-primary">
           <div class="flex items-center py-5 pl-10">
             <IconSvenson class="size-9" />
-            <h1 class="pl-3 text-lg text-slate-300">Svenson.ai</h1>
+            <h1 class="pl-3 text-lg text-slate-300">RAGNA <i>Cloud</i></h1>
           </div>
           <div class="mt-40 hidden p-20 text-center text-slate-300 lg:block">
             <p class="text-2xl italic">

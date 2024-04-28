@@ -17,7 +17,7 @@
     PopoverTrigger,
   } from '@/components/ui/popover';
 
-  const { getAllModels } = useChatModels();
+  const { getAllModels } = useLLMs();
   const { data: models } = await getAllModels();
 
   const open = ref(false);

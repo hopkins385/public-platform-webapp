@@ -29,7 +29,7 @@
       <Button
         size="icon"
         variant="ghost"
-        @click.stop="navigateTo(`/admin/assistant/${assistant.id}`)"
+        @click.stop="navigateTo(`/assistant/${assistant.id}/edit`)"
       >
         <EditIcon
           class="size-4 stroke-1.5 opacity-50 group-hover/icon:stroke-2"

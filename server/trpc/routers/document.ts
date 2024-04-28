@@ -4,6 +4,7 @@ import { protectedProcedure, router } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import {
   CreateDocumentDto,
+  FindAllDocumentsDto,
   UpdateDocumentDto,
 } from '~/server/services/dto/document.dto';
 
@@ -15,7 +16,7 @@ export const documentRouter = router({
         name: z.string(),
         description: z.string(),
         status: z.string(),
-        projectId: z.string(),
+        projectId: ulidRule(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -27,29 +28,31 @@ export const documentRouter = router({
   find: protectedProcedure
     .input(
       z.object({
-        documentId: z.string(),
+        documentId: ulidRule(),
       }),
     )
     .query(async ({ input, ctx }) => {
       const documentService = new DocumentService(ctx.prisma);
-      return documentService.findFirst(input.documentId);
+      return documentService.findFirst(input.documentId.toLowerCase());
     }),
   // find all documents
   findAll: protectedProcedure
     .input(
       z.object({
+        projectId: ulidRule(),
         page: z.number().default(1),
       }),
     )
     .query(({ input, ctx }) => {
       const documentService = new DocumentService(ctx.prisma);
-      return documentService.findMany();
+      const payload = FindAllDocumentsDto.fromRequest(input);
+      return documentService.findAll(payload);
     }),
   // update document
   update: protectedProcedure
     .input(
       z.object({
-        documentId: z.string(),
+        documentId: ulidRule(),
         name: z.string(),
         description: z.string(),
         status: z.string(),
@@ -64,21 +67,21 @@ export const documentRouter = router({
   delete: protectedProcedure
     .input(
       z.object({
-        documentId: z.string(),
+        documentId: ulidRule(),
       }),
     )
     .query(async ({ input, ctx }) => {
       const documentService = new DocumentService(ctx.prisma);
-      return documentService.softDelete(input.documentId);
+      return documentService.softDelete(input.documentId.toLowerCase());
     }),
   parse: protectedProcedure
     .input(
       z.object({
-        documentId: z.string(),
+        documentId: ulidRule(),
       }),
     )
     .query(async ({ input, ctx }) => {
       const documentService = new DocumentService(ctx.prisma);
-      return documentService.parse(input.documentId);
+      return documentService.parse(input.documentId.toLowerCase());
     }),
 });

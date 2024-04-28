@@ -65,8 +65,6 @@
 </script>
 
 <template>
-  <div class="h-10 bg-stone-50"></div>
-
   <div class="h-screen overflow-x-auto bg-white p-0">
     <div class="grid w-fit grid-flow-col text-xs">
       <div class="grid w-12" id="column_number">

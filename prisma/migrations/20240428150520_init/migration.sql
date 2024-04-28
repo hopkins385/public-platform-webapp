@@ -90,6 +90,7 @@ CREATE TABLE "chat_messages" (
 CREATE TABLE "assistants" (
     "id" TEXT NOT NULL,
     "team_id" TEXT NOT NULL,
+    "llm_id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "system_prompt" TEXT NOT NULL,
@@ -274,6 +275,9 @@ ALTER TABLE "chat_messages" ADD CONSTRAINT "chat_messages_chat_id_fkey" FOREIGN 
 
 -- AddForeignKey
 ALTER TABLE "assistants" ADD CONSTRAINT "assistants_team_id_fkey" FOREIGN KEY ("team_id") REFERENCES "teams"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "assistants" ADD CONSTRAINT "assistants_llm_id_fkey" FOREIGN KEY ("llm_id") REFERENCES "llms"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "credits" ADD CONSTRAINT "credits_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

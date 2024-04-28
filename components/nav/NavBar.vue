@@ -7,13 +7,19 @@
     Disc3Icon,
     PenLineIcon,
     FolderClosedIcon,
-    FileTextIcon,
-    WorkflowIcon,
     ArchiveIcon,
     LayoutGridIcon,
-    LayoutListIcon,
+    FilesIcon,
   } from 'lucide-vue-next';
   const playground = false;
+
+  const has = computed(() => {
+    const { projectId, documentId } = useRoute().params;
+    return {
+      projectId,
+      documentId,
+    };
+  });
 </script>
 
 <template>
@@ -31,17 +37,17 @@
           <LayoutGridIcon class="nav-icon" />
         </NuxtLink>
       </li>
-      <!-- li class="nav-item">
-        <NuxtLink href="/document">
-          <LayoutListIcon class="nav-icon" />
-        </NuxtLink>
-      </!-->
+      <li v-show="has.projectId" class="nav-item">
+        <NuxtLinkLocale :to="`/project/${has.projectId}/document`">
+          <FilesIcon class="nav-icon" />
+        </NuxtLinkLocale>
+      </li>
       <!-- li class="nav-item">
         <NuxtLink href="/workflow">
           <WorkflowIcon class="nav-icon" />
         </NuxtLink>
       </!-->
-      <li class="nav-item">
+      <li v-show="has.projectId && has.documentId" class="nav-item">
         <NuxtLink href="/editor">
           <PenLineIcon class="nav-icon" />
         </NuxtLink>

@@ -58,6 +58,7 @@ export const assistantRouter = router({
     .input(
       z.object({
         teamId: ulidRule(),
+        llmId: ulidRule(),
         title: z.string(),
         description: z.string(),
         systemPrompt: z.string(),
@@ -68,10 +69,10 @@ export const assistantRouter = router({
     .mutation(async ({ ctx, input }) => {
       const assistantService = new AssistantService(ctx.prisma);
 
-      const pass = userBelongsToTeamPolicy({
-        teamId: input.teamId,
-        user: ctx.user,
-      });
+      // const pass = userBelongsToTeamPolicy({
+      //   teamId: input.teamId,
+      //   user: ctx.user,
+      // });
 
       const payload = CreateAssistantDto.fromRequest(input);
       const result = await assistantService.create(payload);
@@ -91,10 +92,10 @@ export const assistantRouter = router({
       const payload = FindAssistantDto.fromRequest(input);
       const assistant = await assistantService.findFirst(payload);
 
-      const pass = userCanAccessAssistantPolicy({
-        assistant,
-        user: ctx.user,
-      });
+      // const pass = userCanAccessAssistantPolicy({
+      //   assistant,
+      //   user: ctx.user,
+      // });
 
       return assistant;
     }),
@@ -120,6 +121,7 @@ export const assistantRouter = router({
     .input(
       z.object({
         teamId: ulidRule(),
+        llmId: ulidRule(),
         id: ulidRule(),
         title: z.string(),
         description: z.string(),
@@ -134,10 +136,10 @@ export const assistantRouter = router({
       const payload = FindAssistantDto.fromRequest(input);
       const assistant = await assistantService.findFirst(payload);
 
-      const pass = userCanAccessAssistantPolicy({
-        assistant,
-        user: ctx.user,
-      });
+      // const pass = userCanAccessAssistantPolicy({
+      //   assistant,
+      //   user: ctx.user,
+      // });
 
       const updatePayload = UpdateAssistantDto.fromRequest(input);
       const result = await assistantService.update(updatePayload);
@@ -158,10 +160,10 @@ export const assistantRouter = router({
       const payload = FindAssistantDto.fromRequest(input);
       const assistant = await assistantService.findFirst(payload);
 
-      const pass = userCanAccessAssistantPolicy({
-        assistant,
-        user: ctx.user,
-      });
+      // const pass = userCanAccessAssistantPolicy({
+      //   assistant,
+      //   user: ctx.user,
+      // });
 
       const deletePayload = DeleteAssistantDto.fromRequest(input);
       const result = await assistantService.softDelete(deletePayload);
