@@ -107,6 +107,12 @@ export class WorkflowService {
             id: true,
             title: true,
             description: true,
+            llm: {
+              select: {
+                provider: true,
+                apiName: true,
+              },
+            },
           },
         },
       },

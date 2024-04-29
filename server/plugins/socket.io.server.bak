@@ -1,5 +1,0 @@
-import { getSocketConnection } from '../utils/socket/socketServer';
-
-export default defineNitroPlugin((nitroApp) => {
-  getSocketConnection();
-});

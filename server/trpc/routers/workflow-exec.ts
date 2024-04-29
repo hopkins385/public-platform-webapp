@@ -12,6 +12,8 @@ export const workflowExecRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const workflowExecService = new WorkflowExecutionService(ctx.prisma);
-      return workflowExecService.executeWorkflow(input.workflowId);
+      return workflowExecService.executeWorkflow(
+        input.workflowId.toLowerCase(),
+      );
     }),
 });
