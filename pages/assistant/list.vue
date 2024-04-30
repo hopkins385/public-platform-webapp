@@ -14,7 +14,7 @@
           class="group"
           variant="outline"
           size="icon"
-          @click="navigateTo('/admin/assistant/create')"
+          @click="navigateTo('/assistant/create')"
         >
           <PlusIcon class="size-4 text-slate-500 group-hover:text-slate-900" />
         </Button>

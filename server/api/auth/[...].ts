@@ -5,7 +5,8 @@ import { isValid } from 'ulidx';
 import { UserService } from '~/server/services/user.service';
 import { useEvents } from '~/server/utils/events/useEvents';
 
-const prisma = usePrisma().getClient();
+const { getClient } = usePrisma();
+const prisma = getClient();
 const userService = new UserService(prisma);
 
 const { event } = useEvents();

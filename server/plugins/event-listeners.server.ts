@@ -15,7 +15,8 @@ export default defineNitroPlugin((nitroApp) => {
   });
 
   eventEmitter.on('login', async (user) => {
-    const prisma = usePrisma().getClient();
+    const { getClient } = usePrisma();
+    const prisma = getClient();
     const userService = new UserService(prisma);
     const payload = LastLoginDto.fromRequest({
       email: user.email,
@@ -25,9 +26,9 @@ export default defineNitroPlugin((nitroApp) => {
     logger.info('user logged in', user);
   });
 
-  eventEmitter.on('workflowStepCompletion', async (data) => {
+  eventEmitter.on('RowCompleted', async (data) => {
     const { workflowId } = data;
     io.to(`room_${workflowId}`).emit('new_message', data);
-    logger.info('workflowStepCompletion_ws', data);
+    logger.info('RowCompleted', data);
   });
 });

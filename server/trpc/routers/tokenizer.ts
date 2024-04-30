@@ -16,7 +16,7 @@ export const tokenizerRouter = router({
       const tokens = enc.encode(input.content);
       const tokenCount = tokens.length;
       return {
-        tokens,
+        // tokens,
         tokenCount,
         charCount,
       };

@@ -14,18 +14,18 @@
   const { $socket } = useNuxtApp();
   const { projectId, workflowId } = useRoute().params;
 
-  $socket.on('connect', () => {
-    console.log('connected to socket');
-  });
-
-  // new_message event
-  $socket.on('new_message', (data) => {
-    console.log('new message', data);
-  });
-
   onMounted(() => {
     $socket.emit('join_room', { roomId: workflowId });
     console.log('connecting to room');
+
+    $socket.on('connect', () => {
+      console.log('connected to socket');
+    });
+
+    // new_message event
+    $socket.on('new_message', (data) => {
+      console.log('new message', data);
+    });
   });
 
   onBeforeUnmount(() => {

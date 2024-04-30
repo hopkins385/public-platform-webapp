@@ -7,5 +7,6 @@ declare module 'h3' {
 }
 
 export default eventHandler((event) => {
-  event.context.prisma = usePrisma().getClient();
+  const { getClient } = usePrisma();
+  event.context.prisma = getClient();
 });

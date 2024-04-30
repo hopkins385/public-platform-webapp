@@ -22,7 +22,7 @@
   });
 
   const onEdit = (id: string) => {
-    return navigateTo(`/admin/assistant/${id}`);
+    return navigateTo(`/assistant/${id}/edit`);
   };
 
   const handleDelete = async () => {
@@ -72,7 +72,7 @@
       </TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead> Color </TableHead>
+          <TableHead> Avatar </TableHead>
           <TableHead> Title </TableHead>
           <TableHead> Shared </TableHead>
           <TableHead class="text-right"> Actions </TableHead>
@@ -84,7 +84,7 @@
           :key="assistant.id"
         >
           <TableCell>
-            <div class="size-10 rounded-full bg-green-200"></div>
+            <div class="size-8 rounded-full bg-slate-200"></div>
           </TableCell>
           <TableCell>{{ assistant.title }}</TableCell>
           <TableCell>

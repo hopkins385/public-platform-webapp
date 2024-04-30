@@ -84,7 +84,7 @@
   <SectionContainer>
     <SectionHeading
       title="Update Assistant"
-      subtitle="Updating an existing assistant does only affect new conversations."
+      subtitle="Updating an existing assistant does only affect new conversations and workflows."
     />
     <div class="rounded-lg border bg-white p-10">
       <form class="space-y-8" @submit="onSubmit">
