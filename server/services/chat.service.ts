@@ -163,6 +163,11 @@ export class ChatService {
           select: {
             id: true,
             title: true,
+            llm: {
+              select: {
+                apiName: true,
+              },
+            },
             // systemPrompt: true,
           },
         },

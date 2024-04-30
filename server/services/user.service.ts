@@ -4,7 +4,7 @@ import type { User } from '@prisma/client';
 import type { LoginDto } from './dto/login.dto';
 import type { LastLoginDto } from './dto/last-login.dto';
 import type { GoogleAuthTokens } from '~/interfaces/google.token.interface';
-import { comparePasswords, hashPassword } from '~/utils/bcrypt';
+import { comparePasswords, hashPassword } from '~/server/utils/auth/bcrypt';
 import type { AzureAuthTokens } from '~/interfaces/azure.token.interfaces';
 import { ULID } from '~/server/utils/ulid';
 import { useRuntimeConfig } from '#imports';
@@ -115,6 +115,7 @@ export class UserService {
 
   getUserById(id: string) {
     return this.prisma.user.findFirst({
+      relationLoadStrategy: 'join', // or 'query'
       where: { id },
       select: {
         id: true,
@@ -133,6 +134,17 @@ export class UserService {
         teams: {
           select: {
             teamId: true,
+            team: {
+              select: {
+                name: true,
+                organisation: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -169,7 +181,7 @@ export class UserService {
     });
   }
 
-  async updateUserLastLogin(data: LastLoginDto) {
+  async updateLastLogin(data: LastLoginDto) {
     try {
       return await this.prisma.user.update({
         where: { email: data.email },

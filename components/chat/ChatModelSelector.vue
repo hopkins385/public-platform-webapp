@@ -23,6 +23,13 @@
   const open = ref(false);
   const chatStore = useChatStore();
 
+  const selectedModel = computed(() =>
+    chatStore.model
+      ? models.value?.find((model: any) => model?.apiName === chatStore.model)
+          ?.displayName
+      : 'Select Model...',
+  );
+
   // const filterFunction = (list: typeof frameworks, search: string) => list.filter(i => i.value.toLowerCase().includes(search.toLowerCase()))
 </script>
 
@@ -35,12 +42,7 @@
         :aria-expanded="open"
         class="w-[210px] justify-between"
       >
-        {{
-          chatStore.model
-            ? models?.find((model) => model?.apiName === chatStore.model)
-                ?.displayName
-            : 'Select Model...'
-        }}
+        {{ selectedModel }}
         <ChevronsDownUpIcon class="ml-2 size-4 shrink-0 opacity-50" />
       </Button>
     </PopoverTrigger>

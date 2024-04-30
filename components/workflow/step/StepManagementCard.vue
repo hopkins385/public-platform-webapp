@@ -23,6 +23,8 @@
     );
   });
 
+  const hasSteps = computed(() => steps.value.length > 0);
+
   const { deleteWorkflowStep, updateWorkflowStepName } =
     useManageWorkflowSteps();
 
@@ -72,7 +74,7 @@
 <template>
   <div
     ref="stepCardRef"
-    class="absolute left-2 top-10 w-72 rounded-2xl border bg-white px-4 py-2 text-xs shadow-md"
+    class="w-96 rounded-2xl border bg-white px-4 py-2 text-sm shadow-md"
   >
     <div class="flex flex-col">
       <form @submit.prevent="submitForm">
@@ -80,7 +82,7 @@
           ref="inputRef"
           type="text"
           v-model="workflowStepName"
-          class="w-full border-0 py-2 text-xs outline-0"
+          class="w-full border-0 py-2 text-sm outline-0"
         />
       </form>
       <hr class="-mx-4 mb-3 mt-1" />
@@ -90,14 +92,37 @@
           <span>{{ workflowStep?.assistant?.title }}</span>
         </div>
         <div class="flex justify-between">
+          <span>LLM:</span>
+          <span>{{ workflowStep?.assistant?.llm?.displayName }}</span>
+        </div>
+        <div class="flex justify-between">
           <span>Document:</span> <span>{{ workflowStep?.document?.name }}</span>
         </div>
-        <div>
+        <div v-if="hasSteps">
           <h3 class="pb-1 underline">Inputs:</h3>
           <ul>
             <li v-for="step in steps">- {{ step.name }}</li>
           </ul>
         </div>
+      </div>
+      <div class="py-2">
+        <FormField
+          :value="workflowStep?.assistant?.systemPrompt"
+          v-slot="{ componentField }"
+          name="bio"
+        >
+          <FormItem>
+            <FormLabel>System Prompt</FormLabel>
+            <FormControl>
+              <Textarea
+                placeholder="Tell us a little bit about yourself"
+                class="resize-none"
+                v-bind="componentField"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
       </div>
       <hr class="-mx-4 mb-2 mt-3" />
       <div>

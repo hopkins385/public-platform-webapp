@@ -1,9 +1,14 @@
 import { PrismaClient } from '@prisma/client';
 import { pagination } from 'prisma-extension-pagination';
+import { consola } from 'consola';
 
-export function getExtendedClient() {
+let prisma: ExtendedPrismaClient;
+
+const logger = consola.create({}).withTag('prisma-client');
+
+function getExtendedClient() {
   return new PrismaClient({
-    log: ['query', 'info', 'warn', 'error'], // TODO: remove in production
+    log: ['info', 'warn', 'error'], // 'query',  TODO: remove in production
   })
     .$extends(pagination())
     .$extends({
@@ -20,5 +25,18 @@ export function getExtendedClient() {
       },
     });
 }
-
 export type ExtendedPrismaClient = ReturnType<typeof getExtendedClient>;
+
+export function usePrisma() {
+  function getClient() {
+    if (!prisma) {
+      logger.info('Creating Prisma client');
+      prisma = getExtendedClient();
+    }
+    return prisma;
+  }
+
+  return {
+    getClient,
+  };
+}

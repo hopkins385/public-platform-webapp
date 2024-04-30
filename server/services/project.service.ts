@@ -24,7 +24,6 @@ export class ProjectService {
   }
 
   findFirst(projectId: string) {
-    console.log('projectId', projectId);
     return this.prisma.project.findFirst({
       where: {
         id: projectId.toLowerCase(),

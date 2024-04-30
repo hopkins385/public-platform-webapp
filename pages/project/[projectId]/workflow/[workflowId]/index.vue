@@ -1,6 +1,4 @@
 <script setup lang="ts">
-  import { PlayIcon } from 'lucide-vue-next';
-
   /**
    * Workflow - Full Workflow
    * Route: /project/${projectId}/workflow/${workflowId}
@@ -13,19 +11,30 @@
     },
   });
 
+  const { $socket } = useNuxtApp();
   const { projectId, workflowId } = useRoute().params;
 
-  const { executeWorkflow } = useExecuteWorkflow();
+  $socket.on('connect', () => {
+    console.log('connected to socket');
+  });
+
+  // new_message event
+  $socket.on('new_message', (data) => {
+    console.log('new message', data);
+  });
+
+  onMounted(() => {
+    $socket.emit('join_room', { roomId: workflowId });
+    console.log('connecting to room');
+  });
+
+  onBeforeUnmount(() => {
+    $socket.emit('leave_room', { roomId: workflowId });
+    console.log('leaving room');
+  });
 </script>
 
 <template>
-  <div class="bg-stone-50">
-    <div class="p-2">
-      <Button variant="outline" @click="executeWorkflow(workflowId)">
-        <PlayIcon class="size-3" />
-      </Button>
-    </div>
-  </div>
   <div class="bg-stone-50 p-1">
     <WorkflowList :workflow-id="workflowId as string" />
   </div>

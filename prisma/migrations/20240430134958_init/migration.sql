@@ -16,6 +16,7 @@ CREATE TABLE "users" (
     "google_access_token" TEXT,
     "azure_account_info" JSON,
     "azure_access_token" TEXT,
+    "last_login_at" TIMESTAMP(3),
     "email_verified_at" TIMESTAMP(3),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,

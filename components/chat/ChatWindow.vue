@@ -147,6 +147,13 @@
     });
   };
 
+  function setModelFromAssistant() {
+    if (props?.assistant?.llm) {
+      const { apiName } = props.assistant?.llm;
+      chatStore.model = apiName;
+    }
+  }
+
   // observer
   useMutationObserver(
     chatMessagesContainerRef,
@@ -163,6 +170,7 @@
   );
 
   onMounted(() => {
+    setModelFromAssistant();
     if (props.chatMessages && props.chatMessages.length > 0) {
       initMessages(props.chatMessages);
       scrollToBottom();
@@ -259,7 +267,7 @@
           <Textarea
             v-model="inputMessage"
             :placeholder="$t('chat.placeholder')"
-            class="rounded-2xl py-6 focus:shadow-lg"
+            class="rounded-2xl py-3 focus:shadow-lg"
           />
         </div>
         <Button

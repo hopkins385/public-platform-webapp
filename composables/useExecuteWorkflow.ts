@@ -1,3 +1,5 @@
+import type { AsyncDataOptions } from '#app';
+
 export default function useExecuteWorkflow() {
   const { $client } = useNuxtApp();
   const ac = new AbortController();
@@ -14,7 +16,10 @@ export default function useExecuteWorkflow() {
     workflowId = id;
   }
 
-  async function executeWorkflow(id: string | string[] | undefined | null) {
+  async function executeWorkflow(
+    id: string | string[] | undefined | null,
+    options?: AsyncDataOptions<any>,
+  ) {
     setWorkflowId(id);
     return useAsyncData(async () => {
       return await $client.workflowExec.execute.mutate(
@@ -23,7 +28,7 @@ export default function useExecuteWorkflow() {
           signal: ac.signal,
         },
       );
-    });
+    }, options);
   }
 
   return {

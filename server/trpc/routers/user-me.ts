@@ -1,6 +1,4 @@
 import { UserService } from '~/server/services/user.service';
-import fs from 'fs';
-import { join } from 'path';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 
@@ -8,7 +6,7 @@ export const userMeRouter = router({
   // get me
   user: protectedProcedure.query(async ({ ctx }) => {
     const userService = new UserService(ctx.prisma);
-    return await userService.getUserById(ctx.user!.id);
+    return await userService.getUserById(ctx.user.id);
   }),
   // update me
   update: protectedProcedure

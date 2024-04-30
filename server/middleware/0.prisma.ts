@@ -1,10 +1,4 @@
 import { eventHandler } from 'h3';
-import {
-  getExtendedClient,
-  type ExtendedPrismaClient,
-} from '~/utils/getPrismaClient';
-
-let prisma: ExtendedPrismaClient;
 
 declare module 'h3' {
   interface H3EventContext {
@@ -13,8 +7,5 @@ declare module 'h3' {
 }
 
 export default eventHandler((event) => {
-  if (!prisma) {
-    prisma = getExtendedClient();
-  }
-  event.context.prisma = prisma;
+  event.context.prisma = usePrisma().getClient();
 });

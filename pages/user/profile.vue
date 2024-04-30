@@ -9,6 +9,21 @@
   const { data: user, refresh } = await getMe();
   const { getCheckoutUrl } = useStripe();
 
+  const team = computed(() => {
+    if (!user.value?.teams) return null;
+    return {
+      name: user.value.teams[0].team.name,
+    };
+  });
+
+  const org = computed(() => {
+    if (!user.value?.teams) return null;
+    return {
+      name: user.value.teams[0].team.organisation.name,
+      id: user.value.teams[0].team.organisation.id,
+    };
+  });
+
   const onManageSubscriptionClick = async () => {
     isLoading.value = true;
     try {
@@ -63,6 +78,17 @@
           email: user?.email ?? '',
         }"
       />
+    </BoxContainer>
+    <BoxContainer class="mt-5">
+      <h2 class="pb-5">Team</h2>
+      <p class="w-fit rounded-lg border px-3 py-2 text-sm">{{ team?.name }}</p>
+    </BoxContainer>
+    <BoxContainer class="mt-5">
+      <h2 class="pb-5">Organization</h2>
+      <p class="w-fit rounded-lg border px-3 py-2 text-sm">{{ org?.name }}</p>
+      <p class="mt-1 w-fit rounded-lg border px-3 py-2 text-sm opacity-50">
+        ID: org_{{ org?.id }}
+      </p>
     </BoxContainer>
     <BoxContainer class="mt-5">
       <h2 class="pb-5">Subscription</h2>

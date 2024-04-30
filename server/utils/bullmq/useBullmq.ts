@@ -22,7 +22,7 @@ const cronJobs: {
   schedule: RepeatOptions;
 }[] = [];
 
-export const useBullmq = () => {
+export function useBullmq() {
   const {
     redis: { host, password, port },
   } = useRuntimeConfig();
@@ -97,16 +97,9 @@ export const useBullmq = () => {
     const worker = new Worker(name, processor, {
       connection: { ...redisOptions, ...defaultConnectionOptions },
       ...opts,
-    })
-      .on('closed', () => {
-        logger.info(`Worker ${name} stopped`);
-      })
-      .on('failed', (job, err) => {
-        logger.error(`Worker ${name} failed job ${job?.id}: ${err}`);
-      })
-      .on('completed', (job) => {
-        logger.info(`Worker ${name} completed job ${job.id}`);
-      });
+    }).on('closed', () => {
+      logger.info(`Worker ${name} stopped`);
+    });
 
     workers.push(worker);
 
@@ -188,4 +181,4 @@ export const useBullmq = () => {
     createFlow,
     getFlowProducer,
   };
-};
+}

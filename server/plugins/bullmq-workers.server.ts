@@ -19,19 +19,18 @@ async function processJob(provider: string, model: string, data: any) {
 }
 
 export default defineNitroPlugin((nitroApp) => {
-  const bullmq = useBullmq();
+  const { createWorker } = useBullmq();
+  const { event } = useEvents();
 
-  const workflowStepCompletion = bullmq.createWorker(
-    'StepCompletion',
-    async (job) => {
-      console.log(
-        `Worker 'workflowStepCompletion' is executing job of name: ${job.name}, data: ${JSON.stringify(job.data)} at ${new Date().toISOString()}`,
-      );
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-    },
-  );
+  const stepCompletion = createWorker('RowCompletion', async (job) => {
+    console.log(
+      `Worker 'RowCompletion' is executing job of name: ${job.name}, data: ${JSON.stringify(job.data)} at ${new Date().toISOString()}`,
+    );
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    event('RowCompleted', job.data);
+  });
 
-  const groq_llama3_8b_8192 = bullmq.createWorker(
+  const groq_llama3_8b = createWorker(
     'groq-llama3-8b-8192',
     async (job) => {
       console.log(
@@ -48,7 +47,7 @@ export default defineNitroPlugin((nitroApp) => {
     },
   );
 
-  const openai_gpt_3_5_turbo = bullmq.createWorker(
+  const openai_gpt_3_5_turbo = createWorker(
     'openai-gpt-3.5-turbo',
     async (job) => {
       console.log(
@@ -66,7 +65,7 @@ export default defineNitroPlugin((nitroApp) => {
     },
   );
 
-  const anthropic_claude_3_sonnet_20240229 = bullmq.createWorker(
+  const anthropic_claude_3_sonnet = createWorker(
     'anthropic-claude-3-sonnet-20240229',
     async (job) => {
       console.log(
@@ -81,5 +80,15 @@ export default defineNitroPlugin((nitroApp) => {
         duration: 1000,
       },
     },
-  );
+  )
+    .on('failed', (job, err) => {
+      // logger.error(`Worker ${name} failed job ${job?.id}: ${err}`);
+    })
+    .on('completed', (job) => {
+      // logger.info(`Worker ${name} completed job ${job.id}`);
+    })
+    .on('drained', () => {
+      // console.log(`Worker 'anthropic-claude-3-sonnet-20240229' is drained`);
+      // logger.info(`Worker ${name} completed job ${job.id}`);
+    });
 });

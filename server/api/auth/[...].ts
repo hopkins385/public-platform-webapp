@@ -1,21 +1,14 @@
 import { NuxtAuthHandler } from '#auth';
-import { EventEmitter } from 'node:events';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { isValid } from 'ulidx';
-import { PrismaClient } from '@prisma/client';
 import { UserService } from '~/server/services/user.service';
+import { useEvents } from '~/server/utils/events/useEvents';
 
-const eventEmitter = new EventEmitter();
-const prisma = new PrismaClient();
+const prisma = usePrisma().getClient();
 const userService = new UserService(prisma);
 
-eventEmitter.once('user-logged-in', async (user) => {
-  // const nuxtApp = useNuxtApp();
-  // const prisma = new PrismaClient();
-  // const userService = new UserService(prisma);
-  // await userService.updateLastLogin(user.id);
-});
+const { event } = useEvents();
 
 export default NuxtAuthHandler({
   // adapter: PrismaAdapter(prisma),
@@ -31,7 +24,7 @@ export default NuxtAuthHandler({
   callbacks: {
     signIn: ({ user, account, profile, email, credentials }) => {
       if (user) {
-        eventEmitter.emit('user-logged-in', user);
+        event('login', user);
       }
       return true;
     },
@@ -62,8 +55,16 @@ export default NuxtAuthHandler({
           return null;
         }
 
-        // wait for
+        if (!prisma) {
+          throw createError({
+            statusCode: 500,
+            statusMessage: 'Could not connect to database',
+          });
+        }
+
+        // debounce
         await new Promise((resolve) => setTimeout(resolve, 300));
+
         // get user
         const user = await userService.getAuthUser({
           email: credentials.email,

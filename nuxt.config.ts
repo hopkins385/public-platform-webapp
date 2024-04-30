@@ -190,6 +190,7 @@ export default defineNuxtConfig({
   nitro: {
     experimental: {
       websocket: false,
+      tasks: false,
     },
     storage: {
       redis: {

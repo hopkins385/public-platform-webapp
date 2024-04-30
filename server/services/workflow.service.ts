@@ -52,6 +52,7 @@ export class WorkflowService {
 
   async findFirstWithSteps(workflowId: string) {
     const workflow = await this.prisma.workflow.findFirst({
+      relationLoadStrategy: 'join', // or 'query'
       where: {
         id: workflowId.toLowerCase(),
         deletedAt: null,
@@ -75,6 +76,7 @@ export class WorkflowService {
     const workflowSteps = await this.prisma.workflowStep.findMany({
       relationLoadStrategy: 'join', // or "query"
       where: {
+        workflowId: workflow.id,
         deletedAt: null,
       },
       select: {
@@ -107,8 +109,10 @@ export class WorkflowService {
             id: true,
             title: true,
             description: true,
+            systemPrompt: true,
             llm: {
               select: {
+                displayName: true,
                 provider: true,
                 apiName: true,
               },
@@ -126,8 +130,6 @@ export class WorkflowService {
       steps: workflowSteps,
     };
   }
-
-  async findFirstWithStepsJoins(workflowId: string) {}
 
   findAll(payload: FindAllWorkflowsDto) {
     return this.prisma.workflow
