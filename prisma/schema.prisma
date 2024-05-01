@@ -12,30 +12,77 @@ datasource db {
 }
 
 model User {
-  id                 String     @id
-  deviceId           String?    @map("device_id")
-  email              String     @unique
-  name               String
-  firstName          String?    @map("first_name")
-  lastName           String?    @map("last_name")
-  password           String
-  isActive           Boolean    @default(false) @map("is_active")
-  isAdmin            Boolean    @default(false) @map("is_admin")
-  googleRefreshToken String?    @map("google_refresh_token")
-  googleAccessToken  String?    @map("google_access_token")
-  azureAccountInfo   Json?      @map("azure_account_info") @db.Json
-  azureAccessToken   String?    @map("azure_access_token")
-  lastLoginAt        DateTime?  @map("last_login_at")
-  emailVerifiedAt    DateTime?  @map("email_verified_at")
-  createdAt          DateTime   @default(now()) @map("created_at")
-  updatedAt          DateTime   @updatedAt @map("updated_at")
-  deletedAt          DateTime?  @map("deleted_at")
-  chats              Chat[]
-  credit             Credit[]
-  teams              TeamUser[]
+  id              String     @id
+  deviceId        String?    @map("device_id")
+  email           String     @unique
+  name            String
+  firstName       String?    @map("first_name")
+  lastName        String?    @map("last_name")
+  password        String
+  isActive        Boolean    @default(false) @map("is_active")
+  isAdmin         Boolean    @default(false) @map("is_admin")
+  lastLoginAt     DateTime?  @map("last_login_at")
+  emailVerifiedAt DateTime?  @map("email_verified_at")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+  deletedAt       DateTime?  @map("deleted_at")
+  chats           Chat[]
+  credit          Credit[]
+  teams           TeamUser[]
+  accounts        Account[]
+  sessions        Session[]
 
+  @@unique([deviceId, email])
   @@map("users")
 }
+
+// Authentication (NextAuth v4)
+
+model Account {
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+  @@map("verification_tokens")
+}
+
+// end of NextAuth v3
 
 model Organisation {
   id        String    @id
