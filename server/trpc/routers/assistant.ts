@@ -23,6 +23,8 @@ interface UserBelongsToTeamPayload {
   user: Session['user'];
 }
 
+const assistantService = new AssistantService();
+
 function userBelongsToTeamPolicy(payload: UserBelongsToTeamPayload) {
   if (payload.user.teamId !== payload.teamId.toLowerCase()) {
     throw new TRPCError({
@@ -67,8 +69,6 @@ export const assistantRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const assistantService = new AssistantService(ctx.prisma);
-
       // const pass = userBelongsToTeamPolicy({
       //   teamId: input.teamId,
       //   user: ctx.user,
@@ -87,8 +87,6 @@ export const assistantRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const assistantService = new AssistantService(ctx.prisma);
-
       const payload = FindAssistantDto.fromRequest(input);
       const assistant = await assistantService.findFirst(payload);
 
@@ -107,8 +105,6 @@ export const assistantRouter = router({
       }),
     )
     .query(({ ctx, input }) => {
-      const assistantService = new AssistantService(ctx.prisma);
-
       const payload = FindAllAssistantsDto.fromRequest(
         ctx.user.teamId,
         input.page,
@@ -131,8 +127,6 @@ export const assistantRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const assistantService = new AssistantService(ctx.prisma);
-
       const payload = FindAssistantDto.fromRequest(input);
       const assistant = await assistantService.findFirst(payload);
 
@@ -155,8 +149,6 @@ export const assistantRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const assistantService = new AssistantService(ctx.prisma);
-
       const payload = FindAssistantDto.fromRequest(input);
       const assistant = await assistantService.findFirst(payload);
 

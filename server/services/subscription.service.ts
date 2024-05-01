@@ -1,13 +1,14 @@
 import { PrismaClient } from '@prisma/client';
 import type Stripe from 'stripe';
 import type { SubscriptionDto } from './dto/subscription.dto';
+import type { ExtendedPrismaClient } from '../utils/prisma/usePrisma';
 
 export class SubscriptionService {
-  private readonly prisma: PrismaClient;
+  private readonly prisma: ExtendedPrismaClient;
 
-  constructor(prisma: PrismaClient) {
-    if (!prisma) throw new Error('Prisma client not found');
-    this.prisma = prisma;
+  constructor() {
+    const { getClient } = usePrisma();
+    this.prisma = getClient();
   }
 
   createSubscription(payload: SubscriptionDto) {

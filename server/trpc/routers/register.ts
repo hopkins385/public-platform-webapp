@@ -3,6 +3,8 @@ import { publicProcedure, router } from '../trpc';
 import { z } from 'zod';
 import { verifyEmail } from '@devmehq/email-validator-js';
 
+const userService = new UserService();
+
 export const registerRouter = router({
   newUser: publicProcedure
     .input(
@@ -28,7 +30,6 @@ export const registerRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const userService = new UserService(ctx.prisma);
       // wait 500ms
       await new Promise((resolve) => setTimeout(resolve, 500));
       return await userService.createNewUser(input);
@@ -41,7 +42,6 @@ export const registerRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const userService = new UserService(ctx.prisma);
       const user = await userService.confirmEmail(input);
       if (!user) {
         throw new Error('User not found');

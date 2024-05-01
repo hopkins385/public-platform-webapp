@@ -8,6 +8,8 @@ import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { ulidRule } from '~/server/utils/validation/ulid.rule';
 
+const workflowService = new WorkflowService();
+
 export const workflowRouter = router({
   // create workflow
   create: protectedProcedure
@@ -19,7 +21,6 @@ export const workflowRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const workflowService = new WorkflowService(ctx.prisma);
       const payload = CreateWorkflowDto.fromRequest(input);
       return workflowService.create(payload);
     }),
@@ -31,7 +32,6 @@ export const workflowRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const workflowService = new WorkflowService(ctx.prisma);
       return workflowService.findFirstWithSteps(input.workflowId);
     }),
   // find workflow settings
@@ -42,7 +42,6 @@ export const workflowRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const workflowService = new WorkflowService(ctx.prisma);
       return workflowService.findFirst(input.workflowId);
     }),
   // find all workflows for a project
@@ -54,7 +53,6 @@ export const workflowRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const workflowService = new WorkflowService(ctx.prisma);
       const payload = FindAllWorkflowsDto.fromRequest(input);
       return workflowService.findAll(payload);
     }),
@@ -68,7 +66,6 @@ export const workflowRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const workflowService = new WorkflowService(ctx.prisma);
       const payload = UpdateWorkflowDto.fromRequest(input);
       return workflowService.update(payload);
     }),
@@ -80,7 +77,6 @@ export const workflowRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const workflowService = new WorkflowService(ctx.prisma);
       return workflowService.delete(input.workflowId);
     }),
 });

@@ -7,11 +7,9 @@ function idToLowerCase(id: string) {
 export class CreditService {
   private readonly prisma: ExtendedPrismaClient;
 
-  constructor(prisma: ExtendedPrismaClient) {
-    if (!prisma) {
-      throw new Error('CreditService is missing a PrismaClient instance');
-    }
-    this.prisma = prisma;
+  constructor() {
+    const { getClient } = usePrisma();
+    this.prisma = getClient();
   }
 
   createCredit(userId: string, amount: number) {

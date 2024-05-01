@@ -8,6 +8,8 @@ import {
   UpdateDocumentDto,
 } from '~/server/services/dto/document.dto';
 
+const documentService = new DocumentService();
+
 export const documentRouter = router({
   // create document
   create: protectedProcedure
@@ -20,7 +22,6 @@ export const documentRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const documentService = new DocumentService(ctx.prisma);
       const payload = CreateDocumentDto.fromRequest(input);
       return documentService.create(payload);
     }),
@@ -32,7 +33,6 @@ export const documentRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      const documentService = new DocumentService(ctx.prisma);
       return documentService.findFirst(input.documentId.toLowerCase());
     }),
   // find all documents
@@ -44,7 +44,6 @@ export const documentRouter = router({
       }),
     )
     .query(({ input, ctx }) => {
-      const documentService = new DocumentService(ctx.prisma);
       const payload = FindAllDocumentsDto.fromRequest(input);
       return documentService.findAll(payload);
     }),
@@ -59,7 +58,6 @@ export const documentRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const documentService = new DocumentService(ctx.prisma);
       const payload = UpdateDocumentDto.fromRequest(input);
       return documentService.update(payload);
     }),
@@ -71,7 +69,6 @@ export const documentRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      const documentService = new DocumentService(ctx.prisma);
       return documentService.softDelete(input.documentId.toLowerCase());
     }),
   parse: protectedProcedure
@@ -81,7 +78,6 @@ export const documentRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      const documentService = new DocumentService(ctx.prisma);
       return documentService.parse(input.documentId.toLowerCase());
     }),
 });

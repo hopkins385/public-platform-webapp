@@ -3,6 +3,8 @@ import { protectedProcedure, router } from '../trpc';
 import { ChatService } from './../../services/chat.service';
 import { ulidRule } from '~/server/utils/validation/ulid.rule';
 
+const chatService = new ChatService();
+
 export const chatRouter = router({
   create: protectedProcedure
     .input(
@@ -13,7 +15,7 @@ export const chatRouter = router({
     .query(({ ctx, input }) => {
       const userId = ctx.user?.id;
       const assistantId = input.assistantId.toLowerCase();
-      const chatService = new ChatService(ctx.prisma);
+
       return chatService.create(assistantId, userId);
     }),
   createMessage: protectedProcedure
@@ -27,14 +29,12 @@ export const chatRouter = router({
       }),
     )
     .query(({ ctx, input }) => {
-      const chatService = new ChatService(ctx.prisma);
       return chatService.createMessage({
         chatId: input.chatId.toLocaleLowerCase(),
         chatMessage: input.chatMessage,
       });
     }),
   allForUser: protectedProcedure.query(({ ctx, input }) => {
-    const chatService = new ChatService(ctx.prisma);
     return chatService.getAllForUser(ctx.user?.id);
   }),
   allForUserPaginate: protectedProcedure
@@ -45,7 +45,7 @@ export const chatRouter = router({
     )
     .query(({ ctx, input }) => {
       const { page } = input;
-      const chatService = new ChatService(ctx.prisma);
+
       return chatService.getAllForUserPaginate(ctx.user.id, page);
     }),
   clearMessages: protectedProcedure
@@ -55,7 +55,6 @@ export const chatRouter = router({
       }),
     )
     .query(({ ctx, input }) => {
-      const chatService = new ChatService(ctx.prisma);
       return chatService.clearMessages(input.chatId.toLowerCase());
     }),
   forUser: protectedProcedure
@@ -65,7 +64,6 @@ export const chatRouter = router({
       }),
     )
     .query(({ ctx, input }) => {
-      const chatService = new ChatService(ctx.prisma);
       return chatService.getChatForUser(
         input.chatId.toLowerCase(),
         ctx.user?.id,
@@ -78,7 +76,6 @@ export const chatRouter = router({
       }),
     )
     .query(({ ctx, input }) => {
-      const chatService = new ChatService(ctx.prisma);
       return chatService.softDelete(ctx.user.id, input.chatId.toLowerCase());
     }),
 });

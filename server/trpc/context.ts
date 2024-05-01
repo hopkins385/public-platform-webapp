@@ -10,7 +10,7 @@ export async function createContext(_event: H3Event) {
   const session = await getServerSession(_event);
 
   return {
-    prisma: _event.context.prisma,
+    // prisma: _event.context.prisma,
     user: session?.user ?? null,
     // vectorStore: _event.context.vectorStore,
   };

@@ -3,7 +3,6 @@ import { pagination } from 'prisma-extension-pagination';
 import { consola } from 'consola';
 
 let prisma: ExtendedPrismaClient;
-
 const logger = consola.create({}).withTag('prisma-client');
 
 function getExtendedClient() {

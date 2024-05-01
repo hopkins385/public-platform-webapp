@@ -10,11 +10,9 @@ export class AssistantService {
   private readonly prisma: ExtendedPrismaClient;
   private defaultSystemPrompt: Record<string, string>;
 
-  constructor(prisma: ExtendedPrismaClient) {
-    if (!prisma) {
-      throw new Error('AssistantService is missing a PrismaClient instance');
-    }
-    this.prisma = prisma;
+  constructor() {
+    const { getClient } = usePrisma();
+    this.prisma = getClient();
     this.defaultSystemPrompt = {
       de: `Sie sind ein freundlicher und hilfsbereiter Assistent.\n`,
       en: `You are a friendly and helpful assistant.\n`,

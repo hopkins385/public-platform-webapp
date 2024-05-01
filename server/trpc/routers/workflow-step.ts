@@ -8,6 +8,8 @@ import {
   UpdateWorkflowStepNameDto,
 } from '~/server/services/dto/workflow-step.dto';
 
+const workflowStepService = new WorkflowStepService();
+
 export const workflowStepRouter = router({
   // create workflow step
   create: protectedProcedure
@@ -21,7 +23,6 @@ export const workflowStepRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const workflowStepService = new WorkflowStepService(ctx.prisma);
       const payload = CreateWorkflowStepDto.fromRequest(input);
       return workflowStepService.create(payload);
     }),
@@ -33,7 +34,6 @@ export const workflowStepRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const workflowStepService = new WorkflowStepService(ctx.prisma);
       return workflowStepService.findFirst(input.workflowStepId);
     }),
   // find workflow step including stepables
@@ -44,7 +44,6 @@ export const workflowStepRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const workflowStepService = new WorkflowStepService(ctx.prisma);
       return workflowStepService.findFirst(input.workflowStepId);
     }),
   // update workflow step
@@ -58,7 +57,6 @@ export const workflowStepRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const workflowStepService = new WorkflowStepService(ctx.prisma);
       const payload = UpdateWorkflowStepDto.fromRequest(input);
       return workflowStepService.update(payload);
     }),
@@ -71,7 +69,6 @@ export const workflowStepRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const workflowStepService = new WorkflowStepService(ctx.prisma);
       const payload = UpdateWorkflowStepNameDto.fromRequest(input);
       return workflowStepService.updateName(payload);
     }),
@@ -82,7 +79,6 @@ export const workflowStepRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const workflowStepService = new WorkflowStepService(ctx.prisma);
       return workflowStepService.softDelete(input.workflowStepId);
     }),
 });

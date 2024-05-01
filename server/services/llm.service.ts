@@ -3,11 +3,9 @@ import type { LargeLangModel } from '@prisma/client';
 export class LLMService {
   private readonly prisma: ExtendedPrismaClient;
 
-  constructor(prisma: ExtendedPrismaClient) {
-    if (!prisma) {
-      throw new Error('ChatService is missing a PrismaClient instance');
-    }
-    this.prisma = prisma;
+  constructor() {
+    const { getClient } = usePrisma();
+    this.prisma = getClient();
   }
 
   getModels() {

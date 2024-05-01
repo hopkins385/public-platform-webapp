@@ -2,10 +2,11 @@ import { UserService } from '~/server/services/user.service';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 
+const userService = new UserService();
+
 export const userMeRouter = router({
   // get me
   user: protectedProcedure.query(async ({ ctx }) => {
-    const userService = new UserService(ctx.prisma);
     return await userService.getUserById(ctx.user.id);
   }),
   // update me
@@ -23,10 +24,10 @@ export const userMeRouter = router({
       const name = `${data.firstName} ${data.lastName}`;
       // wait for 500 ms to show the loading state
       await new Promise((resolve) => setTimeout(resolve, 500));
-      return await ctx.prisma.user.update({
-        where: { id: ctx.user.id },
-        data: { name, ...data },
-      });
+      // return await .user.update({
+      //   where: { id: ctx.user.id },
+      //   data: { name, ...data },
+      // });
     }),
   updatePassword: protectedProcedure
     .input(
@@ -36,7 +37,6 @@ export const userMeRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const userService = new UserService(ctx.prisma);
       return userService.updatePassword(
         ctx.user.id,
         input.currentPassword,

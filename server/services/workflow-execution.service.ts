@@ -6,14 +6,10 @@ export class WorkflowExecutionService {
   private readonly workflowService: WorkflowService;
   private readonly abortController: AbortController;
 
-  constructor(prisma: ExtendedPrismaClient) {
-    if (!prisma) {
-      throw new Error(
-        'WorkflowExecutionService is missing a PrismaClient instance',
-      );
-    }
-    this.prisma = prisma;
-    this.workflowService = new WorkflowService(prisma);
+  constructor() {
+    const { getClient } = usePrisma();
+    this.prisma = getClient();
+    this.workflowService = new WorkflowService();
     this.abortController = new AbortController();
   }
 

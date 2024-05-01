@@ -25,9 +25,9 @@ export class UserService {
   private readonly mailerService = new MailerService();
   private readonly config: RuntimeConfig['mailer'];
 
-  constructor(prisma: ExtendedPrismaClient) {
-    if (!prisma) throw new Error('UserService is missing prisma client');
-    this.prisma = prisma;
+  constructor() {
+    const { getClient } = usePrisma();
+    this.prisma = getClient();
     this.config = useRuntimeConfig().mailer;
   }
 

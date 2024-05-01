@@ -4,11 +4,9 @@ import type { CreateDocumentDto, UpdateDocumentDto } from './dto/document.dto';
 export class DocumentService {
   private readonly prisma: ExtendedPrismaClient;
 
-  constructor(prisma: ExtendedPrismaClient) {
-    if (!prisma) {
-      throw new Error('DocumentService is missing a PrismaClient instance');
-    }
-    this.prisma = prisma;
+  constructor() {
+    const { getClient } = usePrisma();
+    this.prisma = getClient();
   }
 
   create(payload: CreateDocumentDto) {

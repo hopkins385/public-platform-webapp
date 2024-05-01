@@ -3,11 +3,9 @@ import type { FindTeamUserDto } from './dto/team.dto';
 export class TeamService {
   private readonly prisma: ExtendedPrismaClient;
 
-  constructor(prisma: ExtendedPrismaClient) {
-    if (!prisma) {
-      throw new Error('TeamService is missing a PrismaClient instance');
-    }
-    this.prisma = prisma;
+  constructor() {
+    const { getClient } = usePrisma();
+    this.prisma = getClient();
   }
 
   async findTeamUser(payload: FindTeamUserDto) {

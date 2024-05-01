@@ -10,12 +10,10 @@ export class WorkflowService {
   private readonly prisma: ExtendedPrismaClient;
   private readonly workflowStepService: WorkflowStepService;
 
-  constructor(prisma: ExtendedPrismaClient) {
-    if (!prisma) {
-      throw new Error('WorkflowService is missing a PrismaClient instance');
-    }
-    this.prisma = prisma;
-    this.workflowStepService = new WorkflowStepService(prisma);
+  constructor() {
+    const { getClient } = usePrisma();
+    this.prisma = getClient();
+    this.workflowStepService = new WorkflowStepService();
   }
 
   async create(payload: CreateWorkflowDto) {
