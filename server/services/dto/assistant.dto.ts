@@ -5,7 +5,7 @@ export class FindAssistantDto {
     this.assistantId = assistantId.toLowerCase();
   }
 
-  static fromRequest(input: { id: string }): FindAssistantDto {
+  static fromInput(input: { id: string }): FindAssistantDto {
     return new FindAssistantDto(input.id);
   }
 }
@@ -19,7 +19,7 @@ export class FindAllAssistantsDto {
     this.page = Number(page);
   }
 
-  static fromRequest(teamId: string, page: number): FindAllAssistantsDto {
+  static fromInput(teamId: string, page: number): FindAllAssistantsDto {
     return new FindAllAssistantsDto(teamId, page);
   }
 }
@@ -51,7 +51,7 @@ export class CreateAssistantDto {
     this.systemPromptTokenCount = Number(systemPromptTokenCount);
   }
 
-  static fromRequest(input: {
+  static fromInput(input: {
     teamId: string;
     llmId: string;
     title: string;
@@ -102,7 +102,7 @@ export class UpdateAssistantDto {
     this.systemPromptTokenCount = Number(systemPromptTokenCount);
   }
 
-  static fromRequest(input: {
+  static fromInput(input: {
     teamId: string;
     llmId: string;
     id: string;
@@ -134,10 +134,7 @@ export class DeleteAssistantDto {
     this.assistantId = assistantId.toLowerCase();
   }
 
-  static fromRequest(input: {
-    teamId: string;
-    id: string;
-  }): DeleteAssistantDto {
+  static fromInput(input: { teamId: string; id: string }): DeleteAssistantDto {
     return new DeleteAssistantDto(input.teamId, input.id);
   }
 }

@@ -7,7 +7,7 @@ export class LastLoginDto {
     this.lastLoginAt = lastLoginAt;
   }
 
-  static fromRequest(data: { email: string; lastLoginAt: Date }) {
+  static fromInput(data: { email: string; lastLoginAt: Date }) {
     return new LastLoginDto(data.email, data.lastLoginAt);
   }
 }

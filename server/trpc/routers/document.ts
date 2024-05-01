@@ -22,7 +22,7 @@ export const documentRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const payload = CreateDocumentDto.fromRequest(input);
+      const payload = CreateDocumentDto.fromInput(input);
       return documentService.create(payload);
     }),
   // find document
@@ -44,7 +44,7 @@ export const documentRouter = router({
       }),
     )
     .query(({ input, ctx }) => {
-      const payload = FindAllDocumentsDto.fromRequest(input);
+      const payload = FindAllDocumentsDto.fromInput(input);
       return documentService.findAll(payload);
     }),
   // update document
@@ -58,7 +58,7 @@ export const documentRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const payload = UpdateDocumentDto.fromRequest(input);
+      const payload = UpdateDocumentDto.fromInput(input);
       return documentService.update(payload);
     }),
   // delete document

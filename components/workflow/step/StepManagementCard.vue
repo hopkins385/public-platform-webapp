@@ -6,6 +6,7 @@
     workflowId: string;
     workflowStep: any;
     allWorkflowSteps: any[];
+    allAssistants: any[] | undefined | null;
   }>();
 
   const emits = defineEmits<{
@@ -47,24 +48,12 @@
     emits('refresh');
   }
 
-  // function onInput(e: Event) {
-  //   workflowStepName.value = (e.target as HTMLInputElement).value;
-  // }
-
   function setFocus() {
     if (inputRef.value) {
       inputRef.value.select();
       inputRef.value.focus();
     }
   }
-
-  watch(
-    () => props.workflowStep.name,
-    (newValue) => {
-      workflowStepName.value = newValue;
-      nextTick(setFocus);
-    },
-  );
 
   onMounted(() => {
     setFocus();
@@ -88,8 +77,14 @@
       <hr class="-mx-4 mb-3 mt-1" />
       <div class="space-y-2 py-1">
         <div class="flex justify-between">
-          <span>Assistant:</span>
-          <span>{{ workflowStep?.assistant?.title }}</span>
+          <div>Assistant:</div>
+          <span class="hidden">{{ workflowStep?.assistant?.title }}</span>
+          <div class="w-40">
+            <AssistantSelectForm
+              :assistants="allAssistants"
+              :assistant-id="workflowStep?.assistant?.id"
+            />
+          </div>
         </div>
         <div class="flex justify-between">
           <span>LLM:</span>
@@ -115,7 +110,7 @@
             <FormLabel>System Prompt</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="Tell us a little bit about yourself"
+                placeholder="Please set an assistant"
                 class="resize-none"
                 v-bind="componentField"
               />

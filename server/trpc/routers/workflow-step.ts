@@ -23,7 +23,7 @@ export const workflowStepRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const payload = CreateWorkflowStepDto.fromRequest(input);
+      const payload = CreateWorkflowStepDto.fromInput(input);
       return workflowStepService.create(payload);
     }),
   // find workflow step
@@ -57,7 +57,7 @@ export const workflowStepRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const payload = UpdateWorkflowStepDto.fromRequest(input);
+      const payload = UpdateWorkflowStepDto.fromInput(input);
       return workflowStepService.update(payload);
     }),
   // update the workflow name
@@ -69,7 +69,7 @@ export const workflowStepRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const payload = UpdateWorkflowStepNameDto.fromRequest(input);
+      const payload = UpdateWorkflowStepNameDto.fromInput(input);
       return workflowStepService.updateName(payload);
     }),
   delete: protectedProcedure

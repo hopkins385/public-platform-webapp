@@ -16,7 +16,7 @@ export class CreateDocumentDto {
     this.projectId = projectId.toLowerCase();
   }
 
-  static fromRequest(input: {
+  static fromInput(input: {
     name: string;
     description: string;
     status: string;
@@ -49,7 +49,7 @@ export class UpdateDocumentDto {
     this.status = status;
   }
 
-  static fromRequest(input: {
+  static fromInput(input: {
     documentId: string;
     name: string;
     description: string;
@@ -73,7 +73,7 @@ export class FindAllDocumentsDto {
     this.page = page;
   }
 
-  static fromRequest(input: {
+  static fromInput(input: {
     projectId: string;
     page: number;
   }): FindAllDocumentsDto {

@@ -17,15 +17,16 @@ export class WorkflowStepService {
   }
 
   async create(payload: CreateWorkflowStepDto) {
-    const docPayload = CreateDocumentDto.fromRequest({
+    const docPayload = CreateDocumentDto.fromInput({
       name: 'New Document',
       description: 'New Document Description',
       projectId: payload.projectId,
       status: 'draft',
     });
+
     const document = await this.documentService.create(docPayload);
 
-    return this.prisma.workflowStep.create({
+    const step = await this.prisma.workflowStep.create({
       data: {
         id: ULID(),
         workflowId: payload.workflowId,
@@ -37,6 +38,8 @@ export class WorkflowStepService {
         updatedAt: new Date(),
       },
     });
+
+    return step;
   }
 
   findFirst(workflowStepId: string) {
@@ -44,24 +47,6 @@ export class WorkflowStepService {
       where: {
         id: workflowStepId.toLowerCase(),
         deletedAt: null,
-      },
-    });
-  }
-
-  findFirstWithStepables(workflowStepId: string) {
-    return this.prisma.workflowStep.findFirst({
-      where: {
-        id: workflowStepId.toLowerCase(),
-        deletedAt: null,
-      },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        orderColumn: true,
-        createdAt: true,
-        updatedAt: true,
-        workflowstepables: true,
       },
     });
   }

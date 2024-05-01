@@ -19,7 +19,7 @@ export class CreateDocumentItemDto {
     this.content = content;
   }
 
-  static fromRequest(input: {
+  static fromInput(input: {
     documentId: string;
     orderColumn: number;
     status: string;
@@ -57,7 +57,7 @@ export class UpdateDocumentItemDto {
     this.content = content;
   }
 
-  static fromRequest(input: {
+  static fromInput(input: {
     documentItemId: string;
     orderColumn: number;
     status: string;

@@ -74,7 +74,7 @@ export const assistantRouter = router({
       //   user: ctx.user,
       // });
 
-      const payload = CreateAssistantDto.fromRequest(input);
+      const payload = CreateAssistantDto.fromInput(input);
       const result = await assistantService.create(payload);
 
       return result;
@@ -87,7 +87,7 @@ export const assistantRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const payload = FindAssistantDto.fromRequest(input);
+      const payload = FindAssistantDto.fromInput(input);
       const assistant = await assistantService.findFirst(payload);
 
       // const pass = userCanAccessAssistantPolicy({
@@ -105,7 +105,7 @@ export const assistantRouter = router({
       }),
     )
     .query(({ ctx, input }) => {
-      const payload = FindAllAssistantsDto.fromRequest(
+      const payload = FindAllAssistantsDto.fromInput(
         ctx.user.teamId,
         input.page,
       );
@@ -127,7 +127,7 @@ export const assistantRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const payload = FindAssistantDto.fromRequest(input);
+      const payload = FindAssistantDto.fromInput(input);
       const assistant = await assistantService.findFirst(payload);
 
       // const pass = userCanAccessAssistantPolicy({
@@ -135,7 +135,7 @@ export const assistantRouter = router({
       //   user: ctx.user,
       // });
 
-      const updatePayload = UpdateAssistantDto.fromRequest(input);
+      const updatePayload = UpdateAssistantDto.fromInput(input);
       const result = await assistantService.update(updatePayload);
 
       return result;
@@ -149,7 +149,7 @@ export const assistantRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const payload = FindAssistantDto.fromRequest(input);
+      const payload = FindAssistantDto.fromInput(input);
       const assistant = await assistantService.findFirst(payload);
 
       // const pass = userCanAccessAssistantPolicy({
@@ -157,7 +157,7 @@ export const assistantRouter = router({
       //   user: ctx.user,
       // });
 
-      const deletePayload = DeleteAssistantDto.fromRequest(input);
+      const deletePayload = DeleteAssistantDto.fromInput(input);
       const result = await assistantService.softDelete(deletePayload);
 
       return result;

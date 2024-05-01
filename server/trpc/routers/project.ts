@@ -40,8 +40,8 @@ export const projectRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const projectService = new ProjectService(ctx.prisma);
-      const payload = CreateProjectDto.fromRequest({
+      const projectService = new ProjectService();
+      const payload = CreateProjectDto.fromInput({
         teamId: ctx.user.teamId,
         ...input,
       });
@@ -93,7 +93,7 @@ export const projectRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const projectService = new ProjectService(ctx.prisma);
-      const payload = UpdateProjectDto.fromRequest(input);
+      const payload = UpdateProjectDto.fromInput(input);
 
       const project = await projectService.findFirst(payload.projectId);
 

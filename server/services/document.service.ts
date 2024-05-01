@@ -1,5 +1,9 @@
 import { FileParserFactory } from '../factories/fileParserFactory';
-import type { CreateDocumentDto, UpdateDocumentDto } from './dto/document.dto';
+import type {
+  CreateDocumentDto,
+  FindAllDocumentsDto,
+  UpdateDocumentDto,
+} from './dto/document.dto';
 
 export class DocumentService {
   private readonly prisma: ExtendedPrismaClient;
@@ -19,6 +23,19 @@ export class DocumentService {
         createdAt: new Date(),
         updatedAt: new Date(),
       },
+    });
+  }
+
+  createMany(payload: CreateDocumentDto[]) {
+    return this.prisma.document.createMany({
+      data: payload.map((item) => ({
+        id: ULID(),
+        projectId: item.projectId,
+        name: item.name,
+        description: item.description,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })),
     });
   }
 
@@ -63,6 +80,21 @@ export class DocumentService {
         description: payload.description,
         updatedAt: new Date(),
       },
+    });
+  }
+
+  updateMany(payload: UpdateDocumentDto[]) {
+    return this.prisma.document.updateMany({
+      where: {
+        id: {
+          in: payload.map((item) => item.documentId),
+        },
+      },
+      data: payload.map((item) => ({
+        name: item.name,
+        description: item.description,
+        updatedAt: new Date(),
+      })),
     });
   }
 

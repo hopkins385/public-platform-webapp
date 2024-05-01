@@ -26,6 +26,21 @@ export class DocumentItemService {
     });
   }
 
+  createMany(payload: CreateDocumentItemDto[]) {
+    return this.prisma.documentItem.createMany({
+      data: payload.map((item) => ({
+        id: ULID(),
+        documentId: item.documentId,
+        orderColumn: item.orderColumn,
+        status: item.status,
+        type: item.type,
+        content: item.content,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })),
+    });
+  }
+
   findFirst(documentItemId: string) {
     return this.prisma.documentItem.findFirst({
       where: {
@@ -54,6 +69,23 @@ export class DocumentItemService {
         content: payload.content,
         updatedAt: new Date(),
       },
+    });
+  }
+
+  updateMany(payload: UpdateDocumentItemDto[]) {
+    return this.prisma.documentItem.updateMany({
+      where: {
+        id: {
+          in: payload.map((item) => item.documentItemId),
+        },
+      },
+      data: payload.map((item) => ({
+        orderColumn: item.orderColumn,
+        status: item.status,
+        type: item.type,
+        content: item.content,
+        updatedAt: new Date(),
+      })),
     });
   }
 

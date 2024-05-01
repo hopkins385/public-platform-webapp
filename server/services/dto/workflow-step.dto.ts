@@ -19,7 +19,7 @@ export class CreateWorkflowStepDto {
     this.orderColumn = orderColumn;
   }
 
-  static fromRequest(input: {
+  static fromInput(input: {
     workflowId: string;
     projectId: string;
     name: string;
@@ -54,7 +54,7 @@ export class UpdateWorkflowStepDto {
     this.orderColumn = orderColumn;
   }
 
-  static fromRequest(input: {
+  static fromInput(input: {
     workflowStepId: string;
     name: string;
     description: string;
@@ -78,7 +78,7 @@ export class UpdateWorkflowStepNameDto {
     this.name = name;
   }
 
-  static fromRequest(input: {
+  static fromInput(input: {
     workflowStepId: string;
     name: string;
   }): UpdateWorkflowStepNameDto {
@@ -93,7 +93,7 @@ export class FindAllWorkflowStepsDto {
     this.workflowId = workflowId.toLowerCase();
   }
 
-  static fromRequest(input: { workflowId: string }): FindAllWorkflowStepsDto {
+  static fromInput(input: { workflowId: string }): FindAllWorkflowStepsDto {
     return new FindAllWorkflowStepsDto(input.workflowId);
   }
 }

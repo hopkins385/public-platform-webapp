@@ -23,6 +23,13 @@
     error,
   } = await getFullWorkflow(props.workflowId);
 
+  const { getAllAssistants } = useManageAssistants();
+  const {
+    data: dataAssistants,
+    refresh: refreshAssistants,
+    error: errorAssistants,
+  } = await getAllAssistants();
+
   const workflowStepToManage = computed(() => {
     if (!workflow.value?.steps.length) return null;
     return workflow.value.steps.find(
@@ -128,7 +135,7 @@
         </div>
       </div>
       <template v-for="(step, index) in workflow.steps" :key="step.id">
-        <div class="relative grid w-52">
+        <div class="relative grid w-60">
           <div
             :id="`col_title_${index}`"
             class="flex h-9 cursor-pointer items-center border-y-2 border-l-2 px-2 font-semibold hover:bg-stone-100"
@@ -148,7 +155,7 @@
             @click.stop="() => toggleItemCard(index, index2)"
             v-for="(item, index2) in step.document?.documentItems"
           >
-            <div class="cursor-pointer truncate p-2">{{ item?.content }}</div>
+            <div class="cursor-pointer truncate p-2">{{ item?.id }}</div>
             <div
               :id="`item_teleport_anker_x${index}_y${index2}`"
               class="absolute left-0 top-0 z-10 size-0 bg-transparent"
@@ -183,6 +190,7 @@
       :project-id="workflow.project.id"
       :workflow-id="workflow.id"
       :all-workflow-steps="workflow.steps"
+      :all-assistants="dataAssistants?.assistants"
       :workflow-step="workflowStepToManage"
       @refresh="refresh"
       @close="onCloseStepCard"

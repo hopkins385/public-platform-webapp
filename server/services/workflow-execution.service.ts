@@ -1,16 +1,11 @@
-import type { Assistant, DocumentItem } from '@prisma/client';
+import { AssistantJobDto } from './dto/job.dto';
 import { WorkflowService } from './workflow.service';
 
 export class WorkflowExecutionService {
-  private readonly prisma: ExtendedPrismaClient;
   private readonly workflowService: WorkflowService;
-  private readonly abortController: AbortController;
 
   constructor() {
-    const { getClient } = usePrisma();
-    this.prisma = getClient();
     this.workflowService = new WorkflowService();
-    this.abortController = new AbortController();
   }
 
   /**
@@ -28,33 +23,34 @@ export class WorkflowExecutionService {
     // create for each step a row with corresponding chils recursively
     const rows = [];
 
-    function getJobData(assistant: Assistant, documentItem: DocumentItem) {
-      const messages = [
-        {
-          role: 'system',
-          content: assistant.systemPrompt,
-        },
-        {
-          role: 'user',
-          content: documentItem.content,
-        },
-      ];
-
-      const temperature = 0.5;
-      const maxTokens = 100;
-
-      return { messages, temperature, maxTokens };
-    }
-
-    function flowChild(stepIndex: number, rowNumber: number): any {
+    function jobChild(stepIndex: number, rowNumber: number): any {
       const index = stepIndex;
       const row = rowNumber;
       const { assistant, document } = workflowSteps[index];
       const documentItem = document.documentItems[row];
-      const data = {
+
+      const prevDocumentItem =
+        index > 0
+          ? workflowSteps[index - 1]?.document?.documentItems[row]
+          : null;
+
+      const jobData = AssistantJobDto.fromInput({
+        index,
+        row,
+        assistantId: assistant.id,
+        llmProvider: assistant.llm.provider,
+        llmNameApi: assistant.llm.apiName,
+        prevDocumentItemId: prevDocumentItem?.id || null,
+        documentItemId: documentItem.id,
+        systemPrompt: assistant.systemPrompt,
+        temperature: 0.5,
+        maxTokens: 100,
+      });
+
+      const job = {
         name: 'Step_' + index,
-        data: getJobData(assistant, documentItem),
-        queueName: `${assistant?.llm.provider}-${assistant?.llm.apiName}`,
+        data: jobData,
+        queueName: `${assistant.llm.provider}-${assistant.llm.apiName}`,
       };
 
       // ignore step 0 and stop recursion
@@ -62,23 +58,25 @@ export class WorkflowExecutionService {
         return;
       }
 
-      const child = flowChild(index - 1, row);
+      // recursive call
+      const child = jobChild(index - 1, row);
       if (child) {
         // @ts-ignore
-        data.children = [child];
+        job.children = [child];
       }
 
-      return data;
+      return job;
     }
 
+    // create for each row a job with children (children in reverse order)
     for (let i = 0; i < rowCount; i++) {
-      const step = {
+      const jobs = {
         name: 'Final Step',
-        data: { row: i + 1, workflowId },
+        data: { row: i, workflowId },
         queueName: 'RowCompletion',
-        children: [flowChild(stepsMaxIndex, i)],
+        children: [jobChild(stepsMaxIndex, i)],
       };
-      rows.push(step);
+      rows.push(jobs);
     }
 
     return rows;

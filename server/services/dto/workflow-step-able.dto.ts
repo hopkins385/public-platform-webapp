@@ -16,7 +16,7 @@ export class CreateWorkflowStepAbleDto {
     this.role = role;
   }
 
-  static fromRequest(input: {
+  static fromInput(input: {
     workflowStepId: string;
     modelType: string;
     modelId: string;
@@ -49,7 +49,7 @@ export class UpdateWorkflowStepAbleDto {
     this.role = role;
   }
 
-  static fromRequest(input: {
+  static fromInput(input: {
     workflowStepAbleId: string;
     modelType: string;
     modelId: string;

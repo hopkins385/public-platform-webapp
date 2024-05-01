@@ -28,7 +28,7 @@ export class WorkflowService {
       },
     });
     // create the first step for the workflow
-    const stepPayload = CreateWorkflowStepDto.fromRequest({
+    const stepPayload = CreateWorkflowStepDto.fromInput({
       workflowId: workflow.id,
       projectId: payload.projectId,
       name: 'First Step',

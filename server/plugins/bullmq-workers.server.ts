@@ -1,12 +1,23 @@
-import { PrismaClient } from '@prisma/client';
 import { CompletionFactoryStatic } from '../factories/completionFactoryStatic';
+import type { AssistantJobDto } from '../services/dto/job.dto';
 
-// const prisma = new PrismaClient();
+async function processJob(data: AssistantJobDto) {
+  const { llmProvider, llmNameApi, temperature, maxTokens } = data;
 
-async function processJob(provider: string, model: string, data: any) {
-  const { messages, temperature, maxTokens } = data;
+  const completionFactory = new CompletionFactoryStatic(
+    llmProvider,
+    llmNameApi,
+  );
 
-  const completionFactory = new CompletionFactoryStatic(provider, model);
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+  return;
+
+  const messages = [
+    {
+      role: 'system',
+      content: data.systemPrompt,
+    },
+  ];
 
   const completion = await completionFactory.create({
     messages,
@@ -36,7 +47,7 @@ export default defineNitroPlugin((nitroApp) => {
       console.log(
         `Worker 'groq-llama3-8b-8192' is executing job of name: ${job.name}, data: ${JSON.stringify(job.data)} at ${new Date().toISOString()}`,
       );
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      await processJob(job.data);
     },
     {
       concurrency: 10,
@@ -53,8 +64,7 @@ export default defineNitroPlugin((nitroApp) => {
       console.log(
         `Worker 'openai-gpt-3.5-turbo' is executing job of name: ${job.name}, data: ${JSON.stringify(job.data)} at ${new Date().toISOString()}`,
       );
-      // wait for 3 seconds
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      await processJob(job.data);
     },
     {
       concurrency: 10,
@@ -71,7 +81,7 @@ export default defineNitroPlugin((nitroApp) => {
       console.log(
         `Worker 'anthropic-claude-3-sonnet-20240229' is executing job of name: ${job.name}, data: ${JSON.stringify(job.data)} at ${new Date().toISOString()}`,
       );
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      await processJob(job.data);
     },
     {
       concurrency: 10,

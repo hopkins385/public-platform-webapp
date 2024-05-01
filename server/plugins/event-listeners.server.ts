@@ -15,10 +15,8 @@ export default defineNitroPlugin((nitroApp) => {
   });
 
   eventEmitter.on('login', async (user) => {
-    const { getClient } = usePrisma();
-    const prisma = getClient();
-    const userService = new UserService(prisma);
-    const payload = LastLoginDto.fromRequest({
+    const userService = new UserService();
+    const payload = LastLoginDto.fromInput({
       email: user.email,
       lastLoginAt: new Date(),
     });

@@ -9,7 +9,7 @@ export class CreateWorkflowDto {
     this.description = description;
   }
 
-  static fromRequest(input: {
+  static fromInput(input: {
     projectId: string;
     name: string;
     description: string;
@@ -33,7 +33,7 @@ export class UpdateWorkflowDto {
     this.description = description;
   }
 
-  static fromRequest(input: {
+  static fromInput(input: {
     workflowId: string;
     name: string;
     description: string;
@@ -55,7 +55,7 @@ export class FindAllWorkflowsDto {
     this.page = page;
   }
 
-  static fromRequest(input: {
+  static fromInput(input: {
     projectId: string;
     page: number;
   }): FindAllWorkflowsDto {

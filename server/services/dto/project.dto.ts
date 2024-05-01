@@ -9,7 +9,7 @@ export class CreateProjectDto {
     this.description = description;
   }
 
-  static fromRequest(input: {
+  static fromInput(input: {
     teamId: string;
     name: string;
     description: string;
@@ -29,7 +29,7 @@ export class UpdateProjectDto {
     this.description = description;
   }
 
-  static fromRequest(input: {
+  static fromInput(input: {
     projectId: string;
     name: string;
     description: string;

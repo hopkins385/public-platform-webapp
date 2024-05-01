@@ -21,7 +21,7 @@ export const workflowRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const payload = CreateWorkflowDto.fromRequest(input);
+      const payload = CreateWorkflowDto.fromInput(input);
       return workflowService.create(payload);
     }),
   // find workflow including steps
@@ -53,7 +53,7 @@ export const workflowRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const payload = FindAllWorkflowsDto.fromRequest(input);
+      const payload = FindAllWorkflowsDto.fromInput(input);
       return workflowService.findAll(payload);
     }),
   // update workflow
@@ -66,7 +66,7 @@ export const workflowRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const payload = UpdateWorkflowDto.fromRequest(input);
+      const payload = UpdateWorkflowDto.fromInput(input);
       return workflowService.update(payload);
     }),
   // delete workflow
