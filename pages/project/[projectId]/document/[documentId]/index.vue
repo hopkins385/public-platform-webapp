@@ -6,6 +6,11 @@
 
   definePageMeta({
     title: 'document.meta.index.title',
+    breadcrumb: {
+      icon: 'folders',
+      ariaLabel: 'Documents',
+      label: 'Documents',
+    },
     validate: async (route) => {
       const validator = useRouteValidation();
       return validator.hasValidProjectDocumentId(route.params);

@@ -3,6 +3,11 @@
 
   definePageMeta({
     title: 'assistant.meta.index.title',
+    breadcrumb: {
+      icon: 'robot',
+      ariaLabel: 'Assistants',
+      label: 'Assistants',
+    },
   });
 </script>
 

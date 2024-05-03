@@ -119,11 +119,6 @@
     await refresh();
   }
 
-  async function onPlayClick() {
-    const { executeWorkflow } = useExecuteWorkflow();
-    const { error } = await executeWorkflow(props.workflowId);
-  }
-
   // listen for esc key
   useEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
@@ -135,13 +130,6 @@
 
 <template>
   <div class="h-screen overflow-x-scroll bg-white p-0">
-    <div class="w-full bg-stone-50">
-      <div class="p-2">
-        <Button variant="outline" @click="onPlayClick">
-          <PlayIcon class="size-3" />
-        </Button>
-      </div>
-    </div>
     <div class="relative grid w-fit grid-flow-col text-sm">
       <div class="grid w-12" id="column_number">
         <div

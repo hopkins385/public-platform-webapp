@@ -6,19 +6,6 @@
     UserIcon,
   } from 'lucide-vue-next';
 
-  const breadcrumbLinks = computed(() => {
-    return [
-      { icon: 'users', label: 'Team', to: '/' },
-      { icon: 'folders', label: 'Projects', to: '/project' },
-      {
-        icon: 'folder',
-        label: 'Project',
-        to: `/project/:projectId`,
-      },
-      { icon: 'workflow', label: 'Workflows', to: `/project/:projectId` },
-    ];
-  });
-
   function onFullScreenClick() {
     const elem = document.documentElement;
     if (document.fullscreenElement) {
@@ -42,7 +29,7 @@
           </span>
         </div>
       </NuxtLink>
-      <BreadcrumbBanner :links="breadcrumbLinks" class="pl-10" />
+      <BreadcrumbBanner class="pl-10" />
     </div>
     <div class="flex items-center justify-between space-x-4 pr-5">
       <div class="flex items-center justify-center space-x-1">

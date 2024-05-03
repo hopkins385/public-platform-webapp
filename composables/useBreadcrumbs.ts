@@ -31,28 +31,41 @@ export function useBreadcrumbs() {
     );
 
     //3. Get the matching route object
-    const founds = router
+    let founds = router
       .getRoutes()
       .filter((r) => isMathPatternPath(r.path, currPath));
+
+    // if we have more than one match we want to get the exact match
     const matchRoute =
       founds.length > 1 ? founds.find((r) => r.path === currPath) : founds[0];
 
-    // const name =
-    //   matchRoute?.meta?.breadcrumb?.label ||
-    //   matchRoute?.name ||
-    //   matchRoute?.path ||
-    //   currPath;
-
+    //4. Get the name of the route
     const name =
-      matchRoute?.meta?.breadcrumb?.label || matchRoute?.name || currPath;
+      matchRoute?.meta?.breadcrumb?.label ||
+      matchRoute?.name ||
+      matchRoute?.path ||
+      currPath;
 
-    return [
+    const result = [
       ...parentRoutes,
       {
         path: currPath,
         name: t(name),
       },
     ];
+
+    // if result is more than 4 we want to keep
+    if (result.length > 4) {
+      return [
+        // result[0],
+        { name: '...', path: '' },
+        result[2],
+        result[result.length - 2],
+        result[result.length - 1],
+      ];
+    }
+
+    return result;
   }
 
   watch(

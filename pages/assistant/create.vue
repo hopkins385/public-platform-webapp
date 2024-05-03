@@ -5,6 +5,11 @@
 
   definePageMeta({
     title: 'assistant.meta.create.title',
+    breadcrumb: {
+      icon: 'robot',
+      ariaLabel: 'Create Assistant',
+      label: 'Create',
+    },
   });
 
   const { successDuration, errorDuration } = useAppConfig().toast;

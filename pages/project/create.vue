@@ -9,6 +9,11 @@
 
   definePageMeta({
     title: 'project.meta.create.title',
+    breadcrumb: {
+      icon: 'robot',
+      ariaLabel: 'Create Project',
+      label: 'Create',
+    },
   });
 
   const createProjectSchema = toTypedSchema(

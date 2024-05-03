@@ -6,6 +6,11 @@
 
   definePageMeta({
     title: 'assistant.meta.edit.title',
+    breadcrumb: {
+      icon: 'robot',
+      ariaLabel: 'Update Assistant',
+      label: 'Update',
+    },
     validate: async (route) => {
       const validator = useRouteValidation();
       return validator.hasValidAssistantId(route.params);
@@ -21,6 +26,10 @@
 
   const { data: assistant } = await getOneAssistant(assistantId);
   const { data: models } = await getAllModels({ lazy: true });
+
+  const route = useRoute();
+  route.meta.breadcrumb.label =
+    'Update - ' + assistant.value?.title || 'Assistant';
 
   const assistantFormSchema = toTypedSchema(
     z.object({

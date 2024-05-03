@@ -9,6 +9,11 @@
 
   definePageMeta({
     title: 'workflow.meta.create.title',
+    breadcrumb: {
+      icon: 'workflow',
+      ariaLabel: 'Create Workflow',
+      label: 'Create',
+    },
     validate: async (route) => {
       const validator = useRouteValidation();
       return validator.hasValidProjectId(route.params);

@@ -31,7 +31,7 @@
   const { getProject } = useManageProjects();
   const { data: projectData } = await getProject(projectId);
 
-  route.meta.breadcrumb.label = projectData.value.name;
+  route.meta.breadcrumb.label = projectData.value?.name;
 </script>
 
 <template>

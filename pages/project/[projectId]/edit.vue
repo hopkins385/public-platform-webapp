@@ -9,6 +9,11 @@
 
   definePageMeta({
     title: 'project.meta.update.title',
+    breadcrumb: {
+      icon: 'folder',
+      ariaLabel: 'Update Project',
+      label: 'Update',
+    },
     validate: async (route) => {
       const validator = useRouteValidation();
       return validator.hasValidProjectId(route.params);
@@ -56,7 +61,7 @@
 
 <template>
   <SectionContainer>
-    <SectionHeading title="Edit Project" />
+    <SectionHeading title="Update Project" />
     <div class="rounded-lg border bg-white p-10">
       <form class="space-y-8" @submit="onSubmit">
         <FormField v-slot="{ componentField }" name="name">
