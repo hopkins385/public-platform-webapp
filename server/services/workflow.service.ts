@@ -31,9 +31,11 @@ export class WorkflowService {
     const stepPayload = CreateWorkflowStepDto.fromInput({
       workflowId: workflow.id,
       projectId: payload.projectId,
+      assistantId: payload.assistantId,
       name: 'First Step',
       description: 'First Step of the Workflow',
       orderColumn: 0,
+      rowCount: 1,
     });
     const workflowStep = await this.workflowStepService.create(stepPayload);
     return workflow;

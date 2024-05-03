@@ -12,6 +12,8 @@ import { workflowRouter } from './workflow';
 import { documentRouter } from './document';
 import { workflowStepRouter } from './workflow-step';
 import { workflowExecRouter } from './workflow-exec';
+import { documentItemRouter } from './document-item';
+import { mediaRouter } from './media';
 
 export const appRouter = router({
   register: registerRouter,
@@ -23,7 +25,9 @@ export const appRouter = router({
   me: userMeRouter,
   getStripeCheckoutUrl,
   project: projectRouter,
+  media: mediaRouter,
   document: documentRouter,
+  documentItem: documentItemRouter,
   workflow: workflowRouter,
   workflowStep: workflowStepRouter,
   workflowExec: workflowExecRouter,

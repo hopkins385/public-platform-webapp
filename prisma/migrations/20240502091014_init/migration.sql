@@ -169,6 +169,34 @@ CREATE TABLE "credits" (
 );
 
 -- CreateTable
+CREATE TABLE "medias" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "file_name" TEXT NOT NULL,
+    "file_path" TEXT NOT NULL,
+    "file_mime" TEXT NOT NULL,
+    "file_size" INTEGER NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "deleted_at" TIMESTAMP(3),
+
+    CONSTRAINT "medias_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "media_ables" (
+    "id" TEXT NOT NULL,
+    "media_id" TEXT NOT NULL,
+    "mediaable_type" TEXT NOT NULL,
+    "mediaable_id" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "deleted_at" TIMESTAMP(3),
+
+    CONSTRAINT "media_ables_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "projects" (
     "id" TEXT NOT NULL,
     "team_id" TEXT NOT NULL,
@@ -187,10 +215,6 @@ CREATE TABLE "documents" (
     "project_id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT,
-    "file_name" TEXT,
-    "file_path" TEXT,
-    "file_mime" TEXT,
-    "file_extension" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "deleted_at" TIMESTAMP(3),
@@ -327,6 +351,9 @@ ALTER TABLE "assistants" ADD CONSTRAINT "assistants_llm_id_fkey" FOREIGN KEY ("l
 
 -- AddForeignKey
 ALTER TABLE "credits" ADD CONSTRAINT "credits_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "media_ables" ADD CONSTRAINT "media_ables_media_id_fkey" FOREIGN KEY ("media_id") REFERENCES "medias"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "projects" ADD CONSTRAINT "projects_team_id_fkey" FOREIGN KEY ("team_id") REFERENCES "teams"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

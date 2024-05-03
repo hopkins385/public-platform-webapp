@@ -17,9 +17,11 @@ export const workflowStepRouter = router({
       z.object({
         workflowId: ulidRule(),
         projectId: ulidRule(),
+        assistantId: ulidRule(),
         name: z.string(),
         description: z.string(),
         orderColumn: z.number(),
+        rowCount: z.number(),
       }),
     )
     .mutation(async ({ ctx, input }) => {

@@ -46,6 +46,7 @@
         <div
           class="grow overflow-scroll bg-gradient-to-b from-slate-100 to-slate-50 text-slate-800"
         >
+          <BreadcrumbBanner />
           <slot />
         </div>
       </div>

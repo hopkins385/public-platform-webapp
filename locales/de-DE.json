@@ -1,4 +1,11 @@
 {
+  "breadcrumb": {
+    "items": {
+      "chat": {
+        "label": "Chat"
+      }
+    }
+  },
   "auth": {
     "meta": {
       "title": "Anmelden",

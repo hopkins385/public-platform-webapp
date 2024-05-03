@@ -2,6 +2,13 @@ import type { AsyncDataOptions } from '#app';
 
 export interface ICreateWorkflow {
   projectId: string;
+  assistantId: string;
+  name: string;
+  description: string;
+}
+
+export interface IUpdateWorkflow {
+  workflowId: string;
   name: string;
   description: string;
 }
@@ -43,7 +50,7 @@ export default function useManageWorkflows() {
     return useAsyncData(async () => {
       const [workflows, meta] = await $client.workflow.allForProject.query(
         {
-          projectId,
+          projectId: projectId as string,
           page,
         },
         {
@@ -88,7 +95,7 @@ export default function useManageWorkflows() {
     }, options);
   }
 
-  function updateWorkflow(payload: ICreateWorkflow) {
+  function updateWorkflow(payload: IUpdateWorkflow) {
     return $client.workflow.update.mutate(
       { ...payload },
       {

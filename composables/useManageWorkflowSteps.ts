@@ -3,9 +3,11 @@ import type { AsyncDataOptions } from '#app';
 export interface ICreateWorkflowStep {
   workflowId: string;
   projectId: string;
+  assistantId: string;
   name: string;
   description: string;
   orderColumn: number;
+  rowCount: number;
 }
 
 export interface IUpdateWorkflowStep {

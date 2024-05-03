@@ -39,10 +39,10 @@ model User {
 // Authentication (NextAuth v4)
 
 model Account {
-  userId            String  @map("user_id")
+  userId            String   @map("user_id")
   type              String
   provider          String
-  providerAccountId String  @map("provider_account_id")
+  providerAccountId String   @map("provider_account_id")
   refresh_token     String?
   access_token      String?
   expires_at        Int?
@@ -50,9 +50,8 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -64,11 +63,10 @@ model Session {
   sessionToken String   @unique @map("session_token")
   userId       String   @map("user_id")
   expires      DateTime
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("sessions")
 }
@@ -82,7 +80,7 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
-// end of NextAuth v3
+// end of NextAuth
 
 model Organisation {
   id        String    @id
@@ -96,38 +94,38 @@ model Organisation {
 }
 
 model Team {
-  id             String       @id
-  organisation   Organisation @relation(fields: [organisationId], references: [id])
-  organisationId String       @map("organisation_id")
+  id             String      @id
+  organisationId String      @map("organisation_id")
   name           String
-  createdAt      DateTime     @default(now()) @map("created_at")
-  updatedAt      DateTime     @updatedAt @map("updated_at")
-  deletedAt      DateTime?    @map("deleted_at")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+  deletedAt      DateTime?   @map("deleted_at")
   projects       Project[]
   users          TeamUser[]
   assistants     Assistant[]
+
+  organisation Organisation @relation(fields: [organisationId], references: [id])
 
   @@map("teams")
 }
 
 model TeamUser {
   id        String    @id
-  team      Team      @relation(fields: [teamId], references: [id])
   teamId    String    @map("team_id")
-  user      User      @relation(fields: [userId], references: [id])
   userId    String    @map("user_id")
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
+
+  team Team @relation(fields: [teamId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   @@map("team_users")
 }
 
 model Chat {
   id          String        @id
-  user        User          @relation(fields: [userId], references: [id])
   userId      String        @map("user_id")
-  assistant   Assistant     @relation(fields: [assistantId], references: [id])
   assistantId String        @map("assistant_id")
   title       String
   messages    ChatMessage[]
@@ -135,12 +133,14 @@ model Chat {
   updatedAt   DateTime      @updatedAt @map("updated_at")
   deletedAt   DateTime?     @map("deleted_at")
 
+  user      User      @relation(fields: [userId], references: [id])
+  assistant Assistant @relation(fields: [assistantId], references: [id])
+
   @@map("chats")
 }
 
 model ChatMessage {
   id         String                  @id
-  Chat       Chat                    @relation(fields: [chatId], references: [id], onDelete: Cascade)
   chatId     String                  @map("chat_id")
   role       chat_messages_role_enum @map("role")
   content    String
@@ -149,14 +149,14 @@ model ChatMessage {
   updatedAt  DateTime                @updatedAt @map("updated_at")
   deletedAt  DateTime?               @map("deleted_at")
 
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
   @@map("chat_messages")
 }
 
 model Assistant {
   id                     String         @id
-  team                   Team           @relation(fields: [teamId], references: [id])
   teamId                 String         @map("team_id")
-  llm                    LargeLangModel @relation(fields: [llmId], references: [id])
   llmId                  String         @map("llm_id")
   title                  String
   description            String
@@ -168,6 +168,9 @@ model Assistant {
   deletedAt              DateTime?      @map("deleted_at")
   chats                  Chat[]
   workflowSteps          WorkflowStep[]
+
+  team Team           @relation(fields: [teamId], references: [id])
+  llm  LargeLangModel @relation(fields: [llmId], references: [id])
 
   @@map("assistants")
 }
@@ -193,12 +196,13 @@ model LargeLangModel {
 
 model Credit {
   id        String    @id
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String    @unique @map("user_id")
   amount    Int
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("credits")
 }
@@ -224,11 +228,41 @@ enum chat_messages_role_enum {
   assistant
 }
 
+// Media
+
+model Media {
+  id         String       @id
+  name       String
+  fileName   String       @map("file_name")
+  filePath   String       @map("file_path")
+  fileMime   String       @map("file_mime")
+  fileSize   Int          @map("file_size")
+  createdAt  DateTime     @default(now()) @map("created_at")
+  updatedAt  DateTime     @updatedAt @map("updated_at")
+  deletedAt  DateTime?    @map("deleted_at")
+  mediaAbles MediaAbles[]
+
+  @@map("medias")
+}
+
+model MediaAbles {
+  id            String    @id
+  mediaId       String    @map("media_id")
+  mediaAbleType String    @map("mediaable_type")
+  mediaAbleId   String    @map("mediaable_id")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  media Media @relation(fields: [mediaId], references: [id])
+
+  @@map("media_ables")
+}
+
 // Project, Documents, Requirements, and Workflows
 
 model Project {
   id          String     @id
-  team        Team       @relation(fields: [teamId], references: [id])
   teamId      String     @map("team_id")
   name        String
   description String
@@ -237,6 +271,8 @@ model Project {
   deletedAt   DateTime?  @map("deleted_at")
   documents   Document[]
   workflows   Workflow[]
+
+  team Team @relation(fields: [teamId], references: [id])
 
   @@map("projects")
 }
@@ -247,10 +283,6 @@ model Document {
   projectId     String         @map("project_id")
   name          String
   description   String?
-  fileName      String?        @map("file_name")
-  filePath      String?        @map("file_path")
-  fileMime      String?        @map("file_mime")
-  fileExtension String?        @map("file_extension")
   createdAt     DateTime       @default(now()) @map("created_at")
   updatedAt     DateTime       @updatedAt @map("updated_at")
   deletedAt     DateTime?      @map("deleted_at")
@@ -262,7 +294,6 @@ model Document {
 
 model DocumentItem {
   id                String             @id
-  document          Document           @relation(fields: [documentId], references: [id])
   documentId        String             @map("document_id")
   orderColumn       Int                @map("order_column") @db.SmallInt
   status            Json?
@@ -273,25 +304,27 @@ model DocumentItem {
   deletedAt         DateTime?          @map("deleted_at")
   documentItemAbles DocumentItemAble[]
 
+  document Document @relation(fields: [documentId], references: [id])
+
   @@map("document_items")
 }
 
 model DocumentItemAble {
-  id             String       @id
-  documentItem   DocumentItem @relation(fields: [documentItemId], references: [id])
-  documentItemId String       @map("document_item_id")
-  modelType      String       @map("model_type")
-  modelId        String       @map("model_id")
-  createdAt      DateTime     @default(now()) @map("created_at")
-  updatedAt      DateTime     @updatedAt @map("updated_at")
-  deletedAt      DateTime?    @map("deleted_at")
+  id             String    @id
+  documentItemId String    @map("document_item_id")
+  modelType      String    @map("model_type")
+  modelId        String    @map("model_id")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  documentItem DocumentItem @relation(fields: [documentItemId], references: [id])
 
   @@map("document_item_ables")
 }
 
 model Workflow {
   id            String         @id
-  project       Project        @relation(fields: [projectId], references: [id])
   projectId     String         @map("project_id")
   name          String
   description   String
@@ -301,12 +334,13 @@ model Workflow {
   workflowAbles WorkflowAble[]
   steps         WorkflowStep[]
 
+  project Project @relation(fields: [projectId], references: [id])
+
   @@map("workflows")
 }
 
 model WorkflowAble {
   id         String    @id
-  workflow   Workflow  @relation(fields: [workflowId], references: [id])
   workflowId String    @map("workflow_id")
   modelType  String    @map("model_type")
   modelId    String    @map("model_id")
@@ -314,16 +348,15 @@ model WorkflowAble {
   updatedAt  DateTime  @updatedAt @map("updated_at")
   deletedAt  DateTime? @map("deleted_at")
 
+  workflow Workflow @relation(fields: [workflowId], references: [id])
+
   @@map("workflow_ables")
 }
 
 model WorkflowStep {
   id                String             @id
-  workflow          Workflow           @relation(fields: [workflowId], references: [id])
   workflowId        String             @map("workflow_id")
-  document          Document?          @relation(fields: [documentId], references: [id])
   documentId        String?            @map("document_id")
-  assistant         Assistant?         @relation(fields: [assistantId], references: [id])
   assistantId       String?            @map("assistant_id")
   orderColumn       Int                @map("order_column") @db.SmallInt
   name              String
@@ -333,20 +366,25 @@ model WorkflowStep {
   deletedAt         DateTime?          @map("deleted_at")
   workflowStepAbles WorkflowStepAble[]
 
+  workflow  Workflow   @relation(fields: [workflowId], references: [id])
+  document  Document?  @relation(fields: [documentId], references: [id])
+  assistant Assistant? @relation(fields: [assistantId], references: [id])
+
   @@map("workflow_steps")
 }
 
 model WorkflowStepAble {
-  id             String       @id
-  workflowStep   WorkflowStep @relation(fields: [workflowStepId], references: [id])
-  workflowStepId String       @map("workflow_step_id")
-  modelType      String       @map("model_type")
-  modelId        String       @map("model_id")
-  orderColumn    Int?         @map("order_column") @db.SmallInt
+  id             String    @id
+  workflowStepId String    @map("workflow_step_id")
+  modelType      String    @map("model_type")
+  modelId        String    @map("model_id")
+  orderColumn    Int?      @map("order_column") @db.SmallInt
   role           String
-  createdAt      DateTime     @default(now()) @map("created_at")
-  updatedAt      DateTime     @updatedAt @map("updated_at")
-  deletedAt      DateTime?    @map("deleted_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  workflowStep WorkflowStep @relation(fields: [workflowStepId], references: [id])
 
   @@map("workflow_step_ables")
 }

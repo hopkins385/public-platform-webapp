@@ -16,7 +16,13 @@
 
   const { projectId } = useRoute().params;
   const { getProject } = useManageProjects();
-  const { data: projectData } = await getProject(projectId, { lazy: true });
+  const { data: projectData } = await getProject(projectId);
+
+  const breadcrumb = computed(() => ({
+    icon: 'workflows',
+    ariaLabel: 'Workflows',
+    label: projectData.value?.name ?? 'Workflows',
+  }));
 </script>
 
 <template>

@@ -1,5 +1,13 @@
+import type { User } from '@prisma/client';
+
 // function to get the class name of an object
-export function getClassName(obj: any): string {
+export function getClassName(obj: any | User): string {
+  if (typeof obj !== 'object') {
+    throw new Error('Model is not an object');
+  }
+
+  // console.log(JSON.stringify(obj), obj._type);
+  // 1. get the class name of the model
   return obj.constructor.name;
 }
 

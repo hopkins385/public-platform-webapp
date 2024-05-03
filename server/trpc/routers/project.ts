@@ -56,7 +56,7 @@ export const projectRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const projectService = new ProjectService(ctx.prisma);
+      const projectService = new ProjectService();
 
       const project = await projectService.findFirst(input.id);
 
@@ -75,7 +75,7 @@ export const projectRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const projectService = new ProjectService(ctx.prisma);
+      const projectService = new ProjectService();
       const projects = await projectService.findMany(
         ctx.user.teamId,
         input.page,
@@ -92,7 +92,7 @@ export const projectRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const projectService = new ProjectService(ctx.prisma);
+      const projectService = new ProjectService();
       const payload = UpdateProjectDto.fromInput(input);
 
       const project = await projectService.findFirst(payload.projectId);
@@ -113,7 +113,7 @@ export const projectRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const projectService = new ProjectService(ctx.prisma);
+      const projectService = new ProjectService();
 
       const project = await projectService.findFirst(input.projectId);
 

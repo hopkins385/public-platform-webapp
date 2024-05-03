@@ -17,11 +17,14 @@
 
   const { projectId } = useRoute().params;
   const { getProject } = useManageProjects();
+  const { getAllAssistants } = useManageAssistants();
   const { data: project } = await getProject(projectId);
+  const { data: assistantsData } = await getAllAssistants();
 
   const createWorkflowSchema = toTypedSchema(
     z.object({
       projectId: z.string().min(3).max(255),
+      assistantId: z.string().min(3).max(255),
       projectName: z.string().min(3).max(255),
       name: z.string().min(3).max(255),
       description: z.string().min(3).max(255),
@@ -32,6 +35,7 @@
     validationSchema: createWorkflowSchema,
     initialValues: {
       projectId: project.value?.id,
+      assistantId: assistantsData.value?.assistants[0].id,
       projectName: project.value?.name,
       name: '',
       description: '',

@@ -22,7 +22,7 @@
       <ul class="max-w-sm space-y-5">
         <li
           class="group flex cursor-pointer items-center space-x-10 rounded-lg"
-          @click="navigateTo('files/onedrive')"
+          @click="navigateTo('/media/onedrive')"
         >
           <div class="size-20 rounded-lg border p-5 group-hover:shadow-md">
             <LogosMicrosoftOnedrive class="size-full" />
@@ -31,7 +31,7 @@
         </li>
         <li
           class="group flex cursor-pointer items-center space-x-10 rounded-lg"
-          @click="navigateTo('files/google')"
+          @click="navigateTo('/media/google')"
         >
           <div class="size-20 rounded-lg border p-5 group-hover:shadow-md">
             <LogosGoogleDrive class="size-full" />
@@ -40,7 +40,7 @@
         </li>
         <li
           class="group flex cursor-pointer items-center space-x-10 rounded-lg"
-          @click="navigateTo('files/files')"
+          @click="navigateTo('/media/files')"
         >
           <div class="size-20 rounded-lg border p-5 group-hover:shadow-md">
             <FluentEmojiFlatFileFolder class="size-full" />

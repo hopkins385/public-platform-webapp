@@ -1,0 +1,67 @@
+import { UserService } from './user.service';
+import fs from 'fs/promises';
+import path from 'path';
+import { MediaService } from './media.service';
+import type { File as FormidableFile } from 'formidable';
+import { CreateMediaDto } from './dto/media.dto';
+import { ModelDto } from './dto/model.dto';
+
+export class StorageService {
+  private readonly mediaService: MediaService;
+  private readonly userService: UserService;
+
+  constructor() {
+    this.mediaService = new MediaService();
+  }
+
+  async uploadFile(file: FormidableFile, userId: string): Promise<void> {
+    if (!file.mimetype) {
+      throw createError({
+        statusCode: 406,
+        statusMessage: 'Not Acceptable',
+        message: 'File mimetype is required.',
+      });
+    }
+    const mimeType = this.getFileExtension(file.mimetype);
+    if (!mimeType) {
+      throw createError({
+        statusCode: 406,
+        statusMessage: 'Not Acceptable',
+        message: 'Unsupported file type: ' + file.mimetype,
+      });
+    }
+    const originalFilename = file.originalFilename ?? 'Untitled';
+    const fileName = `${Date.now()}-${file.newFilename}.${mimeType}`;
+    const newPath = `${path.join('public', 'uploads', userId, fileName)}`;
+    await fs.copyFile(file.filepath, newPath);
+
+    const payload = CreateMediaDto.fromInput({
+      name: originalFilename,
+      fileName,
+      filePath: newPath,
+      fileMime: file.mimetype,
+      fileSize: file.size,
+      model: ModelDto.fromInput({ id: userId, type: 'User' }),
+    });
+    await this.mediaService.create(payload);
+  }
+
+  async deleteFile(fileId: string): Promise<void> {
+    console.log('Deleting file...');
+  }
+
+  getFileExtension(mimeType: string) {
+    return {
+      'application/pdf': 'pdf',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        'docx',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+        'xlsx',
+      'text/markdown': 'md',
+      'text/csv': 'csv',
+      'text/html': 'html',
+      'text/plain': 'txt',
+      plain: 'txt',
+    }[mimeType];
+  }
+}

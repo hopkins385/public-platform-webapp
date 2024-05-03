@@ -1,37 +1,47 @@
 export class CreateWorkflowStepDto {
   readonly workflowId: string;
   readonly projectId: string;
+  readonly assistantId: string;
   readonly name: string;
   readonly description: string;
   readonly orderColumn: number;
+  readonly rowCount: number;
 
   constructor(
     workflowId: string,
     projectId: string,
+    assistantId: string,
     name: string,
     description: string,
     orderColumn: number,
+    rowCount: number,
   ) {
     this.workflowId = workflowId.toLowerCase();
     this.projectId = projectId.toLowerCase();
+    this.assistantId = assistantId.toLowerCase();
     this.name = name;
     this.description = description;
     this.orderColumn = orderColumn;
+    this.rowCount = rowCount;
   }
 
   static fromInput(input: {
     workflowId: string;
     projectId: string;
+    assistantId: string;
     name: string;
     description: string;
     orderColumn: number;
+    rowCount: number;
   }): CreateWorkflowStepDto {
     return new CreateWorkflowStepDto(
       input.workflowId,
       input.projectId,
+      input.assistantId,
       input.name,
       input.description,
       input.orderColumn,
+      input.rowCount,
     );
   }
 }

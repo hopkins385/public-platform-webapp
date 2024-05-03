@@ -16,6 +16,7 @@ export const workflowRouter = router({
     .input(
       z.object({
         projectId: ulidRule(),
+        assistantId: ulidRule(),
         name: z.string(),
         description: z.string(),
       }),

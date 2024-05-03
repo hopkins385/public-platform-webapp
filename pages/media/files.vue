@@ -26,10 +26,13 @@
 </script>
 
 <template>
-  <SectionContainer>
+  <SectionContainer class="space-y-4 py-10">
     <BoxContainer>
       <FileDropzone v-model="files" />
-      <Button @click="onSubmit">Submit</Button>
+      <Button class="mt-4" @click="onSubmit">Submit</Button>
+    </BoxContainer>
+    <BoxContainer>
+      <MediaList />
     </BoxContainer>
   </SectionContainer>
 </template>

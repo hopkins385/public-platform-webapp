@@ -1,4 +1,6 @@
+import { DocumentItemService } from './document-item.service';
 import { DocumentService } from './document.service';
+import { CreateDocumentItemDto } from './dto/document-item.dto';
 import { CreateDocumentDto } from './dto/document.dto';
 import type {
   CreateWorkflowStepDto,
@@ -9,11 +11,13 @@ import type {
 export class WorkflowStepService {
   private readonly prisma: ExtendedPrismaClient;
   private readonly documentService: DocumentService;
+  private readonly documentItemService: DocumentItemService;
 
   constructor() {
     const { getClient } = usePrisma();
     this.prisma = getClient();
     this.documentService = new DocumentService();
+    this.documentItemService = new DocumentItemService();
   }
 
   async create(payload: CreateWorkflowStepDto) {
@@ -25,12 +29,27 @@ export class WorkflowStepService {
     });
 
     const document = await this.documentService.create(docPayload);
+    const documentItemPayloads = [];
+    // create 10 document item payloads
+    for (let i = 0; i < payload.rowCount; i++) {
+      const docItemPayload = CreateDocumentItemDto.fromInput({
+        documentId: document.id,
+        orderColumn: i,
+        status: 'draft',
+        type: 'text',
+        content: '',
+      });
+      documentItemPayloads.push(docItemPayload);
+    }
+
+    await this.documentItemService.createMany(documentItemPayloads);
 
     const step = await this.prisma.workflowStep.create({
       data: {
         id: ULID(),
         workflowId: payload.workflowId,
         documentId: document.id,
+        assistantId: payload.assistantId,
         name: payload.name,
         description: payload.description,
         orderColumn: payload.orderColumn,

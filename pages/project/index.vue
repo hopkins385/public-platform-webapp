@@ -8,6 +8,12 @@
   definePageMeta({
     title: 'project.meta.index.title',
   });
+
+  const breadcrumb = {
+    icon: 'project',
+    ariaLabel: 'Projects',
+    label: 'project.meta.index.title',
+  };
 </script>
 
 <template>

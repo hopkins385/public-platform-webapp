@@ -29,6 +29,12 @@ export class WorkflowExecutionService {
       const { assistant, document } = workflowSteps[index];
       const documentItem = document.documentItems[row];
 
+      if (!assistant) {
+        throw new Error(
+          `Assistant not found for step ${index} with name ${workflowSteps[index].name}`,
+        );
+      }
+
       const prevDocumentItem =
         index > 0
           ? workflowSteps[index - 1]?.document?.documentItems[row]
