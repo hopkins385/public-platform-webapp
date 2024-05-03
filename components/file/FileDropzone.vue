@@ -150,7 +150,7 @@
 <template>
   <div
     ref="dropZoneRef"
-    class="group relative flex min-h-[200px] w-full cursor-pointer flex-col items-center justify-center overflow-y-auto rounded-2xl border p-5"
+    class="group relative flex min-h-[200px] w-full cursor-pointer flex-col items-center justify-center overflow-y-auto rounded-xl border p-5"
     @click="onClick"
   >
     <div
@@ -186,7 +186,10 @@
         class="flex w-40 flex-col items-center justify-center space-y-2 rounded-lg border-0 border-dashed border-slate-300 p-5 text-slate-400"
       >
         <FileIcon class="size-6 stroke-1.5" />
-        <span>Click here or Drag & Drop</span>
+        <span class="text-sm">
+          Click here or<br />
+          Drag & Drop</span
+        >
       </div>
     </div>
     <div

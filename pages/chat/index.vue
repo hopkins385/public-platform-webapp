@@ -10,7 +10,7 @@
 </script>
 
 <template>
-  <SectionContainerWithImage>
+  <SectionContainer class="h-full">
     <ChatWindow />
-  </SectionContainerWithImage>
+  </SectionContainer>
 </template>

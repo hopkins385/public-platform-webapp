@@ -6,7 +6,7 @@
 
 <template>
   <div
-    class="overflow-hidden rounded-lg border bg-white p-10"
+    class="overflow-hidden rounded-xl border bg-white p-10"
     :class="{
       '!p-0': noPadding === true,
     }"

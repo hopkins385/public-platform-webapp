@@ -13,34 +13,29 @@
 
   definePageMeta({
     title: 'workflow.meta.index.title',
+    breadcrumb: {
+      icon: 'folders',
+      ariaLabel: 'Project',
+      label: 'Active Project',
+    },
     validate: async (route) => {
       const validator = useRouteValidation();
       return validator.hasValidProjectId(route.params);
     },
   });
 
+  const route = useRoute();
+
   const { data: auth } = useAuth();
   const { projectId } = useRoute().params;
   const { getProject } = useManageProjects();
   const { data: projectData } = await getProject(projectId);
 
-  const breadcrumbLinks = computed(() => {
-    return [
-      { icon: 'users', label: 'Team', to: '/' },
-      { icon: 'folders', label: 'Projects', to: '/project' },
-      {
-        icon: 'folder',
-        label: projectData.value?.name ?? 'Project',
-        to: `/project/${projectId}`,
-      },
-      { icon: 'workflow', label: 'Workflows', to: `/project/${projectId}` },
-    ];
-  });
+  route.meta.breadcrumb.label = projectData.value.name;
 </script>
 
 <template>
-  <SectionContainerWithImage>
-    <BreadcrumbBanner :links="breadcrumbLinks" class="-mt-4" />
+  <SectionContainer>
     <BoxContainer class="-mt-0 mb-4 py-5 text-muted-foreground">
       <div class="text-sm">
         <ul class="flex space-x-2">
@@ -90,5 +85,5 @@
         </template>
       </Suspense>
     </BoxContainer>
-  </SectionContainerWithImage>
+  </SectionContainer>
 </template>

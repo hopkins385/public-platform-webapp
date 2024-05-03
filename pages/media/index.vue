@@ -16,7 +16,7 @@
 </script>
 
 <template>
-  <SectionContainerWithImage>
+  <SectionContainer>
     <BoxContainer>
       <h1 class="pb-10 text-2xl font-bold">File Manager</h1>
       <ul class="max-w-sm space-y-5">
@@ -49,5 +49,5 @@
         </li>
       </ul>
     </BoxContainer>
-  </SectionContainerWithImage>
+  </SectionContainer>
 </template>

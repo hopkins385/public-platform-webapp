@@ -7,20 +7,16 @@
 
   definePageMeta({
     title: 'project.meta.index.title',
+    breadcrumb: {
+      icon: 'folders',
+      ariaLabel: 'Projects',
+      label: 'project.meta.index.title',
+    },
   });
-
-  const breadcrumb = {
-    icon: 'project',
-    ariaLabel: 'Projects',
-    label: 'project.meta.index.title',
-  };
 </script>
 
 <template>
-  <SectionContainerWithImage>
-    <BoxContainer class="-mt-6 mb-4 py-5">
-      <div class="text-xl font-semibold">Projects</div>
-    </BoxContainer>
+  <SectionContainer>
     <BoxContainer class="w-full">
       <div class="flex justify-between">
         <div>
@@ -49,5 +45,5 @@
         </Suspense>
       </div>
     </BoxContainer>
-  </SectionContainerWithImage>
+  </SectionContainer>
 </template>

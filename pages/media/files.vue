@@ -37,11 +37,15 @@
 </script>
 
 <template>
-  <SectionContainer class="space-y-4 py-10">
+  <SectionContainer class="space-y-4">
     <BoxContainer>
       <FileDropzone v-model="dropzoneFiles" />
-      <Button class="mt-4" @click="onSubmit">Submit</Button>
-      <div v-if="isLoading" class="mt-4">Uploading...</div>
+      <div class="flex justify-end">
+        <div class="flex items-center justify-center pt-4">
+          <div v-if="isLoading" class="pr-5 text-sm">Uploading...</div>
+          <Button :disabled="isLoading" @click="onSubmit">Upload Files</Button>
+        </div>
+      </div>
     </BoxContainer>
     <BoxContainer>
       <MediaList v-model:refresh="refreshData" />

@@ -12,6 +12,8 @@ interface UserProjectPolicyPayload {
   user: any;
 }
 
+const projectService = new ProjectService();
+
 function userCanAccessProjectPolicy(payload: UserProjectPolicyPayload) {
   if (!payload.project) {
     throw new TRPCError({
@@ -40,7 +42,6 @@ export const projectRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const projectService = new ProjectService();
       const payload = CreateProjectDto.fromInput({
         teamId: ctx.user.teamId,
         ...input,
@@ -56,8 +57,6 @@ export const projectRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const projectService = new ProjectService();
-
       const project = await projectService.findFirst(input.id);
 
       const pass = userCanAccessProjectPolicy({
@@ -75,7 +74,6 @@ export const projectRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const projectService = new ProjectService();
       const projects = await projectService.findMany(
         ctx.user.teamId,
         input.page,
@@ -92,7 +90,6 @@ export const projectRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const projectService = new ProjectService();
       const payload = UpdateProjectDto.fromInput(input);
 
       const project = await projectService.findFirst(payload.projectId);
@@ -113,8 +110,6 @@ export const projectRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const projectService = new ProjectService();
-
       const project = await projectService.findFirst(input.projectId);
 
       const pass = userCanAccessProjectPolicy({

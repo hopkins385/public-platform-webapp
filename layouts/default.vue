@@ -34,18 +34,23 @@
         :content="meta.content"
       />
     </Head>
-    <Body>
-      <div class="flex h-screen overflow-hidden">
+    <Body class="bg-gradient-to-b from-slate-100 via-slate-100 to-slate-50">
+      <div class="sticky inset-0 z-50 h-[65px] w-full bg-white shadow-md">
+        <TopBar />
+      </div>
+      <div class="flex overflow-hidden" style="min-height: calc(100vh - 65px)">
         <!-- Toast -->
         <Toaster position="top-right" />
         <!-- Sidebar -->
-        <div class="w-20 shrink-0 border-0 shadow-md">
-          <NavBar />
+        <div class="p-5">
+          <div
+            class="h-full w-20 shrink-0 rounded-xl border-0 bg-white shadow-md"
+          >
+            <NavBar />
+          </div>
         </div>
         <!-- Main -->
-        <div
-          class="grow overflow-scroll bg-gradient-to-b from-slate-100 to-slate-50 text-slate-800"
-        >
+        <div class="grow overflow-scroll text-slate-800">
           <slot />
         </div>
       </div>
