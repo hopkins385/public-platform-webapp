@@ -16,6 +16,7 @@ export class MediaAbleService {
         mediaId: payload.mediaId,
         mediaAbleId: payload.model.id,
         mediaAbleType: payload.model.type,
+        role: payload.role,
       },
     });
   }
@@ -43,5 +44,32 @@ export class MediaAbleService {
     });
 
     return mediaAbles;
+  }
+
+  softDelete(id: string) {
+    return this.prisma.mediaAbles.update({
+      where: {
+        id: id.toLowerCase(),
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+  }
+
+  delete(id: string) {
+    return this.prisma.mediaAbles.delete({
+      where: {
+        id: id.toLowerCase(),
+      },
+    });
+  }
+
+  deleteManyMedia(id: string) {
+    return this.prisma.mediaAbles.deleteMany({
+      where: {
+        mediaId: id.toLowerCase(),
+      },
+    });
   }
 }

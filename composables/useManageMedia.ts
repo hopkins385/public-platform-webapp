@@ -13,7 +13,6 @@ export default function useManageMedia() {
   const ac = new AbortController();
 
   let page: number = 1;
-  let mediaId: string = '';
 
   onScopeDispose(() => {
     ac.abort();
@@ -21,21 +20,6 @@ export default function useManageMedia() {
 
   function setPage(p: number) {
     page = p;
-  }
-
-  function setMediaId(id: string | string[] | undefined | null) {
-    if (!id) return;
-    if (Array.isArray(id)) return;
-    mediaId = id;
-  }
-
-  function createMedia(payload: ICreateMedia) {
-    return $client.media.create.mutate(
-      { ...payload },
-      {
-        signal: ac.signal,
-      },
-    );
   }
 
   function findAllMediaFor(
@@ -73,11 +57,19 @@ export default function useManageMedia() {
     }, options);
   }
 
+  function deleteMedia(id: string) {
+    return $client.media.delete.mutate(
+      { mediaId: id },
+      {
+        signal: ac.signal,
+      },
+    );
+  }
+
   return {
     setPage,
-    setMediaId,
-    createMedia,
     findAllMediaFor,
     findPaginateAllMediaFor,
+    deleteMedia,
   };
 }

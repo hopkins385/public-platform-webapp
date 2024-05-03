@@ -12,3 +12,4 @@ dist
 tests/e2e/reports*
 playwright*
 test-reports
+public/uploads

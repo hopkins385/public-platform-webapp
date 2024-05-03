@@ -14,6 +14,24 @@
   const { $socket } = useNuxtApp();
   const { projectId, workflowId } = useRoute().params;
 
+  const breadcrumbLinks = computed(() => {
+    return [
+      { icon: 'users', label: 'Team', to: '/' },
+      { icon: 'folders', label: 'Projects', to: '/project' },
+      {
+        icon: 'folder',
+        label: 'Project',
+        to: `/project/${projectId}`,
+      },
+      { icon: 'workflow', label: 'Workflows', to: `/project/${projectId}` },
+      {
+        icon: 'text',
+        label: 'Workflow',
+        to: `/project/${projectId}/workflow/${workflowId}`,
+      },
+    ];
+  });
+
   onMounted(() => {
     $socket.emit('join_room', { roomId: workflowId });
     console.log('connecting to room');
@@ -35,7 +53,11 @@
 </script>
 
 <template>
-  <div class="bg-stone-50 p-1">
-    <WorkflowList :workflow-id="workflowId as string" />
-  </div>
+  <SectionContainerWithImage>
+    <BreadcrumbBanner :links="breadcrumbLinks" class="-mt-4" />
+
+    <BoxContainer :no-padding="true">
+      <WorkflowList :workflow-id="workflowId as string" />
+    </BoxContainer>
+  </SectionContainerWithImage>
 </template>

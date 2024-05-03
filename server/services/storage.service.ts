@@ -1,20 +1,16 @@
-import { UserService } from './user.service';
 import fs from 'fs/promises';
 import path from 'path';
-import { MediaService } from './media.service';
 import type { File as FormidableFile } from 'formidable';
 import { CreateMediaDto } from './dto/media.dto';
 import { ModelDto } from './dto/model.dto';
 
 export class StorageService {
-  private readonly mediaService: MediaService;
-  private readonly userService: UserService;
+  constructor() {}
 
-  constructor() {
-    this.mediaService = new MediaService();
-  }
-
-  async uploadFile(file: FormidableFile, userId: string): Promise<void> {
+  async uploadFile(
+    file: FormidableFile,
+    userId: string,
+  ): Promise<CreateMediaDto> {
     if (!file.mimetype) {
       throw createError({
         statusCode: 406,
@@ -32,7 +28,7 @@ export class StorageService {
     }
     const originalFilename = file.originalFilename ?? 'Untitled';
     const fileName = `${Date.now()}-${file.newFilename}.${mimeType}`;
-    const newPath = `${path.join('public', 'uploads', userId, fileName)}`;
+    const newPath = `${path.join(this.getBasePath(), userId, fileName)}`;
     await fs.copyFile(file.filepath, newPath);
 
     const payload = CreateMediaDto.fromInput({
@@ -43,11 +39,12 @@ export class StorageService {
       fileSize: file.size,
       model: ModelDto.fromInput({ id: userId, type: 'User' }),
     });
-    await this.mediaService.create(payload);
+
+    return payload;
   }
 
-  async deleteFile(fileId: string): Promise<void> {
-    console.log('Deleting file...');
+  async deleteFile(path: string): Promise<void> {
+    await fs.unlink(path);
   }
 
   getFileExtension(mimeType: string) {
@@ -63,5 +60,9 @@ export class StorageService {
       'text/plain': 'txt',
       plain: 'txt',
     }[mimeType];
+  }
+
+  getBasePath() {
+    return path.join('public', 'uploads');
   }
 }

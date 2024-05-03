@@ -250,6 +250,8 @@ model MediaAbles {
   mediaId       String    @map("media_id")
   mediaAbleType String    @map("mediaable_type")
   mediaAbleId   String    @map("mediaable_id")
+  role          String?
+  orderColumn   Int?      @map("order_column") @db.SmallInt
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
   deletedAt     DateTime? @map("deleted_at")

@@ -1,10 +1,21 @@
 <script setup lang="ts">
-  import { Trash2Icon } from 'lucide-vue-next';
+  import { FileIcon, Trash2Icon } from 'lucide-vue-next';
+
+  const props = defineProps<{
+    refresh: boolean;
+  }>();
+
+  const emits = defineEmits<{
+    'update:refresh': [boolean];
+  }>();
 
   const { data: auth } = useAuth();
-  const { findPaginateAllMediaFor, setPage } = useManageMedia();
+  const { findPaginateAllMediaFor, setPage, deleteMedia } = useManageMedia();
+  const { $toast } = useNuxtApp();
 
-  const page = ref(1);
+  const showConfirmDialog = ref(false);
+  const deleteMediaId = ref('');
+  const errorAlert = reactive({ show: false, message: '' });
 
   const { data, pending, error, refresh } = await findPaginateAllMediaFor(
     { id: auth.value?.user.id, type: 'User' },
@@ -24,13 +35,17 @@
   }
 
   function onDelete(id: string) {
-    // deleteMediaId.value = id;
-    // showConfirmDialog.value = true;
+    deleteMediaId.value = id;
+    showConfirmDialog.value = true;
   }
 
   function handleDelete() {
-    /*const id = deleteMediaId.value;
-    deleteMedia(id, auth.value?.user.id)
+    const {
+      toast: { successDuration },
+    } = useAppConfig();
+
+    const id = deleteMediaId.value;
+    deleteMedia(id)
       .then(() => {
         deleteMediaId.value = '';
         $toast.success('Success', {
@@ -43,19 +58,28 @@
         errorAlert.show = true;
         errorAlert.message = error?.message;
       });
-      */
   }
 
   function onPageChange(value: number) {
     setPage(value);
     refresh();
   }
+
+  watch(
+    () => props.refresh,
+    async (value) => {
+      if (value) {
+        await refresh();
+        emits('update:refresh', false);
+      }
+    },
+  );
 </script>
 
 <template>
   <div v-if="media.length > 0 && !pending">
-    <!-- ErrorAlert v-model="errorAlert.show" :message="errorAlert.message" / -->
-    <!-- ConfirmDialog v-model="showConfirmDialog" @confirm="handleDelete" / -->
+    <ErrorAlert v-model="errorAlert.show" :message="errorAlert.message" />
+    <ConfirmDialog v-model="showConfirmDialog" @confirm="handleDelete" />
 
     <Table class="rounded-lg border bg-white">
       <TableCaption>
@@ -72,7 +96,7 @@
       </TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead> Type </TableHead>
+          <TableHead> File </TableHead>
           <TableHead> Name </TableHead>
           <TableHead> File Size </TableHead>
           <TableHead class="text-right"> Action </TableHead>
@@ -81,8 +105,10 @@
       <TableBody>
         <TableRow v-for="item in media || []" :key="item.id">
           <TableCell>
-            <div class="size-8 truncate rounded-full bg-slate-200">
-              {{ item.fileMime }}
+            <div
+              class="flex size-8 items-center justify-center truncate rounded-full"
+            >
+              <FileIcon class="size-4" />
             </div>
           </TableCell>
           <TableCell>{{ item.name }}</TableCell>

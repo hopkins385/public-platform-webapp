@@ -189,6 +189,8 @@ CREATE TABLE "media_ables" (
     "media_id" TEXT NOT NULL,
     "mediaable_type" TEXT NOT NULL,
     "mediaable_id" TEXT NOT NULL,
+    "role" TEXT,
+    "order_column" SMALLINT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "deleted_at" TIMESTAMP(3),

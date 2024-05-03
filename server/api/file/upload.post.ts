@@ -1,24 +1,28 @@
-import { StorageService } from './../../services/storage.service';
-// server/api/index.post.js
 import fs from 'fs';
 import path from 'path';
 import { readFiles } from 'h3-formidable';
 import type { Options as FormidableOptions } from 'formidable';
 import { getServerSession } from '#auth';
 import { getAuthUser } from '~/server/utils/auth/permission';
+import { MediaService } from '~/server/services/media.service';
+import { StorageService } from '~/server/services/storage.service';
 
 const storageService = new StorageService();
+const mediaService = new MediaService();
 
 export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);
   const user = getAuthUser(session); // do not remove this line
 
-  if (!fs.existsSync('public/uploads')) {
-    fs.mkdirSync(path.join('public', 'uploads'));
+  const basePath = storageService.getBasePath();
+  const userPath = path.join(basePath, user.id);
+
+  if (!fs.existsSync(basePath)) {
+    fs.mkdirSync(basePath);
   }
 
-  if (!fs.existsSync(`public/uploads/${user.id}`)) {
-    fs.mkdirSync(path.join('public', 'uploads', user.id));
+  if (!fs.existsSync(userPath)) {
+    fs.mkdirSync(userPath);
   }
 
   const options = {
@@ -27,6 +31,7 @@ export default defineEventHandler(async (_event) => {
     maxFiles: 10,
     maxFilesSize: 5 * 1024 * 1024,
     maxFields: 8,
+    // TODO: add filter for file types
     // filter: function ({ name, originalFilename, mimetype }) {
     //   return mimetype && mimetype.includes('pdf') && mimetype.includes('plain');
     // },
@@ -44,7 +49,8 @@ export default defineEventHandler(async (_event) => {
     }
 
     for (const file of files.clientFiles) {
-      await storageService.uploadFile(file, user.id);
+      const payload = await storageService.uploadFile(file, user.id);
+      const media = await mediaService.create(payload);
     }
 
     return { success: true };

@@ -2,15 +2,18 @@ import { CreateMediaAbleDto } from './dto/media-able.dto';
 import type { CreateMediaDto } from './dto/media.dto';
 import type { ModelDto } from './dto/model.dto';
 import { MediaAbleService } from './media-able.service';
+import { StorageService } from './storage.service';
 
 export class MediaService {
   private readonly prisma: ExtendedPrismaClient;
   private readonly mediaAbleService: MediaAbleService;
+  private readonly storageService: StorageService;
 
   constructor() {
     const { getClient } = usePrisma();
     this.prisma = getClient();
     this.mediaAbleService = new MediaAbleService();
+    this.storageService = new StorageService();
   }
 
   async create(payload: CreateMediaDto) {
@@ -32,6 +35,7 @@ export class MediaService {
       mediaId: media.id,
       mediaAbleId: payload.model.id,
       mediaAbleType: payload.model.type,
+      role: 'owner',
     });
     const mediaAble =
       await this.mediaAbleService.createMediaAble(mediaAblePayload);
@@ -42,7 +46,7 @@ export class MediaService {
   async findFirst(mediaId: string) {
     return this.prisma.media.findFirst({
       where: {
-        id: mediaId,
+        id: mediaId.toLowerCase(),
       },
     });
   }
@@ -64,6 +68,14 @@ export class MediaService {
   async paginateFindAllFor(model: ModelDto, page: number) {
     return this.prisma.media
       .paginate({
+        select: {
+          id: true,
+          name: true,
+          fileName: true,
+          filePath: false,
+          fileMime: false,
+          fileSize: true,
+        },
         where: {
           mediaAbles: {
             some: {
@@ -79,5 +91,33 @@ export class MediaService {
         page: page,
         includePageCount: true,
       });
+  }
+
+  async softDelete(mediaId: string) {
+    // we just remove the connections between the media and the models
+    return this.mediaAbleService.deleteManyMedia(mediaId);
+  }
+
+  async delete(mediaId: string) {
+    const media = await this.findFirst(mediaId);
+    if (!media) {
+      throw new Error('Media not found');
+    }
+    await this.prisma.$transaction([
+      // we remove the connections between the media and the models
+      this.prisma.mediaAbles.deleteMany({
+        where: {
+          mediaId: media.id,
+        },
+      }),
+      // then we remove the media
+      this.prisma.media.delete({
+        where: {
+          id: media.id,
+        },
+      }),
+    ]);
+    // then we delete the media from the storage
+    return this.storageService.deleteFile(media.filePath);
   }
 }

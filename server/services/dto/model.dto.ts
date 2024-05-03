@@ -3,7 +3,7 @@ export class ModelDto {
   readonly type: string;
 
   constructor(id: string, type: string) {
-    this.id = id;
+    this.id = id.toLowerCase();
     this.type = type;
   }
 

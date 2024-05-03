@@ -6,7 +6,7 @@ import { ModelDto } from '~/server/services/dto/model.dto';
 const mediaService = new MediaService();
 
 const modelRules = z.object({
-  id: z.string(),
+  id: ulidRule(),
   type: z.enum(['User', 'Document', 'DocumentItem', 'Project']),
 });
 
@@ -30,7 +30,7 @@ export const mediaRouter = router({
   find: protectedProcedure
     .input(
       z.object({
-        mediaId: z.string(),
+        mediaId: ulidRule(),
       }),
     )
     .query(async ({ input, ctx }) => {
@@ -58,5 +58,15 @@ export const mediaRouter = router({
     .query(async ({ input, ctx }) => {
       const model = ModelDto.fromInput(input.model);
       return mediaService.paginateFindAllFor(model, input.page);
+    }),
+
+  delete: protectedProcedure
+    .input(
+      z.object({
+        mediaId: ulidRule(),
+      }),
+    )
+    .mutation(async ({ input, ctx }) => {
+      return mediaService.delete(input.mediaId);
     }),
 });
