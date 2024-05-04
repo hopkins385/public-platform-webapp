@@ -53,6 +53,11 @@ export class MediaService {
 
   async findAllFor(model: MediaAbleDto) {
     return this.prisma.media.findMany({
+      select: {
+        id: true,
+        name: true,
+        fileSize: true,
+      },
       where: {
         mediaAbles: {
           some: {
@@ -71,7 +76,7 @@ export class MediaService {
         select: {
           id: true,
           name: true,
-          fileName: true,
+          fileName: false,
           filePath: false,
           fileMime: false,
           fileSize: true,
