@@ -245,10 +245,13 @@ model Media {
   @@map("medias")
 }
 
+// A polymorphic relationship between Media and other models
+// A Media can belong to multiple models
+// e.g. A Media might be created by a User, and is also "attached to" a Project and a Document
 model MediaAbles {
   id            String    @id
   mediaId       String    @map("media_id")
-  mediaAbleType String    @map("mediaable_type")
+  mediaAbleType Int       @map("mediaable_type") @db.SmallInt
   mediaAbleId   String    @map("mediaable_id")
   role          String?
   orderColumn   Int?      @map("order_column") @db.SmallInt
@@ -311,10 +314,13 @@ model DocumentItem {
   @@map("document_items")
 }
 
+// A polymorphic relationship between DocumentItem and other models
+// A DocumentItem can belong to multiple models
+// e.g. A DocumentItem might be "attached to" a User as kind of a workItem
 model DocumentItemAble {
   id             String    @id
   documentItemId String    @map("document_item_id")
-  modelType      String    @map("model_type")
+  modelType      Int       @map("model_type") @db.SmallInt
   modelId        String    @map("model_id")
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")
@@ -341,10 +347,13 @@ model Workflow {
   @@map("workflows")
 }
 
+// A polymorphic relationship between Workflow and other models
+// A Workflow can belong to multiple models
+// e.g. A Workflow might be "attached to" e.g. a JobQueue
 model WorkflowAble {
   id         String    @id
   workflowId String    @map("workflow_id")
-  modelType  String    @map("model_type")
+  modelType  Int       @map("model_type") @db.SmallInt
   modelId    String    @map("model_id")
   createdAt  DateTime  @default(now()) @map("created_at")
   updatedAt  DateTime  @updatedAt @map("updated_at")
@@ -375,10 +384,13 @@ model WorkflowStep {
   @@map("workflow_steps")
 }
 
+// A polymorphic relationship between WorkflowStep and other models
+// A WorkflowStep can belong to multiple models
+// e.g. A WorkflowStep might be "attached to" e.g. a JobQueue
 model WorkflowStepAble {
   id             String    @id
   workflowStepId String    @map("workflow_step_id")
-  modelType      String    @map("model_type")
+  modelType      Int       @map("model_type") @db.SmallInt
   modelId        String    @map("model_id")
   orderColumn    Int?      @map("order_column") @db.SmallInt
   role           String

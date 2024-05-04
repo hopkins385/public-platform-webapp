@@ -18,7 +18,7 @@
   const errorAlert = reactive({ show: false, message: '' });
 
   const { data, pending, error, refresh } = await findPaginateAllMediaFor(
-    { id: auth.value?.user.id, type: 'User' },
+    { id: auth.value?.user.id, type: 'user' },
     { lazy: true },
   );
 
@@ -60,9 +60,9 @@
       });
   }
 
-  function onPageChange(value: number) {
+  async function onPageChange(value: number) {
     setPage(value);
-    refresh();
+    await refresh();
   }
 
   watch(
@@ -77,7 +77,7 @@
 </script>
 
 <template>
-  <div v-if="media.length > 0 && !pending">
+  <div>
     <ErrorAlert v-model="errorAlert.show" :message="errorAlert.message" />
     <ConfirmDialog v-model="showConfirmDialog" @confirm="handleDelete" />
 

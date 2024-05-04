@@ -1,4 +1,13 @@
 <script setup lang="ts">
+  definePageMeta({
+    title: 'media.meta.uploads.title',
+    breadcrumb: {
+      icon: 'files',
+      ariaLabel: 'Uploads',
+      label: 'Uploads',
+    },
+  });
+
   const refreshData = ref(false);
   const isLoading = ref(false);
   const dropzoneFiles = ref<File[]>([]);
@@ -50,5 +59,6 @@
     <BoxContainer>
       <MediaList v-model:refresh="refreshData" />
     </BoxContainer>
+    <div class="h-1"></div>
   </SectionContainer>
 </template>

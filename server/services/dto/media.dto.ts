@@ -1,12 +1,10 @@
-import { ModelDto } from './model.dto';
-
 export class CreateMediaDto {
   readonly name: string;
   readonly fileName: string;
   readonly filePath: string;
   readonly fileMime: string;
   readonly fileSize: number;
-  readonly model: ModelDto;
+  readonly model: { id: string; type: string };
 
   constructor(
     name: string,
@@ -14,7 +12,7 @@ export class CreateMediaDto {
     filePath: string,
     fileMime: string,
     fileSize: number,
-    model: ModelDto,
+    model: { id: string; type: string },
   ) {
     this.name = name;
     this.fileName = fileName;
@@ -30,7 +28,7 @@ export class CreateMediaDto {
     filePath: string;
     fileMime: string;
     fileSize: number;
-    model: ModelDto;
+    model: { id: string; type: string };
   }): CreateMediaDto {
     return new CreateMediaDto(
       input.name,

@@ -38,7 +38,7 @@
       <div class="sticky inset-0 z-50 h-[65px] w-full bg-white shadow-md">
         <TopBar />
       </div>
-      <div class="flex overflow-hidden" style="min-height: calc(100vh - 65px)">
+      <div class="flex overflow-hidden" style="height: calc(100vh - 65px)">
         <!-- Toast -->
         <Toaster position="top-right" />
         <!-- Sidebar -->

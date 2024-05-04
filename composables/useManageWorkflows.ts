@@ -61,6 +61,20 @@ export default function useManageWorkflows() {
     }, options);
   }
 
+  function getAllWorkflowsForUser(options: AsyncDataOptions<any> = {}) {
+    return useAsyncData(async () => {
+      const [allWorkflows, meta] = await $client.workflow.allForUser.query(
+        {
+          page,
+        },
+        {
+          signal: ac.signal,
+        },
+      );
+      return { allWorkflows, meta };
+    }, options);
+  }
+
   function getFullWorkflow(
     id: string | string[] | undefined | null,
     options: AsyncDataOptions<any> = {},
@@ -119,6 +133,7 @@ export default function useManageWorkflows() {
     setWorkflowId,
     createWorkflow,
     getProjectWorkflows,
+    getAllWorkflowsForUser,
     getFullWorkflow,
     getWorkflowSettings,
     updateWorkflow,

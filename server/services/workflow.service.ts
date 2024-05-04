@@ -151,6 +151,42 @@ export class WorkflowService {
       });
   }
 
+  findAllForUser(userId: string, page: number) {
+    // first lets find all the projects for the user
+    return this.prisma.project
+      .paginate({
+        select: {
+          workflows: {
+            select: {
+              id: true,
+              name: true,
+              description: true,
+              project: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+        where: {
+          team: {
+            users: {
+              some: {
+                userId: userId.toLowerCase(),
+              },
+            },
+          },
+        },
+      })
+      .withPages({
+        limit: 10,
+        page,
+        includePageCount: true,
+      });
+  }
+
   update(payload: UpdateWorkflowDto) {
     return this.prisma.workflow.update({
       where: {

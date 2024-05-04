@@ -1,19 +1,23 @@
 export default function useForHumans() {
   const { locale } = useI18n();
 
-  const getDateTimeForHumans = (value: string | number | Date) => {
+  function getDateTimeForHumans(
+    value: string | number | Date,
+    options: Intl.DateTimeFormatOptions = {},
+  ) {
     const date = new Date(value);
-    const options = {
+    const defaultOptions = {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
       hour: 'numeric',
       minute: 'numeric',
     } as Intl.DateTimeFormatOptions;
+    options = Object.assign(defaultOptions, options);
     return date.toLocaleString(locale.value, options);
-  };
+  }
 
-  const getFileSizeForHumans = (value: number) => {
+  function getFileSizeForHumans(value: number) {
     const size = Number(value);
     if (size === 0) return '';
     const i = Math.floor(Math.log(size) / Math.log(1024));
@@ -23,7 +27,7 @@ export default function useForHumans() {
       ' ' +
       ['B', 'kB', 'MB', 'GB', 'TB'][i]
     );
-  };
+  }
 
   return {
     getFileSizeForHumans,

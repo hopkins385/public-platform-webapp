@@ -25,7 +25,7 @@ export default function useManageMedia() {
   function findAllMediaFor(
     model: {
       id: string;
-      type: 'User' | 'Document' | 'Project';
+      type: any;
     },
     options: AsyncDataOptions<any> = {},
   ) {
@@ -42,7 +42,7 @@ export default function useManageMedia() {
   function findPaginateAllMediaFor(
     model: {
       id: string;
-      type: 'User' | 'Document' | 'Project';
+      type: any;
     },
     options: AsyncDataOptions<any> = {},
   ) {

@@ -10,6 +10,7 @@
     FileTextIcon,
     UploadIcon,
     FolderIcon,
+    WorkflowIcon,
   } from 'lucide-vue-next';
 
   const router = useRouter();
@@ -26,6 +27,12 @@
       {
         icon: FolderIcon,
         to: '/project',
+        hidden: false,
+        children: [],
+      },
+      {
+        icon: WorkflowIcon,
+        to: '/workflow',
         hidden: false,
         children: [],
       },

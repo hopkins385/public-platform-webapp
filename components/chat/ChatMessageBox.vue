@@ -16,7 +16,7 @@
       console.log(content);
     }
   }
-
+  /*
   onMounted(() => {
     if (props.role == 'assistant' && messageContentRef.value) {
       const parser = new DOMParser();
@@ -39,6 +39,7 @@
         });
     }
   });
+  */
 </script>
 
 <template>

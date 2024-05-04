@@ -187,7 +187,7 @@ CREATE TABLE "medias" (
 CREATE TABLE "media_ables" (
     "id" TEXT NOT NULL,
     "media_id" TEXT NOT NULL,
-    "mediaable_type" TEXT NOT NULL,
+    "mediaable_type" SMALLINT NOT NULL,
     "mediaable_id" TEXT NOT NULL,
     "role" TEXT,
     "order_column" SMALLINT,

@@ -57,6 +57,20 @@ export const workflowRouter = router({
       const payload = FindAllWorkflowsDto.fromInput(input);
       return workflowService.findAll(payload);
     }),
+
+  allForUser: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().default(1),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const {
+        user: { id },
+      } = ctx;
+      return workflowService.findAllForUser(id, input.page);
+    }),
+
   // update workflow
   update: protectedProcedure
     .input(

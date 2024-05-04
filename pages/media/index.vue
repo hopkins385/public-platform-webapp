@@ -3,6 +3,15 @@
   import LogosGoogleDrive from '~icons/logos/google-drive';
   import FluentEmojiFlatFileFolder from '~icons/fluent-emoji-flat/file-folder';
 
+  definePageMeta({
+    title: 'media.meta.index.title',
+    breadcrumb: {
+      icon: 'files',
+      ariaLabel: 'File Manager',
+      label: 'File Manager',
+    },
+  });
+
   const getOneDriveAuthUrl = async () => {
     const { data: result } = await useFetch('/api/onedrive/consent');
     return result.value?.data;
@@ -40,7 +49,7 @@
         </li>
         <li
           class="group flex cursor-pointer items-center space-x-10 rounded-lg"
-          @click="navigateTo('/media/files')"
+          @click="navigateTo('/media/uploads')"
         >
           <div class="size-20 rounded-lg border p-5 group-hover:shadow-md">
             <FluentEmojiFlatFileFolder class="size-full" />

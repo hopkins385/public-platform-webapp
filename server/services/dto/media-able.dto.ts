@@ -1,8 +1,22 @@
-import { ModelDto } from './model.dto';
+import { getMediaAbleTypeEnumValue } from '~/server/utils/enums/media-able-enum';
+
+export class MediaAbleDto {
+  readonly id: string;
+  readonly type: number;
+
+  constructor(id: string, type: string) {
+    this.id = id.toLowerCase();
+    this.type = getMediaAbleTypeEnumValue(type);
+  }
+
+  static fromInput(input: { id: string; type: string }): MediaAbleDto {
+    return new MediaAbleDto(input.id, input.type);
+  }
+}
 
 export class CreateMediaAbleDto {
   readonly mediaId: string;
-  readonly model: ModelDto;
+  readonly model: MediaAbleDto;
   readonly role: string | null;
 
   constructor(
@@ -12,7 +26,10 @@ export class CreateMediaAbleDto {
     role: string | null,
   ) {
     this.mediaId = mediaId;
-    this.model = ModelDto.fromInput({ id: mediaAbleId, type: mediaAbleType });
+    this.model = MediaAbleDto.fromInput({
+      id: mediaAbleId,
+      type: mediaAbleType,
+    });
     this.role = role;
   }
 

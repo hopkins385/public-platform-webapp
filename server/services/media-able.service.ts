@@ -1,5 +1,4 @@
-import type { CreateMediaAbleDto } from './dto/media-able.dto';
-import type { ModelDto } from './dto/model.dto';
+import type { CreateMediaAbleDto, MediaAbleDto } from './dto/media-able.dto';
 
 export class MediaAbleService {
   private readonly prisma: ExtendedPrismaClient;
@@ -21,7 +20,7 @@ export class MediaAbleService {
     });
   }
 
-  async getMediaAbles(model: ModelDto) {
+  async getMediaAbles(model: MediaAbleDto) {
     // 2. get the mediaAbles for the model
     const mediaAbles = await this.prisma.mediaAbles.findMany({
       select: {

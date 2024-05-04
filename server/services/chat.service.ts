@@ -143,6 +143,12 @@ export class ChatService {
           id: true,
           title: true,
           createdAt: true,
+          assistant: {
+            select: {
+              id: true,
+              title: true,
+            },
+          },
         },
         where: {
           userId,

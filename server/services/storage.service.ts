@@ -2,7 +2,6 @@ import fs from 'fs/promises';
 import path from 'path';
 import type { File as FormidableFile } from 'formidable';
 import { CreateMediaDto } from './dto/media.dto';
-import { ModelDto } from './dto/model.dto';
 
 export class StorageService {
   constructor() {}
@@ -37,7 +36,7 @@ export class StorageService {
       filePath: newPath,
       fileMime: file.mimetype,
       fileSize: file.size,
-      model: ModelDto.fromInput({ id: userId, type: 'User' }),
+      model: { id: userId, type: 'user' },
     });
 
     return payload;

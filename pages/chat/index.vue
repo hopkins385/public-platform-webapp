@@ -11,11 +11,12 @@
   const { getRecentChatForUser } = useChat();
   const { data: chat } = await getRecentChatForUser();
 
-  if (!chat.value?.id) {
-    navigateTo('/chat/new');
-  } else {
-    navigateTo(`/chat/${chat.value.id}`);
-  }
+  onMounted(async () => {
+    if (!chat.value?.id) {
+      return await navigateTo('/assistant');
+    }
+    return await navigateTo(`/chat/${chat.value.id}`);
+  });
 </script>
 
 <template>

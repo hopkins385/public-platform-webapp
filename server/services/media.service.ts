@@ -1,6 +1,5 @@
-import { CreateMediaAbleDto } from './dto/media-able.dto';
+import { CreateMediaAbleDto, MediaAbleDto } from './dto/media-able.dto';
 import type { CreateMediaDto } from './dto/media.dto';
-import type { ModelDto } from './dto/model.dto';
 import { MediaAbleService } from './media-able.service';
 import { StorageService } from './storage.service';
 
@@ -37,6 +36,7 @@ export class MediaService {
       mediaAbleType: payload.model.type,
       role: 'owner',
     });
+
     const mediaAble =
       await this.mediaAbleService.createMediaAble(mediaAblePayload);
 
@@ -51,7 +51,7 @@ export class MediaService {
     });
   }
 
-  async findAllFor(model: ModelDto) {
+  async findAllFor(model: MediaAbleDto) {
     return this.prisma.media.findMany({
       where: {
         mediaAbles: {
@@ -65,7 +65,7 @@ export class MediaService {
     });
   }
 
-  async paginateFindAllFor(model: ModelDto, page: number) {
+  async paginateFindAllFor(model: MediaAbleDto, page: number) {
     return this.prisma.media
       .paginate({
         select: {
@@ -81,6 +81,7 @@ export class MediaService {
             some: {
               mediaAbleId: model.id,
               mediaAbleType: model.type,
+              deletedAt: null,
             },
           },
           deletedAt: null,
@@ -88,7 +89,7 @@ export class MediaService {
       })
       .withPages({
         limit: 10,
-        page: page,
+        page,
         includePageCount: true,
       });
   }
