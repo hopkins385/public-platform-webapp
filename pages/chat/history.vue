@@ -1,4 +1,13 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+  definePageMeta({
+    title: 'chat.meta.history.title',
+    breadcrumb: {
+      icon: 'chat',
+      ariaLabel: 'Chat History',
+      label: 'Chat History',
+    },
+  });
+</script>
 
 <template>
   <SectionContainer class="h-full">

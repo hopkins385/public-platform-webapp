@@ -3,6 +3,11 @@
 
   definePageMeta({
     title: 'assistant.meta.all.title',
+    breadcrumb: {
+      icon: 'users',
+      ariaLabel: 'Assistant Management',
+      label: 'Manage',
+    },
   });
 </script>
 

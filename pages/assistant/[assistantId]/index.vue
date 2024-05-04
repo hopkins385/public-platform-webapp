@@ -4,7 +4,7 @@
     breadcrumb: {
       icon: 'robot',
       ariaLabel: 'Assistant',
-      label: 'Assistant',
+      label: '...',
     },
     validate: async (route) => {
       const validator = useRouteValidation();

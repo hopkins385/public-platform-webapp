@@ -155,8 +155,8 @@ export default defineNuxtConfig({
     ],
     lazy: true,
     langDir: './locales',
-    defaultLocale: 'de',
-    strategy: 'prefix_except_default',
+    defaultLocale: 'en',
+    strategy: 'no_prefix',
     compilation: {
       strictMessage: false,
     },

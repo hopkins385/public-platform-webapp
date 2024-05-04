@@ -176,15 +176,18 @@
       scrollToBottom();
     }
   });
+
+  const chatHeader = false;
 </script>
 
 <template>
   <BoxContainer
     id="chatWrapper"
-    class="relative flex h-full flex-col px-20 py-10 lg:px-40 xl:px-60"
+    class="relative flex size-full flex-col px-10 py-10 xl:px-20"
   >
     <div
       id="chatHeader"
+      v-if="chatHeader"
       class="pointer-events-none absolute left-0 top-0 z-10 flex w-full items-center justify-between px-8 py-5"
     >
       <div class="pointer-events-auto">

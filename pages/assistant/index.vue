@@ -28,7 +28,7 @@
           <Button
             variant="outline"
             size="icon"
-            @click="navigateTo('/assistant/list')"
+            @click="navigateTo('/assistant/manage')"
           >
             <SettingsIcon class="size-4 stroke-1.5" />
           </Button>

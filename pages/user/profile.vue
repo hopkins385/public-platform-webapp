@@ -1,6 +1,11 @@
 <script setup lang="ts">
   definePageMeta({
     title: 'user.meta.title',
+    breadcrumb: {
+      icon: 'user',
+      ariaLabel: 'User Profile',
+      label: 'Profile',
+    },
   });
 
   const isLoading = ref(false);

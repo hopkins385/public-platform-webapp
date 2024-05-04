@@ -1,3 +1,5 @@
+import type { AsyncDataOptions } from '#app';
+
 export default function useChat() {
   const ac = new AbortController();
   const { $client } = useNuxtApp();
@@ -12,7 +14,7 @@ export default function useChat() {
     page = newPage;
   }
 
-  function getAllChatsForUser() {
+  function getAllChatsForUser(options: AsyncDataOptions<any> = {}) {
     return useAsyncData(async () => {
       const [chats, meta] = await $client.chat.allForUserPaginate.query(
         { page },
@@ -21,10 +23,10 @@ export default function useChat() {
         },
       );
       return { chats, meta };
-    });
+    }, options);
   }
 
-  function getChatForUser(chatId: string) {
+  function getChatForUser(chatId: string, options: AsyncDataOptions<any> = {}) {
     return useAsyncData(async () => {
       return await $client.chat.forUser.query(
         {
@@ -34,10 +36,18 @@ export default function useChat() {
           signal: ac.signal,
         },
       );
-    });
+    }, options);
   }
 
-  function deleteChat(chatId: string) {
+  function getRecentChatForUser(options: AsyncDataOptions<any> = {}) {
+    return useAsyncData(async () => {
+      return await $client.chat.recentForUser.query(undefined, {
+        signal: ac.signal,
+      });
+    }, options);
+  }
+
+  function deleteChat(chatId: string, options: AsyncDataOptions<any> = {}) {
     return useAsyncData(async () => {
       return await $client.chat.delete.query(
         { chatId },
@@ -45,12 +55,13 @@ export default function useChat() {
           signal: ac.signal,
         },
       );
-    });
+    }, options);
   }
 
   return {
     getChatForUser,
     getAllChatsForUser,
+    getRecentChatForUser,
     deleteChat,
     setPage,
   };

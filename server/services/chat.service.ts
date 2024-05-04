@@ -117,6 +117,25 @@ export class ChatService {
     });
   }
 
+  async getRecentForUser(userId: string) {
+    const chat = await this.prisma.chat.findFirst({
+      select: {
+        id: true,
+        title: true,
+        createdAt: true,
+      },
+      where: {
+        userId: userId.toLowerCase(),
+        deletedAt: null,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return chat;
+  }
+
   getAllForUserPaginate(userId: string, page: number) {
     return this.prisma.chat
       .paginate({

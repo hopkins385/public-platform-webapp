@@ -13,11 +13,12 @@ export const chatRouter = router({
       }),
     )
     .query(({ ctx, input }) => {
-      const userId = ctx.user?.id;
+      const userId = ctx.user.id;
       const assistantId = input.assistantId.toLowerCase();
 
       return chatService.create(assistantId, userId);
     }),
+
   createMessage: protectedProcedure
     .input(
       z.object({
@@ -34,9 +35,15 @@ export const chatRouter = router({
         chatMessage: input.chatMessage,
       });
     }),
-  allForUser: protectedProcedure.query(({ ctx, input }) => {
-    return chatService.getAllForUser(ctx.user?.id);
+
+  allForUser: protectedProcedure.query(({ ctx }) => {
+    return chatService.getAllForUser(ctx.user.id);
   }),
+
+  recentForUser: protectedProcedure.query(({ ctx }) => {
+    return chatService.getRecentForUser(ctx.user.id);
+  }),
+
   allForUserPaginate: protectedProcedure
     .input(
       z.object({
@@ -48,6 +55,7 @@ export const chatRouter = router({
 
       return chatService.getAllForUserPaginate(ctx.user.id, page);
     }),
+
   clearMessages: protectedProcedure
     .input(
       z.object({
@@ -57,6 +65,7 @@ export const chatRouter = router({
     .query(({ ctx, input }) => {
       return chatService.clearMessages(input.chatId.toLowerCase());
     }),
+
   forUser: protectedProcedure
     .input(
       z.object({
@@ -66,9 +75,10 @@ export const chatRouter = router({
     .query(({ ctx, input }) => {
       return chatService.getChatForUser(
         input.chatId.toLowerCase(),
-        ctx.user?.id,
+        ctx.user.id,
       );
     }),
+
   delete: protectedProcedure
     .input(
       z.object({

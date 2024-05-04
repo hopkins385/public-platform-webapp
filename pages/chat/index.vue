@@ -7,10 +7,17 @@
       label: 'Chat',
     },
   });
+
+  const { getRecentChatForUser } = useChat();
+  const { data: chat } = await getRecentChatForUser();
+
+  if (!chat.value?.id) {
+    navigateTo('/chat/new');
+  } else {
+    navigateTo(`/chat/${chat.value.id}`);
+  }
 </script>
 
 <template>
-  <SectionContainer class="h-full">
-    <ChatWindow />
-  </SectionContainer>
+  <SectionContainer class="h-full"> </SectionContainer>
 </template>

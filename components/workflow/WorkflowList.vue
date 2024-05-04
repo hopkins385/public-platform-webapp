@@ -130,7 +130,7 @@
 
 <template>
   <div class="h-screen overflow-x-scroll bg-white p-0">
-    <div class="relative grid w-fit grid-flow-col text-sm">
+    <div class="relative grid w-fit grid-flow-col text-xs">
       <div class="grid w-12" id="column_number">
         <div
           class="flex h-9 items-center justify-center border-y-2 border-l-2 font-semibold"

@@ -3,6 +3,15 @@
    * Project List - List view of all projects of the Organization
    * Route: /project/list
    */
+
+  definePageMeta({
+    title: 'project.meta.title',
+    breadcrumb: {
+      icon: 'folder',
+      ariaLabel: 'Manage',
+      label: 'Manage',
+    },
+  });
 </script>
 
 <template>

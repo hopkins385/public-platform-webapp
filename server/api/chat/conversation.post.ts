@@ -9,15 +9,13 @@ import { CreditService } from '~/server/services/credit.service';
 import { getConversationBody } from '~/server/utils/request/chatConversationBody';
 
 const config = useRuntimeConfig();
+const chatService = new ChatService();
+const assistantService = new AssistantService();
+const creditService = new CreditService();
 
 export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);
   const user = getAuthUser(session); // do not remove this line
-
-  const { prisma } = _event.context;
-  const chatService = new ChatService(prisma);
-  const assistantService = new AssistantService(prisma);
-  const creditService = new CreditService(prisma);
 
   const body = await getConversationBody(_event);
   const credit = await creditService.getCreditAmount(user.id);
@@ -39,7 +37,7 @@ export default defineEventHandler(async (_event) => {
   );
 
   try {
-    const completion = new CompletionFactory(body.model, config, prisma);
+    const completion = new CompletionFactory(body.model, config);
     const response = await completion.create({
       messages: [
         {
@@ -59,11 +57,7 @@ export default defineEventHandler(async (_event) => {
     const bufferStream = new Transform({
       objectMode: true,
       transform(chunk, _, callback) {
-        if (
-          body.model === ModelEnum.Claude3Haiku ||
-          body.model === ModelEnum.Claude3Opus ||
-          body.model === ModelEnum.Claude3Sonnet
-        ) {
+        if (body.model.startsWith('claude')) {
           const data = chunk;
           llmResponseMessage += data.delta?.text || '';
           callback(null, data.delta?.text || '');

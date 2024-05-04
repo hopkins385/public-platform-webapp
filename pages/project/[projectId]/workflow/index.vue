@@ -4,7 +4,7 @@
     breadcrumb: {
       icon: 'folders',
       ariaLabel: 'Workflows',
-      label: 'Workflows',
+      label: '...',
     },
     validate: async (route) => {
       const validator = useRouteValidation();

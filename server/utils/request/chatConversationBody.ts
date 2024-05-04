@@ -1,15 +1,13 @@
 import { z } from 'zod';
 import type { H3Event } from 'h3';
-import { ModelEnum } from '~/server/utils/enums/modelEnum';
 
 const mMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
   content: z.string().min(1),
 });
 
-const modelRule = z
-  .string()
-  .refine((model) => Object.values(ModelEnum).includes(model as ModelEnum));
+const modelRule = z.string();
+// .refine((model) => Object.values(ModelEnum).includes(model as ModelEnum));
 
 const bodySchema = z.object({
   messages: z.array(mMessageSchema),

@@ -11,7 +11,7 @@
     "free": true
   },
   {
-    "apiName": "llama3-70b-4096",
+    "apiName": "llama3-70b-8192",
     "displayName": "Groq Llama 3 70B",
     "provider": "groq",
     "description": "",

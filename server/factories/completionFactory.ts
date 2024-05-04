@@ -22,14 +22,10 @@ export class CompletionFactory {
   params: CompletionParams;
   llmService: LLMService;
 
-  constructor(
-    model: string,
-    config: RuntimeConfig,
-    prisma: ExtendedPrismaClient,
-  ) {
+  constructor(model: string, config: RuntimeConfig) {
     this.model = model;
     this.config = config;
-    this.llmService = new LLMService(prisma);
+    this.llmService = new LLMService();
     this.params = {
       baseURL: '',
       apiKey: '',
@@ -109,13 +105,6 @@ export class CompletionFactory {
         break;
       default:
         throw new Error('Provider not found');
-      /*
-      case ModelEnum.Local:
-        baseURL = 'http://127.0.0.1:8093/v1';
-        apiKey = '';
-        model = ModelEnum.Local;
-        break;
-        */
     }
     return { baseURL, apiKey, model, provider } as CompletionParams;
   }

@@ -1,6 +1,11 @@
 <script setup lang="ts">
   definePageMeta({
     title: 'chat.meta.index.title',
+    breadcrumb: {
+      icon: 'chat',
+      ariaLabel: 'Chat Conversation',
+      label: 'Conversation',
+    },
     validate: async (route) => {
       const validator = useRouteValidation();
       return validator.hasValidChatId(route.params);
@@ -18,13 +23,16 @@
 </script>
 
 <template>
-  <SectionContainerWithImage>
+  <div class="h-full py-10 pl-5 pr-10">
     <ErrorAlertStatic v-if="error" type="error" :message="error.message" />
-    <ChatWindow
-      v-if="chat"
-      :chat-id="chat?.id"
-      :chat-messages="chat?.messages"
-      :assistant="chat?.assistant"
-    />
-  </SectionContainerWithImage>
+    <div class="flex h-full space-x-4">
+      <ChatSideBar />
+      <ChatWindow
+        v-if="chat"
+        :chat-id="chat?.id"
+        :chat-messages="chat?.messages"
+        :assistant="chat?.assistant"
+      />
+    </div>
+  </div>
 </template>
