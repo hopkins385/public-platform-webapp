@@ -1,4 +1,5 @@
 export class CreateMediaDto {
+  readonly teamId: string;
   readonly name: string;
   readonly fileName: string;
   readonly filePath: string;
@@ -7,6 +8,7 @@ export class CreateMediaDto {
   readonly model: { id: string; type: string };
 
   constructor(
+    teamId: string,
     name: string,
     fileName: string,
     filePath: string,
@@ -14,6 +16,7 @@ export class CreateMediaDto {
     fileSize: number,
     model: { id: string; type: string },
   ) {
+    this.teamId = teamId.toLowerCase();
     this.name = name;
     this.fileName = fileName;
     this.filePath = filePath;
@@ -23,6 +26,7 @@ export class CreateMediaDto {
   }
 
   static fromInput(input: {
+    teamId: string;
     name: string;
     fileName: string;
     filePath: string;
@@ -31,6 +35,7 @@ export class CreateMediaDto {
     model: { id: string; type: string };
   }): CreateMediaDto {
     return new CreateMediaDto(
+      input.teamId,
       input.name,
       input.fileName,
       input.filePath,

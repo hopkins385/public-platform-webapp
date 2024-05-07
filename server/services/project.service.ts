@@ -30,7 +30,16 @@ export class ProjectService {
     });
   }
 
-  findMany(teamId: string, page: number = 1) {
+  findMany(teamId: string) {
+    return this.prisma.project.findMany({
+      where: {
+        teamId: teamId.toLowerCase(),
+        deletedAt: null,
+      },
+    });
+  }
+
+  findManyPaginated(teamId: string, page: number = 1) {
     return this.prisma.project
       .paginate({
         where: {

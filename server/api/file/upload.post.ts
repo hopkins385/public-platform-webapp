@@ -48,11 +48,19 @@ export default defineEventHandler(async (_event) => {
       });
     }
 
+    const medias = [];
+
     for (const file of files.clientFiles) {
-      const payload = await storageService.uploadFile(file, user.id);
+      const payload = await storageService.uploadFile(
+        file,
+        user.id,
+        user.teamId, // TODO: fix typescript error
+      );
       const media = await mediaService.create(payload);
+      medias.push(media);
     }
 
+    // return medias;
     return { success: true };
     //
   } catch (error) {

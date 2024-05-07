@@ -41,14 +41,8 @@
       <div class="flex overflow-hidden" style="height: calc(100vh - 65px)">
         <!-- Toast -->
         <Toaster position="top-right" />
-        <!-- Sidebar -->
-        <div class="p-5">
-          <div
-            class="h-full w-20 shrink-0 rounded-xl border-0 bg-white shadow-md"
-          >
-            <NavBar />
-          </div>
-        </div>
+        <!-- NavBar -->
+        <NavBar />
         <!-- Main -->
         <div class="grow overflow-scroll text-slate-800">
           <slot />

@@ -56,15 +56,23 @@ export default function useManageProjects() {
     }, options);
   }
 
-  function getAllProjects(options: AsyncDataOptions<any> = {}) {
+  function getAllProjectsPaginated(options: AsyncDataOptions<any> = {}) {
     return useAsyncData(async () => {
-      const [projects, meta] = await $client.project.all.query(
+      const [projects, meta] = await $client.project.allPaginated.query(
         { page },
         {
           signal: ac.signal,
         },
       );
       return { projects, meta };
+    }, options);
+  }
+
+  function getAllProjects(options: AsyncDataOptions<any> = {}) {
+    return useAsyncData(async () => {
+      return $client.project.all.query(undefined, {
+        signal: ac.signal,
+      });
     }, options);
   }
 
@@ -85,6 +93,7 @@ export default function useManageProjects() {
     setProjectId,
     createProject,
     getProject,
+    getAllProjectsPaginated,
     getAllProjects,
     updateProject,
   };

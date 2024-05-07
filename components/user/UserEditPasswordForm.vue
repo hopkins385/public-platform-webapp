@@ -1,19 +1,16 @@
 <script setup lang="ts">
   import { toTypedSchema } from '@vee-validate/zod';
   import { LoaderCircleIcon } from 'lucide-vue-next';
-  import { useForm } from 'vee-validate';
+  import { useForm, configure } from 'vee-validate';
   import * as z from 'zod';
 
-  const { $client } = useNuxtApp();
-
   const emit = defineEmits<{
-    success: [void];
+    closeModal: [void];
   }>();
 
   const isLoading = ref(false);
   const error = ref<string>('');
-  const { successDuration } = useAppConfig().toast;
-  const { $toast } = useNuxtApp();
+  const { $client, $toast } = useNuxtApp();
 
   const passwordFormSchema = toTypedSchema(
     z
@@ -33,6 +30,8 @@
   });
 
   const onSubmit = handleSubmit(async (values, { resetForm }) => {
+    const { successDuration } = useAppConfig().toast;
+
     isLoading.value = true;
     error.value = '';
 
@@ -42,7 +41,7 @@
         newPassword: values.newPassword,
       })
       .then(() => {
-        emit('success');
+        emit('closeModal');
         $toast.success('Success', {
           description: 'Your password has been updated', // TODO: translate
           duration: successDuration,
@@ -54,6 +53,10 @@
       .finally(() => {
         isLoading.value = false;
       });
+  });
+
+  configure({
+    validateOnBlur: false,
   });
 </script>
 
@@ -101,9 +104,17 @@
         <FormMessage />
       </FormItem>
     </FormField>
-    <div class="flex pt-3">
+    <div class="flex space-x-4 pt-3">
       <div class="w-full"></div>
-      <Button class="whitespace-nowrap" variant="ghost" :disabled="isLoading">
+      <Button
+        class="whitespace-nowrap"
+        variant="ghost"
+        :disabled="isLoading"
+        @click="emit('closeModal')"
+      >
+        Cancel
+      </Button>
+      <Button class="whitespace-nowrap" variant="outline" :disabled="isLoading">
         <LoaderCircleIcon
           v-if="isLoading"
           class="mr-2 size-4 animate-spin opacity-80"

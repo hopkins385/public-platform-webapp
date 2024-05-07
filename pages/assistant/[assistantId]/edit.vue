@@ -19,6 +19,7 @@
 
   const { successDuration, errorDuration } = useAppConfig().toast;
   const { getOneAssistant, updateAssistant } = useManageAssistants();
+  const { findAllMediaFor } = useManageMedia();
   const { $toast, $client } = useNuxtApp();
   const { assistantId } = useRoute().params;
   const { data: auth } = useAuth();
@@ -26,6 +27,10 @@
 
   const { data: assistant } = await getOneAssistant(assistantId);
   const { data: models } = await getAllModels({ lazy: true });
+  const { data: media, refresh: refreshMedia } = await findAllMediaFor({
+    type: 'assistant',
+    id: assistant.value?.id,
+  });
 
   const route = useRoute();
   route.meta.breadcrumb.label =
@@ -183,6 +188,18 @@
             <FormMessage />
           </FormItem>
         </FormField>
+
+        <div>
+          <div>Knowledge:</div>
+          <div v-if="media?.length > 0">{{ media }}</div>
+          <div v-else>
+            <MediaAddSingle
+              type="assistant"
+              :id="assistant?.id"
+              @success="() => refreshMedia()"
+            />
+          </div>
+        </div>
 
         <FormField
           v-slot="{ handleChange, value }"

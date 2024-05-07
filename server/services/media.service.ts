@@ -19,6 +19,7 @@ export class MediaService {
     const media = await this.prisma.media.create({
       data: {
         id: ULID(),
+        teamId: payload.teamId,
         name: payload.name,
         fileName: payload.fileName,
         filePath: payload.filePath,
@@ -37,8 +38,7 @@ export class MediaService {
       role: 'owner',
     });
 
-    const mediaAble =
-      await this.mediaAbleService.createMediaAble(mediaAblePayload);
+    const mediaAble = await this.mediaAbleService.attachTo(mediaAblePayload);
 
     return media;
   }

@@ -17,7 +17,7 @@
         </DialogDescription>
       </DialogHeader>
 
-      <UserEditPasswordForm @success="open = false" />
+      <UserEditPasswordForm @close-modal="open = false" />
     </DialogContent>
   </Dialog>
 </template>

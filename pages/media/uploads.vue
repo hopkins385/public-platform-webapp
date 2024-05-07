@@ -29,8 +29,7 @@
         method: 'POST',
         body: formData,
       });
-      const data = await res.json();
-      console.log(data);
+      // const data = await res.json();
       isLoading.value = false;
       refreshData.value = true;
     } catch (err) {

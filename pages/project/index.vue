@@ -17,28 +17,31 @@
 
 <template>
   <SectionContainer>
-    <BoxContainer class="w-full">
-      <div class="flex justify-between">
-        <div>
+    <Heading>
+      <template #top> </template>
+      <template #bottom>
+        <div class="ml-auto flex flex-col space-y-1 self-end px-3 pb-2 pt-14">
           <Button
+            class=""
             variant="outline"
-            size="icon"
             @click="() => navigateTo('/project/create')"
           >
-            <PlusIcon class="size-4" />
+            New Project
+            <PlusIcon class="ml-2 size-4 stroke-2" />
           </Button>
-        </div>
-        <div>
           <Button
+            class=""
             variant="outline"
-            size="icon"
             @click="() => navigateTo('/project/list')"
           >
-            <SettingsIcon class="size-4 stroke-1.5" />
+            Manage Projects
+            <SettingsIcon class="ml-2 size-4 stroke-1.5" />
           </Button>
         </div>
-      </div>
-      <div class="mt-5">
+      </template>
+    </Heading>
+    <BoxContainer class="w-full">
+      <div>
         <Suspense>
           <ProjectCardGrid />
           <template #fallback> Loading ... </template>

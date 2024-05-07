@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  navigateTo('/chat');
+  await navigateTo('/project');
 </script>
 
 <template>

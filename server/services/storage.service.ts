@@ -9,6 +9,7 @@ export class StorageService {
   async uploadFile(
     file: FormidableFile,
     userId: string,
+    teamId: string,
   ): Promise<CreateMediaDto> {
     if (!file.mimetype) {
       throw createError({
@@ -31,6 +32,7 @@ export class StorageService {
     await fs.copyFile(file.filepath, newPath);
 
     const payload = CreateMediaDto.fromInput({
+      teamId,
       name: originalFilename,
       fileName,
       filePath: newPath,

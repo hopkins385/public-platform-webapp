@@ -12,6 +12,7 @@
   const { data: auth } = useAuth();
   const { findPaginateAllMediaFor, setPage, deleteMedia } = useManageMedia();
   const { $toast } = useNuxtApp();
+  const { getFileSizeForHumans } = useForHumans();
 
   const showConfirmDialog = ref(false);
   const deleteMediaId = ref('');
@@ -113,7 +114,7 @@
           </TableCell>
           <TableCell>{{ item.name }}</TableCell>
           <TableCell>
-            {{ item.fileSize }}
+            {{ getFileSizeForHumans(item.fileSize) }}
           </TableCell>
           <TableCell class="space-x-2 text-right">
             <Button variant="outline" size="icon" @click="onDelete(item.id)">

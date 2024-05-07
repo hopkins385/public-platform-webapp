@@ -1,5 +1,5 @@
-import { mediaAbleRule } from './../../utils/validation/media-able.rule';
-import { MediaService } from './../../services/media.service';
+import { mediaAbleRule } from '~/server/utils/validation/media-able.rule';
+import { MediaService } from '~/server/services/media.service';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { MediaAbleDto } from '~/server/services/dto/media-able.dto';

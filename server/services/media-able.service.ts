@@ -1,4 +1,9 @@
-import type { CreateMediaAbleDto, MediaAbleDto } from './dto/media-able.dto';
+import type {
+  AttachMediaAbleDto,
+  CreateMediaAbleDto,
+  DetachMediaAbleDto,
+  MediaAbleDto,
+} from './dto/media-able.dto';
 
 export class MediaAbleService {
   private readonly prisma: ExtendedPrismaClient;
@@ -8,7 +13,19 @@ export class MediaAbleService {
     this.prisma = getClient();
   }
 
-  createMediaAble(payload: CreateMediaAbleDto) {
+  // create(payload: CreateMediaAbleDto) {
+  //   return this.prisma.mediaAbles.create({
+  //     data: {
+  //       id: ULID(),
+  //       mediaId: payload.mediaId,
+  //       mediaAbleId: payload.model.id,
+  //       mediaAbleType: payload.model.type,
+  //       role: payload.role,
+  //     },
+  //   });
+  // }
+
+  attachTo(payload: AttachMediaAbleDto) {
     return this.prisma.mediaAbles.create({
       data: {
         id: ULID(),
@@ -17,6 +34,18 @@ export class MediaAbleService {
         mediaAbleType: payload.model.type,
         role: payload.role,
       },
+    });
+  }
+
+  attachManyTo(payload: AttachMediaAbleDto[]) {
+    return this.prisma.mediaAbles.createMany({
+      data: payload.map((item) => ({
+        id: ULID(),
+        mediaId: item.mediaId,
+        mediaAbleId: item.model.id,
+        mediaAbleType: item.model.type,
+        role: item.role,
+      })),
     });
   }
 
@@ -43,6 +72,25 @@ export class MediaAbleService {
     });
 
     return mediaAbles;
+  }
+
+  async detachFrom(payload: DetachMediaAbleDto) {
+    // 1. find the mediaAble based on the mediaAbleId
+    const mediaAble = await this.prisma.mediaAbles.findFirst({
+      select: {
+        id: true,
+      },
+      where: {
+        mediaAbleId: payload.model.id,
+        mediaAbleType: payload.model.type,
+      },
+    });
+    // 2. delete the mediaAble
+    return await this.prisma.mediaAbles.delete({
+      where: {
+        id: mediaAble?.id,
+      },
+    });
   }
 
   softDelete(id: string) {

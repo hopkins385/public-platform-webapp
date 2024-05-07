@@ -63,7 +63,7 @@
 <template>
   <div
     ref="stepCardRef"
-    class="w-96 rounded-2xl border bg-white px-4 py-2 text-sm shadow-md"
+    class="w-96 rounded-2xl border bg-white px-4 py-2 text-xs shadow-md"
   >
     <div class="flex flex-col">
       <form @submit.prevent="submitForm">
@@ -71,7 +71,7 @@
           ref="inputRef"
           type="text"
           v-model="workflowStepName"
-          class="w-full border-0 py-2 text-sm outline-0"
+          class="w-full border-0 py-2 text-xs outline-0"
         />
       </form>
       <hr class="-mx-4 mb-3 mt-1" />
@@ -107,11 +107,11 @@
           name="bio"
         >
           <FormItem>
-            <FormLabel>System Prompt</FormLabel>
+            <FormLabel class="text-xs">System Prompt</FormLabel>
             <FormControl>
               <Textarea
                 placeholder="Please set an assistant"
-                class="resize-none"
+                class="resize-none text-xs"
                 v-bind="componentField"
               />
             </FormControl>

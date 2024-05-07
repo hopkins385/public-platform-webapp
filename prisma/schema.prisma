@@ -94,15 +94,17 @@ model Organisation {
 }
 
 model Team {
-  id             String      @id
-  organisationId String      @map("organisation_id")
+  id             String       @id
+  organisationId String       @unique @map("organisation_id")
   name           String
-  createdAt      DateTime    @default(now()) @map("created_at")
-  updatedAt      DateTime    @updatedAt @map("updated_at")
-  deletedAt      DateTime?   @map("deleted_at")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  deletedAt      DateTime?    @map("deleted_at")
   projects       Project[]
   users          TeamUser[]
   assistants     Assistant[]
+  collections    Collection[]
+  medias         Media[]
 
   organisation Organisation @relation(fields: [organisationId], references: [id])
 
@@ -233,6 +235,7 @@ enum chat_messages_role_enum {
 model Media {
   id         String       @id
   name       String
+  teamId     String       @unique @map("team_id")
   fileName   String       @map("file_name")
   filePath   String       @map("file_path")
   fileMime   String       @map("file_mime")
@@ -241,6 +244,8 @@ model Media {
   updatedAt  DateTime     @updatedAt @map("updated_at")
   deletedAt  DateTime?    @map("deleted_at")
   mediaAbles MediaAbles[]
+
+  team Team @relation(fields: [teamId], references: [id])
 
   @@map("medias")
 }
@@ -264,6 +269,20 @@ model MediaAbles {
   @@map("media_ables")
 }
 
+// Vector Embedding Collections
+model Collection {
+  id             String    @id
+  teamId         String    @unique @map("team_id")
+  collectionName String    @map("collection_name")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  team Team @relation(fields: [teamId], references: [id])
+
+  @@map("collections")
+}
+
 // Project, Documents, Requirements, and Workflows
 
 model Project {
@@ -284,7 +303,6 @@ model Project {
 
 model Document {
   id            String         @id
-  project       Project        @relation(fields: [projectId], references: [id])
   projectId     String         @map("project_id")
   name          String
   description   String?
@@ -293,6 +311,8 @@ model Document {
   deletedAt     DateTime?      @map("deleted_at")
   documentItems DocumentItem[]
   workflowSteps WorkflowStep[]
+
+  project Project @relation(fields: [projectId], references: [id])
 
   @@map("documents")
 }

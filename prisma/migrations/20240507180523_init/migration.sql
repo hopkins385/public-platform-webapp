@@ -172,6 +172,7 @@ CREATE TABLE "credits" (
 CREATE TABLE "medias" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "team_id" TEXT NOT NULL,
     "file_name" TEXT NOT NULL,
     "file_path" TEXT NOT NULL,
     "file_mime" TEXT NOT NULL,
@@ -196,6 +197,18 @@ CREATE TABLE "media_ables" (
     "deleted_at" TIMESTAMP(3),
 
     CONSTRAINT "media_ables_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "collections" (
+    "id" TEXT NOT NULL,
+    "team_id" TEXT NOT NULL,
+    "collection_name" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "deleted_at" TIMESTAMP(3),
+
+    CONSTRAINT "collections_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -243,7 +256,7 @@ CREATE TABLE "document_items" (
 CREATE TABLE "document_item_ables" (
     "id" TEXT NOT NULL,
     "document_item_id" TEXT NOT NULL,
-    "model_type" TEXT NOT NULL,
+    "model_type" SMALLINT NOT NULL,
     "model_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -269,7 +282,7 @@ CREATE TABLE "workflows" (
 CREATE TABLE "workflow_ables" (
     "id" TEXT NOT NULL,
     "workflow_id" TEXT NOT NULL,
-    "model_type" TEXT NOT NULL,
+    "model_type" SMALLINT NOT NULL,
     "model_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -298,7 +311,7 @@ CREATE TABLE "workflow_steps" (
 CREATE TABLE "workflow_step_ables" (
     "id" TEXT NOT NULL,
     "workflow_step_id" TEXT NOT NULL,
-    "model_type" TEXT NOT NULL,
+    "model_type" SMALLINT NOT NULL,
     "model_id" TEXT NOT NULL,
     "order_column" SMALLINT,
     "role" TEXT NOT NULL,
@@ -319,7 +332,16 @@ CREATE UNIQUE INDEX "users_device_id_email_key" ON "users"("device_id", "email")
 CREATE UNIQUE INDEX "sessions_session_token_key" ON "sessions"("session_token");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "teams_organisation_id_key" ON "teams"("organisation_id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "credits_user_id_key" ON "credits"("user_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "medias_team_id_key" ON "medias"("team_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "collections_team_id_key" ON "collections"("team_id");
 
 -- AddForeignKey
 ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -355,7 +377,13 @@ ALTER TABLE "assistants" ADD CONSTRAINT "assistants_llm_id_fkey" FOREIGN KEY ("l
 ALTER TABLE "credits" ADD CONSTRAINT "credits_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "medias" ADD CONSTRAINT "medias_team_id_fkey" FOREIGN KEY ("team_id") REFERENCES "teams"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "media_ables" ADD CONSTRAINT "media_ables_media_id_fkey" FOREIGN KEY ("media_id") REFERENCES "medias"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "collections" ADD CONSTRAINT "collections_team_id_fkey" FOREIGN KEY ("team_id") REFERENCES "teams"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "projects" ADD CONSTRAINT "projects_team_id_fkey" FOREIGN KEY ("team_id") REFERENCES "teams"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

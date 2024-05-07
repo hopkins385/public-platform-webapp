@@ -66,10 +66,52 @@ export default function useManageMedia() {
     );
   }
 
+  async function uploadManyFiles(files: File[]) {
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append('clientFiles', file);
+    });
+    try {
+      const success = await $fetch('/api/file/upload', {
+        method: 'POST',
+        body: formData,
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function uploadMediaFile(file: File, model: { id: string; type: any }) {
+    const formData = new FormData();
+    formData.append('clientFiles', file);
+
+    throw new Error('Not implemented');
+
+    /*
+
+    const success = await $fetch('/api/file/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const mediaAble = await $client.mediaAble.attachTo.mutate(
+      {
+        mediaId: files[0]?.id,
+        model,
+      },
+      {
+        signal: ac.signal,
+      },
+    );
+    */
+  }
+
   return {
     setPage,
     findAllMediaFor,
     findPaginateAllMediaFor,
     deleteMedia,
+    uploadManyFiles,
+    uploadMediaFile,
   };
 }

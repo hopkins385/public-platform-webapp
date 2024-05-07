@@ -18,7 +18,7 @@
 
 <template>
   <div class="flex size-full items-center justify-between">
-    <div class="flex items-center justify-center pl-11">
+    <div class="flex items-center justify-center pl-7">
       <NuxtLink href="/">
         <div class="flex size-8 flex-col items-center justify-center">
           <span class="opacity-95">

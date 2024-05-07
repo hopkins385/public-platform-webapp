@@ -29,7 +29,7 @@
         <BreadcrumbItem>
           <NuxtLink
             :to="link?.path"
-            class="flex items-center justify-center text-xs transition-colors hover:text-foreground"
+            class="flex items-center justify-center text-sm transition-colors hover:text-foreground"
           >
             <span v-if="link?.icon">
               <component :is="getIcon(link?.icon)" class="size-4 stroke-2" />

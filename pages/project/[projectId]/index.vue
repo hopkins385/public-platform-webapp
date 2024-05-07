@@ -36,7 +36,21 @@
 
 <template>
   <SectionContainer>
-    <BoxContainer class="-mt-0 mb-4 py-5 text-muted-foreground">
+    <Heading>
+      <template #top> </template>
+      <template #bottom>
+        <div class="ml-auto flex flex-col space-y-1 self-end px-3 pb-2 pt-14">
+          <Button
+            variant="outline"
+            @click="() => navigateTo(`/project/${projectId}/workflow/create`)"
+          >
+            New Workflow
+            <PlusIcon class="ml-2 size-4 stroke-2" />
+          </Button>
+        </div>
+      </template>
+    </Heading>
+    <BoxContainer class="mb-4 py-5 text-muted-foreground">
       <div class="text-sm">
         <ul class="flex space-x-2">
           <li class="">
@@ -64,20 +78,6 @@
       </div>
     </BoxContainer>
     <BoxContainer>
-      <div class="flex justify-between pb-6">
-        <div>
-          <Button
-            variant="outline"
-            size="icon"
-            @click="() => navigateTo(`/project/${projectId}/workflow/create`)"
-          >
-            <PlusIcon class="size-4" />
-          </Button>
-        </div>
-        <div>
-          <!-- placeholder for later -->
-        </div>
-      </div>
       <Suspense>
         <WorkflowProjectTable :project-id="projectId" />
         <template #fallback>

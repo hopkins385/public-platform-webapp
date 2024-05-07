@@ -67,19 +67,23 @@ export const projectRouter = router({
       return project;
     }),
   // get all projects
-  all: protectedProcedure
+  allPaginated: protectedProcedure
     .input(
       z.object({
         page: z.number().default(1).optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
-      const projects = await projectService.findMany(
+      const projects = await projectService.findManyPaginated(
         ctx.user.teamId,
         input.page,
       );
       return projects;
     }),
+
+  all: protectedProcedure.query(async ({ ctx, input }) => {
+    return await projectService.findMany(ctx.user.teamId);
+  }),
   // update project
   update: protectedProcedure
     .input(

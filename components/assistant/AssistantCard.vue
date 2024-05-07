@@ -36,6 +36,13 @@
         />
       </Button>
     </div>
+    <div class="group absolute bottom-1 right-1 hidden group-hover:block">
+      <div
+        class="flex items-center justify-center space-x-2 rounded-xl border px-4 py-2"
+      >
+        <span class="text-sm">Start Chat</span>
+      </div>
+    </div>
     <div class="text-base font-semibold">{{ assistant.title }}</div>
     <div class="mt-4 text-sm">{{ assistant.description }}</div>
   </div>

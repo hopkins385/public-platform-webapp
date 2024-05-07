@@ -55,7 +55,7 @@ async function main() {
   const org = await prisma.organisation.create({
     data: {
       id: ulid().toLowerCase(),
-      name: 'Organisation',
+      name: 'Demo Organisation',
     },
   });
 
@@ -63,7 +63,7 @@ async function main() {
   const team = await prisma.team.create({
     data: {
       id: ulid().toLowerCase(),
-      name: 'Team',
+      name: 'Demo Team',
       organisation: { connect: { id: org.id } },
     },
   });
@@ -87,12 +87,13 @@ async function main() {
   });
 
   for (let i = 0; i < 1; i++) {
+    const projectEnding = i > 0 ? 'Nr. ' + i : '';
     // create project
     const project = await prisma.project.create({
       data: {
         id: ulid().toLowerCase(),
-        name: 'Project Nr. ' + i,
-        description: 'This is a project',
+        name: 'Demo Project ' + projectEnding,
+        description: 'This is a demo project',
         team: { connect: { id: team.id } },
       },
     });

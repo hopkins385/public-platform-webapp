@@ -5,7 +5,7 @@ export default defineNuxtConfig({
     typedPages: false,
   },
   devtools: {
-    enabled: true,
+    enabled: false,
   },
   telemetry: false,
   debug: false,
@@ -181,6 +181,10 @@ export default defineNuxtConfig({
         {
           name: 'viewport',
           content: 'width=device-width, initial-scale=1',
+        },
+        {
+          name: 'cache-control',
+          content: 'no-cache, no-store, must-revalidate',
         },
         { hid: 'robots', name: 'robots', content: 'noindex, nofollow' },
       ],

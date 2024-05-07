@@ -35,7 +35,7 @@
     <FormItem>
       <Select v-bind="componentField">
         <FormControl>
-          <SelectTrigger>
+          <SelectTrigger class="text-xs">
             <SelectValue
               class="whitespace-nowrap"
               placeholder="Set Assistant"
@@ -48,6 +48,7 @@
               v-for="assistant in assistants"
               :key="assistant?.id"
               :value="assistant?.id"
+              class="text-xs"
             >
               {{ assistant?.title }}
             </SelectItem>

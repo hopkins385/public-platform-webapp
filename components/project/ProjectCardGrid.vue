@@ -1,6 +1,6 @@
 <script setup lang="ts">
-  const { getAllProjects } = useManageProjects();
-  const { data } = await getAllProjects();
+  const { getAllProjectsPaginated } = useManageProjects();
+  const { data } = await getAllProjectsPaginated();
 
   const projects = computed(() => data.value?.projects || []);
   const meta = computed(() => data.value?.meta || '');
