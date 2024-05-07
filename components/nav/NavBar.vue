@@ -123,7 +123,7 @@
   });
 
   onClickOutside(navBarRef, () => {
-    navBarOpen.value = false;
+    // navBarOpen.value = false;
   });
 </script>
 

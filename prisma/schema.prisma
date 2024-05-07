@@ -95,7 +95,7 @@ model Organisation {
 
 model Team {
   id             String       @id
-  organisationId String       @unique @map("organisation_id")
+  organisationId String       @map("organisation_id")
   name           String
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
@@ -235,7 +235,7 @@ enum chat_messages_role_enum {
 model Media {
   id         String       @id
   name       String
-  teamId     String       @unique @map("team_id")
+  teamId     String       @map("team_id")
   fileName   String       @map("file_name")
   filePath   String       @map("file_path")
   fileMime   String       @map("file_mime")
@@ -272,7 +272,7 @@ model MediaAbles {
 // Vector Embedding Collections
 model Collection {
   id             String    @id
-  teamId         String    @unique @map("team_id")
+  teamId         String    @map("team_id")
   collectionName String    @map("collection_name")
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")

@@ -122,8 +122,19 @@
   // listen for esc key
   useEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopImmediatePropagation();
       showStepCard.value = false;
       showItemCard.value = false;
+    }
+  });
+
+  useEventListener('keyup', (e) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      // showStepCard.value = false;
+      // showItemCard.value = false;
     }
   });
 </script>

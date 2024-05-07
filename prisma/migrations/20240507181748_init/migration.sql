@@ -332,16 +332,7 @@ CREATE UNIQUE INDEX "users_device_id_email_key" ON "users"("device_id", "email")
 CREATE UNIQUE INDEX "sessions_session_token_key" ON "sessions"("session_token");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "teams_organisation_id_key" ON "teams"("organisation_id");
-
--- CreateIndex
 CREATE UNIQUE INDEX "credits_user_id_key" ON "credits"("user_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "medias_team_id_key" ON "medias"("team_id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "collections_team_id_key" ON "collections"("team_id");
 
 -- AddForeignKey
 ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -13,10 +13,18 @@
   const filterProjectId = ref<string | undefined>(undefined);
 
   const { getAllWorkflowsForUser } = useManageWorkflows();
-  const { data: all } = await getAllWorkflowsForUser();
+  const { data } = await getAllWorkflowsForUser();
 
   const { getAllProjects } = useManageProjects();
   const { data: projects } = await getAllProjects({ lazy: true });
+
+  const allWorkflows = computed(() => data.value?.allWorkflows || []);
+  const meta = computed(() => {
+    return {
+      totalCount: data.value?.meta?.totalCount || 0,
+      currentPage: data.value?.meta?.currentPage || 0,
+    };
+  });
 
   function onClearProjectFilter() {
     filterProjectId.value = undefined;
@@ -58,9 +66,8 @@
       </template>
     </Heading>
     <BoxContainer>
-      <div>
-        {{ all }}
-      </div>
+      {{ allWorkflows }}
+      <WorkflowListAll :meta="meta" :workflows="allWorkflows" />
     </BoxContainer>
   </SectionContainer>
 </template>

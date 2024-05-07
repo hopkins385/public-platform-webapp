@@ -39,6 +39,9 @@
   };
 
   const onSubmit = (e: Event) => {
+    if (dropzoneFiles.value.length === 0) {
+      return;
+    }
     e.preventDefault();
     upload(dropzoneFiles.value);
   };

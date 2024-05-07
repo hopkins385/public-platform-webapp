@@ -24,15 +24,7 @@
 
   // projects
   const { getAllProjects } = useManageProjects();
-  const { data: allProjects } = await getAllProjects();
-  const projects = computed(() => {
-    return allProjects.value?.projects.map((project) => {
-      return {
-        id: project.id,
-        name: project.name,
-      };
-    });
-  });
+  const { data: projects } = await getAllProjects();
 
   const updateWorkflowSchema = toTypedSchema(
     z.object({
