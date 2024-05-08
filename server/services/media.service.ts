@@ -30,7 +30,7 @@ export class MediaService {
       },
     });
 
-    // create the mediaAble
+    // create the owner mediaAble (typically the user who uploaded the media)
     const mediaAblePayload = CreateMediaAbleDto.fromInput({
       mediaId: media.id,
       mediaAbleId: payload.model.id,
@@ -70,7 +70,11 @@ export class MediaService {
     });
   }
 
-  async paginateFindAllFor(model: MediaAbleDto, page: number) {
+  async paginateFindAllFor(
+    model: MediaAbleDto,
+    page: number,
+    limit: number = 10,
+  ) {
     return this.prisma.media
       .paginate({
         select: {
@@ -93,7 +97,7 @@ export class MediaService {
         },
       })
       .withPages({
-        limit: 10,
+        limit,
         page,
         includePageCount: true,
       });

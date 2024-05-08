@@ -14,11 +14,8 @@
 
   const { successDuration, errorDuration } = useAppConfig().toast;
   const { createAssistant } = useManageAssistants();
-  const { getAllModels } = useLLMs();
   const { $toast } = useNuxtApp();
   const { data: auth } = useAuth();
-
-  const { data: models } = await getAllModels({ lazy: true });
 
   const assistantFormSchema = toTypedSchema(
     z.object({

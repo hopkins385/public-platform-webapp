@@ -1,3 +1,4 @@
+import type { CollectionAbleDto } from './dto/collection-able.dto';
 import type { CreateCollectionDto } from './dto/collection.dto';
 
 export class CollectionService {
@@ -23,6 +24,19 @@ export class CollectionService {
 
   async findFirst(teamId: string, collectionId: string) {
     return this.prisma.collection.findFirst({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        records: {
+          select: {
+            id: true,
+          },
+          where: {
+            deletedAt: null,
+          },
+        },
+      },
       where: {
         id: collectionId.toLowerCase(),
         teamId: teamId.toLowerCase(),
@@ -78,6 +92,24 @@ export class CollectionService {
         page: Number(page),
         includePageCount: true,
       });
+  }
+
+  async findAllFor(model: CollectionAbleDto) {
+    return this.prisma.collection.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+      where: {
+        collectionAbles: {
+          some: {
+            collectionAbleId: model.id,
+            collectionAbleType: model.type,
+          },
+        },
+        deletedAt: null,
+      },
+    });
   }
 
   async findMany(teamId: string) {

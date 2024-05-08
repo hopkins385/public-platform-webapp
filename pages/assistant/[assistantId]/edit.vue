@@ -2,7 +2,6 @@
   import { toTypedSchema } from '@vee-validate/zod';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
-  import { useDebounceFn } from '@vueuse/core';
 
   definePageMeta({
     title: 'assistant.meta.edit.title',
@@ -17,23 +16,26 @@
     },
   });
 
-  const { successDuration, errorDuration } = useAppConfig().toast;
-  const { getOneAssistant, updateAssistant } = useManageAssistants();
-  const { $toast, $client } = useNuxtApp();
   const { assistantId } = useRoute().params;
   const { data: auth } = useAuth();
 
+  const { getOneAssistant, updateAssistant } = useManageAssistants();
   const { data: assistant, refresh } = await getOneAssistant(assistantId);
 
-  //  const { findAllMediaFor } = useManageMedia();
-  // const { data: media, refresh: refreshMedia } = await findAllMediaFor({
-  //   type: 'assistant',
-  //   id: assistant.value?.id,
-  // });
+  const { findAllFor } = useManageCollections();
+  const { data: collections, refresh: refreshCollections } = await findAllFor(
+    {
+      type: 'assistant',
+      id: assistantId,
+    },
+    { lazy: true },
+  );
 
   const route = useRoute();
   route.meta.breadcrumb.label =
     'Update - ' + assistant.value?.title || 'Assistant';
+
+  const systemPrompt = ref(assistant.value?.systemPrompt);
 
   const assistantFormSchema = toTypedSchema(
     z.object({
@@ -59,6 +61,8 @@
   });
 
   const onSubmit = handleSubmit(async (values, { resetForm }) => {
+    const { successDuration, errorDuration } = useAppConfig().toast;
+    const { $toast } = useNuxtApp();
     try {
       if (!assistant.value) {
         throw new Error('Assistant not found');
@@ -80,21 +84,6 @@
       });
     }
   });
-  const systemPrompt = ref(assistant.value?.systemPrompt);
-
-  // const tokenCount = ref(0);
-  // const getTokenCount = useDebounceFn(async () => {
-  //   const data = await $client.tokenizer.getTokens.query({
-  //     content: systemPrompt.value || '',
-  //   });
-  //   tokenCount.value = data.tokenCount;
-  // }, 250);
-
-  // onBeforeMount(async () => {
-  //   await getTokenCount();
-  // });
-
-  const showLargeLangModal = ref(false);
 </script>
 
 <template>
@@ -110,6 +99,10 @@
             <FormLabel>
               {{ $t('Title') }}
             </FormLabel>
+            <FormDescription>
+              This is the title of the assistant that will be displayed to the
+              user.
+            </FormDescription>
             <FormControl>
               <Input
                 type="text"
@@ -117,10 +110,6 @@
                 v-bind="componentField"
               />
             </FormControl>
-            <FormDescription>
-              This is the title of the assistant that will be displayed to the
-              user.
-            </FormDescription>
             <FormMessage />
           </FormItem>
         </FormField>
@@ -130,6 +119,10 @@
             <FormLabel>
               {{ $t('Description') }}
             </FormLabel>
+            <FormDescription>
+              This is the description of the assistant that will be displayed to
+              the user.
+            </FormDescription>
             <FormControl>
               <Input
                 type="text"
@@ -137,10 +130,6 @@
                 v-bind="componentField"
               />
             </FormControl>
-            <FormDescription>
-              This is the description of the assistant that will be displayed to
-              the user.
-            </FormDescription>
             <FormMessage />
           </FormItem>
         </FormField>
@@ -172,19 +161,29 @@
             <FormLabel>
               {{ $t('assistant.form.systemPrompt.label') }}
             </FormLabel>
-            <FormControl>
-              <Textarea v-bind="componentField" />
-            </FormControl>
             <FormDescription>
               {{ $t('assistant.form.systemPrompt.description') }}
             </FormDescription>
+            <FormControl>
+              <Textarea v-bind="componentField" />
+            </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
 
-        <div>
-          <div>Knowledge:</div>
-        </div>
+        <FormField v-slot="{ handleChange, value }" name="">
+          <FormItem>
+            <FormLabel>Knowledge Collection (RAG)</FormLabel>
+            <FormDescription>
+              This is the knowledge collection that will be used by the
+              assistant.
+            </FormDescription>
+            <FormControl>
+              <div>{{ collections }}</div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        </FormField>
 
         <FormField
           v-slot="{ handleChange, value }"
@@ -193,13 +192,13 @@
         >
           <FormItem>
             <FormLabel>Shared</FormLabel>
-            <FormControl>
-              <Switch :checked="value" @update:checked="handleChange" />
-            </FormControl>
             <FormDescription>
               If the assistant is shared, it will be available to your whole
               organization.
             </FormDescription>
+            <FormControl>
+              <Switch :checked="value" @update:checked="handleChange" />
+            </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>

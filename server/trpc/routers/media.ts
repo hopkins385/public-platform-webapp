@@ -33,12 +33,13 @@ export const mediaRouter = router({
       z.object({
         model: mediaAbleRule(),
         page: z.number().default(1),
+        limit: z.number().default(10).optional(),
       }),
     )
     .query(async ({ input }) => {
-      const { page, model } = input;
+      const { limit, page, model } = input;
       const payload = MediaAbleDto.fromInput(model);
-      return mediaService.paginateFindAllFor(payload, page);
+      return mediaService.paginateFindAllFor(payload, page, limit);
     }),
 
   delete: protectedProcedure

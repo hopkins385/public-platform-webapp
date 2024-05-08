@@ -2,6 +2,8 @@ import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { CreateCollectionDto } from '~/server/services/dto/collection.dto';
 import { CollectionService } from '~/server/services/collection.service';
+import { collectionAbleRule } from '~/server/utils/validation/collection-able.rule';
+import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
 
 const collectionService = new CollectionService();
 
@@ -40,6 +42,17 @@ export const collectionRouter = router({
     .input(z.object({ page: z.number().int().positive().default(1) }))
     .query(async ({ input, ctx }) => {
       return collectionService.findAllPaginated(ctx.user.teamId, input.page);
+    }),
+
+  findAllFor: protectedProcedure
+    .input(
+      z.object({
+        model: collectionAbleRule(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const payload = CollectionAbleDto.fromInput(input.model);
+      return collectionService.findAllFor(payload);
     }),
 
   update: protectedProcedure

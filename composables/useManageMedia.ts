@@ -13,6 +13,7 @@ export default function useManageMedia() {
   const ac = new AbortController();
 
   let page: number = 1;
+  let limit: number = 10;
 
   onScopeDispose(() => {
     ac.abort();
@@ -20,6 +21,10 @@ export default function useManageMedia() {
 
   function setPage(p: number) {
     page = p;
+  }
+
+  function setLimit(l: number) {
+    limit = l;
   }
 
   function findAllMediaFor(
@@ -54,7 +59,7 @@ export default function useManageMedia() {
       `allMediaPaginatedFor:${JSON.stringify(model)}`,
       async () => {
         const [media, meta] = await $client.media.paginateFindAllFor.query(
-          { model, page },
+          { model, limit, page },
           {
             signal: ac.signal,
           },
@@ -116,6 +121,7 @@ export default function useManageMedia() {
 
   return {
     setPage,
+    setLimit,
     findAllMediaFor,
     findPaginateAllMediaFor,
     deleteMedia,

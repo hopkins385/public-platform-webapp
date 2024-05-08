@@ -50,16 +50,14 @@
     <Dialog v-model:open="open">
       <DialogTrigger as-child>
         <Button variant="outline" size="icon">
-          <SettingsIcon
-            class="size-4 text-slate-500 group-hover:text-slate-900"
-          />
+          <SettingsIcon class="size-4 stroke-1.5" />
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Change AI Model</DialogTitle>
+          <DialogTitle>AI Model</DialogTitle>
           <DialogDescription>
-            Choose a different AI model for this assistant.
+            This is a list of all available Large Language Models.
           </DialogDescription>
         </DialogHeader>
         <div v-if="pending">Loading...</div>
@@ -79,7 +77,7 @@
         </div>
 
         <DialogFooter>
-          <Button variant="ghost">Cancel</Button>
+          <Button variant="ghost" @click="open = false">Cancel</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { SettingsIcon } from 'lucide-vue-next';
+  import { PlusIcon, SettingsIcon } from 'lucide-vue-next';
 
   /**
    * Collection Index - Show a collection
@@ -35,19 +35,22 @@
       <template #bottom>
         <div class="flex w-full justify-between px-3 pb-2 pt-14">
           <div></div>
-          <Button
-            class="self-end"
-            variant="outline"
-            @click="() => navigateTo(`/collection/${collectionId}/edit`)"
-          >
-            Collection Settings
-            <SettingsIcon class="ml-2 size-4 stroke-2" />
-          </Button>
+          <div class="flex flex-col space-y-2">
+            <RecordCreateModal :collection-id="collectionId" />
+            <Button
+              class="self-end"
+              variant="outline"
+              @click="() => navigateTo(`/collection/${collectionId}/edit`)"
+            >
+              Collection Settings
+              <SettingsIcon class="ml-2 size-4 stroke-2" />
+            </Button>
+          </div>
         </div>
       </template>
     </Heading>
     <BoxContainer>
-      <div>hw</div>
+      <div>{{ collection }}</div>
     </BoxContainer>
   </SectionContainer>
 </template>

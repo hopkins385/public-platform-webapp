@@ -9,6 +9,10 @@ export default defineNuxtConfig({
   },
   telemetry: false,
   debug: false,
+  sourcemap: isDevelopment,
+  typescript: {
+    shim: false,
+  },
   modules: [
     '@nuxtjs/tailwindcss',
     'shadcn-nuxt',
@@ -92,12 +96,8 @@ export default defineNuxtConfig({
   build: {
     transpile: ['trpc-nuxt', 'vue-sonner'],
   },
-  sourcemap: isDevelopment,
   imports: {
     dirs: ['stores'],
-  },
-  typescript: {
-    shim: false,
   },
   auth: {
     globalAppMiddleware: true,
@@ -137,6 +137,12 @@ export default defineNuxtConfig({
   },
   veeValidate: {
     autoImports: false,
+  },
+  piniaPersistedstate: {
+    cookieOptions: {
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: 'lax',
+    },
   },
   i18n: {
     locales: [

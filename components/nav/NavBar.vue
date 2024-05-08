@@ -1,27 +1,24 @@
 <script setup lang="ts">
-  import { onClickOutside } from '@vueuse/core';
+  import { useMousePressed } from '@vueuse/core';
   import {
-    UserIcon,
     BotIcon,
     MessagesSquareIcon,
     PenLineIcon,
     ArchiveIcon,
     HomeIcon,
-    FoldersIcon,
     FileTextIcon,
-    UploadIcon,
     FolderIcon,
     WorkflowIcon,
     DatabaseIcon,
-    LibraryIcon,
-    SquareLibraryIcon,
     CloudUploadIcon,
-    Layers3Icon,
     LayersIcon,
+    ChevronRightIcon,
   } from 'lucide-vue-next';
 
   const navBarRef = ref(null);
-  const navBarOpen = ref(true);
+  const navBarResizerRef = ref(null);
+
+  const navBar = useNavBarStore();
 
   const { getAllProjects } = useManageProjects();
   const { data: projects } = await getAllProjects({
@@ -122,18 +119,41 @@
     ];
   });
 
-  onClickOutside(navBarRef, () => {
-    // navBarOpen.value = false;
+  const { pressed } = useMousePressed({ target: navBarResizerRef });
+
+  watch(pressed, (isPressed) => {
+    if (isPressed && navBar.isOpen) {
+      addEventListener('mousemove', navBar.setWidth);
+    } else {
+      removeEventListener('mousemove', navBar.setWidth);
+    }
   });
 </script>
 
 <template>
   <div
     ref="navBarRef"
-    class="h-full shrink-0 border-0 bg-white shadow-md"
-    :class="navBarOpen ? 'w-60' : 'w-20'"
-    @click="navBarOpen = true"
+    class="relative h-full shrink-0 border-0 bg-white shadow-md"
+    :style="{ width: `${navBar.width}rem` }"
   >
+    <div
+      class="absolute -right-3 top-3 z-10 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border bg-white opacity-80 shadow-sm"
+      @click="() => navBar.toggleOpen()"
+    >
+      <ChevronRightIcon
+        class="size-3"
+        :class="{ 'rotate-180 transform': navBar.isOpen }"
+      />
+    </div>
+    <div
+      ref="navBarResizerRef"
+      class="absolute right-0 top-0 h-full"
+      :class="{
+        'bg-blue-600': pressed && navBar.isOpen,
+        'cursor-move hover:bg-blue-600': navBar.isOpen,
+      }"
+      style="width: 0.25rem"
+    ></div>
     <div class="flex h-full flex-col">
       <ul class="space-y-4 pt-8 text-muted-foreground">
         <template v-for="(item, index) in navItems" :key="index">
@@ -141,8 +161,8 @@
             class="nav-item"
             v-if="!item.hidden"
             :class="{
-              'pl-7': !navBarOpen,
-              'pl-10': navBarOpen,
+              'pl-7': !navBar.isOpen,
+              'pl-10': navBar.isOpen,
             }"
           >
             <NavLink
@@ -150,11 +170,11 @@
               :to="item.to"
               :icon="item.icon"
               :label="item.label"
-              :label-visible="navBarOpen"
+              :label-visible="navBar.isOpen"
             />
             <ul
               v-if="item.children.length > 0"
-              :class="navBarOpen ? 'block' : 'hidden'"
+              :class="navBar.isOpen ? 'block' : 'hidden'"
             >
               <li
                 class="nav-item-child"
@@ -166,7 +186,7 @@
                   :to="child.to"
                   :icon="child.icon"
                   :label="child.label"
-                  :label-visible="navBarOpen"
+                  :label-visible="navBar.isOpen"
                 />
               </li>
             </ul>

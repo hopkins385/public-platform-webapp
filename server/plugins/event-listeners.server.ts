@@ -3,7 +3,7 @@ import { UserService } from '../services/user.service';
 import { eventEmitter } from '../utils/events';
 import { consola } from 'consola';
 
-const logger = consola.create({}).withTag('events');
+const logger = consola.create({}).withTag('event');
 
 export default defineNitroPlugin((nitroApp) => {
   const { getSocketServer } = useSocketServer();
@@ -21,7 +21,7 @@ export default defineNitroPlugin((nitroApp) => {
       lastLoginAt: new Date(),
     });
     await userService.updateLastLogin(payload);
-    logger.info('user logged in', user);
+    // logger.info('user logged in', user);
   });
 
   eventEmitter.on('RowCompleted', async (data) => {

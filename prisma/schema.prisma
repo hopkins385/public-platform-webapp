@@ -272,20 +272,40 @@ model MediaAbles {
 
 // Vector Embedding Collections
 model Collection {
-  id          String    @id
-  teamId      String    @map("team_id")
-  llmId       String?   @map("model_id")
-  name        String    @map("name")
-  description String?   @map("description")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  deletedAt   DateTime? @map("deleted_at")
-  records     Record[]
+  id              String           @id
+  teamId          String           @map("team_id")
+  llmId           String?          @map("model_id")
+  name            String           @map("name")
+  description     String?          @map("description")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  deletedAt       DateTime?        @map("deleted_at")
+  records         Record[]
+  collectionAbles CollectionAble[]
 
   team Team            @relation(fields: [teamId], references: [id])
   llm  LargeLangModel? @relation(fields: [llmId], references: [id])
 
   @@map("collections")
+}
+
+// A CollectionAble is a polymorphic relationship between Collection and other models
+// A CollectionAble can belong to multiple models
+// e.g. A CollectionAble might be "attached to" an Assistant and a User
+model CollectionAble {
+  id                 String    @id
+  collectionId       String    @map("collection_id")
+  collectionAbleType Int       @map("collectionable_type") @db.SmallInt
+  collectionAbleId   String    @map("collectionable_id")
+  role               String?
+  orderColumn        Int?      @map("order_column") @db.SmallInt
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  deletedAt          DateTime? @map("deleted_at")
+
+  collection Collection @relation(fields: [collectionId], references: [id])
+
+  @@map("collection_ables")
 }
 
 model Record {

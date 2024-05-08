@@ -1,3 +1,4 @@
+import type { AsyncDataOptions } from '#app';
 import { set } from 'zod';
 
 interface ICreateCollection {
@@ -68,6 +69,27 @@ export default function useManageCollections() {
     });
   }
 
+  function findAllFor(
+    model: {
+      id: string;
+      type: any;
+    },
+    options: AsyncDataOptions<any> = {},
+  ) {
+    return useAsyncData(
+      `allCollectionsFor:${JSON.stringify(model)}`,
+      async () => {
+        return await $client.collection.findAllFor.query(
+          { model },
+          {
+            signal: ac.signal,
+          },
+        );
+      },
+      options,
+    );
+  }
+
   function deleteCollection(id: string) {
     setCollectionId(id);
     return $client.collection.delete.mutate(
@@ -84,6 +106,7 @@ export default function useManageCollections() {
     createCollection,
     findAll,
     findAllPaginated,
+    findAllFor,
     findFirst,
     deleteCollection,
   };
