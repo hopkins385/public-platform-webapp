@@ -178,20 +178,21 @@ model Assistant {
 }
 
 model LargeLangModel {
-  id          String      @id
-  apiName     String      @map("api_name")
-  displayName String      @map("display_name")
+  id          String       @id
+  apiName     String       @map("api_name")
+  displayName String       @map("display_name")
   description String
   provider    String
-  contextSize Int         @map("context_size")
-  maxTokens   Int         @map("max_tokens")
-  multiModal  Boolean     @default(false) @map("multi_modal")
-  hidden      Boolean     @default(false)
-  free        Boolean     @default(false)
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
-  deletedAt   DateTime?   @map("deleted_at")
+  contextSize Int          @map("context_size")
+  maxTokens   Int          @map("max_tokens")
+  multiModal  Boolean      @default(false) @map("multi_modal")
+  hidden      Boolean      @default(false)
+  free        Boolean      @default(false)
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  deletedAt   DateTime?    @map("deleted_at")
   assistants  Assistant[]
+  Collection  Collection[]
 
   @@map("llms")
 }
@@ -271,16 +272,47 @@ model MediaAbles {
 
 // Vector Embedding Collections
 model Collection {
-  id             String    @id
-  teamId         String    @map("team_id")
-  collectionName String    @map("collection_name")
-  createdAt      DateTime  @default(now()) @map("created_at")
-  updatedAt      DateTime  @updatedAt @map("updated_at")
-  deletedAt      DateTime? @map("deleted_at")
+  id          String    @id
+  teamId      String    @map("team_id")
+  llmId       String?   @map("model_id")
+  name        String    @map("name")
+  description String?   @map("description")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+  records     Record[]
 
-  team Team @relation(fields: [teamId], references: [id])
+  team Team            @relation(fields: [teamId], references: [id])
+  llm  LargeLangModel? @relation(fields: [llmId], references: [id])
 
   @@map("collections")
+}
+
+model Record {
+  id           String    @id
+  collectionId String    @map("collection_id")
+  mediaId      String?   @map("media_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+  chunks       Chunk[]
+
+  collection Collection @relation(fields: [collectionId], references: [id])
+
+  @@map("records")
+}
+
+model Chunk {
+  id        String    @id
+  recordId  String    @map("record_id")
+  content   String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  record Record @relation(fields: [recordId], references: [id])
+
+  @@map("chunks")
 }
 
 // Project, Documents, Requirements, and Workflows

@@ -45,35 +45,47 @@ export default function useManageProjects() {
     options: AsyncDataOptions<any> = {},
   ) {
     setProjectId(id);
-    return useAsyncData(async () => {
-      const project = await $client.project.first.query(
-        { id: projectId },
-        {
-          signal: ac.signal,
-        },
-      );
-      return project;
-    }, options);
+    return useAsyncData(
+      `project:${projectId}`,
+      async () => {
+        const project = await $client.project.first.query(
+          { id: projectId },
+          {
+            signal: ac.signal,
+          },
+        );
+        return project;
+      },
+      options,
+    );
   }
 
   function getAllProjectsPaginated(options: AsyncDataOptions<any> = {}) {
-    return useAsyncData(async () => {
-      const [projects, meta] = await $client.project.allPaginated.query(
-        { page },
-        {
-          signal: ac.signal,
-        },
-      );
-      return { projects, meta };
-    }, options);
+    return useAsyncData(
+      'allProjectsPaginated',
+      async () => {
+        const [projects, meta] = await $client.project.allPaginated.query(
+          { page },
+          {
+            signal: ac.signal,
+          },
+        );
+        return { projects, meta };
+      },
+      options,
+    );
   }
 
   function getAllProjects(options: AsyncDataOptions<any> = {}) {
-    return useAsyncData(async () => {
-      return $client.project.all.query(undefined, {
-        signal: ac.signal,
-      });
-    }, options);
+    return useAsyncData(
+      'allProjects',
+      async () => {
+        return await $client.project.all.query(undefined, {
+          signal: ac.signal,
+        });
+      },
+      options,
+    );
   }
 
   function updateProject(payload: UpdateProjectDto) {

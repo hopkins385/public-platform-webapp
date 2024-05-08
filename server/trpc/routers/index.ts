@@ -15,11 +15,13 @@ import { workflowExecRouter } from './workflow-exec';
 import { documentItemRouter } from './document-item';
 import { mediaRouter } from './media';
 import { mediaAbleRouter } from './media-able';
+import { collectionRouter } from './collection';
 
 export const appRouter = router({
   register: registerRouter,
   llms: llmsRouter,
   chat: chatRouter,
+  collection: collectionRouter,
   embed: embedRouter,
   tokenizer: tokenizerRouter,
   assistant: assistantRouter,

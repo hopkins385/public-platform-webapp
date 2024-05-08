@@ -51,6 +51,23 @@ async function main() {
     },
   });
 
+  // create user 2
+  const user2 = await prisma.user.upsert({
+    where: { email: 'test@test.de' },
+    update: {},
+    create: {
+      id: ulid().toLowerCase(),
+      name: 'Test User',
+      firstName: 'Test',
+      lastName: 'User',
+      email: 'test@test.de',
+      password: await hashPassword('tester'),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      emailVerifiedAt: new Date(),
+    },
+  });
+
   // create organization
   const org = await prisma.organisation.create({
     data: {
@@ -68,12 +85,30 @@ async function main() {
     },
   });
 
+  // create team
+  const team2 = await prisma.team.create({
+    data: {
+      id: ulid().toLowerCase(),
+      name: 'Demo Team 2',
+      organisation: { connect: { id: org.id } },
+    },
+  });
+
   // connect user with a team
   await prisma.teamUser.create({
     data: {
       id: ulid().toLowerCase(),
       user: { connect: { id: user.id } },
       team: { connect: { id: team.id } },
+    },
+  });
+
+  // connect user 2 with a team
+  await prisma.teamUser.create({
+    data: {
+      id: ulid().toLowerCase(),
+      user: { connect: { id: user2.id } },
+      team: { connect: { id: team2.id } },
     },
   });
 

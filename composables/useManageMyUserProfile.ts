@@ -7,7 +7,7 @@ export default function useManageMyUserProfile() {
   });
 
   function getMe() {
-    return useAsyncData(async () => {
+    return useAsyncData(`userData`, async () => {
       const user = await $client.me.user.query(undefined, {
         signal: ac.signal,
       });

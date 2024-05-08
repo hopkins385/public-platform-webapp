@@ -24,13 +24,11 @@
     },
   });
 
-  const route = useRoute();
-
-  const { data: auth } = useAuth();
   const { projectId } = useRoute().params;
   const { getProject } = useManageProjects();
   const { data: projectData } = await getProject(projectId);
 
+  const route = useRoute();
   route.meta.breadcrumb.label = projectData.value?.name;
 </script>
 

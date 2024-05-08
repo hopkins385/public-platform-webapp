@@ -30,7 +30,9 @@
       </template>
     </Heading>
     <BoxContainer>
-      <div>Col</div>
+      <Suspense>
+        <CollectionTable />
+      </Suspense>
     </BoxContainer>
   </SectionContainer>
 </template>

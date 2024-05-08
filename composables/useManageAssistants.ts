@@ -43,7 +43,7 @@ export default function useManageAssistants() {
   }
 
   function getAllAssistants() {
-    return useAsyncData(async () => {
+    return useAsyncData('allAssistants', async () => {
       const [assistants, meta] = await $client.assistant.all.query(
         { page },
         {
@@ -56,7 +56,7 @@ export default function useManageAssistants() {
 
   function getOneAssistant(id: string | string[] | undefined | null) {
     setAssistantId(id);
-    return useAsyncData(async () => {
+    return useAsyncData(`assistant:${assistantId}`, async () => {
       const assistant = await $client.assistant.one.query(
         { id: assistantId },
         {

@@ -46,7 +46,7 @@ export default function useManageDocumentItems() {
 
   function getDocumentItem(documentItemId: string) {
     setDocumentItemId(documentItemId);
-    return useAsyncData(async () => {
+    return useAsyncData(`documentItem:${documentItemId}`, async () => {
       if (!documentItemId) return;
       const documentItem = await $client.documentItem.find.query(
         { documentItemId },
@@ -60,7 +60,7 @@ export default function useManageDocumentItems() {
 
   function getDocumentItems(documentId: string) {
     setDocumentId(documentId);
-    return useAsyncData(async () => {
+    return useAsyncData(`documentItems:${documentId}`, async () => {
       if (!documentId) return;
       const documentItems = await $client.documentItem.findMany.query(
         { documentId },

@@ -33,7 +33,7 @@ export default function useManageDocuments() {
   }
 
   function getAllDocuments(projectId: string | string[] | undefined | null) {
-    return useAsyncData(async () => {
+    return useAsyncData(`allDocumentsForProject:${projectId}`, async () => {
       const [documents, meta] = await $client.document.findAll.query(
         {
           projectId: projectId as string,
@@ -49,7 +49,7 @@ export default function useManageDocuments() {
 
   function getDocument(documentId: string) {
     setDocumentId(documentId);
-    return useAsyncData(async () => {
+    return useAsyncData(`document:${documentId}`, async () => {
       if (!documentId) return;
       const document = await $client.document.find.query(
         { documentId },

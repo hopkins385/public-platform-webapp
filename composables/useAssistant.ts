@@ -27,7 +27,7 @@ export default function useManageAssistants() {
   }
 
   function getAssistantDetails() {
-    return useAsyncData(async () => {
+    return useAsyncData(`assistantDetail:${assistantId}`, async () => {
       if (!assistantId) return;
       const assistant = await $client.assistant.details.query(
         { id: assistantId },

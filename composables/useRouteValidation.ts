@@ -28,6 +28,14 @@ export default function useRouteValidation() {
     return res.success;
   }
 
+  function hasValidCollectionId(params: any) {
+    const idSchema = z.object({
+      collectionId: z.string().regex(ulidRegex),
+    });
+    const res = idSchema.safeParse(params);
+    return res.success;
+  }
+
   function hasValidAssistantId(params: any) {
     const idSchema = z.object({
       assistantId: z.string().regex(ulidRegex),
@@ -61,5 +69,6 @@ export default function useRouteValidation() {
     hasValidAssistantId,
     hasValidProjectWorkflowId,
     hasValidProjectDocumentId,
+    hasValidCollectionId,
   };
 }

@@ -15,9 +15,6 @@
   const { getAllWorkflowsForUser } = useManageWorkflows();
   const { data } = await getAllWorkflowsForUser();
 
-  const { getAllProjects } = useManageProjects();
-  const { data: projects } = await getAllProjects({ lazy: true });
-
   const allWorkflows = computed(() => data.value?.allWorkflows || []);
   const meta = computed(() => {
     return {
@@ -47,7 +44,6 @@
               <ProjectSelect
                 :projectId="filterProjectId"
                 @update:projectId="onUpdateProjectFilter"
-                :projects="projects"
               />
               <Button variant="ghost" @click="onClearProjectFilter">
                 Clear Filter

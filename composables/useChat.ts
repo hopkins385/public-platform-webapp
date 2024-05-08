@@ -15,47 +15,57 @@ export default function useChat() {
   }
 
   function getAllChatsForUser(options: AsyncDataOptions<any> = {}) {
-    return useAsyncData(async () => {
-      const [chats, meta] = await $client.chat.allForUserPaginate.query(
-        { page },
-        {
-          signal: ac.signal,
-        },
-      );
-      return { chats, meta };
-    }, options);
+    return useAsyncData(
+      'allChats',
+      async () => {
+        const [chats, meta] = await $client.chat.allForUserPaginate.query(
+          { page },
+          {
+            signal: ac.signal,
+          },
+        );
+        return { chats, meta };
+      },
+      options,
+    );
   }
 
   function getChatForUser(chatId: string, options: AsyncDataOptions<any> = {}) {
-    return useAsyncData(async () => {
-      return await $client.chat.forUser.query(
-        {
-          chatId,
-        },
-        {
-          signal: ac.signal,
-        },
-      );
-    }, options);
+    return useAsyncData(
+      `chat:${chatId}`,
+      async () => {
+        return await $client.chat.forUser.query(
+          {
+            chatId,
+          },
+          {
+            signal: ac.signal,
+          },
+        );
+      },
+      options,
+    );
   }
 
   function getRecentChatForUser(options: AsyncDataOptions<any> = {}) {
-    return useAsyncData(async () => {
-      return await $client.chat.recentForUser.query(undefined, {
-        signal: ac.signal,
-      });
-    }, options);
+    return useAsyncData(
+      'recentChat',
+      async () => {
+        return await $client.chat.recentForUser.query(undefined, {
+          signal: ac.signal,
+        });
+      },
+      options,
+    );
   }
 
   function deleteChat(chatId: string, options: AsyncDataOptions<any> = {}) {
-    return useAsyncData(async () => {
-      return await $client.chat.delete.query(
-        { chatId },
-        {
-          signal: ac.signal,
-        },
-      );
-    }, options);
+    return $client.chat.delete.query(
+      { chatId },
+      {
+        signal: ac.signal,
+      },
+    );
   }
 
   return {

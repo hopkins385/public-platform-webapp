@@ -1,29 +1,29 @@
 <script setup lang="ts">
   const props = defineProps<{
     projectId: string | undefined;
-    projects: {
-      id: string;
-      name: string;
-    }[];
   }>();
 
   const emits = defineEmits<{
     'update:projectId': [string];
   }>();
 
-  const onUpdate = (value: string) => {
-    emits('update:projectId', value);
-  };
-
   const key = ref(getKey());
+
+  // get cached data
+  const { data: projects } = useNuxtData('allProjects');
+
   function getKey() {
     return +new Date();
+  }
+
+  function onUpdate(value: string) {
+    emits('update:projectId', value);
   }
 
   watch(
     () => props.projectId,
     (value) => {
-      // if modelValue is undefined, then we should clear the filter
+      // if modelValue is undefined, then we clear the filter
       if (value === undefined) {
         key.value = getKey();
       }

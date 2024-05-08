@@ -203,12 +203,38 @@ CREATE TABLE "media_ables" (
 CREATE TABLE "collections" (
     "id" TEXT NOT NULL,
     "team_id" TEXT NOT NULL,
-    "collection_name" TEXT NOT NULL,
+    "model_id" TEXT,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "deleted_at" TIMESTAMP(3),
 
     CONSTRAINT "collections_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "records" (
+    "id" TEXT NOT NULL,
+    "collection_id" TEXT NOT NULL,
+    "media_id" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "deleted_at" TIMESTAMP(3),
+
+    CONSTRAINT "records_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "chunks" (
+    "id" TEXT NOT NULL,
+    "record_id" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "deleted_at" TIMESTAMP(3),
+
+    CONSTRAINT "chunks_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -375,6 +401,15 @@ ALTER TABLE "media_ables" ADD CONSTRAINT "media_ables_media_id_fkey" FOREIGN KEY
 
 -- AddForeignKey
 ALTER TABLE "collections" ADD CONSTRAINT "collections_team_id_fkey" FOREIGN KEY ("team_id") REFERENCES "teams"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "collections" ADD CONSTRAINT "collections_model_id_fkey" FOREIGN KEY ("model_id") REFERENCES "llms"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "records" ADD CONSTRAINT "records_collection_id_fkey" FOREIGN KEY ("collection_id") REFERENCES "collections"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "chunks" ADD CONSTRAINT "chunks_record_id_fkey" FOREIGN KEY ("record_id") REFERENCES "records"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "projects" ADD CONSTRAINT "projects_team_id_fkey" FOREIGN KEY ("team_id") REFERENCES "teams"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -1,8 +1,8 @@
 <script setup lang="ts">
   import {
-    EditIcon,
     FileEditIcon,
     SettingsIcon,
+    SquareArrowOutUpRightIcon,
     Trash2Icon,
   } from 'lucide-vue-next';
 
@@ -11,54 +11,54 @@
     show: false,
     message: '',
   });
-  const deleteAssistantId = ref('');
-  const { successDuration } = useAppConfig().toast;
-  const { $toast } = useNuxtApp();
-  const { getAllAssistants, deleteAssistant, setPage } = useManageAssistants();
-  const { data, refresh } = await getAllAssistants();
-  const { data: auth } = useAuth();
+  const deleteCollectionId = ref('');
 
-  const assistants = computed(() => data.value?.assistants || []);
+  const { findAllPaginated, setPage, deleteCollection } =
+    useManageCollections();
+  const { data: allCollections, refresh } = await findAllPaginated();
+
+  const collections = computed(() => allCollections.value?.collections || []);
   const meta = computed(() => {
     return {
-      totalCount: data.value?.meta?.totalCount || 0,
-      currentPage: data.value?.meta?.currentPage || 0,
+      totalCount: allCollections.value?.meta?.totalCount || 0,
+      currentPage: allCollections.value?.meta?.currentPage || 0,
     };
   });
 
-  const onEdit = (id: string) => {
-    return navigateTo(`/assistant/${id}/edit`);
-  };
+  function onPageChange(value: number) {
+    setPage(value);
+    refresh();
+  }
 
-  const handleDelete = async () => {
-    const id = deleteAssistantId.value;
+  function onOpen(id: string) {
+    return navigateTo(`/collection/${id}`);
+  }
+
+  function onDelete(id: string) {
+    deleteCollectionId.value = id;
+    showConfirmDialog.value = true;
+  }
+
+  async function handleDelete() {
+    const { successDuration } = useAppConfig().toast;
+    const { $toast } = useNuxtApp();
     try {
-      await deleteAssistant(id, auth.value?.user.teamId);
-      deleteAssistantId.value = '';
+      await deleteCollection(deleteCollectionId.value);
+      deleteCollectionId.value = '';
       $toast.success('Success', {
-        description: 'Assistant has been deleted successfully.',
+        description: 'Collection has been deleted successfully.',
         duration: successDuration,
       });
-      refresh();
+      await refresh();
     } catch (error: any) {
       errorAlert.show = true;
       errorAlert.message = error?.message;
     }
-  };
-
-  const onDelete = (id: string) => {
-    deleteAssistantId.value = id;
-    showConfirmDialog.value = true;
-  };
-
-  const onPageChange = (value: number) => {
-    setPage(value);
-    refresh();
-  };
+  }
 </script>
 
 <template>
-  <div v-if="assistants.length > 0">
+  <div v-if="collections.length > 0">
     <ErrorAlert v-model="errorAlert.show" :message="errorAlert.message" />
     <ConfirmDialog v-model="showConfirmDialog" @confirm="handleDelete" />
 
@@ -69,7 +69,7 @@
         to
         {{
           meta.totalCount > 10
-            ? meta.currentPage * 10 - 10 + assistants.length
+            ? meta.currentPage * 10 - 10 + collections.length
             : meta.totalCount
         }}
         of total
@@ -77,34 +77,41 @@
       </TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead> Avatar </TableHead>
-          <TableHead> Title </TableHead>
-          <TableHead> Shared </TableHead>
+          <TableHead> Name </TableHead>
+          <TableHead> Description </TableHead>
+          <TableHead> Records </TableHead>
           <TableHead class="text-right"> Actions </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow
-          v-for="assistant in data?.assistants || []"
-          :key="assistant.id"
-        >
+        <TableRow v-for="collection in collections" :key="collection.id">
           <TableCell>
-            <div class="size-8 rounded-full bg-slate-200"></div>
+            {{ collection.name }}
           </TableCell>
-          <TableCell>{{ assistant.title }}</TableCell>
+          <TableCell>{{ collection.description }}</TableCell>
           <TableCell>
-            {{ assistant.isShared ? 'Shared' : 'Not Shared' }}
+            {{ collection.records.length }}
           </TableCell>
           <TableCell class="space-x-2 text-right">
-            <Button variant="outline" size="icon" @click="onEdit(assistant.id)">
-              <SettingsIcon class="size-4 stroke-1.5 text-primary" />
-            </Button>
             <Button
+              class="group"
               variant="outline"
               size="icon"
-              @click="onDelete(assistant.id)"
+              @click="onOpen(collection.id)"
             >
-              <Trash2Icon class="size-4 stroke-1.5 text-destructive" />
+              <SquareArrowOutUpRightIcon
+                class="size-4 stroke-1.5 text-primary group-hover:stroke-2"
+              />
+            </Button>
+            <Button
+              class="group"
+              variant="outline"
+              size="icon"
+              @click="onDelete(collection.id)"
+            >
+              <Trash2Icon
+                class="size-4 stroke-1.5 text-destructive group-hover:stroke-2"
+              />
             </Button>
           </TableCell>
         </TableRow>

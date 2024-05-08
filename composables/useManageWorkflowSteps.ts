@@ -52,14 +52,18 @@ export default function useManageWorkflowSteps() {
     options: AsyncDataOptions<any> = {},
   ) {
     setWorkflowStepId(id);
-    return useAsyncData(async () => {
-      return $client.workflowStep.first.query(
-        { workflowStepId },
-        {
-          signal: ac.signal,
-        },
-      );
-    }, options);
+    return useAsyncData(
+      `workflowStep:${workflowStepId}`,
+      async () => {
+        return $client.workflowStep.first.query(
+          { workflowStepId },
+          {
+            signal: ac.signal,
+          },
+        );
+      },
+      options,
+    );
   }
 
   async function getFullWorkflowStep(
@@ -67,14 +71,18 @@ export default function useManageWorkflowSteps() {
     options: AsyncDataOptions<any> = {},
   ) {
     setWorkflowStepId(id);
-    return useAsyncData(async () => {
-      return $client.workflowStep.firstWithSteps.query(
-        { workflowStepId },
-        {
-          signal: ac.signal,
-        },
-      );
-    }, options);
+    return useAsyncData(
+      `fullWorkflowStep:${workflowStepId}`,
+      async () => {
+        return $client.workflowStep.firstWithSteps.query(
+          { workflowStepId },
+          {
+            signal: ac.signal,
+          },
+        );
+      },
+      options,
+    );
   }
 
   async function updateWorkflowStep(input: IUpdateWorkflowStep) {

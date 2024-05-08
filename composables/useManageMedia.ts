@@ -29,14 +29,18 @@ export default function useManageMedia() {
     },
     options: AsyncDataOptions<any> = {},
   ) {
-    return useAsyncData(async () => {
-      return $client.media.findAllFor.query(
-        { model },
-        {
-          signal: ac.signal,
-        },
-      );
-    }, options);
+    return useAsyncData(
+      `allMediaFor:${JSON.stringify(model)}`,
+      async () => {
+        return $client.media.findAllFor.query(
+          { model },
+          {
+            signal: ac.signal,
+          },
+        );
+      },
+      options,
+    );
   }
 
   function findPaginateAllMediaFor(
@@ -46,15 +50,19 @@ export default function useManageMedia() {
     },
     options: AsyncDataOptions<any> = {},
   ) {
-    return useAsyncData(async () => {
-      const [media, meta] = await $client.media.paginateFindAllFor.query(
-        { model, page },
-        {
-          signal: ac.signal,
-        },
-      );
-      return { media, meta };
-    }, options);
+    return useAsyncData(
+      `allMediaPaginatedFor:${JSON.stringify(model)}`,
+      async () => {
+        const [media, meta] = await $client.media.paginateFindAllFor.query(
+          { model, page },
+          {
+            signal: ac.signal,
+          },
+        );
+        return { media, meta };
+      },
+      options,
+    );
   }
 
   function deleteMedia(id: string) {

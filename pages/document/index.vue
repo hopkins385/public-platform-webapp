@@ -12,9 +12,6 @@
 
   const filterProjectId = ref<string | undefined>(undefined);
 
-  const { getAllProjects } = useManageProjects();
-  const { data: projects } = await getAllProjects({ lazy: true });
-
   function onClearProjectFilter() {
     filterProjectId.value = undefined;
   }
@@ -36,7 +33,6 @@
               <ProjectSelect
                 :projectId="filterProjectId"
                 @update:projectId="onUpdateProjectFilter"
-                :projects="projects"
               />
               <Button variant="ghost" @click="onClearProjectFilter">
                 Clear Filter

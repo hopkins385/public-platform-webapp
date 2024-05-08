@@ -93,29 +93,20 @@
           </FormItem>
         </FormField>
 
-        <FormField v-slot="{ componentField }" name="llmId">
+        <FormField v-slot="{ handleChange, value }" name="llmId">
           <FormItem>
             <FormLabel>
               {{ $t('Ai Model') }}
             </FormLabel>
-            <Select v-bind="componentField">
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select an Ai Model" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem
-                    v-for="model in models"
-                    :key="model.id"
-                    :value="model.id"
-                  >
-                    {{ model.displayName }}
-                  </SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+
+            <FormControl>
+              <LlmSelectModal
+                initial-display-name="Select AI Model"
+                :id="value"
+                @update:id="handleChange"
+              />
+            </FormControl>
+
             <FormMessage />
           </FormItem>
         </FormField>

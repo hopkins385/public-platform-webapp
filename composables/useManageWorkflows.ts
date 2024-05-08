@@ -47,32 +47,40 @@ export default function useManageWorkflows() {
     projectId: string | string[] | undefined | null,
     options: AsyncDataOptions<any> = {},
   ) {
-    return useAsyncData(async () => {
-      const [workflows, meta] = await $client.workflow.allForProject.query(
-        {
-          projectId: projectId as string,
-          page,
-        },
-        {
-          signal: ac.signal,
-        },
-      );
-      return { workflows, meta };
-    }, options);
+    return useAsyncData(
+      `workflows:${projectId}`,
+      async () => {
+        const [workflows, meta] = await $client.workflow.allForProject.query(
+          {
+            projectId: projectId as string,
+            page,
+          },
+          {
+            signal: ac.signal,
+          },
+        );
+        return { workflows, meta };
+      },
+      options,
+    );
   }
 
   function getAllWorkflowsForUser(options: AsyncDataOptions<any> = {}) {
-    return useAsyncData(async () => {
-      const [allWorkflows, meta] = await $client.workflow.allForUser.query(
-        {
-          page,
-        },
-        {
-          signal: ac.signal,
-        },
-      );
-      return { allWorkflows, meta };
-    }, options);
+    return useAsyncData(
+      `allWorkflowsForUser`,
+      async () => {
+        const [allWorkflows, meta] = await $client.workflow.allForUser.query(
+          {
+            page,
+          },
+          {
+            signal: ac.signal,
+          },
+        );
+        return { allWorkflows, meta };
+      },
+      options,
+    );
   }
 
   function getFullWorkflow(
@@ -80,16 +88,20 @@ export default function useManageWorkflows() {
     options: AsyncDataOptions<any> = {},
   ) {
     setWorkflowId(id);
-    return useAsyncData(async () => {
-      if (!workflowId) return;
-      const workflow = await $client.workflow.full.query(
-        { workflowId },
-        {
-          signal: ac.signal,
-        },
-      );
-      return workflow;
-    }, options);
+    return useAsyncData(
+      `workflow:${workflowId}`,
+      async () => {
+        if (!workflowId) return;
+        const workflow = await $client.workflow.full.query(
+          { workflowId },
+          {
+            signal: ac.signal,
+          },
+        );
+        return workflow;
+      },
+      options,
+    );
   }
 
   function getWorkflowSettings(
@@ -97,16 +109,20 @@ export default function useManageWorkflows() {
     options: AsyncDataOptions<any> = {},
   ) {
     setWorkflowId(id);
-    return useAsyncData(async () => {
-      if (!workflowId) return;
-      const workflow = await $client.workflow.settings.query(
-        { workflowId },
-        {
-          signal: ac.signal,
-        },
-      );
-      return workflow;
-    }, options);
+    return useAsyncData(
+      `workflowSettings:${workflowId}`,
+      async () => {
+        if (!workflowId) return;
+        const workflow = await $client.workflow.settings.query(
+          { workflowId },
+          {
+            signal: ac.signal,
+          },
+        );
+        return workflow;
+      },
+      options,
+    );
   }
 
   function updateWorkflow(payload: IUpdateWorkflow) {

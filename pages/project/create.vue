@@ -30,7 +30,6 @@
   const { successDuration, errorDuration } = useAppConfig().toast;
   const { $toast } = useNuxtApp();
   const { createProject } = useManageProjects();
-  const { getSession } = useAuth();
 
   const onSubmit = handleSubmit(async (values, { resetForm }) => {
     try {
@@ -40,8 +39,7 @@
         duration: successDuration,
       });
       resetForm();
-      //refresh session
-      await getSession();
+      await refreshNuxtData('allProjects');
       return await navigateTo('/project');
     } catch (error: any) {
       $toast('Error', {

@@ -19,18 +19,17 @@
 
   const { successDuration, errorDuration } = useAppConfig().toast;
   const { getOneAssistant, updateAssistant } = useManageAssistants();
-  const { findAllMediaFor } = useManageMedia();
   const { $toast, $client } = useNuxtApp();
   const { assistantId } = useRoute().params;
   const { data: auth } = useAuth();
-  const { getAllModels } = useLLMs();
 
-  const { data: assistant } = await getOneAssistant(assistantId);
-  const { data: models } = await getAllModels({ lazy: true });
-  const { data: media, refresh: refreshMedia } = await findAllMediaFor({
-    type: 'assistant',
-    id: assistant.value?.id,
-  });
+  const { data: assistant, refresh } = await getOneAssistant(assistantId);
+
+  //  const { findAllMediaFor } = useManageMedia();
+  // const { data: media, refresh: refreshMedia } = await findAllMediaFor({
+  //   type: 'assistant',
+  //   id: assistant.value?.id,
+  // });
 
   const route = useRoute();
   route.meta.breadcrumb.label =
@@ -73,6 +72,7 @@
         description: 'Assistant updated successfully',
         duration: successDuration,
       });
+      await refresh();
     } catch (error: any) {
       $toast('Error', {
         description: 'Ups, something went wrong.',
@@ -80,18 +80,21 @@
       });
     }
   });
-  const tokenCount = ref(0);
   const systemPrompt = ref(assistant.value?.systemPrompt);
-  const getTokenCount = useDebounceFn(async () => {
-    const data = await $client.tokenizer.getTokens.query({
-      content: systemPrompt.value || '',
-    });
-    tokenCount.value = data.tokenCount;
-  }, 250);
 
-  onBeforeMount(async () => {
-    await getTokenCount();
-  });
+  // const tokenCount = ref(0);
+  // const getTokenCount = useDebounceFn(async () => {
+  //   const data = await $client.tokenizer.getTokens.query({
+  //     content: systemPrompt.value || '',
+  //   });
+  //   tokenCount.value = data.tokenCount;
+  // }, 250);
+
+  // onBeforeMount(async () => {
+  //   await getTokenCount();
+  // });
+
+  const showLargeLangModal = ref(false);
 </script>
 
 <template>
@@ -142,29 +145,20 @@
           </FormItem>
         </FormField>
 
-        <FormField v-slot="{ componentField }" name="llmId">
+        <FormField v-slot="{ handleChange, value }" name="llmId">
           <FormItem>
             <FormLabel>
               {{ $t('Ai Model') }}
             </FormLabel>
-            <Select v-bind="componentField">
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select an Ai Model" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem
-                    v-for="model in models"
-                    :key="model.id"
-                    :value="model.id"
-                  >
-                    {{ model.displayName }}
-                  </SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            <FormControl>
+              <LlmSelectModal
+                :initial-display-name="
+                  assistant?.llm.displayName ?? 'Select AI Model'
+                "
+                :id="value"
+                @update:id="handleChange"
+              />
+            </FormControl>
             <FormMessage />
           </FormItem>
         </FormField>
@@ -179,11 +173,10 @@
               {{ $t('assistant.form.systemPrompt.label') }}
             </FormLabel>
             <FormControl>
-              <Textarea v-bind="componentField" @input="getTokenCount()" />
+              <Textarea v-bind="componentField" />
             </FormControl>
             <FormDescription>
-              {{ $t('assistant.form.systemPrompt.description') }} [Used Tokens:
-              {{ tokenCount }}]
+              {{ $t('assistant.form.systemPrompt.description') }}
             </FormDescription>
             <FormMessage />
           </FormItem>
@@ -191,14 +184,6 @@
 
         <div>
           <div>Knowledge:</div>
-          <div v-if="media?.length > 0">{{ media }}</div>
-          <div v-else>
-            <MediaAddSingle
-              type="assistant"
-              :id="assistant?.id"
-              @success="() => refreshMedia()"
-            />
-          </div>
         </div>
 
         <FormField

@@ -44,9 +44,9 @@ export class CreateAssistantDto {
   ) {
     this.teamId = teamId.toLowerCase();
     this.llmId = llmId.toLowerCase();
-    this.title = title;
-    this.description = description;
-    this.systemPrompt = systemPrompt;
+    this.title = title.toString();
+    this.description = description.toString();
+    this.systemPrompt = systemPrompt.toString();
     this.isShared = Boolean(isShared);
     this.systemPromptTokenCount = Number(systemPromptTokenCount);
   }
@@ -95,9 +95,9 @@ export class UpdateAssistantDto {
     this.teamId = teamId.toLowerCase();
     this.llmId = llmId.toLowerCase();
     this.assistantId = assistantId.toLowerCase();
-    this.title = title;
-    this.description = description;
-    this.systemPrompt = systemPrompt;
+    this.title = title.toString();
+    this.description = description.toString();
+    this.systemPrompt = systemPrompt.toString();
     this.isShared = Boolean(isShared);
     this.systemPromptTokenCount = Number(systemPromptTokenCount);
   }

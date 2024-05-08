@@ -21,14 +21,18 @@ export default function useExecuteWorkflow() {
     options?: AsyncDataOptions<any>,
   ) {
     setWorkflowId(id);
-    return useAsyncData(async () => {
-      return await $client.workflowExec.execute.mutate(
-        { workflowId },
-        {
-          signal: ac.signal,
-        },
-      );
-    }, options);
+    return useAsyncData(
+      `executeWorkflow:${workflowId}`,
+      async () => {
+        return await $client.workflowExec.execute.mutate(
+          { workflowId },
+          {
+            signal: ac.signal,
+          },
+        );
+      },
+      options,
+    );
   }
 
   return {

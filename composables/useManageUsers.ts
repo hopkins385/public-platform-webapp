@@ -2,6 +2,8 @@ export default function useManageUsers() {
   const { $client } = useNuxtApp();
   const ac = new AbortController();
 
+  throw new Error('Not implemented');
+
   let page: number = 1;
   let userId: string = '';
 
