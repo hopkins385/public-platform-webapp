@@ -5,6 +5,8 @@ import type {
   CreateAssistantDto,
   DeleteAssistantDto,
 } from './dto/assistant.dto';
+import { usePrisma } from '~/server/utils/prisma/usePrisma';
+import { ULID } from '~/server/utils/ulid';
 
 export class AssistantService {
   private readonly prisma: ExtendedPrismaClient;
@@ -148,6 +150,15 @@ export class AssistantService {
       },
       data: {
         deletedAt: new Date(),
+      },
+    });
+  }
+
+  async delete(payload: DeleteAssistantDto) {
+    await this.prisma.assistant.delete({
+      where: {
+        teamId: payload.teamId,
+        id: payload.assistantId,
       },
     });
   }
