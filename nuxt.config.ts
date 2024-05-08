@@ -28,7 +28,6 @@ export default defineNuxtConfig({
     ['unplugin-icons/nuxt', { autoInstall: true }],
     '@vue-macros/nuxt',
     '@nuxtjs/device',
-    '@nuxt/test-utils/module',
   ],
   runtimeConfig: {
     public: {
