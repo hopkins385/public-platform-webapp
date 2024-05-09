@@ -58,7 +58,7 @@
         message: 'File size must be less than 15 MB',
       })
       .refine((file) => ACCEPTED_TYPES.includes(file?.type), {
-        message: 'File type must be pdf, doc, docx or txt',
+        message: 'File must be pdf, doc, docx or txt',
       }),
   });
 
@@ -201,7 +201,7 @@
     >
       <PlusIcon class="size-3 stroke-1.5" />
     </div>
-    <div v-if="errors" class="text-red-500">
+    <div v-if="errors" class="text-sm text-red-500">
       <p v-for="(error, index) in errors" :key="index">
         {{ error }}
       </p>

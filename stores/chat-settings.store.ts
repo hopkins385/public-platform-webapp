@@ -4,6 +4,7 @@ interface IChatSettings {
   temperature: [number];
   presencePenalty: [number];
   maxTokens: [number];
+  submitOnEnter: boolean;
 }
 
 export const useChatSettingsStore = defineStore('chat-settings', {
@@ -11,6 +12,7 @@ export const useChatSettingsStore = defineStore('chat-settings', {
     temperature: [80],
     presencePenalty: [0],
     maxTokens: [1500],
+    submitOnEnter: false,
   }),
   getters: {
     getTemperature(state) {
@@ -36,7 +38,7 @@ export const useChatSettingsStore = defineStore('chat-settings', {
     resetSettings() {
       this.temperature = [80];
       this.presencePenalty = [0];
-      this.maxTokens = [500];
+      this.maxTokens = [1500];
     },
   },
   persist: true,

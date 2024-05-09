@@ -23,7 +23,7 @@
 </script>
 
 <template>
-  <div class="h-full py-10 pl-5 pr-10" style="max-height: calc(100vh - 65px)">
+  <div class="h-full p-10" style="max-height: calc(100vh - 65px)">
     <ErrorAlertStatic v-if="error" type="error" :message="error.message" />
     <div class="flex h-full space-x-4">
       <ChatSideBar />

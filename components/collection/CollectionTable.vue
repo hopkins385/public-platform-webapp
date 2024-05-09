@@ -40,14 +40,12 @@
   }
 
   async function handleDelete() {
-    const { successDuration } = useAppConfig().toast;
-    const { $toast } = useNuxtApp();
+    const toast = useToast();
     try {
       await deleteCollection(deleteCollectionId.value);
       deleteCollectionId.value = '';
-      $toast.success('Success', {
+      toast.success({
         description: 'Collection has been deleted successfully.',
-        duration: successDuration,
       });
       await refresh();
     } catch (error: any) {

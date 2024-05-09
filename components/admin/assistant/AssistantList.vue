@@ -12,8 +12,6 @@
     message: '',
   });
   const deleteAssistantId = ref('');
-  const { successDuration } = useAppConfig().toast;
-  const { $toast } = useNuxtApp();
   const { getAllAssistants, deleteAssistant, setPage } = useManageAssistants();
   const { data, refresh } = await getAllAssistants();
   const { data: auth } = useAuth();
@@ -31,13 +29,13 @@
   };
 
   const handleDelete = async () => {
+    const toast = useToast();
     const id = deleteAssistantId.value;
     try {
       await deleteAssistant(id, auth.value?.user.teamId);
       deleteAssistantId.value = '';
-      $toast.success('Success', {
+      toast.success({
         description: 'Assistant has been deleted successfully.',
-        duration: successDuration,
       });
       refresh();
     } catch (error: any) {

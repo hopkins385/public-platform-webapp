@@ -43,7 +43,12 @@
         <span class="text-sm">Start Chat</span>
       </div>
     </div>
-    <div class="text-base font-semibold">{{ assistant.title }}</div>
-    <div class="mt-4 text-sm">{{ assistant.description }}</div>
+    <div class="truncate text-base font-semibold">{{ assistant.title }}</div>
+    <div class="mt-1 truncate text-sm text-muted-foreground">
+      {{ assistant.description }}
+    </div>
+    <div class="mt-4 truncate text-sm text-muted-foreground">
+      {{ assistant?.llm?.displayName }}
+    </div>
   </div>
 </template>

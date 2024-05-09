@@ -1,5 +1,9 @@
 <script setup lang="ts">
-  import { FileEditIcon, Trash2Icon } from 'lucide-vue-next';
+  import {
+    FileEditIcon,
+    MessageCircleMoreIcon,
+    Trash2Icon,
+  } from 'lucide-vue-next';
 
   const { getDateTimeForHumans } = useForHumans();
   const { getAllChatsForUser, deleteChat, setPage } = useChat();
@@ -80,10 +84,10 @@
           </TableCell>
           <TableCell class="space-x-2 text-right">
             <Button variant="outline" size="icon" @click="onEdit(chat.id)">
-              <FileEditIcon class="size-4 text-primary" />
+              <MessageCircleMoreIcon class="size-4 text-primary" />
             </Button>
             <Button variant="outline" size="icon" @click="onDelete(chat.id)">
-              <Trash2Icon class="size-4 text-destructive" />
+              <Trash2Icon class="size-4 stroke-1.5 text-destructive" />
             </Button>
           </TableCell>
         </TableRow>

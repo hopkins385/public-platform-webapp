@@ -147,6 +147,11 @@ export class ChatService {
             select: {
               id: true,
               title: true,
+              llm: {
+                select: {
+                  displayName: true,
+                },
+              },
             },
           },
         },
@@ -207,7 +212,7 @@ export class ChatService {
     return this.prisma.chat.create({
       data: {
         id: ULID(),
-        title: 'New Chat',
+        title: 'Chat',
         user: {
           connect: {
             id: userId,

@@ -17,9 +17,7 @@
     refresh: [void];
   }>();
 
-  const { successDuration, errorDuration } = useAppConfig().toast;
   const { updateMe } = useManageMyUserProfile();
-  const { $toast } = useNuxtApp();
 
   const userFormSchema = toTypedSchema(
     z.object({
@@ -36,21 +34,20 @@
   const isLoading = ref(false);
 
   const onSubmit = handleSubmit(async (values, { resetForm }) => {
+    const toast = useToast();
     isLoading.value = true;
     try {
       await updateMe({
         ...values,
       });
-      $toast.success('Success', {
+      toast.success({
         description: 'Your profile has been updated', // TODO: translate
-        duration: successDuration,
       });
       // resetForm();
       emits('refresh');
     } catch (error) {
-      $toast.error('Error', {
+      toast.error({
         description: 'Ups, something went wrong.', // TODO: translate
-        duration: errorDuration,
       });
     }
     isLoading.value = false;

@@ -12,9 +12,7 @@
     },
   });
 
-  const { successDuration, errorDuration } = useAppConfig().toast;
   const { createAssistant } = useManageAssistants();
-  const { $toast } = useNuxtApp();
   const { data: auth } = useAuth();
 
   const assistantFormSchema = toTypedSchema(
@@ -32,22 +30,21 @@
   });
 
   const onSubmit = handleSubmit(async (values, { resetForm }) => {
+    const toast = useToast();
     try {
       const assistant = await createAssistant({
         ...values,
         teamId: auth.value?.user.teamId,
         systemPromptTokenCount: 1, // TODO: calculate token count
       });
-      $toast('Success', {
+      toast.success({
         description: 'Assistant created successfully',
-        duration: successDuration,
       });
       resetForm();
       return await navigateTo('/assistant');
     } catch (error: any) {
-      $toast('Error', {
+      toast.error({
         description: 'Ups, something went wrong.',
-        duration: errorDuration,
       });
     }
   });

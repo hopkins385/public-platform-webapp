@@ -115,6 +115,11 @@ export class AssistantService {
           title: true,
           description: true,
           isShared: true,
+          llm: {
+            select: {
+              displayName: true,
+            },
+          },
         },
       })
       .withPages({

@@ -4,7 +4,7 @@
   const show = ref(false);
   const settings = useChatSettingsStore();
 
-  const p = false;
+  const presencePenalty = false;
 </script>
 
 <template>
@@ -39,7 +39,7 @@
           class="slider"
         />
       </div>
-      <div v-if="p" class="mb-5 flex flex-col space-y-4">
+      <div v-if="presencePenalty" class="mb-5 flex flex-col space-y-4">
         <div class="flex w-full justify-between">
           <div>
             {{ $t('chat.settings.presencePenalty.title') }}
@@ -77,6 +77,20 @@
           :max="3500"
           :step="1"
           class="slider"
+        />
+      </div>
+      <div class="flex flex-col">
+        <div>
+          {{ $t('chat.settings.onEnterSubmit.title') }}
+          <InfoTooltip
+            :title="$t('chat.settings.onEnterSubmit.title')"
+            :content="$t('chat.settings.onEnterSubmit.description')"
+          />
+        </div>
+        <Switch
+          class="-ml-2 mt-1 scale-75"
+          :checked="settings.submitOnEnter"
+          @update:checked="(val) => (settings.submitOnEnter = val)"
         />
       </div>
     </PopoverContent>

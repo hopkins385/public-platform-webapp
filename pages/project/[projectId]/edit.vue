@@ -20,7 +20,6 @@
     },
   });
 
-  const { successDuration, errorDuration } = useAppConfig().toast;
   const { getProject, updateProject } = useManageProjects();
   const { projectId } = useRoute().params;
 
@@ -41,19 +40,17 @@
     },
   });
 
-  const { $toast } = useNuxtApp();
   const onSubmit = handleSubmit(async (values, { resetForm }) => {
+    const toast = useToast();
     try {
       await updateProject(values);
-      $toast('Success', {
+      toast.success({
         description: 'Project updated successfully',
-        duration: successDuration,
       });
       await refresh();
     } catch (error: any) {
-      $toast('Error', {
+      toast.error({
         description: 'Ups, something went wrong.',
-        duration: errorDuration,
       });
     }
   });

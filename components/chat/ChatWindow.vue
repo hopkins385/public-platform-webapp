@@ -19,9 +19,10 @@
   const messageChunk = ref('');
   const isPending = ref(false);
   const isStreaming = ref(false);
-  const showShareDialog = ref(false);
+  // const showShareDialog = ref(false);
 
   const chatStore = useChatStore();
+  const settings = useChatSettingsStore();
   const { $client } = useNuxtApp();
   const { locale } = useI18n();
   const { render } = useMarkdown();
@@ -128,6 +129,13 @@
     }
   };
 
+  function onKeyDownEnter(event: KeyboardEvent) {
+    if (event.key === 'Enter' && !event.shiftKey && settings.submitOnEnter) {
+      event.preventDefault();
+      onSubmit();
+    }
+  }
+
   const onPresetClick = (value: string) => {
     inputMessage.value = value;
     onSubmit();
@@ -177,7 +185,8 @@
     }
   });
 
-  const chatHeader = false;
+  const chatHeader = true;
+  const chatSelector = false;
 </script>
 
 <template>
@@ -190,7 +199,8 @@
       v-if="chatHeader"
       class="pointer-events-none absolute left-0 top-0 z-10 flex w-full items-center justify-between px-8 py-5"
     >
-      <div class="pointer-events-auto">
+      <div v-if="!chatSelector"></div>
+      <div class="pointer-events-auto" v-if="chatSelector">
         <Suspense>
           <ChatModelSelector />
           <template #fallback> Loading... </template>
@@ -200,10 +210,13 @@
         </div>
       </div>
 
-      <div class="pointer-events-auto flex space-x-3">
+      <div
+        class="pointer-events-auto flex items-center justify-center space-x-3"
+      >
         <Button size="icon" variant="outline" @click="clearChatMessages">
           <MessageSquareXIcon class="size-4 stroke-1.5 group-hover:stroke-2" />
         </Button>
+        <!--
         <ChatShareDialog v-model="showShareDialog" />
         <Button
           size="icon"
@@ -213,6 +226,7 @@
         >
           <ShareIcon class="size-4 stroke-1.5 group-hover:stroke-2" />
         </Button>
+        -->
         <ChatSettings />
       </div>
     </div>
@@ -270,7 +284,8 @@
           <Textarea
             v-model="inputMessage"
             :placeholder="$t('chat.placeholder')"
-            class="rounded-2xl py-3 focus:shadow-lg"
+            class="resize-none rounded-2xl py-3 focus:shadow-lg"
+            @keydown.enter="onKeyDownEnter"
           />
         </div>
         <Button

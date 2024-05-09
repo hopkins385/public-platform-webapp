@@ -15,7 +15,6 @@
     },
   });
 
-  const { successDuration, errorDuration } = useAppConfig().toast;
   const { projectId, workflowId } = useRoute().params;
 
   // workflow settings
@@ -45,19 +44,17 @@
     },
   });
 
-  const { $toast } = useNuxtApp();
   const onSubmit = handleSubmit(async (values, { resetForm }) => {
+    const toast = useToast();
     try {
       await updateWorkflow(values);
-      $toast('Success', {
+      toast.success({
         description: 'Workflow updated successfully',
-        duration: successDuration,
       });
       await refresh();
     } catch (error: any) {
-      $toast('Error', {
+      toast.error({
         description: 'Ups, something went wrong.',
-        duration: errorDuration,
       });
     }
   });

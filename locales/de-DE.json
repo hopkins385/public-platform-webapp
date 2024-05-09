@@ -65,7 +65,7 @@
       "title": "Chat",
       "description": "Chat"
     },
-    "notification": "Unterhaltung mit künstlicher Intelligenz. Ausgaben können Fehler enthalten. Überprüfe wichtige Informationen.",
+    "notification": "Unterhaltung mit künstlicher Intelligenz. Ausgaben können Fehler enthalten. Überprüfen Sie wichtige Informationen.",
     "title": "Chat",
     "send": "Senden",
     "placeholder": "Schreibe eine Nachricht...",
@@ -73,7 +73,7 @@
       "title": "Einstellungen",
       "temperature": {
         "title": "Temperatur",
-        "description": "Die Temperatur regelt die Kreativität der Antworten des KI-Systems. Ein höherer Temperaturwert macht die Ausgabe in der Regel vielfältiger und kreativer, erhöht aber auch die Wahrscheinlichkeit, dass sie vom Kontext (z.B. Systemvorgabe) abweicht. Wenn Sie möchten, dass das Modell sehr fokussiert bleibt, verwenden Sie null als Ausgangspunkt."
+        "description": "Die Temperatur regelt die Kreativität der Antworten des KI-Systems. Ein höherer Temperaturwert macht die Ausgabe in der Regel vielfältiger und kreativer, erhöht aber auch die Wahrscheinlichkeit, dass sie vom Kontext (z.B. Systemvorgabe) abweicht. Wenn Sie möchten, dass das Modell sehr fokussiert bleibt, verwenden sie Null als Ausgangspunkt."
       },
       "presencePenalty": {
         "title": "Präsenzstrafe",
@@ -81,7 +81,11 @@
       },
       "maxTokens": {
         "title": "Maximale Tokens",
-        "description": "Die maximale Anzahl von Tokens (Wörtern), die generiert werden. Ein höherer Wert führt dazu, dass die KI längere Antworten generiert."
+        "description": "Die maximale Anzahl von Tokens (Wörtern), die generiert werden können. Ein höherer Wert führt dazu, dass die KI längere Antworten generieren kann, aber auch der Verbrauch von Credits steigt."
+      },
+      "onEnterSubmit": {
+        "title": "Bei Enter senden",
+        "description": "Wenn aktiviert, wird die Nachricht gesendet, wenn die Eingabetaste gedrückt wird."
       }
     }
   },

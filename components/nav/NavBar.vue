@@ -97,7 +97,7 @@
         name: 'chats',
         icon: MessagesSquareIcon,
         to: '/chat',
-        label: 'Chats',
+        label: 'Chat',
         hidden: false,
         children: [],
       },

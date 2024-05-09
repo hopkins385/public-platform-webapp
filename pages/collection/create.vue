@@ -27,24 +27,21 @@
     validationSchema: createProjectSchema,
   });
 
-  const { successDuration, errorDuration } = useAppConfig().toast;
-  const { $toast } = useNuxtApp();
   const { createCollection } = useManageCollections();
 
   const onSubmit = handleSubmit(async (values, { resetForm }) => {
+    const toast = useToast();
     try {
       await createCollection(values);
-      $toast('Success', {
+      toast.success({
         description: 'Collection created successfully',
-        duration: successDuration,
       });
       resetForm();
       await refreshNuxtData('allCollections');
       return await navigateTo('/collection');
     } catch (error: any) {
-      $toast('Error', {
+      toast.error({
         description: 'Ups, something went wrong.',
-        duration: errorDuration,
       });
     }
   });

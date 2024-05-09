@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { PanelRightIcon } from 'lucide-vue-next';
+  import { EditIcon, PanelRightIcon } from 'lucide-vue-next';
   import Input from '../ui/input/Input.vue';
 
   const sideBarOpen = ref(true);
@@ -15,13 +15,19 @@
 
 <template>
   <div
-    class="h-full shrink-0 pb-32 transition-all ease-in-out"
+    class="flex h-full shrink-0 flex-col space-y-4 transition-all ease-in-out"
     :class="{
       'w-20': !sideBarOpen,
       'w-72': sideBarOpen,
     }"
   >
-    <BoxContainer class="relative h-full p-5 text-sm">
+    <BoxContainer
+      class="relative flex h-20 items-center justify-between p-5 text-sm"
+    >
+      <div></div>
+      <ChatNewModal :hide="!sideBarOpen" />
+    </BoxContainer>
+    <BoxContainer class="relative grow p-5 text-sm">
       <button
         class="absolute bottom-0 right-0 p-3 text-muted-foreground"
         @click="toggleSideBar"
@@ -34,12 +40,12 @@
           block: sideBarOpen,
         }"
       >
-        <Input
+        <!-- Input
           v-model="search"
           placeholder="Search for messages..."
           class="w-full placeholder:opacity-50"
           variant="outline"
-        />
+        /-->
       </div>
       <div
         class="h-full space-y-2 overflow-y-auto pt-6 transition-opacity duration-300 ease-in-out"

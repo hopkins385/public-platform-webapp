@@ -1,5 +1,6 @@
 <script setup lang="ts">
-  import { FileIcon, Trash2Icon } from 'lucide-vue-next';
+  import { FileIcon, PlusIcon, Trash2Icon } from 'lucide-vue-next';
+  import RecordAddFileDialog from '../record/RecordAddFileDialog.vue';
 
   const props = defineProps<{
     refresh: boolean;
@@ -11,10 +12,10 @@
 
   const { data: auth } = useAuth();
   const { findPaginateAllMediaFor, setPage, deleteMedia } = useManageMedia();
-  const { $toast } = useNuxtApp();
   const { getFileSizeForHumans } = useForHumans();
 
   const showConfirmDialog = ref(false);
+  const showAddToCollectionDialog = ref(false);
   const deleteMediaId = ref('');
   const errorAlert = reactive({ show: false, message: '' });
 
@@ -40,18 +41,18 @@
     showConfirmDialog.value = true;
   }
 
-  function handleDelete() {
-    const {
-      toast: { successDuration },
-    } = useAppConfig();
+  function onPlusClick(id: string) {
+    showAddToCollectionDialog.value = true;
+  }
 
+  function handleDelete() {
+    const toast = useToast();
     const id = deleteMediaId.value;
     deleteMedia(id)
       .then(() => {
         deleteMediaId.value = '';
-        $toast.success('Success', {
+        toast.success({
           description: 'Media has been deleted successfully.',
-          duration: successDuration,
         });
         refresh();
       })
@@ -81,6 +82,7 @@
   <div>
     <ErrorAlert v-model="errorAlert.show" :message="errorAlert.message" />
     <ConfirmDialog v-model="showConfirmDialog" @confirm="handleDelete" />
+    <RecordAddFileDialog v-model="showAddToCollectionDialog" />
 
     <Table class="rounded-lg border bg-white">
       <TableCaption>
@@ -117,6 +119,9 @@
             {{ getFileSizeForHumans(item.fileSize) }}
           </TableCell>
           <TableCell class="space-x-2 text-right">
+            <Button variant="outline" size="icon" @click="onPlusClick(item.id)">
+              <PlusIcon class="size-4" />
+            </Button>
             <Button variant="outline" size="icon" @click="onDelete(item.id)">
               <Trash2Icon class="size-4 text-destructive" />
             </Button>

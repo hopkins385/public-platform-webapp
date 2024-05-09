@@ -10,7 +10,7 @@
 
   const isLoading = ref(false);
   const error = ref<string>('');
-  const { $client, $toast } = useNuxtApp();
+  const { $client } = useNuxtApp();
 
   const passwordFormSchema = toTypedSchema(
     z
@@ -30,7 +30,7 @@
   });
 
   const onSubmit = handleSubmit(async (values, { resetForm }) => {
-    const { successDuration } = useAppConfig().toast;
+    const toast = useToast();
 
     isLoading.value = true;
     error.value = '';
@@ -42,9 +42,8 @@
       })
       .then(() => {
         emit('closeModal');
-        $toast.success('Success', {
+        toast.success({
           description: 'Your password has been updated', // TODO: translate
-          duration: successDuration,
         });
       })
       .catch((err) => {

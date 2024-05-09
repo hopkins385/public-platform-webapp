@@ -16,9 +16,6 @@
     message: '',
   });
 
-  const { successDuration } = useAppConfig().toast;
-  const { $toast } = useNuxtApp();
-
   const { getProjectWorkflows, deleteWorkflow, setPage } = useManageWorkflows();
   const { data, refresh } = await getProjectWorkflows(props.projectId);
 
@@ -44,12 +41,12 @@
   }
 
   async function handleDelete() {
+    const toast = useToast();
     try {
       await deleteWorkflow(deleteWorkflowId.value);
       deleteWorkflowId.value = '';
-      $toast.success('Success', {
+      toast.success({
         description: 'Workflow has been deleted successfully.',
-        duration: successDuration,
       });
       await refresh();
     } catch (error: any) {

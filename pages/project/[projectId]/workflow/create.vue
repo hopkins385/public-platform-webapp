@@ -47,24 +47,21 @@
     },
   });
 
-  const { successDuration, errorDuration } = useAppConfig().toast;
-  const { $toast } = useNuxtApp();
   const { createWorkflow } = useManageWorkflows();
 
   const onSubmit = handleSubmit(async (values, { resetForm }) => {
+    const toast = useToast();
     try {
       await createWorkflow(values);
-      $toast('Success', {
+      toast.success({
         description: 'Workflow created successfully',
-        duration: successDuration,
       });
       resetForm();
       const localePath = useLocalePath();
       return await navigateTo(localePath(`/project/${project.value?.id}`));
     } catch (error: any) {
-      $toast('Error', {
+      toast.error({
         description: 'Ups, something went wrong.',
-        duration: errorDuration,
       });
     }
   });

@@ -27,24 +27,21 @@
     validationSchema: createProjectSchema,
   });
 
-  const { successDuration, errorDuration } = useAppConfig().toast;
-  const { $toast } = useNuxtApp();
   const { createProject } = useManageProjects();
 
   const onSubmit = handleSubmit(async (values, { resetForm }) => {
+    const toast = useToast();
     try {
       await createProject(values);
-      $toast('Success', {
+      toast.success({
         description: 'Project created successfully',
-        duration: successDuration,
       });
       resetForm();
       await refreshNuxtData('allProjects');
       return await navigateTo('/project');
     } catch (error: any) {
-      $toast('Error', {
+      toast.error({
         description: 'Ups, something went wrong.',
-        duration: errorDuration,
       });
     }
   });
