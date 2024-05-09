@@ -1,4 +1,4 @@
 {
-  "upgrade": true,
-  "reject": ["next-auth"]
+  "upgrade": false,
+  "reject": ["next-auth", "eslint"]
 }

@@ -4,12 +4,12 @@ let vectorStore: QdrantVectorStore | null = null;
 
 interface ICollectionOptons {
   collectionName: string;
-  batchSize: number;
+  batchSize?: number;
 }
 
 export default function useQdrant() {
   function getVectorStore(
-    options: ICollectionOptons = { collectionName: 'default', batchSize: 1000 },
+    options: ICollectionOptons = { collectionName: 'default' },
   ) {
     if (!vectorStore) {
       vectorStore = new QdrantVectorStore({
@@ -22,7 +22,7 @@ export default function useQdrant() {
   }
 
   function getClient(
-    options: ICollectionOptons = { collectionName: 'default', batchSize: 1000 },
+    options: ICollectionOptons = { collectionName: 'default' },
   ) {
     return getVectorStore(options).client();
   }

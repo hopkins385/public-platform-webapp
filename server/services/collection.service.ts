@@ -31,6 +31,12 @@ export class CollectionService {
         records: {
           select: {
             id: true,
+            mediaId: true,
+            media: {
+              select: {
+                name: true,
+              },
+            },
           },
           where: {
             deletedAt: null,

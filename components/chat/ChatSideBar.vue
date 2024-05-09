@@ -5,7 +5,7 @@
   const sideBarOpen = ref(true);
   const search = ref('');
 
-  const { getChatForUser, getAllChatsForUser } = useChat();
+  const { getAllChatsForUser } = useChat();
   const { data: all } = await getAllChatsForUser({ lazy: true });
 
   function toggleSideBar() {
@@ -38,7 +38,6 @@
           v-model="search"
           placeholder="Search for messages..."
           class="w-full placeholder:opacity-50"
-          size="sm"
           variant="outline"
         />
       </div>
@@ -50,10 +49,10 @@
         }"
       >
         <ChatHistoryBox
-          v-for="chat in all.chats"
-          :key="chat.id"
+          v-for="chat in all?.chats || []"
+          :key="chat?.id"
           v-bind="chat"
-          :active="chat.id === $route.params.chatId"
+          :active="chat?.id === $route.params.chatId"
         />
       </div>
       <div

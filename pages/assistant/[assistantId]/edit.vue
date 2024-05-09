@@ -18,18 +18,40 @@
 
   const { assistantId } = useRoute().params;
   const { data: auth } = useAuth();
+  const toast = useToast();
+
+  const assistantModel = ref({
+    type: 'assistant',
+    id: assistantId as string,
+  });
 
   const { getOneAssistant, updateAssistant } = useManageAssistants();
   const { data: assistant, refresh } = await getOneAssistant(assistantId);
 
   const { findAllFor } = useManageCollections();
   const { data: collections, refresh: refreshCollections } = await findAllFor(
-    {
-      type: 'assistant',
-      id: assistantId,
-    },
-    { lazy: true },
+    assistantModel.value,
+    { lazy: false },
   );
+
+  async function updateCollection(collectionId: string) {
+    const { replaceCollectionTo } = useManageCollectionAbles();
+    await replaceCollectionTo(assistantModel.value, collectionId);
+    await refreshCollections();
+    toast.success({
+      description: 'Collection updated successfully',
+    });
+  }
+
+  async function resetCollections() {
+    const { detachAllCollectionsFor } = useManageCollectionAbles();
+    await detachAllCollectionsFor(assistantModel.value);
+    await refresh();
+    await refreshCollections();
+    toast.success({
+      description: 'Collection updated successfully',
+    });
+  }
 
   const route = useRoute();
   route.meta.breadcrumb.label =
@@ -45,6 +67,7 @@
       description: z.string().min(3).max(255),
       systemPrompt: z.string().min(3).max(6000),
       isShared: z.boolean().default(false),
+      collectionId: z.string().optional(),
     }),
   );
 
@@ -61,8 +84,6 @@
   });
 
   const onSubmit = handleSubmit(async (values, { resetForm }) => {
-    const { successDuration, errorDuration } = useAppConfig().toast;
-    const { $toast } = useNuxtApp();
     try {
       if (!assistant.value) {
         throw new Error('Assistant not found');
@@ -72,15 +93,13 @@
         ...values,
         systemPromptTokenCount: 1, // TODO: calculate token count
       });
-      $toast('Success', {
+      toast.success({
         description: 'Assistant updated successfully',
-        duration: successDuration,
       });
       await refresh();
     } catch (error: any) {
-      $toast('Error', {
-        description: 'Ups, something went wrong.',
-        duration: errorDuration,
+      toast.error({
+        description: error.message,
       });
     }
   });
@@ -145,7 +164,11 @@
                   assistant?.llm.displayName ?? 'Select AI Model'
                 "
                 :id="value"
-                @update:id="handleChange"
+                @update:id="
+                  (id) => {
+                    handleChange(id), onSubmit();
+                  }
+                "
               />
             </FormControl>
             <FormMessage />
@@ -171,15 +194,26 @@
           </FormItem>
         </FormField>
 
-        <FormField v-slot="{ handleChange, value }" name="">
+        <FormField v-slot="{ handleChange, value }" name="collectionId">
           <FormItem>
-            <FormLabel>Knowledge Collection (RAG)</FormLabel>
+            <FormLabel>Knowledge Collections (optional)</FormLabel>
             <FormDescription>
-              This is the knowledge collection that will be used by the
+              These are the knowledge collections that can be used by the
               assistant.
             </FormDescription>
             <FormControl>
-              <div>{{ collections }}</div>
+              <CollectionSelectModal
+                :id="value"
+                :initial-display-name="
+                  collections[0]?.name ?? 'Select Knowledge Collection'
+                "
+                @update:id="
+                  (id) => {
+                    handleChange(id), updateCollection(id);
+                  }
+                "
+                @reset="resetCollections"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

@@ -1,17 +1,23 @@
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
+import { RecordService } from '~/server/services/record.service';
+import { CreateRecordDto } from '~/server/services/dto/record.dto';
+
+const recordService = new RecordService();
 
 export const recordRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        title: z.string(),
-        description: z.string(),
-        mediaId: z.string(),
-        tags: z.array(z.string()).optional(),
+        collectionId: ulidRule(),
+        mediaId: ulidRule(),
       }),
     )
-    .mutation(async ({ input }) => {
-      return 'record created';
+    .mutation(async ({ input, ctx }) => {
+      const payload = CreateRecordDto.fromInput({
+        ...input,
+        teamId: ctx.user.teamId,
+      });
+      return recordService.create(payload);
     }),
 });

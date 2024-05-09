@@ -16,13 +16,17 @@ import { documentItemRouter } from './document-item';
 import { mediaRouter } from './media';
 import { mediaAbleRouter } from './media-able';
 import { collectionRouter } from './collection';
+import { recordRouter } from './record';
+import { collectionAbleRouter } from './collection-able';
 
 export const appRouter = router({
   register: registerRouter,
   llms: llmsRouter,
   chat: chatRouter,
   collection: collectionRouter,
-  embed: embedRouter,
+  collectionAble: collectionAbleRouter,
+  record: recordRouter,
+  // embed: embedRouter,
   tokenizer: tokenizerRouter,
   assistant: assistantRouter,
   me: userMeRouter,

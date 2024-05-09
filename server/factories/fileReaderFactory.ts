@@ -7,6 +7,7 @@ import {
   HTMLReader,
 } from 'llamaindex';
 import type { FileReader } from 'llamaindex';
+import { FileType } from '~/server/utils/enums/file-type.enum';
 
 export class FileReaderFactory {
   type: string;
@@ -25,18 +26,17 @@ export class FileReaderFactory {
 
   getReader() {
     switch (this.type) {
-      case 'txt':
-      case 'plain':
+      case FileType.TXT:
         return new TextFileReader();
-      case 'pdf':
+      case FileType.PDF:
         return new PDFReader();
-      case 'docx':
+      case FileType.DOCX:
         return new DocxReader();
-      case 'md':
+      case FileType.MARKDOWN:
         return new MarkdownReader();
-      case 'csv':
+      case FileType.CSV:
         return new CSVReader();
-      case 'html':
+      case FileType.HTML:
         return new HTMLReader();
       default:
         throw new Error(`Unsupported file type: ${this.type}`);

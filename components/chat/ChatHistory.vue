@@ -36,10 +36,11 @@
 
   async function handleDelete() {
     showConfirmDialog.value = false;
-    const { error } = await deleteChat(chatIdToDelete.value);
-    if (error.value) {
+    try {
+      const result = await deleteChat(chatIdToDelete.value);
+    } catch (error) {
       errorAlert.show = true;
-      errorAlert.message = error.value.message;
+      errorAlert.message = error?.message ?? 'Unknown error occurred';
     }
     chatIdToDelete.value = '';
     await refresh();

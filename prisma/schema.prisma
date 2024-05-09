@@ -245,6 +245,7 @@ model Media {
   updatedAt  DateTime     @updatedAt @map("updated_at")
   deletedAt  DateTime?    @map("deleted_at")
   mediaAbles MediaAbles[]
+  records    Record[]
 
   team Team @relation(fields: [teamId], references: [id])
 
@@ -265,7 +266,7 @@ model MediaAbles {
   updatedAt     DateTime  @updatedAt @map("updated_at")
   deletedAt     DateTime? @map("deleted_at")
 
-  media Media @relation(fields: [mediaId], references: [id])
+  media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
 
   @@map("media_ables")
 }
@@ -303,7 +304,7 @@ model CollectionAble {
   updatedAt          DateTime  @updatedAt @map("updated_at")
   deletedAt          DateTime? @map("deleted_at")
 
-  collection Collection @relation(fields: [collectionId], references: [id])
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
 
   @@map("collection_ables")
 }
@@ -317,7 +318,8 @@ model Record {
   deletedAt    DateTime? @map("deleted_at")
   chunks       Chunk[]
 
-  collection Collection @relation(fields: [collectionId], references: [id])
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  media      Media?     @relation(fields: [mediaId], references: [id])
 
   @@map("records")
 }
@@ -330,7 +332,7 @@ model Chunk {
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
-  record Record @relation(fields: [recordId], references: [id])
+  record Record @relation(fields: [recordId], references: [id], onDelete: Cascade)
 
   @@map("chunks")
 }
@@ -364,7 +366,7 @@ model Document {
   documentItems DocumentItem[]
   workflowSteps WorkflowStep[]
 
-  project Project @relation(fields: [projectId], references: [id])
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@map("documents")
 }
@@ -381,7 +383,7 @@ model DocumentItem {
   deletedAt         DateTime?          @map("deleted_at")
   documentItemAbles DocumentItemAble[]
 
-  document Document @relation(fields: [documentId], references: [id])
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@map("document_items")
 }
@@ -398,7 +400,7 @@ model DocumentItemAble {
   updatedAt      DateTime  @updatedAt @map("updated_at")
   deletedAt      DateTime? @map("deleted_at")
 
-  documentItem DocumentItem @relation(fields: [documentItemId], references: [id])
+  documentItem DocumentItem @relation(fields: [documentItemId], references: [id], onDelete: Cascade)
 
   @@map("document_item_ables")
 }
@@ -414,7 +416,7 @@ model Workflow {
   workflowAbles WorkflowAble[]
   steps         WorkflowStep[]
 
-  project Project @relation(fields: [projectId], references: [id])
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@map("workflows")
 }
@@ -431,7 +433,7 @@ model WorkflowAble {
   updatedAt  DateTime  @updatedAt @map("updated_at")
   deletedAt  DateTime? @map("deleted_at")
 
-  workflow Workflow @relation(fields: [workflowId], references: [id])
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
 
   @@map("workflow_ables")
 }
@@ -449,7 +451,7 @@ model WorkflowStep {
   deletedAt         DateTime?          @map("deleted_at")
   workflowStepAbles WorkflowStepAble[]
 
-  workflow  Workflow   @relation(fields: [workflowId], references: [id])
+  workflow  Workflow   @relation(fields: [workflowId], references: [id], onDelete: Cascade)
   document  Document?  @relation(fields: [documentId], references: [id])
   assistant Assistant? @relation(fields: [assistantId], references: [id])
 
@@ -470,7 +472,7 @@ model WorkflowStepAble {
   updatedAt      DateTime  @updatedAt @map("updated_at")
   deletedAt      DateTime? @map("deleted_at")
 
-  workflowStep WorkflowStep @relation(fields: [workflowStepId], references: [id])
+  workflowStep WorkflowStep @relation(fields: [workflowStepId], references: [id], onDelete: Cascade)
 
   @@map("workflow_step_ables")
 }

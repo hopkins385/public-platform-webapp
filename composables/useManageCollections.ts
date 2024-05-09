@@ -36,37 +36,52 @@ export default function useManageCollections() {
     );
   }
 
-  function findFirst(id: string | string[] | undefined | null) {
+  function findFirst(
+    id: string | string[] | undefined | null,
+    options: AsyncDataOptions<any> = {},
+  ) {
     setCollectionId(id);
-    return useAsyncData(`collection:${collectionId}`, async () => {
-      return await $client.collection.findFirst.query(
-        { id: collectionId },
-        {
-          signal: ac.signal,
-        },
-      );
-    });
-  }
-
-  function findAll() {
-    return useAsyncData('allCollections', async () => {
-      return await $client.collection.findAll.query(undefined, {
-        signal: ac.signal,
-      });
-    });
-  }
-
-  function findAllPaginated() {
-    return useAsyncData('allCollectionsPaginated', async () => {
-      const [collections, meta] =
-        await $client.collection.findAllPaginated.query(
-          { page },
+    return useAsyncData(
+      `collection:${collectionId}`,
+      async () => {
+        return await $client.collection.findFirst.query(
+          { id: collectionId },
           {
             signal: ac.signal,
           },
         );
-      return { collections, meta };
-    });
+      },
+      options,
+    );
+  }
+
+  function findAll(options: AsyncDataOptions<any> = {}) {
+    return useAsyncData(
+      'allCollections',
+      async () => {
+        return await $client.collection.findAll.query(undefined, {
+          signal: ac.signal,
+        });
+      },
+      options,
+    );
+  }
+
+  function findAllPaginated(options: AsyncDataOptions<any> = {}) {
+    return useAsyncData(
+      'allCollectionsPaginated',
+      async () => {
+        const [collections, meta] =
+          await $client.collection.findAllPaginated.query(
+            { page },
+            {
+              signal: ac.signal,
+            },
+          );
+        return { collections, meta };
+      },
+      options,
+    );
   }
 
   function findAllFor(

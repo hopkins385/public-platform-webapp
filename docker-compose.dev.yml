@@ -1,14 +1,12 @@
 version: '3.9'
 services:
-  app:
-    image: svenson.ai/webapp-dev
-    volumes:
-      - /app/node_modules
-    ports:
-      - 3000:3000
-    # command: npx prisma generate
-    # command: npx prisma migrate deploy
-    command: npm run dev
+  #  app:
+  #    image: svenson.ai/webapp-dev
+  #    volumes:
+  #      - /app/node_modules
+  #    ports:
+  #      - 3000:3000
+  #    command: npm run dev
 
   postgres:
     ports:
@@ -17,3 +15,7 @@ services:
   redis:
     ports:
       - 6379:6379
+
+  qdrant:
+    ports:
+      - 6333:6333

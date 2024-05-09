@@ -6,13 +6,7 @@ declare module 'h3' {
   }
 }
 
-let vectorStore: QdrantVectorStore | null = null;
-
 export default eventHandler((event) => {
-  if (!vectorStore) {
-    vectorStore = new QdrantVectorStore({
-      url: 'http://localhost:6333',
-    });
-  }
-  event.context.vectorStore = vectorStore;
+  const { getVectorStore } = useQdrant();
+  event.context.vectorStore = getVectorStore();
 });
