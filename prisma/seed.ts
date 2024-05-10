@@ -61,7 +61,7 @@ async function main() {
       firstName: 'Test',
       lastName: 'User',
       email: 'test@test.de',
-      password: await hashPassword('tester'),
+      password: await hashPassword(process.env.TESTER_PASSWORD!),
       createdAt: new Date(),
       updatedAt: new Date(),
       emailVerifiedAt: new Date(),
