@@ -6,10 +6,11 @@ import { useEvents } from '~/server/utils/events/useEvents';
 
 const { event } = useEvents();
 const userService = new UserService();
+const config = useRuntimeConfig().auth;
 
 export default NuxtAuthHandler({
   // adapter: PrismaAdapter(getClient()),
-  secret: process.env.AUTH_SECRET,
+  secret: config.secret,
   pages: {
     signIn: '/login',
   },
