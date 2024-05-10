@@ -7,16 +7,16 @@ volumes:
   qdrant_data:
 
 services:
-  #  app:
-  #    container_name: svenson_platform
-  #    restart: unless-stopped
-  #    working_dir: /app
-  #    env_file:
-  #      - .env
-  #    security_opt:
-  #      - no-new-privileges:true
-  #    networks:
-  #      - app_net
+  app:
+    container_name: svenson_platform
+    restart: unless-stopped
+    working_dir: /app
+    env_file:
+      - .env
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - app_net
 
   postgres:
     image: postgres:16.2-alpine
