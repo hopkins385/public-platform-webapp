@@ -11,8 +11,10 @@ services:
     container_name: svenson_platform
     restart: unless-stopped
     working_dir: /app
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
+    volumes:
+      - .env:/app/.env
     security_opt:
       - no-new-privileges:true
     networks:
