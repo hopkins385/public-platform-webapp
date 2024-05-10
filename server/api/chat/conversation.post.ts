@@ -1,40 +1,68 @@
+import { VectorService } from './../../services/vector.service';
 import { getServerSession } from '#auth';
 import { Readable, Transform } from 'stream';
 import { sendStream } from 'h3';
 import { OpenAI } from 'openai';
-import { ChatService } from './../../services/chat.service';
-import { AssistantService } from '~/server/services/assistant.service';
+import { ChatService } from '~/server/services/chat.service';
 import { CompletionFactory } from '~/server/factories/completionFactory';
 import { CreditService } from '~/server/services/credit.service';
 import { getConversationBody } from '~/server/utils/request/chatConversationBody';
+import { ChatEvent } from '~/server/utils/enums/chat-event.enum';
+import consola from 'consola';
+import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
+import { CollectionService } from '~/server/services/collection.service';
 
 const config = useRuntimeConfig();
 const chatService = new ChatService();
-const assistantService = new AssistantService();
 const creditService = new CreditService();
+
+const logger = consola.create({}).withTag('conversation.post');
 
 export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);
   const user = getAuthUser(session); // do not remove this line
 
   const body = await getConversationBody(_event);
-  const credit = await creditService.getCreditAmount(user.id);
 
+  // Check if user has enough credits
+  const credit = await creditService.getCreditAmount(user.id);
   if (!credit || credit.amount < 1) {
     throw createError({
       statusCode: 402,
-      statusMessage: 'Insufficient credits',
+      message:
+        'Insufficient credits to continue conversation. Please top up your credits.',
     });
   }
 
-  const chat = await chatService.getChatForUser(body.chatId ?? '', user.id);
+  // Get chat
+  const chat = await chatService.getChatForUser(body.chatId, user.id);
+  if (!chat) {
+    throw createError({
+      statusCode: 404,
+      message: 'Chat not found',
+    });
+  }
 
-  const history = chatService.getHistory(chat, 4095, body.maxTokens);
+  // Get collection_ables
 
-  const systemPrompt = await assistantService.getSystemPrompt(
-    body.lang,
-    chat?.assistant.id,
-  );
+  const collectionService = new CollectionService();
+  const colPayload = CollectionAbleDto.fromInput({
+    type: 'assistant',
+    id: chat.assistant.id,
+  });
+  const collectionAble =
+    await collectionService.findAllWithRecordsFor(colPayload);
+  const recordIds =
+    collectionAble?.flatMap((ca) => ca.records?.flatMap((r) => r.id)) || [];
+  console.log('records', recordIds);
+  const vectorService = new VectorService();
+  const lastMessage = chat.messages[chat.messages.length - 1];
+  const res = await vectorService.searchIndex({
+    recordIds,
+    query: lastMessage.content,
+  });
+  console.log('res', res);
+  return;
 
   try {
     const completion = new CompletionFactory(body.model, config);
@@ -42,7 +70,7 @@ export default defineEventHandler(async (_event) => {
       messages: [
         {
           role: 'system',
-          content: systemPrompt,
+          content: chat.assistant.systemPrompt,
         },
         ...body.messages, // TODO: handle context size of llm and reduce messages
         // ...history,
@@ -71,9 +99,10 @@ export default defineEventHandler(async (_event) => {
     stream.pipe(bufferStream);
 
     stream.on('error', (error) => {
+      logger.error(`Stream failed: ${error}`);
       throw createError({
         statusCode: 500,
-        statusMessage: 'Internal server error (stream error)',
+        message: 'Stream error',
       });
     });
 
@@ -82,28 +111,24 @@ export default defineEventHandler(async (_event) => {
     });
 
     _event.node.res.on('close', async () => {
+      const { event } = useEvents();
       stream.destroy();
 
-      // store assistant message in the database
-      try {
-        await chatService.createMessage({
-          chatId: chat?.id || '',
-          chatMessage: { role: 'assistant', content: llmResponseMessage },
-        });
-      } catch (error) {
-        // silently fail
-      }
-
-      await creditService.reduceCredit(user.id, 1);
+      event(ChatEvent.STREAMFINISHED, {
+        chatId: chat.id,
+        userId: user.id,
+        assistantId: chat.assistant.id,
+        messageContent: llmResponseMessage,
+      });
     });
 
     return sendStream(_event, bufferStream);
     //
   } catch (error) {
-    console.error(error);
+    logger.error(`Chat completion failed: ${error}`);
     throw createError({
       statusCode: 500,
-      statusMessage: 'Internal server error',
+      message: 'Error processing conversation',
     });
   }
 });

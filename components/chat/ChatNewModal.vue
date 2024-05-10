@@ -26,17 +26,16 @@
     </DialogTrigger>
     <DialogContent class="max-h-screen max-w-6xl overflow-y-scroll">
       <DialogHeader>
-        <DialogTitle>New Chat</DialogTitle>
+        <DialogTitle>Choose an Assistant</DialogTitle>
         <DialogDescription>
           Choose an assistant to start a new chat.
         </DialogDescription>
       </DialogHeader>
       <Suspense>
-        <AssistantCardGrid />
+        <AssistantAllTable />
       </Suspense>
-
       <DialogFooter>
-        <Button variant="ghost" @click="open = false">Cancel</Button>
+        <Button variant="outline" @click="open = false">Cancel</Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>

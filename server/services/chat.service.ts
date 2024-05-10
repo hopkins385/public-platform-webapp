@@ -191,12 +191,12 @@ export class ChatService {
           select: {
             id: true,
             title: true,
+            systemPrompt: true,
             llm: {
               select: {
                 apiName: true,
               },
             },
-            // systemPrompt: true,
           },
         },
       },

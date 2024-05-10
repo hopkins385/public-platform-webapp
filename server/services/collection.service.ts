@@ -118,6 +118,32 @@ export class CollectionService {
     });
   }
 
+  async findAllWithRecordsFor(model: CollectionAbleDto) {
+    return this.prisma.collection.findMany({
+      select: {
+        id: true,
+        name: true,
+        records: {
+          select: {
+            id: true,
+          },
+          where: {
+            deletedAt: null,
+          },
+        },
+      },
+      where: {
+        collectionAbles: {
+          some: {
+            collectionAbleId: model.id,
+            collectionAbleType: model.type,
+          },
+        },
+        deletedAt: null,
+      },
+    });
+  }
+
   async findMany(teamId: string) {
     return this.prisma.collection.findMany({
       where: {
@@ -146,22 +172,60 @@ export class CollectionService {
   }
 
   async softDelete(teamId: string, collectionId: string) {
-    return this.prisma.collection.update({
-      where: {
-        id: collectionId.toLowerCase(),
-        teamId: teamId.toLowerCase(),
-      },
-      data: {
-        deletedAt: new Date(),
-      },
-    });
+    return await this.prisma.$transaction([
+      // delete all collectionables
+      this.prisma.collectionAble.deleteMany({
+        where: {
+          collectionId: collectionId.toLowerCase(),
+        },
+      }),
+
+      // soft delete all records
+      this.prisma.record.updateMany({
+        where: {
+          collectionId: collectionId.toLowerCase(),
+        },
+        data: {
+          deletedAt: new Date(),
+        },
+      }),
+
+      // soft delete collection
+      this.prisma.collection.update({
+        where: {
+          id: collectionId.toLowerCase(),
+          teamId: teamId.toLowerCase(),
+        },
+        data: {
+          deletedAt: new Date(),
+        },
+      }),
+    ]);
   }
 
-  async deleteMany(teamId: string) {
-    return this.prisma.collection.deleteMany({
-      where: {
-        teamId: teamId.toLowerCase(),
-      },
-    });
+  async delete(teamId: string, collectionId: string) {
+    return await this.prisma.$transaction([
+      // delete all collectionables
+      this.prisma.collectionAble.deleteMany({
+        where: {
+          collectionId: collectionId.toLowerCase(),
+        },
+      }),
+
+      // delete all records
+      this.prisma.record.deleteMany({
+        where: {
+          collectionId: collectionId.toLowerCase(),
+        },
+      }),
+
+      // delete collection
+      this.prisma.collection.delete({
+        where: {
+          id: collectionId.toLowerCase(),
+          teamId: teamId.toLowerCase(),
+        },
+      }),
+    ]);
   }
 }

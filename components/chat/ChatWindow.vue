@@ -2,6 +2,7 @@
   import { useElementVisibility, useMutationObserver } from '@vueuse/core';
   import {
     ArrowBigDownDashIcon,
+    ChevronLeftIcon,
     MessageSquareXIcon,
     ShareIcon,
     SquareIcon,
@@ -194,6 +195,20 @@
     id="chatWrapper"
     class="relative flex size-full flex-col px-10 py-10 xl:px-20"
   >
+    <div class="absolute left-0 top-1/2 -translate-y-1/2">
+      <Button
+        size="icon"
+        variant="ghost"
+        @click="() => settings.toggleSideBarOpen()"
+      >
+        <ChevronLeftIcon
+          class="size-4 stroke-1.5"
+          :class="{
+            'rotate-180 transform': !settings.sideBarOpen,
+          }"
+        />
+      </Button>
+    </div>
     <div
       id="chatHeader"
       v-if="chatHeader"

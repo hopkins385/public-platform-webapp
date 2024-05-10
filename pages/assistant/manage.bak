@@ -26,7 +26,7 @@
       </template>
     </SectionHeading>
     <div>
-      <AdminAssistantList />
+      <AssistantsTable />
     </div>
   </SectionContainer>
 </template>

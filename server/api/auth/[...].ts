@@ -1,12 +1,9 @@
 import { NuxtAuthHandler } from '#auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import GoogleProvider from 'next-auth/providers/google';
-import { isValid } from 'ulidx';
 import { UserService } from '~/server/services/user.service';
+import { AuthEvent } from '~/server/utils/enums/auth-event.enum';
 import { useEvents } from '~/server/utils/events/useEvents';
-// import { PrismaAdapter } from '@next-auth/prisma-adapter';
 
-// const { getClient } = usePrisma();
 const { event } = useEvents();
 const userService = new UserService();
 
@@ -24,9 +21,8 @@ export default NuxtAuthHandler({
   },
   callbacks: {
     signIn: ({ user, account, profile, email, credentials }) => {
-      if (user) {
-        event('login', user);
-      }
+      if (!user) return false;
+      event(AuthEvent.LOGIN, user);
       return true;
     },
     jwt: async ({ token, user }) => {

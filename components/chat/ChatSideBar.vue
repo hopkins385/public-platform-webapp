@@ -1,45 +1,56 @@
 <script setup lang="ts">
-  import { EditIcon, PanelRightIcon } from 'lucide-vue-next';
-  import Input from '../ui/input/Input.vue';
+  import { PanelRightIcon } from 'lucide-vue-next';
 
-  const sideBarOpen = ref(true);
-  const search = ref('');
+  const settings = useChatSettingsStore();
 
   const { getAllChatsForUser } = useChat();
-  const { data: all } = await getAllChatsForUser({ lazy: true });
+  const { data: all, refresh } = await getAllChatsForUser({
+    lazy: true,
+    immediate: settings.sideBarOpen,
+  });
 
-  function toggleSideBar() {
-    sideBarOpen.value = !sideBarOpen.value;
-  }
+  watch(
+    () => settings.sideBarOpen,
+    (value) => {
+      if (value) {
+        refresh();
+      }
+    },
+  );
 </script>
 
 <template>
   <div
     class="flex h-full shrink-0 flex-col space-y-4 transition-all ease-in-out"
     :class="{
-      'w-20': !sideBarOpen,
-      'w-72': sideBarOpen,
+      'w-0': !settings.sideBarOpen,
+      'w-72': settings.sideBarOpen,
     }"
   >
     <BoxContainer
       class="relative flex h-20 items-center justify-between p-5 text-sm"
+      :class="{
+        hidden: !settings.sideBarOpen,
+        block: settings.sideBarOpen,
+      }"
     >
       <div></div>
-      <ChatNewModal :hide="!sideBarOpen" />
+      <ChatNewModal :hide="!settings.sideBarOpen" />
     </BoxContainer>
-    <BoxContainer class="relative grow p-5 text-sm">
-      <button
+    <BoxContainer
+      class="relative grow p-5 text-sm"
+      :class="{
+        hidden: !settings.sideBarOpen,
+        block: settings.sideBarOpen,
+      }"
+    >
+      <!-- button
         class="absolute bottom-0 right-0 p-3 text-muted-foreground"
-        @click="toggleSideBar"
+        @click="() => settings.toggleSideBarOpen()"
       >
         <PanelRightIcon class="size-4 fill-slate-100 stroke-1.5 opacity-70" />
-      </button>
-      <div
-        :class="{
-          hidden: !sideBarOpen,
-          block: sideBarOpen,
-        }"
-      >
+      </!-->
+      <div>
         <!-- Input
           v-model="search"
           placeholder="Search for messages..."
@@ -50,8 +61,8 @@
       <div
         class="h-full space-y-2 overflow-y-auto pt-6 transition-opacity duration-300 ease-in-out"
         :class="{
-          'opacity-0': !sideBarOpen,
-          'opacity-100': sideBarOpen,
+          'opacity-0': !settings.sideBarOpen,
+          'opacity-100': settings.sideBarOpen,
         }"
       >
         <ChatHistoryBox
@@ -64,8 +75,8 @@
       <div
         class="absolute bottom-2 left-1/2 -translate-x-1/2"
         :class="{
-          hidden: !sideBarOpen,
-          block: sideBarOpen,
+          hidden: !settings.sideBarOpen,
+          block: settings.sideBarOpen,
         }"
       >
         <NuxtLinkLocale

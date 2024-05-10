@@ -13,7 +13,7 @@ const bodySchema = z.object({
   messages: z.array(mMessageSchema),
   model: modelRule,
   lang: langRule(),
-  chatId: ulidRule().optional(),
+  chatId: ulidRule(),
   maxTokens: z.number().int().gte(0),
   temperature: z.number().gte(0).lte(1),
   // presencePenalty: z.number().gte(-2).lte(2),

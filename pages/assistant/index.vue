@@ -25,21 +25,14 @@
             New Assistant
             <PlusIcon class="ml-2 size-4 stroke-2" />
           </Button>
-          <Button
-            class=""
-            variant="outline"
-            @click="navigateTo('/assistant/manage')"
-          >
-            Manage Assistants
-            <SettingsIcon class="ml-2 size-4 stroke-1.5" />
-          </Button>
         </div>
       </template>
     </Heading>
     <BoxContainer class="w-full">
       <div>
         <Suspense>
-          <AssistantCardGrid />
+          <!-- AssistantCardGrid /-->
+          <AssistantAllTable />
           <template #fallback> Loading ... </template>
         </Suspense>
       </div>

@@ -1,9 +1,8 @@
 <script setup lang="ts">
   import {
-    EditIcon,
-    FileEditIcon,
     SettingsIcon,
     Trash2Icon,
+    MessageSquarePlusIcon,
   } from 'lucide-vue-next';
 
   const showConfirmDialog = ref(false);
@@ -24,10 +23,6 @@
     };
   });
 
-  const onEdit = (id: string) => {
-    return navigateTo(`/assistant/${id}/edit`);
-  };
-
   const handleDelete = async () => {
     const toast = useToast();
     const id = deleteAssistantId.value;
@@ -44,15 +39,30 @@
     }
   };
 
-  const onDelete = (id: string) => {
+  async function onStart(assistantId: string) {
+    const { createChat } = useChat();
+    const chat = await createChat(assistantId);
+    if (!chat) {
+      errorAlert.message = 'Failed to create chat';
+      errorAlert.show = true;
+      return;
+    }
+    return await navigateTo(`/chat/${chat.id}`);
+  }
+
+  async function onEdit(id: string) {
+    return await navigateTo(`/assistant/${id}/edit`);
+  }
+
+  function onDelete(id: string) {
     deleteAssistantId.value = id;
     showConfirmDialog.value = true;
-  };
+  }
 
-  const onPageChange = (value: number) => {
+  function onPageChange(value: number) {
     setPage(value);
     refresh();
-  };
+  }
 </script>
 
 <template>
@@ -78,6 +88,7 @@
           <TableHead> Avatar </TableHead>
           <TableHead> Title </TableHead>
           <TableHead> Shared </TableHead>
+          <TableHead> Ai Model </TableHead>
           <TableHead class="text-right"> Actions </TableHead>
         </TableRow>
       </TableHeader>
@@ -91,9 +102,17 @@
           </TableCell>
           <TableCell>{{ assistant.title }}</TableCell>
           <TableCell>
-            {{ assistant.isShared ? 'Shared' : 'Not Shared' }}
+            {{ assistant.isShared ? 'Organisation' : 'Team' }}
           </TableCell>
+          <TableCell>{{ assistant.llm.displayName }}</TableCell>
           <TableCell class="space-x-2 text-right">
+            <Button
+              variant="outline"
+              size="icon"
+              @click="onStart(assistant.id)"
+            >
+              <MessageSquarePlusIcon class="size-4 stroke-1.5 text-primary" />
+            </Button>
             <Button variant="outline" size="icon" @click="onEdit(assistant.id)">
               <SettingsIcon class="size-4 stroke-1.5 text-primary" />
             </Button>

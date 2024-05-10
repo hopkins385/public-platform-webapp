@@ -14,6 +14,17 @@ export default function useChat() {
     page = newPage;
   }
 
+  async function createChat(assistantId: string) {
+    return await $client.chat.create.query(
+      {
+        assistantId,
+      },
+      {
+        signal: ac.signal,
+      },
+    );
+  }
+
   function getAllChatsForUser(options: AsyncDataOptions<any> = {}) {
     return useAsyncData(
       'allChats',
@@ -69,6 +80,7 @@ export default function useChat() {
   }
 
   return {
+    createChat,
     getChatForUser,
     getAllChatsForUser,
     getRecentChatForUser,

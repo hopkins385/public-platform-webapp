@@ -34,7 +34,10 @@
         :content="meta.content"
       />
     </Head>
-    <Body class="bg-gradient-to-b from-slate-100 via-slate-100 to-slate-50">
+    <!--
+    bg-gradient-to-b from-slate-100 via-slate-100 to-slate-50
+    -->
+    <Body class="bg-neutral-100">
       <div class="sticky inset-0 z-50 h-[65px] w-full bg-white shadow-md">
         <TopBar />
       </div>
