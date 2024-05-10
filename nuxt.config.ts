@@ -44,11 +44,11 @@ export default defineNuxtConfig({
       webhookUrl: process.env.SLACK_WEBHOOK_URL,
     },
     azure: {
-      clientId: process.env.AZURE_OAUTH_APP_ID,
-      clientSecret: process.env.AZURE_OAUTH_APP_SECRET,
-      redirectUrl: process.env.AZURE_OAUTH_REDIRECT_URI,
-      scopes: process.env.AZURE_OAUTH_SCOPES?.split(','),
-      authority: process.env.AZURE_OAUTH_AUTHORITY,
+      clientId: process.env.AZURE_CLIENT_ID,
+      clientSecret: process.env.AZURE_CLIENT_SECRET,
+      redirectUrl: process.env.AZURE_REDIRECT_URL,
+      scopes: process.env.AZURE_SCOPES?.split(','),
+      authority: process.env.AZURE_AUTHORITY,
     },
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID,
