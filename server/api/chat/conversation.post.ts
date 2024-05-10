@@ -44,7 +44,7 @@ export default defineEventHandler(async (_event) => {
   }
 
   // Get collection_ables
-
+  /*
   const collectionService = new CollectionService();
   const colPayload = CollectionAbleDto.fromInput({
     type: 'assistant',
@@ -63,6 +63,7 @@ export default defineEventHandler(async (_event) => {
   });
   console.log('res', res);
   return;
+  */
 
   try {
     const completion = new CompletionFactory(body.model, config);

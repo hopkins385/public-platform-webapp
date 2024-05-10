@@ -137,11 +137,11 @@
     :style="{ width: `${navBar.width}rem` }"
   >
     <div
-      class="absolute -right-3 top-3 z-10 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border bg-white opacity-80 shadow-sm"
+      class="absolute left-1/2 top-3 z-10 flex size-7 shrink-0 -translate-x-1/2 cursor-pointer items-center justify-center rounded-full border-0 bg-white opacity-80 hover:border"
       @click="() => navBar.toggleOpen()"
     >
       <ChevronRightIcon
-        class="size-3"
+        class="size-4 text-muted-foreground"
         :class="{ 'rotate-180 transform': navBar.isOpen }"
       />
     </div>
@@ -155,7 +155,7 @@
       style="width: 0.25rem"
     ></div>
     <div class="flex h-full flex-col">
-      <ul class="space-y-4 pt-8 text-muted-foreground">
+      <ul class="space-y-4 pt-12 text-muted-foreground">
         <template v-for="(item, index) in navItems" :key="index">
           <li
             class="nav-item"

@@ -46,6 +46,7 @@
   });
 
   const google = false;
+  const register = false;
 </script>
 
 <template>
@@ -88,7 +89,7 @@
         {{ $t('auth.login') }}
       </LoadingButton>
     </form>
-    <div class="pt-3 text-sm">
+    <div v-if="register" class="pt-3 text-sm">
       <p class="opacity-60">
         {{ $t("Don't have an account?") }}
         <NuxtLink :to="localePath({ name: 'register' })" class="underline">
