@@ -46,11 +46,8 @@
     <FormItem>
       <Select v-bind="componentField">
         <FormControl>
-          <SelectTrigger class="text-xs">
-            <SelectValue
-              class="whitespace-nowrap"
-              placeholder="Set Assistant"
-            />
+          <SelectTrigger class="text-xs focus:ring-0">
+            <SelectValue class="truncate" placeholder="Set Assistant" />
           </SelectTrigger>
         </FormControl>
         <SelectContent>

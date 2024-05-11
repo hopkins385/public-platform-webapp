@@ -26,7 +26,7 @@ export class WorkflowExecutionService {
     function jobChild(stepIndex: number, rowNumber: number): any {
       const index = stepIndex;
       const row = rowNumber;
-      const { assistant, document } = workflowSteps[index];
+      const { assistant, document, name } = workflowSteps[index];
       const documentItem = document.documentItems[row];
 
       if (!assistant) {
@@ -35,18 +35,26 @@ export class WorkflowExecutionService {
         );
       }
 
-      const prevDocumentItem =
-        index > 0
-          ? workflowSteps[index - 1]?.document?.documentItems[row]
-          : null;
+      // const prevDocumentItem =
+      //   index > 0
+      //     ? workflowSteps[index - 1]?.document?.documentItems[row]
+      //     : null;
+
+      const prevDocumentItemIds = [];
+      for (let i = 0; i < index; i++) {
+        prevDocumentItemIds.push(
+          workflowSteps[i].document.documentItems[row].id,
+        );
+      }
 
       const jobData = AssistantJobDto.fromInput({
         index,
         row,
+        stepName: name,
         assistantId: assistant.id,
         llmProvider: assistant.llm.provider,
         llmNameApi: assistant.llm.apiName,
-        prevDocumentItemId: prevDocumentItem?.id || null,
+        prevDocumentItemIds,
         documentItemId: documentItem.id,
         systemPrompt: assistant.systemPrompt,
         temperature: 0.5,

@@ -57,6 +57,16 @@ export class DocumentItemService {
     });
   }
 
+  findManyItems(documentItemIds: string[]) {
+    return this.prisma.documentItem.findMany({
+      where: {
+        id: {
+          in: documentItemIds.map((id) => id.toLowerCase()),
+        },
+      },
+    });
+  }
+
   update(payload: UpdateDocumentItemDto) {
     return this.prisma.documentItem.update({
       where: {

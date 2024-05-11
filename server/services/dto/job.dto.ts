@@ -1,10 +1,11 @@
 export class AssistantJobDto {
   readonly index: number;
   readonly row: number;
+  readonly stepName: string;
   readonly llmProvider: string;
   readonly llmNameApi: string;
   readonly assistantId: string;
-  readonly prevDocumentItemId: string | null;
+  readonly prevDocumentItemIds: string[];
   readonly documentItemId: string;
   readonly systemPrompt: string;
   readonly temperature: number;
@@ -13,10 +14,11 @@ export class AssistantJobDto {
   constructor(
     index: number,
     row: number,
+    stepName: string,
     assistantId: string,
     llmProvider: string,
     llmNameApi: string,
-    prevDocumentItemId: string | null,
+    prevDocumentItemIds: string[],
     documentItemId: string,
     systemPrompt: string,
     temperature: number,
@@ -24,10 +26,11 @@ export class AssistantJobDto {
   ) {
     this.index = Number(index);
     this.row = Number(row);
+    this.stepName = stepName;
     this.assistantId = assistantId.toLowerCase();
     this.llmProvider = llmProvider;
     this.llmNameApi = llmNameApi;
-    this.prevDocumentItemId = prevDocumentItemId;
+    this.prevDocumentItemIds = prevDocumentItemIds;
     this.documentItemId = documentItemId.toLowerCase();
     this.systemPrompt = systemPrompt;
     this.temperature = Number(temperature);
@@ -37,10 +40,11 @@ export class AssistantJobDto {
   static fromInput(input: {
     index: number;
     row: number;
+    stepName: string;
     assistantId: string;
     llmProvider: string;
     llmNameApi: string;
-    prevDocumentItemId: string | null;
+    prevDocumentItemIds: string[];
     documentItemId: string;
     systemPrompt: string;
     temperature: number;
@@ -49,10 +53,11 @@ export class AssistantJobDto {
     return new AssistantJobDto(
       input.index,
       input.row,
+      input.stepName,
       input.assistantId,
       input.llmProvider,
       input.llmNameApi,
-      input.prevDocumentItemId,
+      input.prevDocumentItemIds,
       input.documentItemId,
       input.systemPrompt,
       input.temperature,

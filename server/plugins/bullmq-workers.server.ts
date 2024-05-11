@@ -12,7 +12,7 @@ async function processJob(data: AssistantJobDto) {
     temperature,
     maxTokens,
     assistantId,
-    prevDocumentItemId,
+    prevDocumentItemIds,
     documentItemId,
     systemPrompt,
   } = data;
@@ -21,6 +21,9 @@ async function processJob(data: AssistantJobDto) {
     llmProvider,
     llmNameApi,
   );
+
+  console.log(`Processing job for document item: ${documentItemId}`);
+  console.log(`Previous document item ids: ${prevDocumentItemIds}`);
 
   // wait 500ms
   // await new Promise((resolve) => setTimeout(resolve, 500));
@@ -31,9 +34,16 @@ async function processJob(data: AssistantJobDto) {
   // if (documentItem.content === '') return;
 
   // previous document item
-  if (!prevDocumentItemId) return;
-  const prevDocumentItem =
-    await documentItemService.findFirst(prevDocumentItemId);
+  if (!prevDocumentItemIds || prevDocumentItemIds.length < 1) return;
+  const prevDocumentItems =
+    await documentItemService.findManyItems(prevDocumentItemIds);
+
+  const content = `This is what I have so far:\n
+  ${prevDocumentItems.map((item) => item.content).join('\n\n')}`;
+
+  console.log(`Content: ${content}`);
+
+  // throw new Error('Stop here');
 
   const messages = [
     {
@@ -42,7 +52,7 @@ async function processJob(data: AssistantJobDto) {
     },
     {
       role: 'user',
-      content: prevDocumentItem?.content,
+      content: content,
     },
   ];
 

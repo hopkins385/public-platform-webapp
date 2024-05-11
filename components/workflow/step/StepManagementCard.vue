@@ -62,6 +62,7 @@
 
 <template>
   <div
+    :key="workflowStep?.assistant?.id"
     ref="stepCardRef"
     class="w-96 rounded-2xl border bg-white px-4 py-2 text-xs shadow-md"
   >
