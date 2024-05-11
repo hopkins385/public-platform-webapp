@@ -50,14 +50,10 @@
               </Button>
             </div>
           </div>
-          <Button
-            class="self-end"
-            variant="outline"
-            @click="() => navigateTo(`/workflow/create`)"
-          >
+          <LinkButton class="self-end" to="/workflow/create">
             New Workflow
             <PlusIcon class="ml-2 size-4 stroke-2" />
-          </Button>
+          </LinkButton>
         </div>
       </template>
     </Heading>

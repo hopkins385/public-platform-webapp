@@ -157,14 +157,7 @@
     <div class="flex h-full flex-col">
       <ul class="space-y-4 pt-12 text-muted-foreground">
         <template v-for="(item, index) in navItems" :key="index">
-          <li
-            class="nav-item"
-            v-if="!item.hidden"
-            :class="{
-              'pl-7': !navBar.isOpen,
-              'pl-10': navBar.isOpen,
-            }"
-          >
+          <li class="nav-item" v-if="!item.hidden">
             <NavLink
               :active="$route.path === item.to"
               :to="item.to"
@@ -199,7 +192,7 @@
 
 <style scoped>
   .nav-item {
-    @apply flex min-h-8 flex-col justify-center border-0 text-sm;
+    @apply flex min-h-8 flex-col justify-center border-0 pl-7 text-sm;
   }
 
   .nav-item-child {

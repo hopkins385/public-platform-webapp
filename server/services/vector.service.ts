@@ -37,9 +37,7 @@ export class VectorService {
         vectorStore: this.vectorStore,
       });
 
-      // logger.info(res);
-
-      // create chunks
+      return documents;
     } catch (e) {
       logger.error(e);
       throw new Error('Failed to index file');

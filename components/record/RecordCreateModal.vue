@@ -5,7 +5,16 @@
     collectionId: string | string[];
   }>();
 
+  const emits = defineEmits<{
+    refresh: [void];
+  }>();
+
   const open = ref(false);
+
+  function onSuccess() {
+    emits('refresh');
+    open.value = false;
+  }
 </script>
 
 <template>
@@ -24,7 +33,10 @@
         </DialogDescription>
       </DialogHeader>
       <Suspense>
-        <RecordAddMediaTable :collection-id="collectionId" />
+        <RecordAddMediaTable
+          :collection-id="collectionId"
+          @success="() => onSuccess()"
+        />
       </Suspense>
       <DialogFooter>
         <Button variant="outline" @click="open = false">Cancel</Button>

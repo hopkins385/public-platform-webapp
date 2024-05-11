@@ -1,11 +1,16 @@
 <script setup lang="ts">
-  import { FileIcon, PlusIcon } from 'lucide-vue-next';
+  import { FileIcon, PlusIcon, Loader2Icon } from 'lucide-vue-next';
 
   const props = defineProps<{
     collectionId: string | string[];
   }>();
 
+  const emits = defineEmits<{
+    success: [void];
+  }>();
+
   const errorAlert = reactive({ show: false, message: '' });
+  const pendingUpdateId = ref<string | null>(null);
 
   const { findPaginateAllMediaFor, setPage, setLimit } = useManageMedia();
 
@@ -34,13 +39,19 @@
 
   async function onAdd(id: string) {
     const { createRecord } = useManageRecords();
+    const toast = useToast();
+    pendingUpdateId.value = id;
+    errorAlert.show = false;
     try {
       await createRecord({
         collectionId: props.collectionId.toString(),
         mediaId: id,
       });
-      errorAlert.show = false;
+      pendingUpdateId.value = null;
+      toast.success({ description: 'Record created successfully' });
+      emits('success');
     } catch (error) {
+      pendingUpdateId.value = null;
       errorAlert.show = true;
       errorAlert.message = error.message;
     }
@@ -86,8 +97,16 @@
             {{ getFileSizeForHumans(item.fileSize) }}
           </TableCell>
           <TableCell class="space-x-2 text-right">
-            <Button variant="outline" size="icon" @click="onAdd(item.id)">
-              <PlusIcon class="size-4" />
+            <Button
+              variant="outline"
+              size="icon"
+              @click="onAdd(item.id)"
+              :disabled="pendingUpdateId == item.id"
+            >
+              <span v-if="pendingUpdateId == item.id" class="animate-spin">
+                <Loader2Icon class="size-4" />
+              </span>
+              <PlusIcon v-else class="size-4" />
             </Button>
           </TableCell>
         </TableRow>

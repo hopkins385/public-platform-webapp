@@ -1,5 +1,5 @@
 import { CollectionService } from './collection.service';
-import type { CreateRecordDto } from './dto/record.dto';
+import type { CreateRecordDto, FindRecordsDto } from './dto/record.dto';
 import { MediaService } from './media.service';
 import { VectorService } from './vector.service';
 export class RecordService {
@@ -45,11 +45,61 @@ export class RecordService {
     });
 
     // index file to vectorStore
-    return await this.vectorService.createIndex({
+    const documents = await this.vectorService.createIndex({
       mediaId: media.id,
       recordId: newRecord.id,
       mimeType: fileMime,
       path: filePath,
     });
+
+    // console.log('documents', documents);
+
+    const chunksData = documents.map((doc) => ({
+      id: ULID(),
+      recordId: newRecord.id,
+      content: doc.text,
+    }));
+
+    // console.log('chunksData', chunksData);
+
+    // create for each document a chunk
+    const chunks = await this.prisma.chunk.createMany({
+      data: chunksData,
+    });
+
+    return newRecord;
+  }
+
+  async findAllPaginated(payload: FindRecordsDto, page: number = 1) {
+    return await this.prisma.record
+      .paginate({
+        select: {
+          id: true,
+          createdAt: true,
+          media: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          chunks: {
+            select: {
+              id: true,
+            },
+          },
+        },
+        where: {
+          collection: {
+            id: payload.collectionId,
+            teamId: payload.teamId,
+          },
+          deletedAt: null,
+        },
+      })
+      .withPages({
+        limit: 10,
+        page,
+        includePageCount: true,
+      });
   }
 }

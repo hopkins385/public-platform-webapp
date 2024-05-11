@@ -17,14 +17,10 @@
       <template #top> </template>
       <template #bottom>
         <div class="ml-auto flex flex-col space-y-1 self-end px-3 pb-2 pt-14">
-          <Button
-            class=""
-            variant="outline"
-            @click="() => navigateTo('/assistant/create')"
-          >
+          <LinkButton to="/assistant/create">
             New Assistant
             <PlusIcon class="ml-2 size-4 stroke-2" />
-          </Button>
+          </LinkButton>
         </div>
       </template>
     </Heading>

@@ -1,9 +1,5 @@
 <script setup lang="ts">
-  import {
-    SettingsIcon,
-    Trash2Icon,
-    MessageSquarePlusIcon,
-  } from 'lucide-vue-next';
+  import { SettingsIcon, Trash2Icon, MessageSquareIcon } from 'lucide-vue-next';
 
   const showConfirmDialog = ref(false);
   const errorAlert = reactive({
@@ -105,13 +101,12 @@
             {{ assistant.isShared ? 'Organisation' : 'Team' }}
           </TableCell>
           <TableCell>{{ assistant.llm.displayName }}</TableCell>
-          <TableCell class="space-x-2 text-right">
-            <Button
-              variant="outline"
-              size="icon"
-              @click="onStart(assistant.id)"
-            >
-              <MessageSquarePlusIcon class="size-4 stroke-1.5 text-primary" />
+          <TableCell class="flex justify-end space-x-2 text-right">
+            <Button variant="outline" @click="onStart(assistant.id)">
+              New Chat
+              <MessageSquareIcon
+                class="ml-2 size-4 shrink-0 stroke-1.5 text-primary"
+              />
             </Button>
             <Button variant="outline" size="icon" @click="onEdit(assistant.id)">
               <SettingsIcon class="size-4 stroke-1.5 text-primary" />

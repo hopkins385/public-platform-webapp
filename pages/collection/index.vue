@@ -18,14 +18,10 @@
       <template #bottom>
         <div class="flex w-full justify-between px-3 pb-2 pt-14">
           <div></div>
-          <Button
-            class="self-end"
-            variant="outline"
-            @click="() => navigateTo(`/collection/create`)"
-          >
+          <LinkButton class="self-end" to="/collection/create">
             New Collection
             <PlusIcon class="ml-2 size-4 stroke-2" />
-          </Button>
+          </LinkButton>
         </div>
       </template>
     </Heading>

@@ -21,22 +21,14 @@
       <template #top> </template>
       <template #bottom>
         <div class="ml-auto flex flex-col space-y-1 self-end px-3 pb-2 pt-14">
-          <Button
-            class=""
-            variant="outline"
-            @click="() => navigateTo('/project/create')"
-          >
+          <LinkButton to="/project/create">
             New Project
             <PlusIcon class="ml-2 size-4 stroke-2" />
-          </Button>
-          <Button
-            class=""
-            variant="outline"
-            @click="() => navigateTo('/project/list')"
-          >
+          </LinkButton>
+          <LinkButton to="/project/list">
             Manage Projects
             <SettingsIcon class="ml-2 size-4 stroke-1.5" />
-          </Button>
+          </LinkButton>
         </div>
       </template>
     </Heading>

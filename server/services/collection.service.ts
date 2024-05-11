@@ -28,20 +28,6 @@ export class CollectionService {
         id: true,
         name: true,
         description: true,
-        records: {
-          select: {
-            id: true,
-            mediaId: true,
-            media: {
-              select: {
-                name: true,
-              },
-            },
-          },
-          where: {
-            deletedAt: null,
-          },
-        },
       },
       where: {
         id: collectionId.toLowerCase(),

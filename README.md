@@ -53,6 +53,12 @@ npm install
 
 ### Development Server
 
+Docker build for development:
+
+```bash
+docker build -t ragna/cloud-platform-dev -f Dockerfile .
+```
+
 Start the development server on http://localhost:3000
 
 ```bash
@@ -60,6 +66,12 @@ npm run dev
 ```
 
 ### Production
+
+Docker build for production:
+
+```bash
+docker build -t ragna/cloud-platform -f Dockerfile.prod .
+```
 
 Build the application for production:
 
