@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { vOnClickOutside } from '@vueuse/components';
-  import { useEventListener } from '@vueuse/core';
+  import { useEventListener, useThrottleFn } from '@vueuse/core';
   import { PlayIcon, PlusIcon } from 'lucide-vue-next';
 
   const props = defineProps<{
@@ -14,6 +14,8 @@
     x: 0,
     y: 0,
   });
+  const itemCardContent = ref('');
+  const itemCardContentId = ref('');
   const showStepId = ref('');
 
   const { getFullWorkflow } = useManageWorkflows();
@@ -61,8 +63,9 @@
     showStepId.value = stepId;
   }
 
-  function toggleItemCard(x: number, y: number) {
+  function toggleItemCard(x: number, y: number, content: string, id: string) {
     // if click again on the same item, close the card if it is open
+    console.log('toggle item card');
     if (
       showItemCard.value &&
       teleportItemCardTo.x === x &&
@@ -74,14 +77,18 @@
     showItemCard.value = true;
     teleportItemCardTo.x = x;
     teleportItemCardTo.y = y;
+    itemCardContent.value = content;
+    itemCardContentId.value = id;
   }
 
   function onCloseStepCard() {
     showStepCard.value = false;
   }
 
-  function onCloseItemCard() {
+  async function onCloseItemCard() {
+    console.log('close item card');
     showItemCard.value = false;
+    await refresh();
   }
 
   async function onAddWorkflowStep() {
@@ -119,6 +126,48 @@
     await refresh();
   }
 
+  function setColumnWidth(e: MouseEvent, index: number) {
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    const column = document.getElementById(`col_${index}`);
+    if (!column) return;
+    column.style.width = `${e.clientX - column.getBoundingClientRect().left}px`;
+    // column.style.width = `${e.clientX / 16}rem`;
+  }
+
+  function resizeColumnListener(ev: MouseEvent, index: number) {
+    const mouseMove = useEventListener('mousemove', (e) =>
+      setColumnWidth(e, index),
+    );
+
+    addEventListener('mouseup', () => {
+      mouseMove();
+    });
+  }
+
+  /*function setRowHeight(e: MouseEvent, rowIndex: number) {
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    const row = document.getElementById(`row_${rowIndex}`);
+    if (!row) return;
+    row.style.height = `${e.clientY - row.getBoundingClientRect().top}px`;
+    // resize also all item heights
+    const items = document.querySelectorAll(`#item_x${rowIndex}_y*`);
+    items.forEach((item) => {
+      item.style.height = `${e.clientY - row.getBoundingClientRect().top}px`;
+    });
+  }
+
+  function resizeRowListener(ev: MouseEvent, rowIndex: number) {
+    const mouseMove = useEventListener('mousemove', (e) =>
+      setRowHeight(e, rowIndex),
+    );
+
+    addEventListener('mouseup', () => {
+      mouseMove();
+    });
+  }*/
+
   // listen for esc key
   useEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
@@ -137,9 +186,35 @@
       // showItemCard.value = false;
     }
   });
+
+  onMounted(() => {
+    const socket = useWebsocket();
+    socket.emit('join_room', { roomId: props.workflowId });
+    console.log('connecting to room');
+
+    socket.on('connect', () => {
+      console.log('connected to socket');
+    });
+
+    // new_message event
+    socket.on('new_message', async (data) => {
+      console.log('new message', data);
+      // useThrottleFn(async () => {
+      //   await refresh();
+      // }, 500);
+      await refresh();
+    });
+  });
+
+  onBeforeUnmount(() => {
+    const socket = useWebsocket();
+    socket.emit('leave_room', { roomId: props.workflowId });
+    console.log('leaving room');
+  });
 </script>
 
 <template>
+  <div @click="refresh">relfresh</div>
   <div class="h-screen overflow-x-scroll bg-white p-0">
     <div class="relative grid w-fit grid-flow-col text-xs">
       <div class="grid w-12" id="column_number">
@@ -148,10 +223,13 @@
         ></div>
         <div class="border-l-2 bg-white">
           <div
-            v-for="(step, index) in workflow.steps[0].document?.documentItems"
-            class="flex h-9 items-center justify-center truncate border-b-2 opacity-50"
+            v-for="(step, rowIndex) in workflow.steps[0].document
+              ?.documentItems"
+            :key="rowIndex"
+            :id="`row_${rowIndex}`"
+            class="flex h-9 flex-col items-center justify-center truncate border-b-2 opacity-50"
           >
-            {{ index + 1 }}
+            {{ rowIndex + 1 }}
           </div>
         </div>
         <div
@@ -161,30 +239,53 @@
           <PlusIcon class="size-3 cursor-pointer" />
         </div>
       </div>
-      <template v-for="(step, index) in workflow.steps" :key="step.id">
-        <div class="relative grid w-60">
-          <div
-            :id="`col_title_${index}`"
-            class="flex h-9 cursor-pointer items-center border-y-2 border-l-2 px-2 font-semibold hover:bg-stone-100"
-            @click.stop="() => toggleStepCard(index, step.id)"
-            :class="{
-              'bg-stone-100': showStepCard && teleportStepCardTo === index,
-            }"
-          >
-            {{ step.name }}
+      <template v-for="(step, columnIndex) in workflow.steps" :key="step.id">
+        <div
+          :id="`col_${columnIndex}`"
+          class="relative grid"
+          style="width: 14rem"
+        >
+          <div class="flex">
+            <div
+              :id="`col_title_${columnIndex}`"
+              class="flex h-9 w-full cursor-pointer items-center border-y-2 border-l-2 bg-stone-50 px-2 font-semibold hover:bg-stone-100"
+              @click.stop="() => toggleStepCard(columnIndex, step.id)"
+              :class="{
+                'bg-stone-100':
+                  showStepCard && teleportStepCardTo === columnIndex,
+              }"
+            >
+              {{ step.name }}
+            </div>
+            <div class="">
+              <div
+                class="h-full w-1 cursor-move hover:bg-blue-600"
+                @mousedown="(e) => resizeColumnListener(e, columnIndex)"
+              ></div>
+            </div>
           </div>
           <div
-            :id="`step_teleport_anker_${index}`"
+            :id="`step_teleport_anker_${columnIndex}`"
             class="absolute left-2 top-10 z-10 size-0 bg-transparent"
           ></div>
           <div
+            v-for="(item, rowIndex2) in step.document?.documentItems"
             class="relative h-9 border-b-2 border-l-2 bg-white hover:bg-stone-100"
-            @click.stop="() => toggleItemCard(index, index2)"
-            v-for="(item, index2) in step.document?.documentItems"
+            @click.stop="
+              () =>
+                toggleItemCard(columnIndex, rowIndex2, item?.content, item?.id)
+            "
           >
-            <div class="cursor-pointer truncate p-2">{{ item?.id }}</div>
             <div
-              :id="`item_teleport_anker_x${index}_y${index2}`"
+              :id="`item_x${columnIndex}_y${rowIndex2}`"
+              class="max-h-full cursor-pointer overflow-hidden p-2"
+            >
+              <div class="overflow-hidden whitespace-pre-wrap">
+                {{ item?.content }}
+              </div>
+            </div>
+            <div
+              :id="`item_teleport_anker_x${columnIndex}_y${rowIndex2}`"
               class="absolute left-0 top-0 z-10 size-0 bg-transparent"
             ></div>
           </div>
@@ -231,8 +332,11 @@
   >
     <WorkflowItemCard
       v-on-click-outside.bubble="onCloseItemCard"
-      @close="onCloseItemCard"
+      @close="() => onCloseItemCard()"
       :key="`item_teleport_${teleportItemCardTo.x}_${teleportItemCardTo.y}`"
+      :item-id="itemCardContentId"
+      :content="itemCardContent"
+      @refresh="refresh"
     />
   </Teleport>
 </template>

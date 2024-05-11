@@ -18,7 +18,6 @@
     },
   });
   const route = useRoute();
-  const { $socket } = useNuxtApp();
   const { projectId, workflowId } = useRoute().params;
   const { getWorkflowSettings } = useManageWorkflows();
   const { data } = getWorkflowSettings(workflowId);
@@ -29,25 +28,6 @@
     const { executeWorkflow } = useExecuteWorkflow();
     const { error } = await executeWorkflow(workflowId);
   }
-
-  onMounted(() => {
-    $socket.emit('join_room', { roomId: workflowId });
-    console.log('connecting to room');
-
-    $socket.on('connect', () => {
-      console.log('connected to socket');
-    });
-
-    // new_message event
-    $socket.on('new_message', (data) => {
-      console.log('new message', data);
-    });
-  });
-
-  onBeforeUnmount(() => {
-    $socket.emit('leave_room', { roomId: workflowId });
-    console.log('leaving room');
-  });
 </script>
 
 <template>
@@ -58,7 +38,9 @@
       </Button>
     </BoxContainer>
     <BoxContainer class="mt-4 p-5">
-      <WorkflowList :workflow-id="workflowId as string" />
+      <Suspense>
+        <WorkflowList :workflow-id="workflowId as string" />
+      </Suspense>
     </BoxContainer>
   </div>
 </template>

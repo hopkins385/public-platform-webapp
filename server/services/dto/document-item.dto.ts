@@ -38,17 +38,17 @@ export class CreateDocumentItemDto {
 
 export class UpdateDocumentItemDto {
   readonly documentItemId: string;
-  readonly orderColumn: number;
-  readonly status: string;
-  readonly type: string;
   readonly content: string;
+  readonly orderColumn?: number;
+  readonly status?: string;
+  readonly type?: string;
 
   constructor(
     documentItemId: string,
-    orderColumn: number,
-    status: string,
-    type: string,
     content: string,
+    orderColumn?: number,
+    status?: string,
+    type?: string,
   ) {
     this.documentItemId = documentItemId.toLowerCase();
     this.orderColumn = orderColumn;
@@ -59,17 +59,17 @@ export class UpdateDocumentItemDto {
 
   static fromInput(input: {
     documentItemId: string;
-    orderColumn: number;
-    status: string;
-    type: string;
     content: string;
+    orderColumn?: number;
+    status?: string;
+    type?: string;
   }): UpdateDocumentItemDto {
     return new UpdateDocumentItemDto(
       input.documentItemId,
+      input.content,
       input.orderColumn,
       input.status,
       input.type,
-      input.content,
     );
   }
 }

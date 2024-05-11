@@ -4,6 +4,7 @@ import { ulidRule } from '~/server/utils/validation/ulid.rule';
 import { WorkflowStepService } from '~/server/services/workflow-step.service';
 import {
   CreateWorkflowStepDto,
+  UpdateWorkflowStepAssistantDto,
   UpdateWorkflowStepDto,
   UpdateWorkflowStepNameDto,
 } from '~/server/services/dto/workflow-step.dto';
@@ -73,6 +74,18 @@ export const workflowStepRouter = router({
     .mutation(async ({ ctx, input }) => {
       const payload = UpdateWorkflowStepNameDto.fromInput(input);
       return workflowStepService.updateName(payload);
+    }),
+
+  updateAssistant: protectedProcedure
+    .input(
+      z.object({
+        workflowStepId: ulidRule(),
+        assistantId: ulidRule(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const updatePayload = UpdateWorkflowStepAssistantDto.fromInput(input);
+      return workflowStepService.updateAssistant(updatePayload);
     }),
   delete: protectedProcedure
     .input(

@@ -83,6 +83,8 @@
             <AssistantSelectForm
               :assistants="allAssistants"
               :assistant-id="workflowStep?.assistant?.id"
+              :workflow-step-id="workflowStep?.id"
+              @refresh="$emit('refresh')"
             />
           </div>
         </div>

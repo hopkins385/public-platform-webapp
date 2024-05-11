@@ -58,7 +58,6 @@
       </template>
     </Heading>
     <BoxContainer>
-      {{ allWorkflows }}
       <WorkflowListAll :meta="meta" :workflows="allWorkflows" />
     </BoxContainer>
   </SectionContainer>

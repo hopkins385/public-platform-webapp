@@ -63,10 +63,10 @@ export class DocumentItemService {
         id: payload.documentItemId.toLowerCase(),
       },
       data: {
+        content: payload.content,
         orderColumn: payload.orderColumn,
         status: payload.status,
         type: payload.type,
-        content: payload.content,
         updatedAt: new Date(),
       },
     });

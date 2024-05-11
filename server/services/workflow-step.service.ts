@@ -4,6 +4,7 @@ import { CreateDocumentItemDto } from './dto/document-item.dto';
 import { CreateDocumentDto } from './dto/document.dto';
 import type {
   CreateWorkflowStepDto,
+  UpdateWorkflowStepAssistantDto,
   UpdateWorkflowStepDto,
   UpdateWorkflowStepNameDto,
 } from './dto/workflow-step.dto';
@@ -91,6 +92,18 @@ export class WorkflowStepService {
       },
       data: {
         name: payload.name,
+        updatedAt: new Date(),
+      },
+    });
+  }
+
+  updateAssistant(payload: UpdateWorkflowStepAssistantDto) {
+    return this.prisma.workflowStep.update({
+      where: {
+        id: payload.workflowStepId,
+      },
+      data: {
+        assistantId: payload.assistantId,
         updatedAt: new Date(),
       },
     });

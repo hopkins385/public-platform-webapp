@@ -1,9 +1,17 @@
-export interface IDocumentItemPayload {
+interface IDocumentItemPayload {
   documentId: string;
   orderColumn: number;
   status: string;
   type: string;
   content: string;
+}
+
+interface IUpdateDocumentItemPayload {
+  documentItemId: string;
+  content: string;
+  status?: string;
+  type?: string;
+  orderColumn?: number;
 }
 
 export default function useManageDocumentItems() {
@@ -72,7 +80,7 @@ export default function useManageDocumentItems() {
     });
   }
 
-  function updateDocumentItem(payload: IDocumentItemPayload) {
+  function updateDocumentItem(payload: IUpdateDocumentItemPayload) {
     return $client.documentItem.update.mutate(
       { ...payload },
       {

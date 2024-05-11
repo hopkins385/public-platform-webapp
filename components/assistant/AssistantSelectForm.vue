@@ -6,11 +6,16 @@
   const props = defineProps<{
     assistants: any[] | undefined | null;
     assistantId: string;
+    workflowStepId: string;
+  }>();
+
+  const emit = defineEmits<{
+    refresh: [void];
   }>();
 
   const formSchema = toTypedSchema(
     z.object({
-      //
+      assistantId: z.string(),
     }),
   );
 
@@ -21,8 +26,13 @@
     },
   });
 
-  const onSubmit = handleSubmit((values) => {
-    //
+  const onSubmit = handleSubmit(async (values) => {
+    const { updateWorkflowStepAssistant } = useManageWorkflowSteps();
+    await updateWorkflowStepAssistant({
+      workflowStepId: props.workflowStepId,
+      assistantId: values.assistantId,
+    });
+    emit('refresh');
   });
 </script>
 
@@ -31,6 +41,7 @@
     :value="assistantId"
     v-slot="{ componentField }"
     name="assistantId"
+    @update:model-value="() => onSubmit()"
   >
     <FormItem>
       <Select v-bind="componentField">

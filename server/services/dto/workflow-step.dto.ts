@@ -96,6 +96,26 @@ export class UpdateWorkflowStepNameDto {
   }
 }
 
+export class UpdateWorkflowStepAssistantDto {
+  readonly workflowStepId: string;
+  readonly assistantId: string;
+
+  constructor(workflowStepId: string, assistantId: string) {
+    this.workflowStepId = workflowStepId.toLowerCase();
+    this.assistantId = assistantId.toLowerCase();
+  }
+
+  static fromInput(input: {
+    workflowStepId: string;
+    assistantId: string;
+  }): UpdateWorkflowStepAssistantDto {
+    return new UpdateWorkflowStepAssistantDto(
+      input.workflowStepId,
+      input.assistantId,
+    );
+  }
+}
+
 export class FindAllWorkflowStepsDto {
   readonly workflowId: string;
 

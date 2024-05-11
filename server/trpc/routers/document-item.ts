@@ -64,10 +64,10 @@ export const documentItemRouter = router({
     .input(
       z.object({
         documentItemId: ulidRule(),
-        orderColumn: z.number(),
-        status: z.string(),
-        type: z.string(),
         content: z.string(),
+        orderColumn: z.number().optional(),
+        status: z.string().optional(),
+        type: z.string().optional(),
       }),
     )
     .mutation(async ({ input }) => {

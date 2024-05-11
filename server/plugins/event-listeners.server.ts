@@ -6,6 +6,7 @@ import { ChatEvent } from '../utils/enums/chat-event.enum';
 import { eventEmitter } from '../utils/events';
 import { consola } from 'consola';
 import { AuthEvent } from '../utils/enums/auth-event.enum';
+import { WorkflowEvent } from '../utils/enums/workflow-event.enum';
 
 const logger = consola.create({}).withTag('event');
 
@@ -39,11 +40,11 @@ export default defineNitroPlugin((nitroApp) => {
 
   eventEmitter.on(ChatEvent.STREAMFINISHED, chatStreamFinished);
 
-  eventEmitter.on('RowCompleted', async (data) => {
+  eventEmitter.on(WorkflowEvent.ROWCOMPLETED, async (data) => {
     const { getSocketServer } = useSocketServer();
     const io = getSocketServer();
     const { workflowId } = data;
     io.to(`room_${workflowId}`).emit('new_message', data);
-    logger.info('RowCompleted', data);
+    logger.info(`RowCompleted and sent data to room_${workflowId}`, data);
   });
 });
