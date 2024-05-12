@@ -1,6 +1,9 @@
+import type { ChatCompletion } from 'openai/resources/index.mjs';
 import { CompletionFactoryStatic } from '../factories/completionFactoryStatic';
+import { UsageEvent } from '../utils/enums/usage-event.enum';
 import { DocumentItemService } from './document-item.service';
 import { AssistantJobDto } from './dto/job.dto';
+import { TrackTokensDto } from './dto/track-tokens.dto';
 
 export class AssistantJobService {
   constructor(
@@ -59,19 +62,36 @@ export class AssistantJobService {
       },
     ];
 
-    const response = await completionFactory.create({
+    const response = (await completionFactory.create({
       messages,
       temperature,
       maxTokens: 100,
       stream: false,
-    });
+    })) as ChatCompletion;
 
-    const message = response?.choices[0]?.message.content || 'low';
+    const message =
+      response?.choices[0]?.message.content || 'something went wrong';
 
     const update = await this.documentItemService.update({
       documentItemId,
       content: message,
       status: 'completed',
     });
+
+    this.event(
+      UsageEvent.TRACKTOKENS,
+      TrackTokensDto.fromInput({
+        userId: documentItem?.userId || '01hxecwc4zh66g3hzryh8r9jz4',
+        llm: {
+          provider: llmProvider,
+          model: llmNameApi,
+        },
+        usage: {
+          promptTokens: response?.usage?.prompt_tokens || 0,
+          completionTokens: response?.usage?.completion_tokens || 0,
+          totalTokens: response?.usage?.total_tokens || 0,
+        },
+      }),
+    );
   }
 }

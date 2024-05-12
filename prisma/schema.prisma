@@ -12,25 +12,26 @@ datasource db {
 }
 
 model User {
-  id              String     @id
-  deviceId        String?    @map("device_id")
-  email           String     @unique
+  id              String       @id
+  deviceId        String?      @map("device_id")
+  email           String       @unique
   name            String
-  firstName       String?    @map("first_name")
-  lastName        String?    @map("last_name")
+  firstName       String?      @map("first_name")
+  lastName        String?      @map("last_name")
   password        String
-  isActive        Boolean    @default(false) @map("is_active")
-  isAdmin         Boolean    @default(false) @map("is_admin")
-  lastLoginAt     DateTime?  @map("last_login_at")
-  emailVerifiedAt DateTime?  @map("email_verified_at")
-  createdAt       DateTime   @default(now()) @map("created_at")
-  updatedAt       DateTime   @updatedAt @map("updated_at")
-  deletedAt       DateTime?  @map("deleted_at")
+  isActive        Boolean      @default(false) @map("is_active")
+  isAdmin         Boolean      @default(false) @map("is_admin")
+  lastLoginAt     DateTime?    @map("last_login_at")
+  emailVerifiedAt DateTime?    @map("email_verified_at")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+  deletedAt       DateTime?    @map("deleted_at")
   chats           Chat[]
   credit          Credit[]
   teams           TeamUser[]
   accounts        Account[]
   sessions        Session[]
+  tokenUsages     TokenUsage[]
 
   @@unique([deviceId, email])
   @@map("users")
@@ -208,6 +209,24 @@ model Credit {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("credits")
+}
+
+model TokenUsage {
+  id               String    @id
+  userId           String    @map("user_id")
+  llmProvider      String    @map("llm_provider")
+  llmModel         String    @map("llm_model")
+  promptTokens     Int       @map("prompt_tokens")
+  completionTokens Int       @map("completion_tokens")
+  totalTokens      Int       @map("total_tokens")
+  cost             Int       @map("cost")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("token_usages")
 }
 
 // model Subscription {

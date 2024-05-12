@@ -194,6 +194,8 @@ export class ChatService {
             systemPrompt: true,
             llm: {
               select: {
+                provider: true,
+                displayName: true,
                 apiName: true,
               },
             },

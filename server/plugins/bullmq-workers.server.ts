@@ -1,10 +1,25 @@
 import { AssistantJobService } from './../services/assistant-job.service';
 import { WorkflowEvent } from '../utils/enums/workflow-event.enum';
+import { QueueEnum } from '../utils/enums/queue.enum';
+import { JobEnum } from '../utils/enums/job.enum';
+import { trackTokens } from '../utils/track-tokens';
 
 const assistantJobService = new AssistantJobService();
 
 export default defineNitroPlugin((nitroApp) => {
   const { createWorker } = useBullmq();
+
+  const tokenUsageQueue = createWorker(QueueEnum.TOKENUSAGE, async (job) => {
+    switch (job.name) {
+      case JobEnum.TRACKTOKENS:
+        await trackTokens(job.data);
+        break;
+      default:
+        throw new Error(
+          `Invalid Job for Queue 'TokenUsage'. Job ${job.name} not found`,
+        );
+    }
+  });
 
   const stepCompletion = createWorker('RowCompletion', async (job) => {
     const { event } = useEvents();

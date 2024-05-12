@@ -1,3 +1,3 @@
 export enum UsageEvent {
-  ADD = 'usage.add',
+  TRACKTOKENS = 'usage.tokens',
 }

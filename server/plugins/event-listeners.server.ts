@@ -7,10 +7,15 @@ import { updateLastLogin } from '~/server/utils/events/login.events';
 import { chatStreamFinished } from '~/server/utils/events/chat.events';
 import { rowCompleted } from '~/server/utils/events/workflow.events';
 import { UsageEvent } from '../utils/enums/usage-event.enum';
+import { TrackTokensDto } from '../services/dto/track-tokens.dto';
+import { QueueEnum } from '~/server/utils/enums/queue.enum';
+import { JobEnum } from '~/server/utils/enums/job.enum';
+import { trackTokens } from '~/server/utils/track-tokens';
 
 const logger = consola.create({}).withTag('event-listener');
 
 export default defineNitroPlugin((nitroApp) => {
+  const { getOrCreateQueue } = useBullmq();
   // Listen to events
   // Auth
   eventEmitter.on(AuthEvent.LOGIN, updateLastLogin);
@@ -22,7 +27,9 @@ export default defineNitroPlugin((nitroApp) => {
   eventEmitter.on(WorkflowEvent.ROWCOMPLETED, rowCompleted);
 
   // Usage
-  eventEmitter.on(UsageEvent.ADD, async (data) => {
-    logger.info(`UsageEvent.ADD`, data);
+  eventEmitter.on(UsageEvent.TRACKTOKENS, async (payload: TrackTokensDto) => {
+    // const queue = getOrCreateQueue(QueueEnum.TOKENUSAGE);
+    // await queue.add(JobEnum.TRACKTOKENS, payload);
+    await trackTokens(payload);
   });
 });

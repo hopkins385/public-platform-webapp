@@ -1,3 +1,4 @@
+import { TokenizerService } from './../../services/tokenizer.service';
 import { VectorService } from './../../services/vector.service';
 import { getServerSession } from '#auth';
 import { Readable, Transform } from 'stream';
@@ -11,10 +12,13 @@ import { ChatEvent } from '~/server/utils/enums/chat-event.enum';
 import consola from 'consola';
 import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
 import { CollectionService } from '~/server/services/collection.service';
+import { UsageEvent } from '~/server/utils/enums/usage-event.enum';
+import { TrackTokensDto } from '~/server/services/dto/track-tokens.dto';
 
 const config = useRuntimeConfig();
 const chatService = new ChatService();
 const creditService = new CreditService();
+const tokenizerService = new TokenizerService();
 
 const logger = consola.create({}).withTag('conversation.post');
 
@@ -29,8 +33,7 @@ export default defineEventHandler(async (_event) => {
   if (!credit || credit.amount < 1) {
     throw createError({
       statusCode: 402,
-      message:
-        'Insufficient credits to continue conversation. Please top up your credits.',
+      message: 'Insufficient credits to continue conversation.',
     });
   }
 
@@ -111,9 +114,14 @@ export default defineEventHandler(async (_event) => {
       //
     });
 
-    _event.node.res.on('close', async () => {
+    _event.node.res.on('close', () => {
       const { event } = useEvents();
       stream.destroy();
+
+      const inputTokens = tokenizerService.getTokens(
+        body.messages[body.messages.length - 1].content,
+      );
+      const outputTokens = tokenizerService.getTokens(llmResponseMessage);
 
       event(ChatEvent.STREAMFINISHED, {
         chatId: chat.id,
@@ -121,6 +129,22 @@ export default defineEventHandler(async (_event) => {
         assistantId: chat.assistant.id,
         messageContent: llmResponseMessage,
       });
+
+      event(
+        UsageEvent.TRACKTOKENS,
+        TrackTokensDto.fromInput({
+          userId: user.id,
+          llm: {
+            provider: chat.assistant.llm.provider,
+            model: chat.assistant.llm.apiName,
+          },
+          usage: {
+            promptTokens: inputTokens.tokenCount,
+            completionTokens: outputTokens.tokenCount,
+            totalTokens: inputTokens.tokenCount + outputTokens.tokenCount,
+          },
+        }),
+      );
     });
 
     return sendStream(_event, bufferStream);
