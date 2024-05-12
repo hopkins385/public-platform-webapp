@@ -145,20 +145,23 @@
     });
   }
 
-  /*function setRowHeight(e: MouseEvent, rowIndex: number) {
+  function setRowHeight(e: MouseEvent, rowIndex: number) {
     e.stopImmediatePropagation();
     e.preventDefault();
     const row = document.getElementById(`row_${rowIndex}`);
     if (!row) return;
     row.style.height = `${e.clientY - row.getBoundingClientRect().top}px`;
     // resize also all item heights
-    const items = document.querySelectorAll(`#item_x${rowIndex}_y*`);
+    const items = document.querySelectorAll(
+      `[id^="item_x"][id$="_y${rowIndex}"]`,
+    );
     items.forEach((item) => {
       item.style.height = `${e.clientY - row.getBoundingClientRect().top}px`;
     });
   }
 
   function resizeRowListener(ev: MouseEvent, rowIndex: number) {
+    console.log('resize row listener');
     const mouseMove = useEventListener('mousemove', (e) =>
       setRowHeight(e, rowIndex),
     );
@@ -166,7 +169,7 @@
     addEventListener('mouseup', () => {
       mouseMove();
     });
-  }*/
+  }
 
   // listen for esc key
   useEventListener('keydown', (e) => {
@@ -227,9 +230,14 @@
               ?.documentItems"
             :key="rowIndex"
             :id="`row_${rowIndex}`"
-            class="flex h-9 flex-col items-center justify-center truncate border-b-2 opacity-50"
+            class="relative flex flex-col items-center justify-center truncate border-b-2 opacity-50"
+            style="height: 3.15rem"
           >
             {{ rowIndex + 1 }}
+            <div
+              @mousedown="(e) => resizeRowListener(e, rowIndex)"
+              class="absolute bottom-0 left-0 h-2 w-full cursor-move hover:bg-blue-600"
+            ></div>
           </div>
         </div>
         <div
@@ -270,7 +278,7 @@
           ></div>
           <div
             v-for="(item, rowIndex2) in step.document?.documentItems"
-            class="relative h-9 border-b-2 border-l-2 bg-white hover:bg-stone-100"
+            class="relative border-b-2 border-l-2 bg-white hover:bg-stone-100"
             @click.stop="
               () =>
                 toggleItemCard(columnIndex, rowIndex2, item?.content, item?.id)
@@ -278,6 +286,7 @@
           >
             <div
               :id="`item_x${columnIndex}_y${rowIndex2}`"
+              style="height: 3rem"
               class="max-h-full cursor-pointer overflow-hidden p-2"
             >
               <div class="overflow-hidden whitespace-pre-wrap">

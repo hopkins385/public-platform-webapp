@@ -2,7 +2,7 @@
   import { PlusIcon } from 'lucide-vue-next';
 
   definePageMeta({
-    title: 'workflows.meta.index.title',
+    title: 'workflow.meta.index.title',
     breadcrumb: {
       icon: 'files',
       ariaLabel: 'Workflows',
@@ -15,7 +15,9 @@
   const { getAllWorkflowsForUser } = useManageWorkflows();
   const { data } = await getAllWorkflowsForUser();
 
-  const allWorkflows = computed(() => data.value?.allWorkflows || []);
+  const workflows = computed(
+    () => data.value?.allWorkflows.flatMap((w: any) => w.workflows) || [],
+  );
   const meta = computed(() => {
     return {
       totalCount: data.value?.meta?.totalCount || 0,
@@ -50,15 +52,15 @@
               </Button>
             </div>
           </div>
-          <LinkButton class="self-end" to="/workflow/create">
+          <!-- LinkButton class="self-end" to="/workflow/create">
             New Workflow
             <PlusIcon class="ml-2 size-4 stroke-2" />
-          </LinkButton>
+          </!-->
         </div>
       </template>
     </Heading>
     <BoxContainer>
-      <WorkflowListAll :meta="meta" :workflows="allWorkflows" />
+      <WorkflowListAll :meta="meta" :workflows="workflows" />
     </BoxContainer>
   </SectionContainer>
 </template>

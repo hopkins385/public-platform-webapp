@@ -1,50 +1,28 @@
-import { CreditService } from './../services/credit.service';
-import { ChatService } from './../services/chat.service';
-import { LastLoginDto } from '../services/dto/last-login.dto';
-import { UserService } from '../services/user.service';
-import { ChatEvent } from '../utils/enums/chat-event.enum';
-import { eventEmitter } from '../utils/events';
+import { ChatEvent } from '~/server/utils/enums/chat-event.enum';
+import { eventEmitter } from '~/server/utils/events';
 import { consola } from 'consola';
-import { AuthEvent } from '../utils/enums/auth-event.enum';
-import { WorkflowEvent } from '../utils/enums/workflow-event.enum';
+import { AuthEvent } from '~/server/utils/enums/auth-event.enum';
+import { WorkflowEvent } from '~/server/utils/enums/workflow-event.enum';
+import { updateLastLogin } from '~/server/utils/events/login.events';
+import { chatStreamFinished } from '~/server/utils/events/chat.events';
+import { rowCompleted } from '~/server/utils/events/workflow.events';
+import { UsageEvent } from '../utils/enums/usage-event.enum';
 
-const logger = consola.create({}).withTag('event');
-
-async function chatStreamFinished(data: any) {
-  const chatService = new ChatService();
-  const creditService = new CreditService();
-
-  const { chatId, userId, messageContent } = data;
-
-  await chatService.createMessage({
-    chatId,
-    chatMessage: { role: 'assistant', content: messageContent },
-  });
-
-  await creditService.reduceCredit(userId, 1);
-}
-
-async function updateLastLogin(user: any) {
-  const userService = new UserService();
-  const payload = LastLoginDto.fromInput({
-    email: user.email,
-    lastLoginAt: new Date(),
-  });
-  await userService.updateLastLogin(payload);
-}
+const logger = consola.create({}).withTag('event-listener');
 
 export default defineNitroPlugin((nitroApp) => {
   // Listen to events
-
+  // Auth
   eventEmitter.on(AuthEvent.LOGIN, updateLastLogin);
 
+  // Chat
   eventEmitter.on(ChatEvent.STREAMFINISHED, chatStreamFinished);
 
-  eventEmitter.on(WorkflowEvent.ROWCOMPLETED, async (data) => {
-    const { getSocketServer } = useSocketServer();
-    const io = getSocketServer();
-    const { workflowId } = data;
-    io.to(`room_${workflowId}`).emit('new_message', data);
-    logger.info(`RowCompleted and sent data to room_${workflowId}`, data);
+  // Workflow
+  eventEmitter.on(WorkflowEvent.ROWCOMPLETED, rowCompleted);
+
+  // Usage
+  eventEmitter.on(UsageEvent.ADD, async (data) => {
+    logger.info(`UsageEvent.ADD`, data);
   });
 });

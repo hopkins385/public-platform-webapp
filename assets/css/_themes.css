@@ -1,0 +1,42 @@
+/* Theme 1: nice pastel CG Blue */
+@layer base {
+  .theme-1 {
+    /*--primary: 209 95 24;*/
+
+    /* Name: custom color palette
+       Author: Ilias Ism
+       URL: https://gradient.page */
+
+    /* CSS: .bg-gradient { background: var(--gradient) } */
+    --gradient: url(/samples/vibrant-vista/vibrant-vista-001.jpg);
+
+    --background: 210 26% 7.84%;
+    --foreground: 210 4% 99.9%;
+
+    --muted: 210 20% 29.4%;
+    --muted-foreground: 210 4% 59.8%;
+
+    --popover: 210 57% 12.74%;
+    --popover-foreground: 210 4% 99.9%;
+
+    --card: 210 57% 12.74%;
+    --card-foreground: 210 4% 99.9%;
+
+    --border: 210 20% 29.4%;
+    --input: 210 20% 29.4%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 210 4% 9.8%;
+
+    --secondary: 210 20% 29.4%;
+    --secondary-foreground: 210 4% 99.9%;
+
+    --accent: 210 20% 29.4%;
+    --accent-foreground: 210 4% 99.9%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 4% 99.9%;
+
+    --ring: 210 40% 98%;
+  }
+}

@@ -9,8 +9,6 @@
   const errorAlert = reactive({ show: false, message: '' });
   const showConfirmDialog = ref(false);
 
-  const { getFileSizeForHumans } = useForHumans();
-
   function onDelete(id: string) {
     showConfirmDialog.value = true;
   }
@@ -19,9 +17,13 @@
     return await navigateTo(`/project/${projectId}/workflow/${workflowId}`);
   }
 
-  async function onPageChange(value: number) {}
+  async function onPageChange(value: number) {
+    throw new Error('Not implemented');
+  }
 
-  function handleDelete() {}
+  function handleDelete() {
+    throw new Error('Not implemented');
+  }
 </script>
 
 <template>
@@ -30,7 +32,8 @@
     <ConfirmDialog v-model="showConfirmDialog" @confirm="handleDelete" />
 
     <Table class="rounded-lg border bg-white">
-      <TableCaption>
+      <!-- TODO: fix total count (meta on multi projects and flatMap) -->
+      <TableCaption class="hidden">
         Showing from
         {{ meta.totalCount > 10 ? meta.currentPage * 10 - 10 + 1 : 1 }}
         to
@@ -52,21 +55,15 @@
       <TableBody>
         <TableRow v-for="item in workflows || []" :key="item.id">
           <TableCell>
-            {{ item.workflows[0]?.name }}
+            {{ item.name }}
           </TableCell>
-          <TableCell>{{ item.workflows[0]?.project?.name }}</TableCell>
+          <TableCell>{{ item.project?.name }}</TableCell>
           <TableCell class="space-x-2 text-right">
             <Button
               class="group"
               variant="outline"
               size="icon"
-              @click="
-                () =>
-                  onOpenClick(
-                    item.workflows[0].project.id,
-                    item.workflows[0].id,
-                  )
-              "
+              @click="() => onOpenClick(item.project?.id, item?.id)"
             >
               <SquareArrowOutUpRightIcon
                 class="size-4 stroke-1.5 text-primary group-hover:stroke-2"

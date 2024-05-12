@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  import { useEventListener } from '@vueuse/core';
   const route = useRoute();
   const { t } = useI18n();
   const head = useLocaleHead({
@@ -9,6 +8,7 @@
   });
   const title = computed(() => t(route.meta.title?.toString() ?? 'Website'));
 
+  //   import { useEventListener } from '@vueuse/core';
   // Prevent drag and drop from opening a file in the browser
   // useEventListener(window, 'dragover', (e) => e.preventDefault());
   // useEventListener(window, 'drop', (e) => e.preventDefault());
