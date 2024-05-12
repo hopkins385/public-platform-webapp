@@ -37,7 +37,7 @@
     <!--
     bg-gradient-to-b from-slate-100 via-slate-100 to-slate-50
     -->
-    <Body class="bg-neutral-100">
+    <Body class="bg-gradient-to-b from-slate-100 via-slate-100/80 to-slate-50">
       <div class="sticky inset-0 z-50 h-[65px] w-full bg-white shadow-md">
         <TopBar />
       </div>
@@ -48,6 +48,9 @@
         <NavBar />
         <!-- Main -->
         <div class="grow overflow-scroll text-slate-800">
+          <div class="hidden h-16 bg-white shadow-sm">
+            <TopBar />
+          </div>
           <slot />
         </div>
       </div>

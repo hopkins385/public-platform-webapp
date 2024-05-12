@@ -70,7 +70,7 @@
               />
             </Button>
             <Button variant="outline" size="icon" @click="onDelete(item.id)">
-              <Trash2Icon class="size-4 text-destructive" />
+              <Trash2Icon class="size-4 stroke-1.5 text-destructive" />
             </Button>
           </TableCell>
         </TableRow>

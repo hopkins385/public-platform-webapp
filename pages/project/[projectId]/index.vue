@@ -51,7 +51,7 @@
           <li class="">
             <div class="flex items-center justify-center space-x-1">
               <span>
-                <WorkflowIcon class="size-4" />
+                <WorkflowIcon class="default-icon size-4" />
               </span>
               <NuxtLinkLocale :to="`/project/${projectId}`" class="border-b-2">
                 Workflows
@@ -62,7 +62,7 @@
           <li>
             <div class="flex items-center justify-center space-x-1">
               <span>
-                <FileTextIcon class="size-4" />
+                <FileTextIcon class="default-icon size-4" />
               </span>
               <NuxtLinkLocale :to="`/project/${projectId}/document`">
                 Documents

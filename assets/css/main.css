@@ -3,3 +3,9 @@
 @import '_button';
 @import '_editor';
 @import '_themes';
+
+.default-icon {
+  @apply shrink-0 stroke-1 opacity-80;
+  stroke: rgb(3 4 94 / 100%);
+  fill: rgb(3 4 94 / 10%);
+}

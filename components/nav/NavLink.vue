@@ -14,7 +14,7 @@
     class="flex h-full items-center border-0 transition-colors hover:text-foreground"
     :class="active ? 'nav-link-active' : ''"
   >
-    <component :is="icon" class="nav-icon" />
+    <component :is="icon" class="nav-icon default-icon" />
     <span
       class="truncate px-4"
       :class="labelVisible ? 'block opacity-100' : 'hidden opacity-0'"
@@ -26,7 +26,7 @@
 
 <style scoped>
   .nav-icon {
-    @apply size-5 shrink-0 fill-slate-100 stroke-1.5;
+    @apply size-5;
   }
 
   .nav-link-active {

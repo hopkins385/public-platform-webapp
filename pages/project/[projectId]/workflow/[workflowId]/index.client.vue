@@ -31,13 +31,13 @@
 </script>
 
 <template>
-  <div class="px-5 py-10">
-    <BoxContainer class="p-5">
+  <div class="bg-white px-0 py-0">
+    <BoxContainer class="border-0 border-b p-5">
       <Button variant="outline" @click="onPlayClick">
         <PlayIcon class="size-3" />
       </Button>
     </BoxContainer>
-    <BoxContainer class="mt-4 p-5">
+    <BoxContainer class="mt-0 border-0 p-5">
       <Suspense>
         <WorkflowList :workflow-id="workflowId as string" />
       </Suspense>

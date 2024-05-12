@@ -190,8 +190,9 @@
     }
   });
 
+  /*const socket = useWebsocket();
+
   onMounted(() => {
-    const socket = useWebsocket();
     socket.emit('join_room', { roomId: props.workflowId });
     console.log('connecting to room');
 
@@ -210,10 +211,9 @@
   });
 
   onBeforeUnmount(() => {
-    const socket = useWebsocket();
     socket.emit('leave_room', { roomId: props.workflowId });
     console.log('leaving room');
-  });
+  });*/
 </script>
 
 <template>

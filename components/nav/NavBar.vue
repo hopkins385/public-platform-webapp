@@ -192,7 +192,7 @@
 
 <style scoped>
   .nav-item {
-    @apply flex min-h-8 flex-col justify-center border-0 pl-7 text-sm;
+    @apply flex min-h-8 flex-col justify-center border-0 pl-9 text-sm;
   }
 
   .nav-item-child {

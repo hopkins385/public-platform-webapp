@@ -1,6 +1,4 @@
 <script setup lang="ts">
-  import { PlusIcon } from 'lucide-vue-next';
-
   definePageMeta({
     title: 'workflow.meta.index.title',
     breadcrumb: {

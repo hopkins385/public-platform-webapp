@@ -18,24 +18,22 @@
 
 <template>
   <div class="flex size-full items-center justify-between">
-    <div class="flex items-center justify-center pl-7">
+    <div class="flex items-center justify-center pl-9">
       <NuxtLink href="/">
-        <div class="flex size-8 flex-col items-center justify-center">
+        <div class="flex h-8 items-center justify-center space-x-3">
           <span class="opacity-95">
             <IconSvenson class="size-7 drop-shadow-sm" />
           </span>
-          <span class="hidden opacity-60" style="font-size: 0.7rem">
-            RAGNA
-          </span>
+          <span class="text-sm opacity-75">RAGNA Cloud</span>
         </div>
       </NuxtLink>
-      <BreadcrumbBanner class="pl-10" />
+      <!-- BreadcrumbBanner class="pl-10" /-->
     </div>
     <div class="flex items-center justify-between space-x-4 pr-5">
       <div class="flex items-center justify-center space-x-1">
         <button class="rounded-full p-2 hover:bg-secondary">
           <LayoutGridIcon
-            class="stroke-1.5 opacity-60"
+            class="stroke-1 opacity-75"
             style="width: 1.15rem; height: 1.15rem"
           />
         </button>
@@ -44,13 +42,13 @@
           @click="onFullScreenClick"
         >
           <ExpandIcon
-            class="stroke-1.5 opacity-60"
+            class="stroke-1 opacity-75"
             style="width: 1.15rem; height: 1.15rem"
           />
         </button>
         <button class="rounded-full p-2 hover:bg-secondary">
           <BellIcon
-            class="stroke-1.5 opacity-60"
+            class="stroke-1 opacity-75"
             style="width: 1.15rem; height: 1.15rem"
           />
         </button>
