@@ -52,13 +52,15 @@
   const onSubmit = handleSubmit(async (values, { resetForm }) => {
     const toast = useToast();
     try {
-      await createWorkflow(values);
+      const workflow = await createWorkflow(values);
       toast.success({
         description: 'Workflow created successfully',
       });
       resetForm();
       const localePath = useLocalePath();
-      return await navigateTo(localePath(`/project/${project.value?.id}`));
+      return await navigateTo(
+        localePath(`/project/${project.value?.id}/workflow/${workflow.id}`),
+      );
     } catch (error: any) {
       toast.error({
         description: 'Ups, something went wrong.',

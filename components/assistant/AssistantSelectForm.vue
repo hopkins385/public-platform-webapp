@@ -4,9 +4,9 @@
   import { z } from 'zod';
 
   const props = defineProps<{
-    assistants: any[] | undefined | null;
     assistantId: string;
     workflowStepId: string;
+    assistants: any;
   }>();
 
   const emit = defineEmits<{

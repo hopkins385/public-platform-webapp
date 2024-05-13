@@ -83,6 +83,7 @@ export default function useManageWorkflows() {
     );
   }
 
+  // with assistants, steps, and documents
   function getFullWorkflow(
     id: string | string[] | undefined | null,
     options: AsyncDataOptions<any> = {},

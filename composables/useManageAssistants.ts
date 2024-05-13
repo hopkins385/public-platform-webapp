@@ -1,3 +1,5 @@
+import type { AsyncDataOptions } from '#app';
+
 class AssistantDto {
   teamId: string = '';
   llmId: string = '';
@@ -42,16 +44,20 @@ export default function useManageAssistants() {
     );
   }
 
-  function getAllAssistants() {
-    return useAsyncData('allAssistants', async () => {
-      const [assistants, meta] = await $client.assistant.all.query(
-        { page },
-        {
-          signal: ac.signal,
-        },
-      );
-      return { assistants, meta };
-    });
+  function getAllAssistants(options: AsyncDataOptions<any> = {}) {
+    return useAsyncData(
+      'allAssistants',
+      async () => {
+        const [assistants, meta] = await $client.assistant.all.query(
+          { page },
+          {
+            signal: ac.signal,
+          },
+        );
+        return { assistants, meta };
+      },
+      options,
+    );
   }
 
   function getOneAssistant(id: string | string[] | undefined | null) {

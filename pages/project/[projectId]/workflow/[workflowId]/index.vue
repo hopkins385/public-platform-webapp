@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  import { Table2Icon } from 'lucide-vue-next';
   /**
    * Workflow - Full Workflow
    * Route: /project/${projectId}/workflow/${workflowId}
@@ -29,30 +28,12 @@
 
 <template>
   <div class="h-screen">
-    <div class="flex h-14 items-center border-b px-4 text-sm">
-      <span class="opacity-50">All Projects</span>
-    </div>
-    <div class="flex h-14 items-center border-b px-4 text-sm">
-      <div v-for="(workflow, index) in projectWorkflows">
-        <NuxtLinkLocale
-          :to="`/project/${projectId}/workflow/${workflow.id}`"
-          class="mx-2 -mt-1 flex w-fit rounded-lg border bg-white px-3 py-2 text-xs shadow-md"
-          v-if="workflowId === workflow.id"
-        >
-          <Table2Icon class="mr-1 size-4 stroke-1.5" />
-          <span class="font-bold"> {{ workflow.name }}</span>
-        </NuxtLinkLocale>
-        <NuxtLinkLocale
-          :to="`/project/${projectId}/workflow/${workflow.id}`"
-          class="mx-2 flex w-fit rounded-lg border px-3 py-2 text-xs"
-          v-else
-        >
-          <Table2Icon class="mr-1 size-4 stroke-1.5" />
-          <span class="font-bold"> {{ workflow.name }}</span>
-        </NuxtLinkLocale>
-      </div>
-    </div>
-    <div class="h-full bg-white">
+    <WorkflowHeading
+      :project-workflows="projectWorkflows"
+      :workflow-id="workflowId as string"
+      :project-id="projectId as string"
+    />
+    <div class="size-full bg-white">
       <Suspense>
         <WorkflowSheet :workflow-id="workflowId as string" />
       </Suspense>

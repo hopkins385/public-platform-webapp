@@ -5,8 +5,8 @@
     projectId: string;
     workflowId: string;
     workflowStep: any;
+    allAssistants: any[];
     allWorkflowSteps: any[];
-    allAssistants: any[] | undefined | null;
   }>();
 
   const emits = defineEmits<{

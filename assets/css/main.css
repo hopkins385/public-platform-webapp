@@ -9,3 +9,11 @@
   stroke: rgb(3 4 94 / 100%);
   fill: rgb(3 4 94 / 10%);
 }
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
