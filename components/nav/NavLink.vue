@@ -11,12 +11,12 @@
 <template>
   <NuxtLinkLocale
     :to="to"
-    class="flex h-full items-center border-0 transition-colors hover:text-foreground"
+    class="flex items-center rounded-lg border border-transparent px-4 py-2 transition-colors hover:border-muted-foreground/75"
     :class="active ? 'nav-link-active' : ''"
   >
     <component :is="icon" class="nav-icon default-icon" />
     <span
-      class="truncate px-4"
+      class="truncate px-4 text-foreground"
       :class="labelVisible ? 'block opacity-100' : 'hidden opacity-0'"
     >
       {{ label }}

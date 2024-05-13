@@ -5,7 +5,7 @@ export default defineNuxtConfig({
     typedPages: false,
   },
   devtools: {
-    enabled: true,
+    enabled: false,
   },
   telemetry: false,
   debug: false,

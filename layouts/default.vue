@@ -37,20 +37,21 @@
     <!--
     bg-gradient-to-b from-slate-100 via-slate-100 to-slate-50
     -->
-    <Body class="bg-gradient-to-b from-slate-100 via-slate-100/80 to-slate-50">
-      <div class="sticky inset-0 z-50 h-[65px] w-full bg-white shadow-md">
+    <Body class="bg-stone-50">
+      <!--div class="sticky inset-0 z-50 h-[65px] w-full bg-white shadow-md">
         <TopBar />
-      </div>
-      <div class="flex overflow-hidden" style="height: calc(100vh - 65px)">
+        style="height: calc(100vh - 65px)"
+      </div-->
+      <div class="flex h-screen overflow-hidden">
         <!-- Toast -->
         <Toaster position="top-right" />
         <!-- NavBar -->
         <NavBar />
         <!-- Main -->
         <div class="grow overflow-scroll text-slate-800">
-          <div class="hidden h-16 bg-white shadow-sm">
+          <!--div class="h-16 bg-white shadow-sm">
             <TopBar />
-          </div>
+          </div-->
           <slot />
         </div>
       </div>

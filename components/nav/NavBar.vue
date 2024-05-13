@@ -133,15 +133,15 @@
 <template>
   <div
     ref="navBarRef"
-    class="relative h-full shrink-0 border-0 bg-white shadow-md"
+    class="relative h-full shrink-0 border-r bg-stone-50"
     :style="{ width: `${navBar.width}rem` }"
   >
     <div
-      class="absolute left-1/2 top-3 z-10 flex size-7 shrink-0 -translate-x-1/2 cursor-pointer items-center justify-center rounded-full border-0 bg-white opacity-80 hover:border"
+      class="absolute bottom-20 right-2 z-10 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-white/0 opacity-80 hover:border"
       @click="() => navBar.toggleOpen()"
     >
       <ChevronRightIcon
-        class="size-4 text-muted-foreground"
+        class="size-4 text-muted-foreground/50"
         :class="{ 'rotate-180 transform': navBar.isOpen }"
       />
     </div>
@@ -154,8 +154,14 @@
       }"
       style="width: 0.25rem"
     ></div>
+    <div class="flex border-0 pl-9 pt-6">
+      <BrandLogo :text-visible="navBar.isOpen" />
+    </div>
+    <div class="px-6 pb-4 pt-4">
+      <Separator />
+    </div>
     <div class="flex h-full flex-col">
-      <ul class="space-y-4 pt-12 text-muted-foreground">
+      <ul class="space-y-4 pt-0">
         <template v-for="(item, index) in navItems" :key="index">
           <li class="nav-item" v-if="!item.hidden">
             <NavLink
@@ -192,7 +198,7 @@
 
 <style scoped>
   .nav-item {
-    @apply flex min-h-8 flex-col justify-center border-0 pl-9 text-sm;
+    @apply flex min-h-8 flex-col justify-center border-0 px-5 py-0 text-xs;
   }
 
   .nav-item-child {
