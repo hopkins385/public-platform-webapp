@@ -12,6 +12,7 @@
   const emits = defineEmits<{
     refresh: [void];
     close: [void];
+    'show-settings': [void];
   }>();
 
   const stepCardRef = ref<HTMLElement | null>(null);
@@ -30,10 +31,11 @@
     useManageWorkflowSteps();
 
   function onSettingsClick() {
+    emits('show-settings');
     emits('close');
-    navigateTo(
-      `/project/${props.projectId}/workflow/${props.workflowId}/step/${props.workflowStep.id}/settings`,
-    );
+    // navigateTo(
+    //   `/project/${props.projectId}/workflow/${props.workflowId}/step/${props.workflowStep.id}/settings`,
+    // );
   }
 
   async function onDeleteClick() {
@@ -103,6 +105,7 @@
           </ul>
         </div>
       </div>
+      <!-- System Prompt -->
       <div class="py-2">
         <FormField
           :value="workflowStep?.assistant?.systemPrompt"
@@ -114,7 +117,7 @@
             <FormControl>
               <Textarea
                 placeholder="Please set an assistant"
-                class="resize-none text-xs"
+                class="resize-none bg-stone-50 text-xs"
                 v-bind="componentField"
               />
             </FormControl>
@@ -122,6 +125,12 @@
           </FormItem>
         </FormField>
       </div>
+      <hr class="-mx-4 mb-2 mt-3" />
+      <button
+        class="w-full rounded-lg border bg-stone-50 px-4 py-2 font-semibold hover:bg-stone-100"
+      >
+        Run Step
+      </button>
       <hr class="-mx-4 mb-2 mt-3" />
       <div>
         <button

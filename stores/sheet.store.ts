@@ -1,7 +1,17 @@
 interface SheetDimension {
   workflowId: string;
-  columnWidth: number;
-  rowHeight: number;
+  column: [
+    {
+      id: number;
+      width: number;
+    },
+  ];
+  row: [
+    {
+      id: number;
+      height: number;
+    },
+  ];
 }
 
 export const useSheetStore = defineStore('sheet.store', {
@@ -9,67 +19,50 @@ export const useSheetStore = defineStore('sheet.store', {
     dimensions: [] as SheetDimension[],
   }),
   actions: {
-    addSheetDimension(
+    updateOrCreateHeight(
       workflowId: string,
-      columnWidth: number,
-      rowHeight: number,
+      rowIndex: number,
+      newHeight: number,
     ) {
-      this.dimensions.push({ workflowId, columnWidth, rowHeight });
-    },
-    removeSheetDimension(workflowId: string) {
-      this.dimensions = this.dimensions.filter(
-        (d) => d.workflowId !== workflowId,
+      const sheet = this.dimensions.find(
+        (sheet) => sheet.workflowId === workflowId,
       );
+      if (sheet) {
+        const row = sheet.row.find((row) => row.id === rowIndex);
+        if (row) {
+          row.height = newHeight;
+        } else {
+          sheet.row.push({ id: rowIndex, height: newHeight });
+        }
+      } else {
+        this.dimensions.push({
+          workflowId,
+          column: [],
+          row: [{ id: rowIndex, height: newHeight }],
+        });
+      }
     },
-    updateSheetDimension(
+    updateOrCreateWidth(
       workflowId: string,
-      columnWidth: number,
-      rowHeight: number,
+      columnIndex: number,
+      newWidth: number,
     ) {
-      const index = this.dimensions.findIndex(
-        (d) => d.workflowId === workflowId,
+      const sheet = this.dimensions.find(
+        (sheet) => sheet.workflowId === workflowId,
       );
-      if (index !== -1) {
-        this.dimensions[index] = { workflowId, columnWidth, rowHeight };
-      }
-    },
-    getSheetDimension(workflowId: string) {
-      return this.dimensions.find((d) => d.workflowId === workflowId);
-    },
-    updateWidth(workflowId: string, columnWidth: number) {
-      const index = this.dimensions.findIndex(
-        (d) => d.workflowId === workflowId,
-      );
-      if (index !== -1) {
-        this.dimensions[index].columnWidth = columnWidth;
-      }
-    },
-    updateHeight(workflowId: string, rowHeight: number) {
-      const index = this.dimensions.findIndex(
-        (d) => d.workflowId === workflowId,
-      );
-      if (index !== -1) {
-        this.dimensions[index].rowHeight = rowHeight;
-      }
-    },
-    updateOrCreateWidth(workflowId: string, columnWidth: number) {
-      const index = this.dimensions.findIndex(
-        (d) => d.workflowId === workflowId,
-      );
-      if (index !== -1) {
-        this.dimensions[index].columnWidth = columnWidth;
+      if (sheet) {
+        const column = sheet.column.find((column) => column.id === columnIndex);
+        if (column) {
+          column.width = newWidth;
+        } else {
+          sheet.column.push({ id: columnIndex, width: newWidth });
+        }
       } else {
-        this.dimensions.push({ workflowId, columnWidth, rowHeight: 0 });
-      }
-    },
-    updateOrCreateHeight(workflowId: string, rowHeight: number) {
-      const index = this.dimensions.findIndex(
-        (d) => d.workflowId === workflowId,
-      );
-      if (index !== -1) {
-        this.dimensions[index].rowHeight = rowHeight;
-      } else {
-        this.dimensions.push({ workflowId, columnWidth: 0, rowHeight });
+        this.dimensions.push({
+          workflowId,
+          column: [{ id: columnIndex, width: newWidth }],
+          row: [],
+        });
       }
     },
   },

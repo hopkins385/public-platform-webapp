@@ -3,12 +3,15 @@
   import {
     AlignLeftIcon,
     PlusIcon,
-    ExpandIcon,
     LayoutDashboard,
+    SettingsIcon,
+    CircleChevronRight,
+    ChevronDownIcon,
   } from 'lucide-vue-next';
 
   const props = defineProps<{
     workflowId: string;
+    projectId: string;
   }>();
 
   const stepCard = reactive({
@@ -44,7 +47,8 @@
     return steps.value.find((step: any) => step.id === stepCard.workflowStepId);
   });
 
-  const { resizeRowListener, resizeColumnListener } = useResizeSheet();
+  const { resizeRowListener, resizeColumnListener, initSheetDimensions } =
+    useResizeSheet();
 
   async function onAddWorkflowStep() {
     const { createWorkflowStep } = useManageWorkflowSteps();
@@ -96,38 +100,90 @@
     stepCard.teleportTo = 0;
     stepCard.workflowStepId = '';
   }
+
+  onMounted(() => {
+    initSheetDimensions(props.workflowId);
+  });
+
+  //
+  const sideBarOpen = ref(false);
+  const sheetRef = ref<HTMLElement | null>(null);
+
+  async function onPlayClick() {
+    const { executeWorkflow } = useExecuteWorkflow();
+    const { error } = await executeWorkflow(props.workflowId);
+  }
 </script>
 
 <template>
   <!-- Sheet-->
-  <div class="p-4 text-sm text-destructive" v-if="error || !workflowData">
+  <div class="p-4 text-sm" v-if="error || !workflowData">
     Ups something went wrong.<br />The Data you are looking for is not
     available.
   </div>
   <div @click="() => refresh()" class="hidden">Ref</div>
-  <div class="no-scrollbar flex bg-white text-xs" id="grid_list">
+  <div
+    ref="sheetRef"
+    class="no-scrollbar flex overflow-visible bg-white pb-10 pr-10 text-xs"
+    id="grid_list"
+  >
     <!-- Row Index -->
     <div class="column" id="column_0">
-      <div class="index" id="row_0_cell_x0_y1"></div>
       <div
-        v-for="(count, index) in rowCount"
-        :key="index"
-        :id="`row_${index + 1}`"
+        class="index relative flex items-center justify-center"
+        id="row_0_cell_x0_y1"
+      >
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <ChevronDownIcon class="size-4 stroke-1.5" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="start"
+            :avoid-collisions="true"
+            :loop="true"
+            :collision-boundary="sheetRef"
+          >
+            <DropdownMenuLabel class="text-xs"> Workflow</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              class="w-full cursor-pointer text-xs"
+              @click="() => onPlayClick()"
+              as="button"
+            >
+              <CircleChevronRight class="mr-1 size-3 stroke-1.5" />
+              Run all steps
+            </DropdownMenuItem>
+            <DropdownMenuItem class="text-xs">
+              <NuxtLinkLocale
+                :to="`/project/${projectId}/workflow/${workflowData.id}/settings`"
+                class="flex w-full items-center"
+              >
+                <SettingsIcon class="mr-1 size-3 stroke-1.5" />
+                Settings
+              </NuxtLinkLocale>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+      <div
+        v-for="(count, rowIndex) in rowCount"
+        :key="rowIndex"
+        :id="`row_${rowIndex + 1}`"
         class="relative"
       >
         <div
           class="index group flex flex-col items-center justify-between"
-          :id="`row_${index + 1}_cell_x0_y${index + 1}`"
+          :id="`row_${rowIndex + 1}_cell_x0_y${rowIndex + 1}`"
         >
           <div class="flex h-full items-center pt-2 opacity-60">
-            {{ index + 1 }}
+            {{ rowIndex + 1 }}
           </div>
           <!-- Resize Row -->
           <div
             class="group/icon flex h-3 w-full cursor-ns-resize items-center px-2"
             style="padding-bottom: 0.1rem"
             @mousedown="
-              (event) => resizeRowListener(event, index + 1, workflowId)
+              (event) => resizeRowListener(event, rowIndex + 1, workflowId)
             "
           >
             <div
@@ -150,7 +206,7 @@
     >
       <!-- Teleport Anker -->
       <div
-        class="absolute left-0 top-8 z-10"
+        class="absolute left-0 top-8 z-10 overflow-visible"
         :id="`step_teleport_anker_${columnIndex}`"
       ></div>
       <!-- Heading Column -->
@@ -213,7 +269,9 @@
         :id="`row_${index + 1}_cell_last`"
         class="index"
       ></div>
-      <div class="index index-last"></div>
+      <div class="index index-last">
+        <!-- div @mousedown="(e) => resizeAllListener(e, workflowId)">h</!-->
+      </div>
     </div>
   </div>
   <Teleport
@@ -226,10 +284,11 @@
       :project-id="workflowData.project.id"
       :workflow-id="workflowData.id"
       :all-assistants="allAssistants"
-      :all-workflow-steps="workflowData.steps"
+      :all-workflow-steps="steps"
       :workflow-step="workflowStepCardActive"
       @refresh="refresh"
       @close="onCloseStepCard"
+      @show-settings="() => (sideBarOpen = true)"
     />
   </Teleport>
   <!-- Teleport
@@ -248,6 +307,14 @@
   <!-- pre>
     {{ workflowData }}
   </!-->
+  <Sheet v-model:open="sideBarOpen">
+    <SheetContent>
+      <SheetHeader>
+        <SheetTitle>Settings</SheetTitle>
+        <SheetDescription> Under Construction </SheetDescription>
+      </SheetHeader>
+    </SheetContent>
+  </Sheet>
 </template>
 
 <style>

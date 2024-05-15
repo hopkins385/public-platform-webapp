@@ -13,8 +13,15 @@ export default function useWebsocket() {
     $socket.on(event, callback);
   }
 
+  function off(event: string, callback: (data: any) => void) {
+    // client side only
+    if (process.server) return;
+    $socket.off(event, callback);
+  }
+
   return {
     emit,
     on,
+    off,
   };
 }

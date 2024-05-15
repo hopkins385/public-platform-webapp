@@ -1,3 +1,5 @@
+import type { AsyncDataOptions } from '#app';
+
 export default function useManageMyUserProfile() {
   const { $client } = useNuxtApp();
   const ac = new AbortController();
@@ -6,13 +8,17 @@ export default function useManageMyUserProfile() {
     ac.abort();
   });
 
-  function getMe() {
-    return useAsyncData(`userData`, async () => {
-      const user = await $client.me.user.query(undefined, {
-        signal: ac.signal,
-      });
-      return user;
-    });
+  function getMe(options: AsyncDataOptions<any> = {}) {
+    return useAsyncData(
+      `meUserData`,
+      async () => {
+        const user = await $client.me.user.query(undefined, {
+          signal: ac.signal,
+        });
+        return user;
+      },
+      options,
+    );
   }
 
   function updateMe(data: any) {

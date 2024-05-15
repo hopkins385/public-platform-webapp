@@ -60,34 +60,42 @@
 </script>
 
 <template>
-  <div class="flex flex-wrap p-4 text-sm">
-    <div>
-      <Button variant="outline" size="sm" @click="up">Up</Button>
-      <Button variant="outline" size="sm" @click="down">Down</Button>
-    </div>
-    <div
-      v-for="(step, index) in workflowFilteredSteps"
-      class="m-4 h-fit w-96 rounded-lg border bg-white p-4 shadow-md"
-    >
-      <div class="">
-        <div id="header" class="py-2 font-semibold">
-          {{ step.name }}
-        </div>
-        <div id="content">
-          <div v-for="(item, index) in step.document.documentItems">
-            <div>{{ item.content }}</div>
+  <div class="grid grid-cols-4">
+    <div class="col-span-3">
+      <div class="space-x-4 px-10 pt-5">
+        <Button variant="outline" class="text-xs" size="sm" @click="up"
+          >Up</Button
+        >
+        <Button variant="outline" class="text-xs" size="sm" @click="down"
+          >Down</Button
+        >
+      </div>
+      <div class="flex flex-col p-4 text-xs">
+        <div
+          v-for="(step, index) in workflowFilteredSteps"
+          class="m-4 h-fit w-96 rounded-lg border bg-white p-4 shadow-md"
+        >
+          <div class="">
+            <div id="header" class="py-2 font-semibold">
+              {{ step.name }}
+            </div>
+            <div id="content">
+              <div v-for="(item, index) in step.document.documentItems">
+                <div>{{ item.content }}</div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-    <div v-if="showRaw">
-      <div>WFid: {{ workflowId }}</div>
-      <div>Row: {{ row }}</div>
-      <div>
-        <pre>{{ workflowFilteredSteps }}</pre>
-      </div>
-      <div class="">
-        <pre>{{ workflow }}</pre>
+        <div v-if="showRaw">
+          <div>WFid: {{ workflowId }}</div>
+          <div>Row: {{ row }}</div>
+          <div>
+            <pre>{{ workflowFilteredSteps }}</pre>
+          </div>
+          <div class="">
+            <pre>{{ workflow }}</pre>
+          </div>
+        </div>
       </div>
     </div>
   </div>

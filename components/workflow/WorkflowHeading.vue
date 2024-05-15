@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import {
+    GitPullRequestArrowIcon,
     PanelLeftIcon,
     PlusIcon,
     SquareGanttChartIcon,
@@ -10,57 +11,88 @@
     projectWorkflows: { id: string; name: string }[];
     workflowId: string;
     projectId: string;
+    showTableView: boolean;
   }>();
 
-  async function onPlayClick() {
-    const { executeWorkflow } = useExecuteWorkflow();
-    const { error } = await executeWorkflow(props.workflowId);
+  const emit = defineEmits<{
+    'update:showTableView': [boolean];
+  }>();
+
+  function onTableViewClick() {
+    emit('update:showTableView', true);
+  }
+
+  function onFlowViewClick() {
+    emit('update:showTableView', false);
   }
 </script>
 
 <template>
   <div>
+    <!-- Breadcrumbs -->
     <div class="flex h-14 items-center justify-between border-b px-4 text-sm">
       <div class="flex items-center">
         <div class="mr-3 opacity-75">
           <PanelLeftIcon class="size-4 stroke-1.5" />
         </div>
-        <div class="opacity-50">All Projects</div>
+        <NuxtLinkLocale to="/project" class="opacity-50">
+          All Projects
+        </NuxtLinkLocale>
       </div>
       <div>
         <Button variant="outline" size="sm" class="text-xs">Export Data</Button>
       </div>
     </div>
-    <div class="flex h-14 items-center border-b px-1 text-sm">
-      <div class="hidden" @click="onPlayClick">
-        <div
-          class="mx-2 flex w-fit rounded-lg border bg-white px-3 py-2 text-xs"
-        >
-          <SquareGanttChartIcon class="mr-1 size-4 stroke-1.5" />
-          <span class="font-bold">Run All</span>
+    <!-- Project Workflows -->
+    <div class="flex h-14 items-center justify-between border-b px-1 text-sm">
+      <div class="no-scrollbar flex items-center overflow-y-scroll">
+        <div v-for="(workflow, index) in projectWorkflows" class="py-2">
+          <NuxtLinkLocale
+            :to="`/project/${projectId}/workflow/${workflow.id}`"
+            class="mx-2 flex max-w-72 rounded-lg border px-3 py-2 text-xs"
+            :class="{ '-mt-1 bg-white shadow-md': workflow.id === workflowId }"
+          >
+            <Table2Icon class="mr-1 size-4 stroke-1.5" />
+            <span class="truncate whitespace-nowrap font-bold">
+              {{ workflow.name }}
+            </span>
+          </NuxtLinkLocale>
+        </div>
+        <div class="opacity-60 hover:opacity-100">
+          <NuxtLinkLocale
+            :to="`/project/${projectId}/workflow/create`"
+            class="group mx-2 flex w-fit cursor-pointer rounded-lg border border-transparent px-3 py-2 text-xs hover:border-slate-300"
+          >
+            <PlusIcon class="mr-1 size-4 stroke-1.5" />
+            <span class="whitespace-nowrap">Add Workflow</span>
+          </NuxtLinkLocale>
         </div>
       </div>
-      <div v-for="(workflow, index) in projectWorkflows">
-        <NuxtLinkLocale
-          :to="`/project/${projectId}/workflow/${workflow.id}`"
-          class="mx-2 flex w-fit max-w-72 rounded-lg border px-3 py-2 text-xs"
-          :class="{ '-mt-1 bg-white shadow-md': workflow.id === workflowId }"
-        >
-          <Table2Icon class="mr-1 size-4 stroke-1.5" />
-          <span class="truncate whitespace-nowrap font-bold">
-            {{ workflow.name }}
-          </span>
-        </NuxtLinkLocale>
-      </div>
-      <div class="opacity-60 hover:opacity-100">
-        <NuxtLinkLocale
-          :to="`/project/${projectId}/workflow/create`"
-          class="group mx-2 flex w-fit cursor-pointer rounded-lg border border-transparent px-3 py-2 text-xs hover:border-slate-300"
-        >
-          <PlusIcon class="mr-1 size-4 stroke-1.5" />
-          <span class="whitespace-nowrap">Add Workflow</span>
-        </NuxtLinkLocale>
+      <!-- Control Section -->
+      <div class="flex px-4">
+        <div class="flex items-center space-x-1 rounded-lg bg-stone-200/60 p-1">
+          <button
+            class="flex h-6 w-7 items-center justify-center rounded-lg"
+            :class="{ 'icon-active': showTableView }"
+            @click="() => onTableViewClick()"
+          >
+            <Table2Icon class="size-3 stroke-1" />
+          </button>
+          <button
+            class="flex h-6 w-7 items-center justify-center rounded-lg"
+            :class="{ 'icon-active': !showTableView }"
+            @click="() => onFlowViewClick()"
+          >
+            <GitPullRequestArrowIcon class="size-3 stroke-1.5 opacity-60" />
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+  .icon-active {
+    @apply border bg-white shadow-sm;
+  }
+</style>

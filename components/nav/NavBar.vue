@@ -133,75 +133,84 @@
 <template>
   <div
     ref="navBarRef"
-    class="relative h-full shrink-0 border-r bg-stone-50"
+    class="relative flex h-full shrink-0 flex-col justify-between border-r bg-stone-50"
     :style="{ width: `${navBar.width}rem` }"
   >
-    <div
-      class="absolute bottom-20 right-2 z-10 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-white/0 opacity-80 hover:border"
-      @click="() => navBar.toggleOpen()"
-    >
-      <ChevronRightIcon
-        class="size-4 text-muted-foreground/50"
-        :class="{ 'rotate-180 transform': navBar.isOpen }"
-      />
-    </div>
-    <div
-      ref="navBarResizerRef"
-      class="absolute right-0 top-0 h-full"
-      :class="{
-        'bg-blue-600': pressed && navBar.isOpen,
-        'cursor-move hover:bg-blue-600': navBar.isOpen,
-      }"
-      style="width: 0.25rem"
-    ></div>
-    <div class="flex border-0 pl-9 pt-6">
-      <BrandLogo :text-visible="navBar.isOpen" />
-    </div>
-    <div class="px-6 pb-4 pt-4">
-      <Separator />
-    </div>
-    <div class="flex h-full flex-col">
-      <ul class="space-y-4 pt-0">
-        <template v-for="(item, index) in navItems" :key="index">
-          <li class="nav-item" v-if="!item.hidden">
-            <NavLink
-              :active="$route.path === item.to"
-              :to="item.to"
-              :icon="item.icon"
-              :label="item.label"
-              :label-visible="navBar.isOpen"
-            />
-            <ul
-              v-if="item.children.length > 0"
-              :class="navBar.isOpen ? 'block' : 'hidden'"
-            >
-              <li
-                class="nav-item-child"
-                v-for="(child, index) in item.children"
-                :key="index"
+    <div>
+      <div
+        class="absolute bottom-40 right-2 z-10 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-white/0 opacity-80 hover:border"
+        @click="() => navBar.toggleOpen()"
+      >
+        <ChevronRightIcon
+          class="size-4 text-muted-foreground/50"
+          :class="{ 'rotate-180 transform': navBar.isOpen }"
+        />
+      </div>
+      <div
+        ref="navBarResizerRef"
+        class="absolute right-0 top-0 h-full"
+        :class="{
+          'bg-blue-600': pressed && navBar.isOpen,
+          'cursor-move hover:bg-blue-600': navBar.isOpen,
+        }"
+        style="width: 0.25rem"
+      ></div>
+      <div class="flex border-0 pl-8 pt-4">
+        <BrandLogo :text-visible="navBar.isOpen" />
+      </div>
+      <div class="h-4" id="spacer"></div>
+      <div class="flex h-full flex-col">
+        <ul class="space-y-2">
+          <template v-for="(item, index) in navItems" :key="index">
+            <li class="nav-item" v-if="!item.hidden">
+              <NavLink
+                :active="$route.path === item.to"
+                :to="item.to"
+                :icon="item.icon"
+                :label="item.label"
+                :label-visible="navBar.isOpen"
+              />
+              <ul
+                v-if="item.children.length > 0"
+                :class="navBar.isOpen ? 'block' : 'hidden'"
               >
-                <NavLink
-                  :active="$route.path === child.to"
-                  :to="child.to"
-                  :icon="child.icon"
-                  :label="child.label"
-                  :label-visible="navBar.isOpen"
-                />
-              </li>
-            </ul>
-          </li>
-        </template>
-      </ul>
+                <li
+                  class="nav-item-child"
+                  v-for="(child, index) in item.children"
+                  :key="index"
+                >
+                  <NavLink
+                    :active="$route.path === child.to"
+                    :to="child.to"
+                    :icon="child.icon"
+                    :label="child.label"
+                    :label-visible="navBar.isOpen"
+                  />
+                </li>
+              </ul>
+            </li>
+          </template>
+        </ul>
+      </div>
+    </div>
+    <div
+      class="border-t border-gray-200 p-5 text-xs transition-opacity duration-300 ease-out"
+      :class="{
+        'opacity-0': !navBar.isOpen,
+        'opacity-100': navBar.isOpen,
+      }"
+    >
+      <UserNavBox v-if="navBar.isOpen" />
     </div>
   </div>
 </template>
 
 <style scoped>
   .nav-item {
-    @apply flex min-h-8 flex-col justify-center border-0 px-5 py-0 text-xs;
+    @apply flex min-h-8 flex-col justify-center border-0 px-4 py-0 text-xs;
   }
 
   .nav-item-child {
-    @apply pl-4 pt-4;
+    @apply pl-4 pt-0;
   }
 </style>

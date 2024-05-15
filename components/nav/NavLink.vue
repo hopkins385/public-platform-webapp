@@ -11,7 +11,7 @@
 <template>
   <NuxtLinkLocale
     :to="to"
-    class="flex items-center rounded-lg border border-transparent px-4 py-2 transition-colors hover:border-muted-foreground/75"
+    class="flex items-center rounded-lg border border-transparent px-4 py-2 transition-colors hover:border-muted-foreground/25"
     :class="active ? 'nav-link-active' : ''"
   >
     <component :is="icon" class="nav-icon default-icon" />
