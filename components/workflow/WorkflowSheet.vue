@@ -20,6 +20,16 @@
     workflowStepId: '',
   });
 
+  const cellCard = reactive({
+    show: false,
+    teleportTo: {
+      x: 0,
+      y: 0,
+    },
+    contentId: '',
+    content: '',
+  });
+
   const { getFullWorkflow } = useManageWorkflows();
   const {
     data: workflowData,
@@ -49,6 +59,11 @@
 
   const { resizeRowListener, resizeColumnListener, initSheetDimensions } =
     useResizeSheet();
+
+  async function onPlayClick() {
+    const { executeWorkflow } = useExecuteWorkflow();
+    const { error } = await executeWorkflow(props.workflowId);
+  }
 
   async function onAddWorkflowStep() {
     const { createWorkflowStep } = useManageWorkflowSteps();
@@ -90,9 +105,9 @@
       stepCard.show = false;
       return;
     }
-    stepCard.show = true;
     stepCard.teleportTo = id;
     stepCard.workflowStepId = stepId;
+    stepCard.show = true;
   }
 
   function onCloseStepCard() {
@@ -101,18 +116,47 @@
     stepCard.workflowStepId = '';
   }
 
+  function toggleCellCard(x: number, y: number, content: string, id: string) {
+    // if click again on the same item, ignore
+    if (
+      cellCard.show &&
+      cellCard.teleportTo.x === x &&
+      cellCard.teleportTo.y === y
+    ) {
+      return;
+    }
+    cellCard.teleportTo.x = Number(x);
+    cellCard.teleportTo.y = Number(y);
+    cellCard.content = content;
+    cellCard.contentId = id;
+    cellCard.show = true;
+  }
+
+  function onCloseCellCard() {
+    cellCard.show = false;
+    cellCard.teleportTo = { x: 0, y: 0 };
+    cellCard.contentId = '';
+    cellCard.content = '';
+  }
+
+  const socket = useWebsocket();
+  function workflowUpdateListener(message: any) {
+    console.log('workflow channel message', message);
+    refresh();
+  }
+
   onMounted(() => {
     initSheetDimensions(props.workflowId);
+    socket.on(`workflow-${props.workflowId}-update`, workflowUpdateListener);
+  });
+
+  onBeforeUnmount(() => {
+    socket.off(`workflow-${props.workflowId}-update`, workflowUpdateListener);
   });
 
   //
   const sideBarOpen = ref(false);
   const sheetRef = ref<HTMLElement | null>(null);
-
-  async function onPlayClick() {
-    const { executeWorkflow } = useExecuteWorkflow();
-    const { error } = await executeWorkflow(props.workflowId);
-  }
 </script>
 
 <template>
@@ -133,37 +177,42 @@
         class="index relative flex items-center justify-center"
         id="row_0_cell_x0_y1"
       >
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <ChevronDownIcon class="size-4 stroke-1.5" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="start"
-            :avoid-collisions="true"
-            :loop="true"
-            :collision-boundary="sheetRef"
-          >
-            <DropdownMenuLabel class="text-xs"> Workflow</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              class="w-full cursor-pointer text-xs"
-              @click="() => onPlayClick()"
-              as="button"
+        <div v-if="sheetRef">
+          <!-- TODO: optimize v-if sheetRef -->
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <div class="rounded-lg border p-1">
+                <ChevronDownIcon class="size-3 stroke-1.5" />
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="start"
+              :avoid-collisions="true"
+              :loop="true"
+              :collision-boundary="sheetRef"
             >
-              <CircleChevronRight class="mr-1 size-3 stroke-1.5" />
-              Run all steps
-            </DropdownMenuItem>
-            <DropdownMenuItem class="text-xs">
-              <NuxtLinkLocale
-                :to="`/project/${projectId}/workflow/${workflowData.id}/settings`"
-                class="flex w-full items-center"
+              <DropdownMenuLabel class="text-xs"> Workflow</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                class="w-full cursor-pointer text-xs"
+                @click="() => onPlayClick()"
+                as="button"
               >
-                <SettingsIcon class="mr-1 size-3 stroke-1.5" />
-                Settings
-              </NuxtLinkLocale>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+                <CircleChevronRight class="mr-1 size-3 stroke-1.5" />
+                Run all steps
+              </DropdownMenuItem>
+              <DropdownMenuItem class="text-xs">
+                <NuxtLinkLocale
+                  :to="`/project/${projectId}/workflow/${workflowData.id}/settings`"
+                  class="flex w-full items-center"
+                >
+                  <SettingsIcon class="mr-1 size-3 stroke-1.5" />
+                  Settings
+                </NuxtLinkLocale>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       <div
         v-for="(count, rowIndex) in rowCount"
@@ -236,23 +285,40 @@
       <div
         v-for="(docItem, rowIndex) in step.document.documentItems"
         :id="`row_${rowIndex + 1}_cell_${columnIndex}`"
-        class="cell group"
+        :key="rowIndex"
+        @click="
+          () =>
+            toggleCellCard(
+              columnIndex,
+              rowIndex + 1,
+              docItem.content,
+              docItem.id,
+            )
+        "
+        class="cell group relative"
       >
-        <div class="relative">
+        <!-- Cell content -->
+        <div class="cell-content">
           {{ docItem.content }}
-          <!-- Row Detail Link -->
-          <div
-            v-if="columnIndex === 0"
-            class="group/link absolute -top-1 right-0 opacity-0 group-hover:opacity-100"
-          >
-            <NuxtLinkLocale
-              :to="`/workflow/${workflowData.id}/detail?row=${rowIndex}`"
-              class="flex items-center justify-center rounded-lg border bg-white p-1 shadow-md group-hover/link:bg-slate-100"
-            >
-              <LayoutDashboard class="size-3 stroke-1" />
-            </NuxtLinkLocale>
-          </div>
         </div>
+        <!-- Row Detail Link -->
+        <div
+          v-if="columnIndex === 0"
+          class="group/link absolute right-1 top-1 z-10 opacity-0 group-hover:opacity-100"
+          @click="(e) => e.stopPropagation()"
+        >
+          <NuxtLinkLocale
+            :to="`/workflow/${workflowData.id}/detail?row=${rowIndex}`"
+            class="flex items-center justify-center rounded-lg border bg-white p-1 shadow-md group-hover/link:bg-slate-100"
+          >
+            <LayoutDashboard class="size-3 stroke-1" />
+          </NuxtLinkLocale>
+        </div>
+        <!-- Cellcard teleport anker -->
+        <div
+          class="absolute left-0 top-0 z-10"
+          :id="`cellcard_teleport_anker_x${columnIndex}_y${rowIndex + 1}`"
+        ></div>
       </div>
       <!-- Last Cells -->
       <div class="cell cell-last"></div>
@@ -274,6 +340,7 @@
       </div>
     </div>
   </div>
+  <!-- StepManagement Card -->
   <Teleport
     v-if="stepCard.show"
     :to="`#step_teleport_anker_${stepCard.teleportTo}`"
@@ -291,22 +358,23 @@
       @show-settings="() => (sideBarOpen = true)"
     />
   </Teleport>
-  <!-- Teleport
-    v-if="showItemCard"
-    :to="`#item_teleport_anker_x${teleportItemCardTo.x}_y${teleportItemCardTo.y}`"
+  <!-- CellCard -->
+  <!--
+  v-on-click-outside.bubble="onCloseCellCard"
+  -->
+  <Teleport
+    v-if="cellCard.show"
+    :to="`#cellcard_teleport_anker_x${cellCard.teleportTo.x}_y${cellCard.teleportTo.y}`"
   >
-    <WorkflowItemCard
-      v-on-click-outside.bubble="onCloseItemCard"
-      @close="() => onCloseItemCard()"
-      :key="`item_teleport_${teleportItemCardTo.x}_${teleportItemCardTo.y}`"
-      :item-id="itemCardContentId"
-      :content="itemCardContent"
+    <WorkflowCellCard
+      :key="`x${cellCard.teleportTo.x}_y${cellCard.teleportTo.y}`"
+      :item-id="cellCard.contentId"
+      :content="cellCard.content"
+      @close="() => onCloseCellCard()"
       @refresh="refresh"
     />
-  </!-->
-  <!-- pre>
-    {{ workflowData }}
-  </!-->
+  </Teleport>
+  <!-- Settings Slider -->
   <Sheet v-model:open="sideBarOpen">
     <SheetContent>
       <SheetHeader>
@@ -331,7 +399,11 @@
   }
 
   .cell {
-    @apply h-8 w-52 overflow-hidden break-words border-b border-l p-2;
+    @apply relative h-8 w-52 border-b border-l p-2;
+  }
+
+  .cell-content {
+    @apply relative overflow-hidden break-words;
   }
 
   .cell-last {

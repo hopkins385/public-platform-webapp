@@ -1,5 +1,9 @@
 <script setup lang="ts">
-  import { useDebounceFn } from '@vueuse/core';
+  import {
+    onClickOutside,
+    useDebounceFn,
+    useEventListener,
+  } from '@vueuse/core';
   import { XIcon } from 'lucide-vue-next';
 
   const props = defineProps<{
@@ -16,13 +20,14 @@
 
   const text = ref(props.content || '');
   const pending = ref(false);
+  const cellCardRef = ref<HTMLDivElement | null>(null);
 
   const { updateDocumentItem } = useManageDocumentItems();
 
   async function updateItem(value: string) {
     console.log(value, props.itemId);
     await updateDocumentItem({
-      documentItemId: props.itemId,
+      documentItemId: props?.itemId,
       content: value,
     });
     emits('refresh');
@@ -57,6 +62,16 @@
     },
   );
 
+  onClickOutside(cellCardRef, () => {
+    emits('close');
+  });
+
+  useEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      emits('close');
+    }
+  });
+
   onMounted(() => {
     // set focus
     const textarea = document.getElementById('item-card-textarea');
@@ -64,18 +79,11 @@
       textarea.focus();
     }
   });
-
-  /*
-      :model-value="content"
-      @update:model-value="(payload) => onUpdate(payload)"
-    */
-  // onBeforeUnmount(() => {
-  //   updateDocumentItem(text.value);
-  // });
 </script>
 
 <template>
   <div
+    ref="cellCardRef"
     class="relative w-96 overflow-hidden rounded-2xl border bg-white shadow-md"
   >
     <button

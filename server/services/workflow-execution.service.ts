@@ -15,6 +15,7 @@ export class WorkflowExecutionService {
    */
 
   getFlowRows(
+    userId: string,
     workflowSteps: any[],
     rowCount: number,
     stepsMaxIndex: number,
@@ -86,7 +87,7 @@ export class WorkflowExecutionService {
     for (let i = 0; i < rowCount; i++) {
       const jobs = {
         name: 'Final Step',
-        data: { row: i, workflowId },
+        data: { row: i, userId, workflowId },
         queueName: 'RowCompletion',
         children: [jobChild(stepsMaxIndex, i)],
       };
@@ -96,7 +97,7 @@ export class WorkflowExecutionService {
     return rows;
   }
 
-  async executeWorkflow(workflowId: string) {
+  async executeWorkflow(userId: string, workflowId: string) {
     if (!workflowId) {
       throw new Error(`Workflow ID missing`);
     }
@@ -114,7 +115,7 @@ export class WorkflowExecutionService {
     const bullmq = useBullmq();
     const flowProducer = bullmq.getFlowProducer();
 
-    const rows = this.getFlowRows(steps, rowCount, stepsMaxIndex, id);
+    const rows = this.getFlowRows(userId, steps, rowCount, stepsMaxIndex, id);
 
     // console.log(`Rows: ${JSON.stringify(rows, null, 2)}`);
 

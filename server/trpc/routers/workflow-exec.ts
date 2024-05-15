@@ -14,6 +14,7 @@ export const workflowExecRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       return workflowExecService.executeWorkflow(
+        ctx.user.id,
         input.workflowId.toLowerCase(),
       );
     }),

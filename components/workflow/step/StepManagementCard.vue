@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { onClickOutside, useEventListener } from '@vueuse/core';
   import { SettingsIcon, Trash2Icon } from 'lucide-vue-next';
 
   const props = defineProps<{
@@ -56,6 +57,12 @@
       inputRef.value.focus();
     }
   }
+
+  useEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      emits('close');
+    }
+  });
 
   onMounted(() => {
     setFocus();

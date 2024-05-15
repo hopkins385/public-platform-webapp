@@ -20,11 +20,30 @@
     },
   });
 
+  const errorAlert = reactive({
+    show: false,
+    message: '',
+  });
+
   const { projectId } = useRoute().params;
   const { getProject } = useManageProjects();
   const { getAllAssistants } = useManageAssistants();
   const { data: project } = await getProject(projectId);
   const { data: assistantsData } = await getAllAssistants();
+
+  const assistantId = computed(
+    () => assistantsData.value?.assistants[0]?.id || undefined,
+  );
+
+  if (!project.value) {
+    throw new Error('Project not found');
+  }
+
+  if (!assistantId.value) {
+    errorAlert.show = true;
+    errorAlert.message =
+      'Please create an assistant first, before creating a workflow.';
+  }
 
   const createWorkflowSchema = toTypedSchema(
     z.object({
@@ -39,9 +58,9 @@
   const { handleSubmit } = useForm({
     validationSchema: createWorkflowSchema,
     initialValues: {
-      projectId: project.value?.id,
-      assistantId: assistantsData.value?.assistants[0].id,
-      projectName: project.value?.name,
+      projectId: project.value.id,
+      assistantId: assistantId.value,
+      projectName: project.value.name,
       name: '',
       description: '',
     },
@@ -59,18 +78,18 @@
       resetForm();
       const localePath = useLocalePath();
       return await navigateTo(
-        localePath(`/project/${project.value?.id}/workflow/${workflow.id}`),
+        localePath(`/project/${project.value?.id}/workflow/${workflow?.id}`),
       );
     } catch (error: any) {
-      toast.error({
-        description: 'Ups, something went wrong.',
-      });
+      errorAlert.show = true;
+      errorAlert.message = error.message;
     }
   });
 </script>
 
 <template>
   <SectionContainer>
+    <ErrorAlert :message="errorAlert.message" v-model="errorAlert.show" />
     <SectionHeading title="Create Workflow" />
     <div class="rounded-lg border bg-white p-10">
       <form class="space-y-8" @submit="onSubmit">
