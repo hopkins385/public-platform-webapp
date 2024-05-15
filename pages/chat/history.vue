@@ -11,7 +11,10 @@
 
 <template>
   <SectionContainer class="h-full">
-    <SectionHeading title="Chat History" />
+    <SectionHeading
+      title="Chat History"
+      subtitle="Here you can see all your recent chats"
+    />
     <Suspense>
       <ChatHistory />
       <template #fallback>

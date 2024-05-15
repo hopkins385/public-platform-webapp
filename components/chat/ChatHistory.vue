@@ -55,44 +55,56 @@
   <div v-if="chats.length > 0">
     <ErrorAlert v-model="errorAlert.show" :message="errorAlert.message" />
     <ConfirmDialog v-model="showConfirmDialog" @confirm="handleDelete" />
-
-    <Table class="rounded-lg border bg-white">
-      <TableCaption>
-        Showing from
-        {{ meta.totalCount > 10 ? meta.currentPage * 10 - 10 + 1 : 1 }}
-        to
-        {{
-          meta.totalCount > 10
-            ? meta.currentPage * 10 - 10 + chats.length
-            : meta.totalCount
-        }}
-        of total
-        {{ meta.totalCount }}
-      </TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead> Title </TableHead>
-          <TableHead> Created At </TableHead>
-          <TableHead class="text-right"> Actions </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        <TableRow v-for="chat in data?.chats || []" :key="chat.id">
-          <TableCell>{{ chat.title }}</TableCell>
-          <TableCell>
-            {{ getDateTimeForHumans(chat.createdAt) }}
-          </TableCell>
-          <TableCell class="space-x-2 text-right">
-            <Button variant="outline" size="icon" @click="onEdit(chat.id)">
-              <MessageCircleMoreIcon class="size-4 text-primary" />
-            </Button>
-            <Button variant="outline" size="icon" @click="onDelete(chat.id)">
-              <Trash2Icon class="size-4 stroke-1.5 text-destructive" />
-            </Button>
-          </TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
+    <div class="mb-4 rounded-xl border bg-white p-10">
+      <Table>
+        <TableCaption>
+          Showing from
+          {{ meta.totalCount > 10 ? meta.currentPage * 10 - 10 + 1 : 1 }}
+          to
+          {{
+            meta.totalCount > 10
+              ? meta.currentPage * 10 - 10 + chats.length
+              : meta.totalCount
+          }}
+          of total
+          {{ meta.totalCount }}
+        </TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead> Title </TableHead>
+            <TableHead> Assistant </TableHead>
+            <TableHead> Ai Model </TableHead>
+            <TableHead> Created At </TableHead>
+            <TableHead class="text-right"> Actions </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow v-for="chat in data?.chats || []" :key="chat.id">
+            <TableCell>{{ chat.title }}</TableCell>
+            <TableCell>{{ chat.assistant.title }}</TableCell>
+            <TableCell>{{ chat.assistant.llm.displayName }}</TableCell>
+            <TableCell>
+              {{ getDateTimeForHumans(chat.createdAt) }}
+            </TableCell>
+            <TableCell class="space-x-2 text-right">
+              <Button variant="outline" size="icon" @click="onEdit(chat.id)">
+                <MessageCircleMoreIcon class="size-4 stroke-1.5 text-primary" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                class="group"
+                @click="onDelete(chat.id)"
+              >
+                <Trash2Icon
+                  class="size-4 stroke-1 text-destructive group-hover:stroke-1.5"
+                />
+              </Button>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </div>
 
     <Pagination
       v-if="meta.totalCount > 10"

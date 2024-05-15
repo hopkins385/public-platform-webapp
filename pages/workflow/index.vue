@@ -34,6 +34,10 @@
 
 <template>
   <SectionContainer>
+    <SectionHeading
+      title="Workflows"
+      subtitle="Create, edit, and manage workflows"
+    />
     <Heading>
       <template #top> </template>
       <template #bottom>

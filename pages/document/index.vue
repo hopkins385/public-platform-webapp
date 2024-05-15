@@ -23,6 +23,22 @@
 
 <template>
   <SectionContainer>
+    <SectionHeading
+      title="Document Index"
+      subtitle="Create, edit, and manage documents"
+    />
+    <Heading>
+      <template #top> </template>
+      <template #bottom>
+        <div class="ml-auto flex flex-col space-y-1 self-end px-3 pb-2 pt-14">
+          <LinkButton to="/document/create">
+            New Document
+            <PlusIcon class="ml-2 size-4 stroke-2" />
+          </LinkButton>
+        </div>
+      </template>
+    </Heading>
+    <!--
     <Heading>
       <template #top> </template>
       <template #bottom>
@@ -46,6 +62,7 @@
         </div>
       </template>
     </Heading>
+    -->
     <BoxContainer>
       <div>Document Index</div>
     </BoxContainer>

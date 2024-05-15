@@ -13,7 +13,8 @@
 </script>
 
 <template>
-  <SectionContainerWithImage>
+  <SectionContainer>
+    <SectionHeading title="One Drive" />
     <BoxContainer>
       <Suspense>
         <OnedriveTable :id="$route.params?.id" />
@@ -22,5 +23,5 @@
         </template>
       </Suspense>
     </BoxContainer>
-  </SectionContainerWithImage>
+  </SectionContainer>
 </template>

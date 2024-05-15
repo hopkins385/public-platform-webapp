@@ -31,7 +31,7 @@
     <ErrorAlert v-model="errorAlert.show" :message="errorAlert.message" />
     <ConfirmDialog v-model="showConfirmDialog" @confirm="handleDelete" />
 
-    <Table class="rounded-lg border bg-white">
+    <Table>
       <!-- TODO: fix total count (meta on multi projects and flatMap) -->
       <TableCaption class="hidden">
         Showing from

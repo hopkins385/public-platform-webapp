@@ -13,6 +13,10 @@
 
 <template>
   <SectionContainer>
+    <SectionHeading
+      title="Collections"
+      subtitle="Create, edit, and manage collections"
+    />
     <Heading>
       <template #top> </template>
       <template #bottom>

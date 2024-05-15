@@ -13,6 +13,10 @@
 
 <template>
   <SectionContainer>
+    <SectionHeading
+      title="Assistants"
+      subtitle="Start a new chat, change behavior, or delete an assistant"
+    />
     <Heading>
       <template #top> </template>
       <template #bottom>
@@ -24,10 +28,10 @@
         </div>
       </template>
     </Heading>
+
     <BoxContainer class="w-full">
       <div>
         <Suspense>
-          <!-- AssistantCardGrid /-->
           <AssistantAllTable />
           <template #fallback> Loading ... </template>
         </Suspense>

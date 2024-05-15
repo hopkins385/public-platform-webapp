@@ -6,7 +6,8 @@
 </script>
 
 <template>
-  <SectionContainerWithImage>
+  <SectionContainer>
+    <SectionHeading title="Google Drive" />
     <BoxContainer>
       <Suspense>
         <GoogleDriveTable />
@@ -16,5 +17,5 @@
       </Suspense>
     </BoxContainer>
     <div class="h-10"></div>
-  </SectionContainerWithImage>
+  </SectionContainer>
 </template>

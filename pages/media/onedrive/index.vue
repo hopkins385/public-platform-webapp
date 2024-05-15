@@ -6,7 +6,8 @@
 </script>
 
 <template>
-  <SectionContainerWithImage>
+  <SectionContainer>
+    <SectionHeading title="One Drive" />
     <BoxContainer>
       <Suspense>
         <OnedriveTable />
@@ -15,5 +16,5 @@
         </template>
       </Suspense>
     </BoxContainer>
-  </SectionContainerWithImage>
+  </SectionContainer>
 </template>

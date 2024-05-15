@@ -13,7 +13,8 @@
 </script>
 
 <template>
-  <SectionContainerWithImage>
+  <SectionContainer>
+    <SectionHeading title="Google Drive" />
     <BoxContainer class="pb-10">
       <Suspense>
         <GoogleDriveTable :id="$route.params?.id" />
@@ -23,5 +24,5 @@
       </Suspense>
     </BoxContainer>
     <div class="h-10"></div>
-  </SectionContainerWithImage>
+  </SectionContainer>
 </template>

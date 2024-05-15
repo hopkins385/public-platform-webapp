@@ -194,7 +194,7 @@
       </div>
     </div>
     <div
-      class="border-t border-gray-200 p-5 text-xs transition-opacity duration-300 ease-out"
+      class="nav-text border-t border-gray-200 p-5 transition-opacity duration-300 ease-out"
       :class="{
         'opacity-0': !navBar.isOpen,
         'opacity-100': navBar.isOpen,
@@ -206,8 +206,13 @@
 </template>
 
 <style scoped>
+  .nav-text {
+    @apply text-sm;
+  }
+
   .nav-item {
-    @apply flex min-h-8 flex-col justify-center border-0 px-4 py-0 text-xs;
+    @apply flex min-h-8 flex-col justify-center border-0 px-4 py-0;
+    @apply nav-text;
   }
 
   .nav-item-child {

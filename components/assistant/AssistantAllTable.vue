@@ -66,7 +66,7 @@
     <ErrorAlert v-model="errorAlert.show" :message="errorAlert.message" />
     <ConfirmDialog v-model="showConfirmDialog" @confirm="handleDelete" />
 
-    <Table class="rounded-lg border bg-white">
+    <Table>
       <TableCaption>
         Showing from
         {{ meta.totalCount > 10 ? meta.currentPage * 10 - 10 + 1 : 1 }}
