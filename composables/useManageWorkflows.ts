@@ -145,6 +145,15 @@ export default function useManageWorkflows() {
     );
   }
 
+  function exportWorkflow(id: string | string[] | undefined | null) {
+    setWorkflowId(id);
+    return $fetch.raw('/api/export/workflow', {
+      method: 'POST',
+      body: { workflowId },
+      responseType: 'blob',
+    });
+  }
+
   return {
     setPage,
     setWorkflowId,
@@ -155,5 +164,6 @@ export default function useManageWorkflows() {
     getWorkflowSettings,
     updateWorkflow,
     deleteWorkflow,
+    exportWorkflow,
   };
 }

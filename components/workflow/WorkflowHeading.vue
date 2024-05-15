@@ -1,9 +1,9 @@
 <script setup lang="ts">
   import {
     GitPullRequestArrowIcon,
+    Loader2Icon,
     PanelLeftIcon,
     PlusIcon,
-    SquareGanttChartIcon,
     Table2Icon,
   } from 'lucide-vue-next';
 
@@ -25,6 +25,33 @@
   function onFlowViewClick() {
     emit('update:showTableView', false);
   }
+
+  const exportIsLoading = ref(false);
+
+  async function onExportData() {
+    exportIsLoading.value = true;
+    const { exportWorkflow } = useManageWorkflows();
+    try {
+      const response = await exportWorkflow(props.workflowId);
+      if (!response || !response?._data) {
+        throw new Error('No data found');
+      }
+
+      const blob = new Blob([response?._data as unknown as Blob], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${props.workflowId}.xlsx`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    } catch (error) {
+      console.error(error);
+    }
+    exportIsLoading.value = false;
+  }
 </script>
 
 <template>
@@ -40,7 +67,18 @@
         </NuxtLinkLocale>
       </div>
       <div>
-        <Button variant="outline" size="sm" class="text-xs">Export Data</Button>
+        <Button
+          variant="outline"
+          size="sm"
+          class="text-xs"
+          @click="onExportData"
+          :disabled="exportIsLoading"
+        >
+          <span v-if="exportIsLoading" class="mr-1">
+            <Loader2Icon class="size-3 animate-spin stroke-1.5" />
+          </span>
+          Export Data
+        </Button>
       </div>
     </div>
     <!-- Project Workflows -->

@@ -51,7 +51,8 @@
       toast.success({
         description: 'Workflow updated successfully',
       });
-      await refresh();
+      // await refresh();
+      navigateTo(`/project/${projectId}/workflow/${workflowId}`);
     } catch (error: any) {
       toast.error({
         description: 'Ups, something went wrong.',

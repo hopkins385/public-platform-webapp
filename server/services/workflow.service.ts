@@ -6,6 +6,8 @@ import type {
 } from './dto/workflow.dto';
 import { CreateWorkflowStepDto } from './dto/workflow-step.dto';
 
+import xlsx from 'node-xlsx';
+
 export class WorkflowService {
   private readonly prisma: ExtendedPrismaClient;
   private readonly workflowStepService: WorkflowStepService;
@@ -217,5 +219,89 @@ export class WorkflowService {
         deletedAt: new Date(),
       },
     });
+  }
+
+  async export(
+    workflowId: string,
+    type: 'json' | 'xml' | 'csv' | 'xlsx' | 'pdf',
+  ) {
+    const workflow = await this.prisma.workflow.findFirst({
+      where: {
+        id: workflowId.toLowerCase(),
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        steps: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            orderColumn: true,
+            createdAt: true,
+            updatedAt: true,
+            document: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                documentItems: {
+                  select: {
+                    id: true,
+                    orderColumn: true,
+                    content: true,
+                    type: true,
+                  },
+                  where: {
+                    deletedAt: null,
+                  },
+                  orderBy: {
+                    orderColumn: 'asc',
+                  },
+                },
+              },
+              where: {
+                deletedAt: null,
+              },
+            },
+          },
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            orderColumn: 'asc',
+          },
+        },
+      },
+    });
+    if (!workflow) {
+      throw new Error('Workflow not found');
+    }
+    const { steps } = workflow;
+    const headlines = steps.map((step) => step.name);
+
+    const rows = [] as any;
+    // the data in the table look like this
+    // [ [ 'Step 1', 'Step 2', 'Step 3' ], [ 'Step_1_row_1', 'Step_1_row_2', 'Step_1_row_3' ], [ 'Step_2_row_1', 'Step_2_row_2', 'Step_2_row_3' ] ]
+    // but we need to transpose it to look like this
+    // [ [ 'Step 1', 'Step 2', 'Step 3' ], [ 'Step_1_row_1', 'Step_2_row_1', 'Step_3_row_1' ], [ 'Step_1_row_2', 'Step_2_row_2', 'Step_3_row_2' ] ]
+    steps.forEach((step) => {
+      step.document?.documentItems.forEach((item, index) => {
+        if (!rows[index]) {
+          rows[index] = [];
+        }
+        rows[index].push(item.content);
+      });
+    });
+
+    return xlsx.build([
+      {
+        name: workflow.name,
+        data: [headlines, ...rows],
+        options: {},
+      },
+    ]);
   }
 }

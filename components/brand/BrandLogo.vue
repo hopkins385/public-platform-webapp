@@ -7,10 +7,12 @@
 <template>
   <NuxtLinkLocale href="/">
     <div class="flex h-8 items-center justify-center space-x-3">
-      <span class="opacity-100">
+      <div class="opacity-100">
         <IconRagna class="size-7 drop-shadow-sm" />
-      </span>
-      <span v-if="textVisible" class="text-sm opacity-95">RAGNA Cloud</span>
+      </div>
+      <div v-if="textVisible" class="text-sm opacity-95">
+        <span class="font-semibold tracking-wide">RAGNA</span> Cloud
+      </div>
     </div>
   </NuxtLinkLocale>
 </template>

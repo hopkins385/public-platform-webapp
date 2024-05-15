@@ -1,18 +1,16 @@
 <script setup lang="ts">
   import { vOnClickOutside } from '@vueuse/components';
-  import {
-    AlignLeftIcon,
-    PlusIcon,
-    LayoutDashboard,
-    SettingsIcon,
-    CircleChevronRight,
-    ChevronDownIcon,
-  } from 'lucide-vue-next';
+  import { AlignLeftIcon, PlusIcon, LayoutDashboard } from 'lucide-vue-next';
 
   const props = defineProps<{
     workflowId: string;
     projectId: string;
   }>();
+
+  const sideBarOpen = ref(false);
+  const sheetRef = ref<HTMLElement | null>(null);
+
+  const socket = useWebsocket();
 
   const stepCard = reactive({
     show: false,
@@ -81,7 +79,9 @@
       orderColumn: columnCount.value + 1,
       rowCount: rowCount.value,
     });
+
     await refresh();
+    initSheetDimensions(props.workflowId);
   }
 
   async function onAddWorkflowRow() {
@@ -139,7 +139,12 @@
     cellCard.content = '';
   }
 
-  const socket = useWebsocket();
+  async function onReloadDataClick() {
+    const toast = useToast();
+    await refresh();
+    toast.success({ description: 'Data reloaded' });
+  }
+
   function workflowUpdateListener(message: any) {
     console.log('workflow channel message', message);
     refresh();
@@ -153,10 +158,6 @@
   onBeforeUnmount(() => {
     socket.off(`workflow-${props.workflowId}-update`, workflowUpdateListener);
   });
-
-  //
-  const sideBarOpen = ref(false);
-  const sheetRef = ref<HTMLElement | null>(null);
 </script>
 
 <template>
@@ -165,7 +166,6 @@
     Ups something went wrong.<br />The Data you are looking for is not
     available.
   </div>
-  <div @click="() => refresh()" class="hidden">Ref</div>
   <div
     ref="sheetRef"
     class="no-scrollbar flex overflow-visible bg-white pb-10 pr-10 text-xs"
@@ -177,42 +177,13 @@
         class="index relative flex items-center justify-center"
         id="row_0_cell_x0_y1"
       >
-        <div v-if="sheetRef">
-          <!-- TODO: optimize v-if sheetRef -->
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <div class="rounded-lg border p-1">
-                <ChevronDownIcon class="size-3 stroke-1.5" />
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="start"
-              :avoid-collisions="true"
-              :loop="true"
-              :collision-boundary="sheetRef"
-            >
-              <DropdownMenuLabel class="text-xs"> Workflow</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                class="w-full cursor-pointer text-xs"
-                @click="() => onPlayClick()"
-                as="button"
-              >
-                <CircleChevronRight class="mr-1 size-3 stroke-1.5" />
-                Run all steps
-              </DropdownMenuItem>
-              <DropdownMenuItem class="text-xs">
-                <NuxtLinkLocale
-                  :to="`/project/${projectId}/workflow/${workflowData.id}/settings`"
-                  class="flex w-full items-center"
-                >
-                  <SettingsIcon class="mr-1 size-3 stroke-1.5" />
-                  Settings
-                </NuxtLinkLocale>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <WorkflowExecuteMenu
+          v-if="sheetRef"
+          :projectId="projectId"
+          :workflowId="workflowId"
+          @play="onPlayClick"
+          @reload="onReloadDataClick"
+        />
       </div>
       <div
         v-for="(count, rowIndex) in rowCount"
@@ -375,14 +346,14 @@
     />
   </Teleport>
   <!-- Settings Slider -->
-  <Sheet v-model:open="sideBarOpen">
+  <!-- Sheet v-model:open="sideBarOpen">
     <SheetContent>
       <SheetHeader>
         <SheetTitle>Settings</SheetTitle>
         <SheetDescription> Under Construction </SheetDescription>
       </SheetHeader>
     </SheetContent>
-  </Sheet>
+  </!-->
 </template>
 
 <style>
@@ -403,7 +374,7 @@
   }
 
   .cell-content {
-    @apply relative overflow-hidden break-words;
+    @apply relative overflow-hidden whitespace-pre-line break-words;
   }
 
   .cell-last {
