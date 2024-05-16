@@ -1,4 +1,9 @@
 <script setup lang="ts">
+  import {
+    SquareArrowOutUpRightIcon,
+    SquareArrowUpRightIcon,
+  } from 'lucide-vue-next';
+
   const socket = useWebsocket();
   const { data: auth } = useAuth();
   const { getMe } = useManageMyUserProfile();
@@ -32,7 +37,12 @@
         <div class="opacity-50">Account</div>
         <div class="opacity-75">
           <NuxtLinkLocale to="/user/profile" class="hover:underline">
-            {{ auth?.user?.name }}
+            <span>{{ user?.name }}</span>
+            <span>
+              <SquareArrowOutUpRightIcon
+                class="ml-2 inline-block size-3 stroke-1.5 opacity-60"
+              />
+            </span>
           </NuxtLinkLocale>
         </div>
       </div>
@@ -45,7 +55,7 @@
       <button
         class="w-full rounded-full bg-stone-200/60 px-4 py-2 font-semibold"
       >
-        Go Pro
+        Upgrade to Pro
       </button>
     </div>
   </div>

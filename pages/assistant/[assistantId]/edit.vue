@@ -103,6 +103,14 @@
       });
     }
   });
+
+  const initialAssistantName = computed(
+    () => assistant.value?.llm.displayName ?? 'Select AI Model',
+  );
+
+  const initialCollectionName = computed(
+    () => collections.value[0]?.name ?? 'Select Knowledge Collection',
+  );
 </script>
 
 <template>
@@ -160,9 +168,7 @@
             </FormLabel>
             <FormControl>
               <LlmSelectModal
-                :initial-display-name="
-                  assistant?.llm.displayName ?? 'Select AI Model'
-                "
+                :initial-display-name="initialAssistantName"
                 :id="value"
                 @update:id="
                   (id) => {
@@ -204,9 +210,7 @@
             <FormControl>
               <CollectionSelectModal
                 :id="value"
-                :initial-display-name="
-                  collections[0]?.name ?? 'Select Knowledge Collection'
-                "
+                :initial-display-name="initialCollectionName"
                 @update:id="
                   (id) => {
                     handleChange(id), updateCollection(id);

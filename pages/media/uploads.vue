@@ -49,6 +49,10 @@
 
 <template>
   <SectionContainer class="space-y-4">
+    <SectionHeading
+      title="Uploads"
+      subtitle="Upload files to your team account"
+    />
     <BoxContainer>
       <FileDropzone v-model="dropzoneFiles" />
       <div class="flex justify-end">

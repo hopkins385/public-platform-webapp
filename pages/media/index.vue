@@ -26,8 +26,11 @@
 
 <template>
   <SectionContainer>
+    <SectionHeading
+      title="File Manager"
+      subtitle="Connect your cloud storage or upload files"
+    />
     <BoxContainer>
-      <h1 class="pb-10 text-2xl font-bold">File Manager</h1>
       <ul class="max-w-sm space-y-5">
         <li
           class="group flex cursor-pointer items-center space-x-10 rounded-lg"

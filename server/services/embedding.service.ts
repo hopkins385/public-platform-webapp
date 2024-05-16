@@ -1,13 +1,5 @@
-import {
-  VectorStoreIndex,
-  serviceContextFromDefaults,
-  ContextChatEngine,
-  SimpleChatEngine,
-  SummaryChatHistory,
-  OpenAI,
-  CondenseQuestionChatEngine,
-} from 'llamaindex';
-import type { VectorStore, ChatMessage } from 'llamaindex';
+import { VectorStoreIndex } from 'llamaindex';
+import type { VectorStore } from 'llamaindex';
 import { FileReaderFactory } from '../factories/fileReaderFactory';
 
 export class EmbeddingService {

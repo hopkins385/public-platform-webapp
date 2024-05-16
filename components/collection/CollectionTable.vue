@@ -83,10 +83,12 @@
       </TableHeader>
       <TableBody>
         <TableRow v-for="collection in collections" :key="collection.id">
-          <TableCell>
+          <TableCell class="max-w-xl truncate">
             {{ collection.name }}
           </TableCell>
-          <TableCell>{{ collection.description }}</TableCell>
+          <TableCell class="max-w-xl truncate">{{
+            collection.description
+          }}</TableCell>
           <TableCell>
             {{ collection.records.length }}
           </TableCell>

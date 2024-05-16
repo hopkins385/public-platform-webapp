@@ -42,6 +42,10 @@
 
 <template>
   <SectionContainer>
+    <SectionHeading
+      :title="collection?.name"
+      :subtitle="collection?.description"
+    />
     <Heading>
       <template #top> </template>
       <template #bottom>

@@ -1,10 +1,9 @@
-import { CollectionService } from './collection.service';
+import type { Media } from '@prisma/client';
 import type { CreateRecordDto, FindRecordsDto } from './dto/record.dto';
 import { MediaService } from './media.service';
 import { VectorService } from './vector.service';
 export class RecordService {
   private readonly prisma: ExtendedPrismaClient;
-  private readonly collectionService: CollectionService;
   private readonly mediaService: MediaService;
   private readonly vectorService: VectorService;
 
@@ -12,7 +11,6 @@ export class RecordService {
     const { getClient } = usePrisma();
     this.prisma = getClient();
     this.mediaService = new MediaService();
-    this.collectionService = new CollectionService();
     this.vectorService = new VectorService();
   }
 
@@ -21,20 +19,39 @@ export class RecordService {
     if (!media) {
       throw new Error('Media not found');
     }
-    const { filePath, fileMime } = media;
 
     // find record
     const record = await this.prisma.record.findFirst({
+      select: {
+        id: true,
+        collectionId: true,
+        chunks: {
+          select: {
+            id: true,
+          },
+        },
+      },
       where: {
-        collectionId: payload.collectionId,
         mediaId: media.id,
       },
     });
 
-    if (record) {
-      throw new Error('Record already exists');
+    if (!record) {
+      // create record and embed file to vectorStore
+      return this.embedMedia(media, payload);
     }
 
+    if (record.collectionId === payload.collectionId) {
+      throw new Error('Record already exists in this collection');
+    }
+
+    // TODO: create new record and duplicate chunks but don't embed file again to vector store
+    // for now, just throw an error
+    throw new Error('Record already exists in another collection');
+  }
+
+  async embedMedia(media: Media, payload: CreateRecordDto) {
+    const { filePath, fileMime } = media;
     // create record
     const newRecord = await this.prisma.record.create({
       data: {
@@ -44,25 +61,21 @@ export class RecordService {
       },
     });
 
-    // index file to vectorStore
-    const documents = await this.vectorService.createIndex({
+    // store/embed file to vectorStore
+    const embedDocuments = await this.vectorService.createIndex({
       mediaId: media.id,
       recordId: newRecord.id,
       mimeType: fileMime,
       path: filePath,
     });
 
-    // console.log('documents', documents);
-
-    const chunksData = documents.map((doc) => ({
+    const chunksData = embedDocuments.map((doc) => ({
       id: ULID(),
       recordId: newRecord.id,
       content: doc.text,
     }));
 
-    // console.log('chunksData', chunksData);
-
-    // create for each document a chunk
+    // create for each embedding a chunk
     const chunks = await this.prisma.chunk.createMany({
       data: chunksData,
     });

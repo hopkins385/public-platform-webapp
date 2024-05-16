@@ -1,7 +1,11 @@
 import type { AsyncDataOptions } from '#app';
-import { set } from 'zod';
 
 interface ICreateCollection {
+  name: string;
+  description?: string;
+}
+
+interface IUpdateCollection {
   name: string;
   description?: string;
 }
@@ -30,6 +34,22 @@ export default function useManageCollections() {
   function createCollection(payload: ICreateCollection) {
     return $client.collection.create.mutate(
       { ...payload },
+      {
+        signal: ac.signal,
+      },
+    );
+  }
+
+  function updateCollection(
+    id: string | string[] | undefined | null,
+    payload: IUpdateCollection,
+  ) {
+    setCollectionId(id);
+    return $client.collection.update.mutate(
+      {
+        id: collectionId,
+        ...payload,
+      },
       {
         signal: ac.signal,
       },
@@ -124,5 +144,6 @@ export default function useManageCollections() {
     findAllFor,
     findFirst,
     deleteCollection,
+    updateCollection,
   };
 }

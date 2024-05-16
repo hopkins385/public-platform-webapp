@@ -60,7 +60,7 @@
             <FileIcon class="size-4" />
           </div>
         </TableCell>
-        <TableCell>{{ item?.media?.name }}</TableCell>
+        <TableCell class="truncate">{{ item?.media?.name }}</TableCell>
         <TableCell> {{ item?.chunks?.length ?? 0 }} </TableCell>
         <TableCell class="space-x-2 text-right"> --- </TableCell>
       </TableRow>

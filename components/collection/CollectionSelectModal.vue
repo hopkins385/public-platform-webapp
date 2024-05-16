@@ -11,27 +11,23 @@
     reset: [void];
   }>();
 
+  const collectionId = toRef(props.id);
   const open = ref(false);
-  const pending = ref(false);
 
   const { findAll } = useManageCollections();
-  const { data: collections, refresh } = await findAll({ lazy: true });
+  const { data: collections } = await findAll({ lazy: true });
 
-  const selectdCollection = computed(() => {
-    return (
-      collections.value?.find(
-        (collection: any) => collection.id === props.id,
-      ) || {
-        name: props.initialDisplayName,
-      }
-    );
-  });
+  const selectdCollection = computed(() =>
+    collections.value?.find(
+      (collection: any) => collection.id === collectionId.value,
+    ),
+  );
 
   function setOpen(value: boolean) {
     open.value = value;
   }
 
-  function onCollectionClick(id: string) {
+  async function onCollectionClick(id: string) {
     emits('update:id', id);
     open.value = false;
   }
@@ -48,7 +44,7 @@
       class="cursor-pointer rounded-lg border px-5 py-2.5 text-sm"
       @click="() => (open = true)"
     >
-      {{ selectdCollection.name }}
+      {{ selectdCollection?.name || initialDisplayName }}
     </div>
     <Dialog v-model:open="open">
       <DialogTrigger as-child>
@@ -58,18 +54,19 @@
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>AI collection</DialogTitle>
+          <DialogTitle>Add Collection</DialogTitle>
           <DialogDescription>
-            This is a list of all available Large Language collections.
+            This is a list of all available collections.
           </DialogDescription>
         </DialogHeader>
-        <div
+        <Button
+          variant="outline"
           v-for="collection in collections"
           :key="collection.id"
           @click="() => onCollectionClick(collection.id)"
         >
           {{ collection.name }}
-        </div>
+        </Button>
 
         <Button variant="outline" @click="onResetClick"> Reset </Button>
 
