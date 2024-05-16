@@ -43,7 +43,7 @@
 }
 
 .editor__menu-button {
-  @apply flex cursor-pointer items-center justify-center rounded-md bg-slate-600 p-2;
+  @apply flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md bg-slate-600 p-2;
 }
 
 .editor__menu-button:hover {

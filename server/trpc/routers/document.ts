@@ -29,11 +29,15 @@ export const documentRouter = router({
   find: protectedProcedure
     .input(
       z.object({
+        projectId: ulidRule(),
         documentId: ulidRule(),
       }),
     )
     .query(async ({ input, ctx }) => {
-      return documentService.findFirst(input.documentId.toLowerCase());
+      return documentService.findFirst(
+        input.projectId.toLowerCase(),
+        input.documentId.toLowerCase(),
+      );
     }),
   // find all documents
   findAll: protectedProcedure

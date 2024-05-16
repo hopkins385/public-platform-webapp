@@ -13,8 +13,8 @@ export class DocumentService {
     this.prisma = getClient();
   }
 
-  create(payload: CreateDocumentDto) {
-    return this.prisma.document.create({
+  async create(payload: CreateDocumentDto) {
+    const document = await this.prisma.document.create({
       data: {
         id: ULID(),
         projectId: payload.projectId,
@@ -24,9 +24,23 @@ export class DocumentService {
         updatedAt: new Date(),
       },
     });
+
+    const documentItem = await this.prisma.documentItem.create({
+      data: {
+        id: ULID(),
+        documentId: document.id,
+        content: '',
+        orderColumn: 0,
+        type: 'text',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    });
+
+    return document;
   }
 
-  createMany(payload: CreateDocumentDto[]) {
+  async createMany(payload: CreateDocumentDto[]) {
     return this.prisma.document.createMany({
       data: payload.map((item) => ({
         id: ULID(),
@@ -39,10 +53,28 @@ export class DocumentService {
     });
   }
 
-  findFirst(documentId: string) {
+  findFirst(projectId: string, documentId: string) {
     return this.prisma.document.findFirst({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        updatedAt: true,
+        createdAt: true,
+        documentItems: {
+          select: {
+            id: true,
+            content: true,
+          },
+          where: {
+            deletedAt: null,
+          },
+        },
+      },
       where: {
         id: documentId.toLowerCase(),
+        projectId: projectId.toLowerCase(),
+        deletedAt: null,
       },
     });
   }

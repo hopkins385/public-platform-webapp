@@ -17,9 +17,13 @@
   const props = defineProps<{
     editor: Editor;
     isLoading: boolean;
+    autocompleteIsActive: boolean;
   }>();
 
-  const emits = defineEmits(['toggle-instruction-menu']);
+  const emit = defineEmits<{
+    toggleInstructionMenu: [void];
+    'update:autocompleteIsActive': [boolean];
+  }>();
 
   const {
     onImproveClick,
@@ -45,13 +49,18 @@
     return from !== to;
   });
 
-  const onInstructionClick = () => {
-    emits('toggle-instruction-menu');
-  };
+  function onInstructionClick() {
+    emit('toggleInstructionMenu');
+  }
 
-  const onTranslateClick = (lang: string) => {
+  function onTranslateClick(lang: string) {
     console.log(`Translate clicked: ${lang}`);
-  };
+  }
+
+  function onAutocompleteIsActiveChange(isActive: boolean) {
+    console.log(`Autocomplete is active: ${isActive}`);
+    emit('update:autocompleteIsActive', isActive);
+  }
 </script>
 
 <template>
@@ -145,8 +154,13 @@
         <Loader2Icon class="size-6 animate-spin text-slate-300" />
       </div>
     </div>
-    <!-- div v-if="isLoading" class="flex items-center justify-center">
-      <Loader2Icon class="size-6 animate-spin text-slate-100" />
-    </div !-->
+    <div class="ml-auto flex items-center space-x-4">
+      <div class="text-sm">Autocomplete</div>
+      <Switch
+        @update:checked="onAutocompleteIsActiveChange"
+        :checked="autocompleteIsActive"
+        class="outline outline-slate-500"
+      />
+    </div>
   </div>
 </template>

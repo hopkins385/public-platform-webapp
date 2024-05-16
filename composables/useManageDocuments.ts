@@ -1,5 +1,15 @@
-interface IDocumentPayload {
-  //
+interface ICreateDocumentPayload {
+  name: string;
+  description: string;
+  status: string;
+  projectId: string;
+}
+
+interface IUpdateDocumentPayload {
+  documentId: string;
+  name: string;
+  description: string;
+  status: string;
 }
 
 export default function useManageDocuments() {
@@ -23,7 +33,7 @@ export default function useManageDocuments() {
     documentId = id;
   }
 
-  function createDocument(payload: IDocumentPayload) {
+  function createDocument(payload: ICreateDocumentPayload) {
     return $client.document.create.mutate(
       { ...payload },
       {
@@ -47,12 +57,15 @@ export default function useManageDocuments() {
     });
   }
 
-  function getDocument(documentId: string) {
+  function getDocument(projectId: string, documentId: string) {
     setDocumentId(documentId);
     return useAsyncData(`document:${documentId}`, async () => {
       if (!documentId) return;
       const document = await $client.document.find.query(
-        { documentId },
+        {
+          projectId,
+          documentId,
+        },
         {
           signal: ac.signal,
         },
@@ -61,7 +74,7 @@ export default function useManageDocuments() {
     });
   }
 
-  function updateDocument(payload: IDocumentPayload) {
+  function updateDocument(payload: IUpdateDocumentPayload) {
     return $client.document.update.mutate(
       { ...payload },
       {

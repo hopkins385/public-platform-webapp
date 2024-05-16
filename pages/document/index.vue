@@ -5,64 +5,41 @@
     title: 'document.meta.index.title',
     breadcrumb: {
       icon: 'file',
-      ariaLabel: 'Document Index',
-      label: 'Document',
+      ariaLabel: 'Documents',
+      label: 'Documents',
     },
   });
 
-  const filterProjectId = ref<string | undefined>(undefined);
+  const { createDocument } = useManageDocuments();
 
-  function onClearProjectFilter() {
-    filterProjectId.value = undefined;
-  }
-
-  async function onUpdateProjectFilter(value: string) {
-    filterProjectId.value = value;
+  async function onNewDocument() {
+    const document = await createDocument({
+      projectId: '',
+      name: 'Untitled Document',
+      description: '',
+      status: 'draft',
+    });
+    await navigateTo(`/document/${document.id}/edit`);
   }
 </script>
 
 <template>
   <SectionContainer>
     <SectionHeading
-      title="Document Index"
+      title="Documents"
       subtitle="Create, edit, and manage documents"
     />
     <Heading>
       <template #top> </template>
       <template #bottom>
         <div class="ml-auto flex flex-col space-y-1 self-end px-3 pb-2 pt-14">
-          <LinkButton to="/document/create">
+          <Button @click="() => onNewDocument()">
             New Document
             <PlusIcon class="ml-2 size-4 stroke-2" />
-          </LinkButton>
+          </Button>
         </div>
       </template>
     </Heading>
-    <!--
-    <Heading>
-      <template #top> </template>
-      <template #bottom>
-        <div class="flex w-full justify-between px-3 pb-2 pt-14">
-          <div>
-            <div class="mb-1 p-1 text-xs font-semibold">Filter</div>
-            <div class="flex space-x-2">
-              <ProjectSelect
-                :projectId="filterProjectId"
-                @update:projectId="onUpdateProjectFilter"
-              />
-              <Button variant="ghost" @click="onClearProjectFilter">
-                Clear Filter
-              </Button>
-            </div>
-          </div>
-          <LinkButton class="self-end" to="/workflow/create">
-            New Document
-            <PlusIcon class="ml-2 size-4 stroke-2" />
-          </LinkButton>
-        </div>
-      </template>
-    </Heading>
-    -->
     <BoxContainer>
       <div>Document Index</div>
     </BoxContainer>

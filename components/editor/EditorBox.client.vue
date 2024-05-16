@@ -2,14 +2,16 @@
   import {
     Editor,
     EditorContent,
-    BubbleMenu as BubbleBox,
+    // BubbleMenu as BubbleBox,
   } from '@tiptap/vue-3';
   import { StarterKit } from '@tiptap/starter-kit';
   import { Highlight } from '@tiptap/extension-highlight';
   import { Underline } from '@tiptap/extension-underline';
   import { AI } from './extensions/ai-extension';
+  import { AIAutocomplete } from './extensions/autocomplete/autocomplete-extension';
   import useRunCompletion from './composables/useRunCompletion';
-  import BubbleBoxAIMenu from './components/BubbleBoxAIMenu.vue';
+  import useFetchAutoCompletion from './composables/useFetchAutoCompletion';
+  // import BubbleBoxAIMenu from './components/BubbleBoxAIMenu.vue';
 
   const props = defineProps<{
     modelValue: string;
@@ -18,6 +20,8 @@
   const emits = defineEmits(['update:modelValue']);
   const { locale } = useI18n();
   const { runCompletion, isLoading } = useRunCompletion();
+  const { fetchAutoCompletion, isLoading: autoCompleteIsLoading } =
+    useFetchAutoCompletion();
 
   const editorWrapperRef = ref<Element | null>(null);
   const showInstructionMenu = ref(false);
@@ -31,6 +35,10 @@
       AI.configure({
         lang: locale.value,
         completionHandler: runCompletion,
+      }),
+      AIAutocomplete.configure({
+        lang: locale.value,
+        autoCompletionHandler: fetchAutoCompletion,
       }),
     ],
     onUpdate: ({ editor }) => {
@@ -72,6 +80,9 @@
   onBeforeUnmount(() => {
     if (editor) editor.destroy();
   });
+
+  // tbd
+  const autocompleteIsActive = ref(true);
 </script>
 
 <template>
@@ -83,6 +94,7 @@
     <EditorMenu
       :editor="editor"
       :is-loading="showLoading"
+      v-model:autocomplete-is-active="autocompleteIsActive"
       @toggle-instruction-menu="toggleInstructionMenu"
     />
     <!-- Menu END-->

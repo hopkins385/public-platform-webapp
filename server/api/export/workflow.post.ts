@@ -1,10 +1,8 @@
 import { WorkflowService } from '../../services/workflow.service';
 import { getServerSession } from '#auth';
 import consola from 'consola';
-import { sendStream } from 'h3';
-import { Readable } from 'stream';
 
-const logger = consola.create({}).withTag('conversation.post');
+const logger = consola.create({}).withTag('api.export.workflow.post');
 
 const workflowService = new WorkflowService();
 
@@ -12,7 +10,7 @@ export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);
   const user = getAuthUser(session); // do not remove this line
 
-  const body = await readBody(_event);
+  const body = await readBody(_event); // TODO: validate body
   const { workflowId } = body;
 
   if (!workflowId) {
@@ -22,29 +20,20 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
-  // wait 500ms
+  const type = 'xlsx';
+
+  // debounce 500ms
   await new Promise((resolve) => setTimeout(resolve, 500));
 
-  const buffer = await workflowService.export(workflowId, 'xlsx');
-
-  /*const stream = new Readable();
-  stream.push(buffer);
-
-  const file = `workflow-${workflowId}.xlsx`;
-  _event.node.res.setHeader(
-    'Content-Disposition',
-    `attachment; filename="${file}"`,
-  );
-  _event.node.res.setHeader(
-    'Content-Type',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  );
-  _event.node.res.setHeader('Content-Length', buffer.length);
-  _event.node.res.write(buffer);
-  _event.node.res.end();
-  //
-  // return sendStream(_event, stream);
-  */
-
-  return buffer;
+  try {
+    const buffer = await workflowService.export(workflowId, type);
+    return buffer;
+    //
+  } catch (error) {
+    logger.error(`Error exporting workflow to ${type}: Error is: ${error}`);
+    throw createError({
+      statusCode: 500,
+      message: 'Error exporting workflow',
+    });
+  }
 });
