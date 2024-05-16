@@ -169,6 +169,23 @@ CREATE TABLE "credits" (
 );
 
 -- CreateTable
+CREATE TABLE "token_usages" (
+    "id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "llm_provider" TEXT NOT NULL,
+    "llm_model" TEXT NOT NULL,
+    "prompt_tokens" INTEGER NOT NULL,
+    "completion_tokens" INTEGER NOT NULL,
+    "total_tokens" INTEGER NOT NULL,
+    "cost" INTEGER NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "deleted_at" TIMESTAMP(3),
+
+    CONSTRAINT "token_usages_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "medias" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -363,6 +380,23 @@ CREATE TABLE "workflow_step_ables" (
     CONSTRAINT "workflow_step_ables_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "provider_auths" (
+    "id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "provider_name" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "account_info" JSONB,
+    "access_token" TEXT NOT NULL,
+    "refresh_token" TEXT,
+    "access_token_expires_at" TIMESTAMP(3),
+    "refresh_token_expires_at" TIMESTAMP(3),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "provider_auths_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
@@ -409,6 +443,9 @@ ALTER TABLE "assistants" ADD CONSTRAINT "assistants_llm_id_fkey" FOREIGN KEY ("l
 ALTER TABLE "credits" ADD CONSTRAINT "credits_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "token_usages" ADD CONSTRAINT "token_usages_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "medias" ADD CONSTRAINT "medias_team_id_fkey" FOREIGN KEY ("team_id") REFERENCES "teams"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -425,6 +462,9 @@ ALTER TABLE "collection_ables" ADD CONSTRAINT "collection_ables_collection_id_fk
 
 -- AddForeignKey
 ALTER TABLE "records" ADD CONSTRAINT "records_collection_id_fkey" FOREIGN KEY ("collection_id") REFERENCES "collections"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "records" ADD CONSTRAINT "records_media_id_fkey" FOREIGN KEY ("media_id") REFERENCES "medias"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "chunks" ADD CONSTRAINT "chunks_record_id_fkey" FOREIGN KEY ("record_id") REFERENCES "records"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -458,3 +498,6 @@ ALTER TABLE "workflow_steps" ADD CONSTRAINT "workflow_steps_assistant_id_fkey" F
 
 -- AddForeignKey
 ALTER TABLE "workflow_step_ables" ADD CONSTRAINT "workflow_step_ables_workflow_step_id_fkey" FOREIGN KEY ("workflow_step_id") REFERENCES "workflow_steps"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "provider_auths" ADD CONSTRAINT "provider_auths_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

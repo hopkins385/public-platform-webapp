@@ -1,7 +1,10 @@
+import { ProviderAuthService } from './../../services/provider-auth.service';
 import { google } from 'googleapis';
 import { z } from 'zod';
-import { UserService } from '~/server/services/user.service';
 import { getServerSession } from '#auth';
+import { ProviderAuthDto } from '~/server/services/dto/provider-auth.dto';
+
+const providerAuthService = new ProviderAuthService();
 
 const codeSchema = z.object({
   code: z.string(),
@@ -45,15 +48,24 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
-  const { prisma } = _event.context;
-  const userService = new UserService(prisma);
-  await userService.updateGoogleAuthTokens(session.user.id, {
+  const payload = ProviderAuthDto.fromInput({
+    providerName: 'google',
+    type: 'googledrive',
+    userId: session.user.id,
     accessToken: tokens.access_token,
     refreshToken: tokens.refresh_token ?? undefined,
   });
 
-  // redirect to /files/google
-  await sendRedirect(_event, '/files/google', 302);
+  const res = await providerAuthService.create(payload);
+
+  if (!res) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to save provider auth',
+    });
+  }
+
+  await sendRedirect(_event, '/media/google', 302);
 
   return { success: true };
 });

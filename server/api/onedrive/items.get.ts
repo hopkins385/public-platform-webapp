@@ -1,3 +1,4 @@
+import { ProviderAuthService } from '~/server/services/provider-auth.service';
 import type {
   ConfidentialClientApplication,
   AccountInfo,
@@ -5,47 +6,34 @@ import type {
 import type { User } from '@prisma/client';
 import * as graph from '@microsoft/microsoft-graph-client';
 import { z } from 'zod';
-import { UserService } from '~/server/services/user.service';
 import { getServerSession } from '#auth';
 import 'isomorphic-fetch';
+import consola from 'consola';
+
+const logger = consola.create({}).withTag('api.onedrive.items.get');
 
 const querySchema = z.object({
   search: z.string().max(50).optional(),
   itemId: z.string().max(50).optional(),
 });
 
+const providerAuthService = new ProviderAuthService();
+const config = useRuntimeConfig().azure;
+
 function getAuthenticatedClient(
   msalClient: ConfidentialClientApplication,
-  user: Partial<User>,
-  config: any,
+  homeAccountId: string,
 ) {
-  if (!msalClient || !user.id) {
-    throw new Error(
-      `Invalid MSAL state. Client: ${msalClient ? 'present' : 'missing'}, User ID: ${user.id ? 'present' : 'missing'}`,
-    );
-  }
-
   // Initialize Graph client
-  const client = graph.Client.init({
+  return graph.Client.init({
     // Implement an auth provider that gets a token
     // from the app's MSAL instance
     authProvider: async (done) => {
-      const accountInfo: AccountInfo = JSON.parse(
-        user.azureAccountInfo as string,
-      );
-
-      if (!user || !accountInfo || !accountInfo.homeAccountId) {
-        const err = `Invalid user state. User: ${user ? 'present' : 'missing'}, Account Info: ${accountInfo ? 'present' : 'missing'}`;
-        console.error('[msal] [account not found]', err);
-        done('invalid user', null);
-        return;
-      }
-
       try {
         // Get the user's account
         const account = await msalClient
           .getTokenCache()
-          .getAccountByHomeId(accountInfo.homeAccountId);
+          .getAccountByHomeId(homeAccountId);
 
         if (account) {
           // Attempt to get the token silently
@@ -62,13 +50,11 @@ function getAuthenticatedClient(
           done(null, response.accessToken);
         }
       } catch (err) {
-        console.log(JSON.stringify(err, Object.getOwnPropertyNames(err)));
+        logger.error(JSON.stringify(err, Object.getOwnPropertyNames(err)));
         done(err, null);
       }
     },
   });
-
-  return client;
 }
 
 async function getUserDetails(
@@ -76,7 +62,7 @@ async function getUserDetails(
   user: Partial<User>,
   config: any,
 ) {
-  const client = getAuthenticatedClient(msalClient, user, config);
+  const client = getAuthenticatedClient(msalClient, config);
 
   const azureUser = await client
     .api('/me')
@@ -88,11 +74,10 @@ async function getUserDetails(
 
 async function getDriveItems(
   msalClient: ConfidentialClientApplication,
-  user: Partial<User>,
-  config: any,
+  homeAccountId: string,
   query?: string,
 ) {
-  const client = getAuthenticatedClient(msalClient, user, config);
+  const client = getAuthenticatedClient(msalClient, homeAccountId);
   const root = '/me/drive/root/children';
   const result = await client
     .api(query ?? root)
@@ -104,28 +89,31 @@ async function getDriveItems(
   return result;
 }
 
-const config = useRuntimeConfig().azure;
-
 export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);
   const authUser = getAuthUser(session); // do not remove this line
-  const { msalClient, prisma } = _event.context;
-  const userService = new UserService(prisma);
 
-  let user: Partial<User> | null = null;
-  try {
-    user = await userService.getAzureUserById(session?.user?.id);
-  } catch (error) {
+  const provider = await providerAuthService.findFirst({
+    userId: authUser.id,
+    providerName: 'microsoft',
+    type: 'onedrive',
+  });
+
+  if (!provider) {
     throw createError({
-      statusCode: 400,
-      statusMessage: 'Bad Request',
+      statusCode: 404,
+      statusMessage: 'Not Found',
+      message: 'Provider not found',
     });
   }
 
-  if (!user) {
+  const { accountInfo } = provider;
+  // @ts-ignore
+  if (!accountInfo?.homeAccountId) {
     throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
+      statusCode: 404,
+      statusMessage: 'Not Found',
+      message: 'Account info not found',
     });
   }
 
@@ -143,11 +131,19 @@ export default defineEventHandler(async (_event) => {
     }
   }
 
+  const { msalClient } = _event.context;
+
   let response: any = null;
   try {
-    response = await getDriveItems(msalClient, user, config, query);
+    response = await getDriveItems(
+      msalClient,
+      // @ts-ignore
+      accountInfo.homeAccountId,
+      query,
+    );
+    //
   } catch (error) {
-    console.error('[msal] [client]', error);
+    logger.error(error);
     throw createError({
       statusCode: 400,
       statusMessage: 'Bad Request',

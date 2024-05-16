@@ -1,6 +1,6 @@
 <script setup lang="ts">
-  import LogosMicrosoftOnedrive from '~icons/logos/microsoft-onedrive';
-  import LogosGoogleDrive from '~icons/logos/google-drive';
+  import LogoMicrosoftOnedrive from '~icons/logos/microsoft-onedrive';
+  import LogoGoogleDrive from '~icons/logos/google-drive';
   import FluentEmojiFlatFileFolder from '~icons/fluent-emoji-flat/file-folder';
 
   definePageMeta({
@@ -37,7 +37,7 @@
           @click="navigateTo('/media/onedrive')"
         >
           <div class="size-20 rounded-lg border p-5 group-hover:shadow-md">
-            <LogosMicrosoftOnedrive class="size-full" />
+            <LogoMicrosoftOnedrive class="size-full" />
           </div>
           <p class="pt-2 text-sm">One Drive</p>
         </li>
@@ -46,7 +46,7 @@
           @click="navigateTo('/media/google')"
         >
           <div class="size-20 rounded-lg border p-5 group-hover:shadow-md">
-            <LogosGoogleDrive class="size-full" />
+            <LogoGoogleDrive class="size-full" />
           </div>
           <p class="pt-2 text-sm">Google Drive</p>
         </li>

@@ -18,6 +18,7 @@ import { mediaAbleRouter } from './media-able';
 import { collectionRouter } from './collection';
 import { recordRouter } from './record';
 import { collectionAbleRouter } from './collection-able';
+import { providerAuthRouter } from './provider-auth';
 
 export const appRouter = router({
   register: registerRouter,
@@ -39,6 +40,7 @@ export const appRouter = router({
   workflow: workflowRouter,
   workflowStep: workflowStepRouter,
   workflowExec: workflowExecRouter,
+  providerAuth: providerAuthRouter,
 });
 
 // export type definition of API

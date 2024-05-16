@@ -32,7 +32,7 @@
 
   const onRowClick = (item: any) => {
     if (item?.file) return;
-    return navigateTo(`/files/onedrive/${item.id}`);
+    return navigateTo(`/media/onedrive/${item.id}`);
   };
 
   const { fileIcon } = useGoogleDrive();

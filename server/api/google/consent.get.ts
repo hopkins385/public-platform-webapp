@@ -19,7 +19,5 @@ export default defineEventHandler((_event) => {
     scope: scopes,
   });
 
-  return {
-    data: url,
-  };
+  return url;
 });

@@ -39,7 +39,7 @@
 
   const onRowClick = (file: any) => {
     if (file.mimeType === 'application/vnd.google-apps.folder') {
-      return navigateTo(`/files/google/${file.id}`);
+      return navigateTo(`/media/google/${file.id}`);
     }
   };
 

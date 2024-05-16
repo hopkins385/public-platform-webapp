@@ -10,6 +10,7 @@ import { ULID } from '~/server/utils/ulid';
 import { useRuntimeConfig } from '#imports';
 import type { RuntimeConfig } from 'nuxt/schema';
 import jwt from 'jsonwebtoken';
+import consola from 'consola';
 
 interface RegisterNewUser {
   email: string;
@@ -18,6 +19,8 @@ interface RegisterNewUser {
   lastName: string;
   terms: boolean;
 }
+
+const logger = consola.create({}).withTag('UserService');
 
 export class UserService {
   private readonly prisma: ExtendedPrismaClient;
@@ -200,20 +203,10 @@ export class UserService {
     if (!payload.accessToken) throw new Error('Missing accessToken');
 
     try {
-      return await this.prisma.user.update({
-        where: { id: userId },
-        data: {
-          googleAccessToken: payload.accessToken,
-          // only if refreshToken is returned
-          ...(payload.refreshToken
-            ? { googleRefreshToken: payload.refreshToken }
-            : {}),
-        },
-      });
+      //
     } catch (error: any) {
-      console.log(
-        'Cannot update users google auth tokens, Error is: ',
-        error?.meta,
+      logger.error(
+        `Cannot update users google auth tokens, Error is: ${error?.meta}`,
       );
       return null;
     }

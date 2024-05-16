@@ -1,8 +1,11 @@
-import { google } from 'googleapis';
-import type { User } from '@prisma/client';
 import { z } from 'zod';
 import { getServerSession } from '#auth';
-import { UserService } from '~/server/services/user.service';
+import { ProviderAuthDto } from '~/server/services/dto/provider-auth.dto';
+import { ProviderAuthService } from '~/server/services/provider-auth.service';
+import { google } from 'googleapis';
+import consola from 'consola';
+
+const logger = consola.create({}).withTag('api.google.drive.get');
 
 const querySchema = z.object({
   search: z.string().max(50).optional(),
@@ -10,25 +13,19 @@ const querySchema = z.object({
   pageToken: z.string().max(512).optional(),
 });
 
+const providerAuthService = new ProviderAuthService();
+
 export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);
   const authUser = getAuthUser(session); // do not remove this line
 
-  const { prisma } = _event.context;
-
-  let user: Partial<User> | null = null;
-  user = await prisma.user.findUnique({
-    where: {
-      id: authUser.id,
-    },
-    select: {
-      id: true,
-      googleAccessToken: true,
-      googleRefreshToken: true,
-    },
+  const provider = await providerAuthService.findFirst({
+    userId: authUser.id,
+    providerName: 'google',
+    type: 'googledrive',
   });
 
-  if (!user || !user?.googleAccessToken || !user?.googleRefreshToken) {
+  if (!provider || !provider?.accessToken || !provider?.refreshToken) {
     throw createError({
       statusCode: 401,
       statusMessage: 'Invalid auth tokens',
@@ -44,30 +41,34 @@ export default defineEventHandler(async (_event) => {
 
   oauth2Client.on('tokens', async (tokens) => {
     if (tokens && tokens.access_token) {
-      const userService = new UserService(prisma);
-      user = await userService.updateGoogleAuthTokens(authUser.id, {
+      // save the new access token
+      const payload = ProviderAuthDto.fromInput({
+        providerName: 'google',
+        type: 'googledrive',
+        userId: authUser.id,
         accessToken: tokens.access_token,
         refreshToken: tokens.refresh_token ?? undefined,
       });
+      await providerAuthService.update(payload);
     }
   });
 
   oauth2Client.setCredentials({
-    access_token: user.googleAccessToken,
-    refresh_token: user.googleRefreshToken,
+    access_token: provider.accessToken,
+    refresh_token: provider.refreshToken,
   });
 
   const drive = google.drive({ version: 'v3', auth: oauth2Client });
 
   let searchFileName = '';
   let searchFolderId = '';
-  let pageToken: '';
+  let pageToken = '';
   const validatedQuery = await getValidatedQuery(_event, (query) =>
     querySchema.safeParse(query),
   );
 
   if (!validatedQuery.success) {
-    console.log('invalid query', validatedQuery.error);
+    logger.error(`invalid query: ${validatedQuery.error}`);
     searchFileName = '';
     searchFolderId = '';
     pageToken = '';

@@ -12,26 +12,27 @@ datasource db {
 }
 
 model User {
-  id              String       @id
-  deviceId        String?      @map("device_id")
-  email           String       @unique
+  id              String         @id
+  deviceId        String?        @map("device_id")
+  email           String         @unique
   name            String
-  firstName       String?      @map("first_name")
-  lastName        String?      @map("last_name")
+  firstName       String?        @map("first_name")
+  lastName        String?        @map("last_name")
   password        String
-  isActive        Boolean      @default(false) @map("is_active")
-  isAdmin         Boolean      @default(false) @map("is_admin")
-  lastLoginAt     DateTime?    @map("last_login_at")
-  emailVerifiedAt DateTime?    @map("email_verified_at")
-  createdAt       DateTime     @default(now()) @map("created_at")
-  updatedAt       DateTime     @updatedAt @map("updated_at")
-  deletedAt       DateTime?    @map("deleted_at")
+  isActive        Boolean        @default(false) @map("is_active")
+  isAdmin         Boolean        @default(false) @map("is_admin")
+  lastLoginAt     DateTime?      @map("last_login_at")
+  emailVerifiedAt DateTime?      @map("email_verified_at")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+  deletedAt       DateTime?      @map("deleted_at")
   chats           Chat[]
   credit          Credit[]
   teams           TeamUser[]
   accounts        Account[]
   sessions        Session[]
   tokenUsages     TokenUsage[]
+  providerAuths   ProviderAuth[]
 
   @@unique([deviceId, email])
   @@map("users")
@@ -494,4 +495,23 @@ model WorkflowStepAble {
   workflowStep WorkflowStep @relation(fields: [workflowStepId], references: [id], onDelete: Cascade)
 
   @@map("workflow_step_ables")
+}
+
+// auth token for google drive, one drive, etc.
+model ProviderAuth {
+  id                    String    @id
+  userId                String    @map("user_id")
+  providerName          String    @map("provider_name")
+  type                  String
+  accountInfo           Json?     @map("account_info")
+  accessToken           String    @map("access_token")
+  refreshToken          String?   @map("refresh_token")
+  accessTokenExpiresAt  DateTime? @map("access_token_expires_at")
+  refreshTokenExpiresAt DateTime? @map("refresh_token_expires_at")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("provider_auths")
 }

@@ -1,4 +1,4 @@
-import type msal from '@azure/msal-node';
+import type * as msal from '@azure/msal-node';
 
 const config = useRuntimeConfig().azure;
 
@@ -22,7 +22,5 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
-  return {
-    data: authUrl,
-  };
+  return authUrl;
 });
