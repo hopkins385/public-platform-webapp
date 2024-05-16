@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import { getServerSession } from '#auth';
 import { ProviderAuthService } from '~/server/services/provider-auth.service';
-import type * as msal from '@azure/msal-node';
-import consola from 'consola';
 import { ProviderAuthDto } from '~/server/services/dto/provider-auth.dto';
+import consola from 'consola';
+import type * as msal from '@azure/msal-node';
 
 const logger = consola.create({}).withTag('api.onedrive.callback.get');
 

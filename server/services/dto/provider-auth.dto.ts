@@ -1,6 +1,6 @@
 export class ProviderAuthDto {
-  readonly providerName: string;
-  readonly type: string;
+  readonly providerName: 'google' | 'microsoft';
+  readonly type: 'googledrive' | 'onedrive';
   readonly accountInfo: any | undefined;
   readonly userId: string;
   readonly accessToken: string;

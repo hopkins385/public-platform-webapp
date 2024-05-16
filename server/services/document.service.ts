@@ -24,19 +24,6 @@ export class DocumentService {
         updatedAt: new Date(),
       },
     });
-
-    const documentItem = await this.prisma.documentItem.create({
-      data: {
-        id: ULID(),
-        documentId: document.id,
-        content: '',
-        orderColumn: 0,
-        type: 'text',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    });
-
     return document;
   }
 

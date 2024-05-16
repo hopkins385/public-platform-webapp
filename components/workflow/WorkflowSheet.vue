@@ -76,7 +76,7 @@
       assistantId: assistant.id,
       name: 'New Step',
       description: 'New Step Description',
-      orderColumn: columnCount.value + 1,
+      orderColumn: columnCount.value,
       rowCount: rowCount.value,
     });
 
@@ -89,7 +89,7 @@
     const documentItems = workflowData.value.steps.map((step: any) => {
       return {
         documentId: step.document.id,
-        orderColumn: step.document.documentItems.length + 1,
+        orderColumn: step.document.documentItems.length,
         content: '',
         status: 'draft',
         type: 'text',

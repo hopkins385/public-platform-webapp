@@ -7,13 +7,16 @@
       label: 'Chat',
     },
   });
-
-  const { getRecentChatForUser } = useChat();
+  const { getAllAssistants } = useManageAssistants();
+  const { getRecentChatForUser, createChat } = useChat();
   const { data: chat } = await getRecentChatForUser();
 
   onMounted(async () => {
     if (!chat.value?.id) {
-      return await navigateTo('/assistant');
+      const { data } = await getAllAssistants();
+      const assistant = data.value.assistants[0];
+      const newChat = await createChat(assistant.id);
+      return await navigateTo(`/chat/${newChat.id}`);
     }
     return await navigateTo(`/chat/${chat.value.id}`);
   });

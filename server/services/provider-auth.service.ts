@@ -45,8 +45,21 @@ export class ProviderAuthService {
   }
 
   async update(payload: ProviderAuthDto) {
-    const providerAuth = await this.prisma.providerAuth.update({
-      where: { id: payload.userId },
+    const findProviderAuth = await this.findFirst({
+      userId: payload.userId,
+      providerName: payload.providerName,
+      type: payload.type,
+    });
+
+    if (!findProviderAuth) {
+      return await this.create(payload);
+    }
+
+    return await this.prisma.providerAuth.update({
+      where: {
+        id: findProviderAuth.id,
+        userId: payload.userId,
+      },
       data: {
         providerName: payload.providerName,
         type: payload.type,
@@ -58,7 +71,6 @@ export class ProviderAuthService {
         updatedAt: new Date(),
       },
     });
-    return providerAuth;
   }
 
   async delete(id: string) {

@@ -142,4 +142,7 @@
       </PaginationList>
     </Pagination>
   </div>
+  <div v-else class="w-full rounded-lg border p-10">
+    <div class="">No chats found</div>
+  </div>
 </template>
