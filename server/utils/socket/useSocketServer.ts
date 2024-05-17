@@ -7,11 +7,7 @@ let engine: Engine;
 
 export function useSocketServer() {
   function createSocketServer() {
-    const {
-      public: {
-        socket: { port },
-      },
-    } = useRuntimeConfig();
+    const { port } = useRuntimeConfig().websocket;
 
     if (!io) {
       engine = new Engine();

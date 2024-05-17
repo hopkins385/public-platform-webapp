@@ -36,6 +36,9 @@ export default defineNuxtConfig({
         host: process.env.SOCKET_HOST,
       },
     },
+    websocket: {
+      port: process.env.WEBSOCKET_PORT,
+    },
     auth: {
       origin: process.env.AUTH_ORIGIN,
       secret: process.env.AUTH_SECRET,

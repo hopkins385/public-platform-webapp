@@ -2,14 +2,12 @@ import { io } from 'socket.io-client';
 
 export default defineNuxtPlugin(() => {
   const {
-    public: {
-      socket: { host, port },
-    },
-  } = useRuntimeConfig();
+    socket: { host, port },
+  } = useRuntimeConfig().public;
 
   const url = `${host}:${port}`;
 
-  const socket = io(url, {
+  const socketSrv = io(url, {
     autoConnect: true, // TODO: change this to false
     transports: ['websocket', 'polling'],
     query: {
@@ -17,13 +15,13 @@ export default defineNuxtPlugin(() => {
     },
   });
 
-  socket.onAny((event, ...args) => {
+  socketSrv.onAny((event, ...args) => {
     console.log('socket event', event, args);
   });
 
   return {
     provide: {
-      socket,
+      socket: socketSrv,
     },
   };
 });
