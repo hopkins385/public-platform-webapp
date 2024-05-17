@@ -1,6 +1,5 @@
 <script setup lang="ts">
   import { toTypedSchema } from '@vee-validate/zod';
-  import { LoaderCircleIcon } from 'lucide-vue-next';
   import { useForm, configure } from 'vee-validate';
   import { Trash2Icon } from 'lucide-vue-next';
   import * as z from 'zod';
@@ -109,15 +108,13 @@
           <Button variant="outline" @click="onDelete">Delete</Button>
         </div>
         <div v-else class="space-x-2">
-          <Button
+          <LoadingButton
             variant="outline"
-            class="space-x-2"
             @click="onSubmit"
-            :disabled="isLoading"
+            :is-loading="isLoading"
           >
-            <LoaderCircleIcon v-if="isLoading" class="size-4 animate-spin" />
-            <span> Delete Account</span>
-          </Button>
+            Delete Account
+          </LoadingButton>
           <Button variant="outline" @click="onCancel">Cancel</Button>
         </div>
       </DialogFooter>

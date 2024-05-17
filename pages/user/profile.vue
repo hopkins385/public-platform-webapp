@@ -97,13 +97,14 @@
     </BoxContainer>
     <BoxContainer class="mt-5">
       <h2 class="pb-5">Subscription</h2>
-      <LoadingButton
+      <p class="text-sm text-muted-foreground">coming soon</p>
+      <!-- LoadingButton
         :is-loading="isLoading"
         variant="outline"
         @click="onManageSubscriptionClick"
       >
         Manage Subscription
-      </LoadingButton>
+      </!-->
     </BoxContainer>
     <BoxContainer class="mt-5">
       <h2 class="pb-5">App Settings</h2>
