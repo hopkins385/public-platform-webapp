@@ -36,7 +36,7 @@
     <SelectTrigger class="w-[180px]">
       <SelectValue placeholder="All Projects" />
     </SelectTrigger>
-    <SelectContent>
+    <SelectContent class="">
       <SelectGroup>
         <SelectItem
           v-for="project in projects"

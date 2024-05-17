@@ -15,7 +15,7 @@
 <template>
   <SectionContainer>
     <SectionHeading title="Google Drive" />
-    <BoxContainer class="pb-10">
+    <BoxContainer>
       <Suspense>
         <GoogleDriveTable :id="$route.params?.id" />
         <template #fallback>
@@ -23,6 +23,5 @@
         </template>
       </Suspense>
     </BoxContainer>
-    <div class="h-10"></div>
   </SectionContainer>
 </template>

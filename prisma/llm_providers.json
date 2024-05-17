@@ -33,52 +33,8 @@
     "free": true
   },
   {
-    "apiName": "gemma-7b-it",
-    "displayName": "Groq Gemma 7B",
-    "provider": "groq",
-    "description": "",
-    "contextSize": 8,
-    "maxTokens": 0,
-    "multiModal": false,
-    "hidden": false,
-    "free": true
-  },
-  {
-    "apiName": "open-mistral-7b",
-    "displayName": "Mistral 7B",
-    "provider": "mistral",
-    "description": "",
-    "contextSize": 32,
-    "maxTokens": 0,
-    "multiModal": false,
-    "hidden": false,
-    "free": false
-  },
-  {
-    "apiName": "open-mixtral-8x7b",
-    "displayName": "Mixtral 8x7B",
-    "provider": "mistral",
-    "description": "",
-    "contextSize": 32,
-    "maxTokens": 0,
-    "multiModal": false,
-    "hidden": false,
-    "free": false
-  },
-  {
     "apiName": "mistral-small-latest",
     "displayName": "Mistral small",
-    "provider": "mistral",
-    "description": "",
-    "contextSize": 32,
-    "maxTokens": 0,
-    "multiModal": false,
-    "hidden": false,
-    "free": false
-  },
-  {
-    "apiName": "mistral-medium-latest",
-    "displayName": "Mistral medium",
     "provider": "mistral",
     "description": "",
     "contextSize": 32,
@@ -117,6 +73,17 @@
     "contextSize": 8,
     "maxTokens": 0,
     "multiModal": false,
+    "hidden": false,
+    "free": false
+  },
+  {
+    "apiName": "gpt-4o",
+    "displayName": "OpenAI GPT-4 Omni",
+    "provider": "openai",
+    "description": "",
+    "contextSize": 128,
+    "maxTokens": 0,
+    "multiModal": true,
     "hidden": false,
     "free": false
   },

@@ -43,14 +43,17 @@ export const userMeRouter = router({
         input.newPassword,
       );
     }),
-  /*getUploads: protectedProcedure.query(({ ctx }) => {
-    const files = fs.readdirSync(
-      join(process.cwd(), 'public', 'uploads', ctx.user.id),
-    );
-    return files.map((file) => ({
-      name: file,
-      path: join(process.cwd(), 'public', 'uploads', ctx.user.id, file),
-      url: `/uploads/${ctx.user?.id}/${file}`,
-    }));
-  }),*/
+  delete: protectedProcedure
+    .input(
+      z.object({
+        userId: ulidRule(),
+        password: z.string().min(6).max(100),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (ctx.user.id !== input.userId.toLowerCase()) {
+        throw new Error('Invalid user');
+      }
+      return userService.softDelete(ctx.user.id, input.password);
+    }),
 });

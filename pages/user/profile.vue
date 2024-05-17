@@ -44,7 +44,7 @@
 </script>
 
 <template>
-  <SectionContainer class="pb-10">
+  <SectionContainer>
     <SectionHeading
       :title="`${user?.firstName ?? ''}'s Profile`"
       subtitle="On this page you can edit your personal profile settings"
@@ -65,16 +65,18 @@
           @refresh="refresh"
         />
       </BoxContainer>
-      <BoxContainer class="col-span-1 space-y-6 text-sm">
-        <div>
+      <div class="col-span-1 grid grid-cols-1 space-y-6 text-sm">
+        <BoxContainer>
           <h2 class="pb-5 font-semibold">Account Security</h2>
           <UserEmailVerified :verified-at="user?.emailVerifiedAt ?? null" />
-        </div>
-        <div>
-          <h2 class="pb-5">Credits</h2>
-          <p>{{ user?.credit[0]?.amount }}</p>
-        </div>
-      </BoxContainer>
+        </BoxContainer>
+        <BoxContainer>
+          <h2 class="pb-2 font-semibold">Plan</h2>
+          <p>Preview</p>
+          <h2 class="mt-2 py-2 font-semibold">Credits</h2>
+          <p>{{ user?.credit[0]?.amount }} / 1000</p>
+        </BoxContainer>
+      </div>
     </div>
     <BoxContainer class="mt-5">
       <UserEditLoginForm
@@ -86,14 +88,12 @@
     </BoxContainer>
     <BoxContainer class="mt-5">
       <h2 class="pb-5">Team</h2>
-      <p class="w-fit rounded-lg border px-3 py-2 text-sm">{{ team?.name }}</p>
+      <p class="w-fit text-sm">{{ team?.name }}</p>
     </BoxContainer>
     <BoxContainer class="mt-5">
       <h2 class="pb-5">Organization</h2>
-      <p class="w-fit rounded-lg border px-3 py-2 text-sm">{{ org?.name }}</p>
-      <p class="mt-1 w-fit rounded-lg border px-3 py-2 text-sm opacity-50">
-        ID: org_{{ org?.id }}
-      </p>
+      <p class="w-fit text-sm">{{ org?.name }}</p>
+      <p class="mt-4 w-fit text-sm opacity-50">ID: org_{{ org?.id }}</p>
     </BoxContainer>
     <BoxContainer class="mt-5">
       <h2 class="pb-5">Subscription</h2>
@@ -107,13 +107,15 @@
     </BoxContainer>
     <BoxContainer class="mt-5">
       <h2 class="pb-5">App Settings</h2>
+      <p class="text-sm text-muted-foreground">coming soon</p>
     </BoxContainer>
     <BoxContainer class="mt-5">
       <h2 class="pb-5">API Tokens</h2>
+      <p class="text-sm text-muted-foreground">coming soon</p>
     </BoxContainer>
     <BoxContainer class="mt-5">
       <h2 class="pb-5">Danger Zone</h2>
-      <!-- UserDeleteAccount :id="user?.id" / -->
+      <UserDeleteAccount :user-id="user?.id" />
     </BoxContainer>
   </SectionContainer>
 </template>

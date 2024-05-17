@@ -32,6 +32,5 @@
         <Button @click="onConnect"> Connect Google Drive </Button>
       </div>
     </BoxContainer>
-    <div class="h-10"></div>
   </SectionContainer>
 </template>

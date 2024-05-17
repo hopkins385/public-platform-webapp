@@ -23,5 +23,5 @@
 </script>
 
 <template>
-  <SectionContainer class="h-full"> </SectionContainer>
+  <SectionContainer> </SectionContainer>
 </template>

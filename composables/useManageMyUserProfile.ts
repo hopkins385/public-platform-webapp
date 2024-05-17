@@ -30,8 +30,16 @@ export default function useManageMyUserProfile() {
     );
   }
 
-  function deleteMe(id: string) {
-    // not implemented
+  function deleteMe(payload: { userId: string; password: string }) {
+    return $client.me.delete.mutate(
+      {
+        userId: payload.userId,
+        password: payload.password,
+      },
+      {
+        signal: ac.signal,
+      },
+    );
   }
 
   return {

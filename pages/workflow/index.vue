@@ -11,7 +11,10 @@
   const filterProjectId = ref<string | undefined>(undefined);
 
   const { getAllWorkflowsForUser } = useManageWorkflows();
-  const { data } = await getAllWorkflowsForUser();
+  // attention, in this case we want to pass the ref directly and not the value
+  const { data } = await getAllWorkflowsForUser(filterProjectId, {
+    watch: [filterProjectId],
+  });
 
   const workflows = computed(
     () => data.value?.allWorkflows.flatMap((w: any) => w.workflows) || [],
@@ -49,7 +52,11 @@
                 :projectId="filterProjectId"
                 @update:projectId="onUpdateProjectFilter"
               />
-              <Button variant="ghost" @click="onClearProjectFilter">
+              <Button
+                class="whitespace-nowrap"
+                variant="ghost"
+                @click="onClearProjectFilter"
+              >
                 Clear Filter
               </Button>
             </div>

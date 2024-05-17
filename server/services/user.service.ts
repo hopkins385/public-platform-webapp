@@ -1,11 +1,8 @@
 import { MailerService } from './mailer.service';
 import { SlackService } from './slack.service';
-import type { User } from '@prisma/client';
 import type { LoginDto } from './dto/login.dto';
 import type { LastLoginDto } from './dto/last-login.dto';
-import type { GoogleAuthTokens } from '~/interfaces/google.token.interface';
 import { comparePasswords, hashPassword } from '~/server/utils/auth/bcrypt';
-import type { AzureAuthTokens } from '~/interfaces/azure.token.interfaces';
 import { ULID } from '~/server/utils/ulid';
 import { useRuntimeConfig } from '#imports';
 import type { RuntimeConfig } from 'nuxt/schema';
@@ -156,7 +153,6 @@ export class UserService {
 
   async getUserByEmail(email: string) {
     return await this.prisma.user.findFirst({
-      where: { email },
       select: {
         id: true,
         name: true,
@@ -170,16 +166,9 @@ export class UserService {
           },
         },
       },
-    });
-  }
-
-  async getAzureUserById(id: string) {
-    return await this.prisma.user.findFirst({
-      where: { id },
-      select: {
-        id: true,
-        azureAccountInfo: true,
-        azureAccessToken: true,
+      where: {
+        email,
+        deletedAt: null,
       },
     });
   }
@@ -192,52 +181,6 @@ export class UserService {
       });
     } catch (error: any) {
       console.log('Cannot update users last login, Error is: ', error?.meta);
-    }
-  }
-
-  async updateGoogleAuthTokens(
-    userId: string,
-    payload: GoogleAuthTokens,
-  ): Promise<User | null> {
-    if (!userId) throw new Error('Missing userId ');
-    if (!payload.accessToken) throw new Error('Missing accessToken');
-
-    try {
-      //
-    } catch (error: any) {
-      logger.error(
-        `Cannot update users google auth tokens, Error is: ${error?.meta}`,
-      );
-      return null;
-    }
-  }
-
-  async updateAzureAuthTokens(
-    userId: string,
-    payload: AzureAuthTokens,
-  ): Promise<User | null> {
-    if (!userId) throw new Error('Missing userId ');
-    if (!payload.accountInfo) throw new Error('Missing accountInfo');
-    if (!payload.accessToken) throw new Error('Missing accessToken');
-
-    try {
-      return await this.prisma.user.update({
-        where: { id: userId },
-        data: {
-          azureAccountInfo: JSON.stringify(payload.accountInfo),
-          azureAccessToken: payload.accessToken,
-          // only if refreshToken is returned
-          ...(payload.refreshToken
-            ? { azureRefreshToken: payload.refreshToken }
-            : {}),
-        },
-      });
-    } catch (error: any) {
-      console.log(
-        'Cannot update users azure auth tokens, Error is: ',
-        error?.meta,
-      );
-      return null;
     }
   }
 
@@ -264,6 +207,33 @@ export class UserService {
     return this.prisma.user.update({
       where: { id: user.id },
       data: { emailVerifiedAt: new Date() },
+    });
+  }
+
+  async softDelete(userId: string, password: string) {
+    const user = await this.prisma.user.findFirst({
+      select: {
+        password: true,
+      },
+      where: {
+        id: userId.toLowerCase(),
+        deletedAt: null,
+      },
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const result = await comparePasswords(password, user.password);
+
+    if (!result) {
+      throw new Error('Invalid password');
+    }
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { deletedAt: new Date() },
     });
   }
 }

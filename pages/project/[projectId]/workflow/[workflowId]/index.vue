@@ -36,7 +36,7 @@
       :project-id="projectId as string"
       v-model:show-table-view="showTable"
     />
-    <div class="h-full bg-white">
+    <div class="min-h-full overflow-x-scroll bg-white">
       <!-- size-full -->
       <Suspense>
         <WorkflowSheet

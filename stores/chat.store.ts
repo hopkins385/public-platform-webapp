@@ -1,6 +1,6 @@
 export const useChatStore = defineStore('chatStore', {
   state: () => ({
-    model: 'claude-3-opus-20240229',
+    model: 'gpt-4o',
   }),
   getters: {
     selectedModel: (state) => state.model,

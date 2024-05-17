@@ -12,7 +12,7 @@
 </script>
 
 <template>
-  <SectionContainer class="h-full">
+  <SectionContainer>
     <SectionHeading title="Assistant Management">
       <template #button>
         <Button

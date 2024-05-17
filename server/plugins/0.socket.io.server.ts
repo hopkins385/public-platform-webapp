@@ -10,17 +10,10 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
   const engine = getEngine();
 
   // middleware
-  io.use(async (socket, next) => {
-    const token = socket.handshake.auth.token;
-    // TODO: socket authentication
-    // const userId = socket.handshake.query['userId'];
-    // if (!userId) {
-    //   socket.disconnect();
-    //   logger.info('User not authenticated');
-    //   return;
-    // }
-    next();
-  });
+  // io.use(async (socket, next) => {
+  //   const token = socket.handshake.auth.token;
+  //   next();
+  // });
 
   io.on('connection', async (socket) => {
     const authToken = socket.handshake.query['auth'] as string;
@@ -70,6 +63,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     '/socket.io/',
     defineEventHandler({
       handler(event) {
+        // const session = getServerSession(event); // TODO: add auth
         engine.handleRequest(event.node.req, event.node.res);
         event._handled = true;
       },

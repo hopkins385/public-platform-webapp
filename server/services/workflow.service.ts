@@ -153,7 +153,7 @@ export class WorkflowService {
       });
   }
 
-  findAllForUser(userId: string, page: number) {
+  findAllForUser(userId: string, projectId: string | undefined, page: number) {
     // first lets find all the projects for the user
     return this.prisma.project
       .paginate({
@@ -173,6 +173,7 @@ export class WorkflowService {
           },
         },
         where: {
+          id: projectId?.toLowerCase(),
           team: {
             users: {
               some: {

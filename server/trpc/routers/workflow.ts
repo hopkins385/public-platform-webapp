@@ -61,6 +61,7 @@ export const workflowRouter = router({
   allForUser: protectedProcedure
     .input(
       z.object({
+        projectId: ulidRule().optional(),
         page: z.number().default(1),
       }),
     )
@@ -68,7 +69,7 @@ export const workflowRouter = router({
       const {
         user: { id },
       } = ctx;
-      return workflowService.findAllForUser(id, input.page);
+      return workflowService.findAllForUser(id, input?.projectId, input.page);
     }),
 
   // update workflow

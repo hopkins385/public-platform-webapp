@@ -10,7 +10,7 @@
 </script>
 
 <template>
-  <SectionContainer class="h-full">
+  <SectionContainer>
     <SectionHeading
       title="Chat History"
       subtitle="Here you can see all your recent chats"

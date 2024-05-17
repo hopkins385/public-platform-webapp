@@ -65,12 +65,17 @@ export default function useManageWorkflows() {
     );
   }
 
-  function getAllWorkflowsForUser(options: AsyncDataOptions<any> = {}) {
+  function getAllWorkflowsForUser(
+    projectId: Ref<string | undefined>,
+    options: AsyncDataOptions<any> = {},
+  ) {
+    console.log('getAllWorkflowsForUser', projectId.value);
     return useAsyncData(
-      `allWorkflowsForUser`,
+      `allWorkflowsForUser:${projectId.value}`,
       async () => {
         const [allWorkflows, meta] = await $client.workflow.allForUser.query(
           {
+            projectId: projectId.value,
             page,
           },
           {

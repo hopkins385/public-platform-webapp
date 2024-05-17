@@ -168,7 +168,7 @@
   </div>
   <div
     ref="sheetRef"
-    class="no-scrollbar flex overflow-visible bg-white pb-10 pr-10 text-xs"
+    class="no-scrollbar flex overflow-visible bg-white pb-10 text-xs"
     id="grid_list"
   >
     <!-- Row Index -->

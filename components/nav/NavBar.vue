@@ -13,6 +13,7 @@
     CloudUploadIcon,
     LayersIcon,
     ChevronRightIcon,
+    ChevronDownIcon,
   } from 'lucide-vue-next';
 
   const navBarRef = ref(null);
@@ -159,6 +160,9 @@
         <BrandLogo :text-visible="navBar.isOpen" />
       </div>
       <div class="h-4" id="spacer"></div>
+      <!-- div class="px-4 pb-4">
+        <ProjectSelectGlobal select-trigger-class="bg-neutral-50" />
+      </!-->
       <div class="flex h-full flex-col">
         <ul class="space-y-2">
           <template v-for="(item, index) in navItems" :key="index">
@@ -171,7 +175,7 @@
                 :label-visible="navBar.isOpen"
               />
               <ul
-                v-if="item.children.length > 0"
+                v-if="item.children.length > 0 && true === false"
                 :class="navBar.isOpen ? 'block' : 'hidden'"
               >
                 <li
