@@ -9,8 +9,9 @@ let engine: Engine;
 
 export function useSocketServer() {
   function createSocketServer() {
-    const { port } = useRuntimeConfig().websocket;
+    const { port, host } = useRuntimeConfig().websocket;
     const serverPort = port ? Number(port) : 3001;
+    const serverHost = host || 'http://localhost';
 
     logger.info('Creating socket server on port', serverPort);
 
@@ -19,7 +20,7 @@ export function useSocketServer() {
       io = new Server(serverPort, {
         serveClient: false,
         cors: {
-          origin: '*',
+          origin: serverHost,
         },
       });
       io.bind(engine);
