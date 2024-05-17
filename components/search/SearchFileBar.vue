@@ -4,9 +4,11 @@
     pending: boolean;
     submitDisabled: boolean;
   }>();
+
   defineEmits<{
     submit: [void];
   }>();
+
   const modelValue = defineModel<{ modelValue: string }>();
 </script>
 

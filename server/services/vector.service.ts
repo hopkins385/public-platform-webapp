@@ -40,7 +40,7 @@ export class VectorService {
       return documents;
     } catch (e) {
       logger.error(e);
-      throw new Error('Failed to index file');
+      throw new Error('Cannot add file(s) to vector store');
     }
   }
 

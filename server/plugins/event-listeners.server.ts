@@ -8,14 +8,11 @@ import { chatStreamFinished } from '~/server/utils/events/chat.events';
 import { rowCompleted } from '~/server/utils/events/workflow.events';
 import { UsageEvent } from '../utils/enums/usage-event.enum';
 import { TrackTokensDto } from '../services/dto/track-tokens.dto';
-import { QueueEnum } from '~/server/utils/enums/queue.enum';
-import { JobEnum } from '~/server/utils/enums/job.enum';
 import { trackTokens } from '~/server/utils/track-tokens';
 
 const logger = consola.create({}).withTag('event-listener');
 
 export default defineNitroPlugin((nitroApp) => {
-  const { getOrCreateQueue } = useBullmq();
   // Listen to events
   // Auth
   eventEmitter.on(AuthEvent.LOGIN, updateLastLogin);

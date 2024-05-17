@@ -10,6 +10,7 @@ export class AssistantJobDto {
   readonly systemPrompt: string;
   readonly temperature: number;
   readonly maxTokens: number;
+  readonly userId: string;
 
   constructor(
     index: number,
@@ -23,6 +24,7 @@ export class AssistantJobDto {
     systemPrompt: string,
     temperature: number,
     maxTokens: number,
+    userId: string,
   ) {
     this.index = Number(index);
     this.row = Number(row);
@@ -35,6 +37,7 @@ export class AssistantJobDto {
     this.systemPrompt = systemPrompt;
     this.temperature = Number(temperature);
     this.maxTokens = Number(maxTokens);
+    this.userId = userId.toLowerCase();
   }
 
   static fromInput(input: {
@@ -49,6 +52,7 @@ export class AssistantJobDto {
     systemPrompt: string;
     temperature: number;
     maxTokens: number;
+    userId: string;
   }): AssistantJobDto {
     return new AssistantJobDto(
       input.index,
@@ -62,6 +66,7 @@ export class AssistantJobDto {
       input.systemPrompt,
       input.temperature,
       input.maxTokens,
+      input.userId,
     );
   }
 }

@@ -1,6 +1,11 @@
 <script setup lang="ts">
   import { refDebounced } from '@vueuse/core';
-  import { ArrowRightIcon, DownloadIcon, LoaderIcon } from 'lucide-vue-next';
+  import {
+    ArrowLeftIcon,
+    ArrowRightIcon,
+    DownloadIcon,
+    LoaderIcon,
+  } from 'lucide-vue-next';
 
   const props = defineProps<{
     id?: string | string[];
@@ -8,6 +13,7 @@
   }>();
 
   const search = ref('');
+  const pageTokenHistory = ref<string[]>([]);
   const nextPageToken = ref<string | null>(
     Array.isArray(props.pageToken) ? props.pageToken[0] : props.pageToken,
   );
@@ -43,12 +49,18 @@
     }
   };
 
-  const onNextClick = () => {
-    if (!result.value?.data?.nextPageToken) return;
-    nextPageToken.value = result.value?.data?.nextPageToken;
-  };
+  function onNextClick(nextToken?: string | null) {
+    if (!nextToken) return;
+    pageTokenHistory.value.push(nextPageToken.value ?? '');
+    nextPageToken.value = nextToken;
+  }
 
-  const downloadFile = async (id: string | undefined | null) => {
+  function onPrevClick() {
+    const prevToken = pageTokenHistory.value.pop();
+    nextPageToken.value = prevToken || null;
+  }
+
+  async function downloadFile(id: string | undefined | null) {
     if (!id) return;
     const file = result.value?.data?.files?.find((f) => f.id === id);
     if (!file) return;
@@ -63,7 +75,7 @@
 
     console.log(data.value, error.value);
     fileDonwloadPending.value = null;
-  };
+  }
 
   const { fileIcon } = useGoogleDrive();
   const { getDateTimeForHumans, getFileSizeForHumans } = useForHumans();
@@ -158,19 +170,31 @@
         </TableRow>
       </TableBody>
     </Table>
-    <div
-      v-if="result?.data?.nextPageToken"
-      class="flex flex-col items-center justify-center text-slate-400"
-    >
-      <Button
-        variant="outline"
-        size="icon"
-        class="size-9"
-        @click="onNextClick()"
-      >
-        <ArrowRightIcon class="size-4" />
-      </Button>
-      <span class="pt-2 text-xs">{{ $t('Next Page') }}</span>
+    <div class="ml-auto flex w-fit space-x-4">
+      <div class="mt-4 flex flex-col">
+        <Button
+          variant="outline"
+          size="icon"
+          class="size-8"
+          :disabled="pageTokenHistory.length === 0"
+          @click="() => onPrevClick()"
+        >
+          <ArrowLeftIcon class="size-4" />
+        </Button>
+        <span class="hidden pt-2 text-xs">{{ $t('Next Page') }}</span>
+      </div>
+      <div class="mt-4 flex flex-col">
+        <Button
+          variant="outline"
+          size="icon"
+          class="size-8"
+          :disabled="!result?.data?.nextPageToken"
+          @click="() => onNextClick(result?.data?.nextPageToken)"
+        >
+          <ArrowRightIcon class="size-4" />
+        </Button>
+        <span class="hidden pt-2 text-xs">{{ $t('Next Page') }}</span>
+      </div>
     </div>
   </div>
 </template>

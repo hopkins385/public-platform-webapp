@@ -21,6 +21,12 @@
     'application/vnd.ms-excel',
     // xlsx
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    // png
+    'image/png',
+    // jpg
+    'image/jpg',
+    // jpeg
+    'image/jpeg',
   ];
 
   const props = defineProps<{
@@ -58,7 +64,7 @@
         message: 'File size must be less than 15 MB',
       })
       .refine((file) => ACCEPTED_TYPES.includes(file?.type), {
-        message: 'File must be pdf, doc, docx or txt',
+        message: 'File must be pdf, doc, docx, txt, png, jpg or jpeg',
       }),
   });
 

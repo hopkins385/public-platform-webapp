@@ -61,26 +61,36 @@ export class RecordService {
       },
     });
 
-    // store/embed file to vectorStore
-    const embedDocuments = await this.vectorService.createIndex({
-      mediaId: media.id,
-      recordId: newRecord.id,
-      mimeType: fileMime,
-      path: filePath,
-    });
+    try {
+      // store/embed file to vectorStore
+      const embedDocuments = await this.vectorService.createIndex({
+        mediaId: media.id,
+        recordId: newRecord.id,
+        mimeType: fileMime,
+        path: filePath,
+      });
 
-    const chunksData = embedDocuments.map((doc) => ({
-      id: ULID(),
-      recordId: newRecord.id,
-      content: doc.text,
-    }));
+      const chunksData = embedDocuments.map((doc) => ({
+        id: ULID(),
+        recordId: newRecord.id,
+        content: doc.text,
+      }));
 
-    // create for each embedding a chunk
-    const chunks = await this.prisma.chunk.createMany({
-      data: chunksData,
-    });
+      // create for each embedding a chunk
+      const chunks = await this.prisma.chunk.createMany({
+        data: chunksData,
+      });
 
-    return newRecord;
+      return newRecord;
+    } catch (e) {
+      // delete record if embedding fails
+      await this.prisma.record.delete({
+        where: {
+          id: newRecord.id,
+        },
+      });
+      throw e;
+    }
   }
 
   async findAllPaginated(payload: FindRecordsDto, page: number = 1) {

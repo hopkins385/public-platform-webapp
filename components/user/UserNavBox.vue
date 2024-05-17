@@ -1,4 +1,5 @@
 <script setup lang="ts">
+  import { useDebounceFn } from '@vueuse/core';
   import {
     SquareArrowOutUpRightIcon,
     SquareArrowUpRightIcon,
@@ -9,10 +10,10 @@
   const { getMe } = useManageMyUserProfile();
   const { data: user, refresh } = await getMe({ immediate: false });
 
-  function creditsChangedListener(data: any) {
+  const creditsChangedListener = useDebounceFn((data: any) => {
     console.log('credits changed', data);
     refresh();
-  }
+  }, 1000);
 
   onMounted(() => {
     if (!auth.value?.user) return;

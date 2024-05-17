@@ -25,7 +25,6 @@
   const { updateDocumentItem } = useManageDocumentItems();
 
   async function updateItem(value: string) {
-    console.log(value, props.itemId);
     await updateDocumentItem({
       documentItemId: props?.itemId,
       content: value,

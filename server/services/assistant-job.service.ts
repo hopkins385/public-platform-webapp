@@ -13,6 +13,7 @@ export class AssistantJobService {
 
   async processJob(payload: AssistantJobDto) {
     const {
+      userId,
       llmProvider,
       llmNameApi,
       temperature,
@@ -81,8 +82,7 @@ export class AssistantJobService {
     this.event(
       UsageEvent.TRACKTOKENS,
       TrackTokensDto.fromInput({
-        // TODO: get userId
-        userId: documentItem?.userId || '01hxecwc4zh66g3hzryh8r9jz4',
+        userId,
         llm: {
           provider: llmProvider,
           model: llmNameApi,

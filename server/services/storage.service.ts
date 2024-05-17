@@ -60,6 +60,9 @@ export class StorageService {
       'text/html': 'html',
       'text/plain': 'txt',
       plain: 'txt',
+      'image/png': 'png',
+      'image/jpg': 'jpg',
+      'image/jpeg': 'jpeg',
     }[mimeType];
   }
 

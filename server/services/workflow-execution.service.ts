@@ -60,6 +60,7 @@ export class WorkflowExecutionService {
         systemPrompt: assistant.systemPrompt,
         temperature: 0.5,
         maxTokens: 100,
+        userId,
       });
 
       const job = {
