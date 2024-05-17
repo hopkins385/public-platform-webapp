@@ -14,7 +14,7 @@ export function useSocketServer() {
     const serverOrigin = origin || 'http://localhost';
 
     logger.info(
-      'Creating socket server on port and host',
+      'Creating socket server on port and origin: ',
       serverPort,
       serverOrigin,
     );
@@ -29,7 +29,7 @@ export function useSocketServer() {
           methods: ['GET', 'POST'],
           credentials: true,
         },
-        allowEIO3: true,
+        // allowEIO3: true,
       });
       io.bind(engine);
     }

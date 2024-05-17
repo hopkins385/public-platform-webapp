@@ -59,6 +59,10 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     });
   });
 
+  io.engine.on('connection_error', (err) => {
+    logger.error('connection_error', err);
+  });
+
   nitroApp.router.use(
     '/socket.io/',
     defineEventHandler({
