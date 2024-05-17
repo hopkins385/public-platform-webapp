@@ -11,6 +11,12 @@ services:
       - 'traefik.http.routers.webapp.tls=true'
       - 'traefik.http.routers.webapp.tls.certresolver=http'
       - 'traefik.docker.network=traefik_net'
+      # Websocket
+      - 'traefik.http.routers.ws-webapp.rule=Host(`app.svenson.ai`) && PathPrefix(`/socket.io`)'
+      - 'traefik.http.routers.ws-webapp.service=ws-webapp'
+      - 'traefik.http.services.ws-webapp.loadbalancer.server.port=3010'
+      - 'traefik.http.routers.ws-webapp.middlewares=for-websocket@file'
+      - 'traefik.http.routers.ws-webapp.tls=true'
     networks:
       traefik_net:
         ipv4_address: 172.18.0.17
