@@ -10,20 +10,19 @@ let engine: Engine;
 export function useSocketServer() {
   function createSocketServer() {
     const { port } = useRuntimeConfig().websocket;
+    const serverPort = port ? Number(port) : 3001;
+
+    logger.info('Creating socket server on port', serverPort);
 
     if (!io) {
-      try {
-        engine = new Engine();
-        io = new Server(Number(port), {
-          serveClient: false,
-          cors: {
-            origin: '*',
-          },
-        });
-        io.bind(engine);
-      } catch (error) {
-        logger.error('Error creating socket server', error);
-      }
+      engine = new Engine();
+      io = new Server(serverPort, {
+        serveClient: false,
+        cors: {
+          origin: '*',
+        },
+      });
+      io.bind(engine);
     }
     return io;
   }

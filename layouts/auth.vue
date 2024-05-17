@@ -36,9 +36,9 @@
       <div class="h-screen lg:grid lg:grid-cols-2">
         <div class="bg-primary">
           <div class="flex items-center py-5 pl-10">
-            <IconSvenson class="size-9" />
+            <IconRagna class="size-9" />
             <h1 class="pl-3 text-lg text-slate-300">
-              <span class="font-semibold">RAGNA</span> <i>Cloud</i>
+              <span class="font-semibold tracking-wide">RAGNA</span> Cloud
             </h1>
           </div>
           <div class="mt-40 hidden p-20 text-center text-slate-300 lg:block">
