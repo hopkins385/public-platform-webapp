@@ -24,11 +24,12 @@ export function useSocketServer() {
       io = new Server(serverPort, {
         serveClient: false,
         transports: ['websocket'],
-        cors: {
-          origin: serverOrigin,
-          methods: ['GET', 'POST'],
-          credentials: true,
-        },
+        // cors: {
+        //   origin: serverOrigin,
+        //   allowedHeaders: ['*'],
+        //   methods: ['GET', 'POST'],
+        //   // credentials: true,
+        // },
         // allowEIO3: true,
       });
       io.bind(engine);
