@@ -9,11 +9,9 @@
 
   const { render } = useMarkdown();
 
-  const messageData = toRef(props?.data);
-
-  const htmlContent = computed(() => {
-    if (Array.isArray(messageData.value.message)) {
-      const visionContent = messageData.value.message;
+  const htmlContent = () => {
+    if (Array.isArray(props.data.message)) {
+      const visionContent = props.data.message;
       if (!visionContent) return '';
       return visionContent
         .map((vc) => {
@@ -25,11 +23,11 @@
         })
         .join('');
     } else {
-      const content = messageData.value.message?.content;
+      const content = props.data.message?.content;
       if (!content) return '';
       return render(content);
     }
-  });
+  };
 </script>
 
 <template>
@@ -39,12 +37,12 @@
       <div class="flex flex-col">
         <div class="select-none font-semibold" style="padding-top: 1.5px">
           {{
-            messageData?.role == 'user'
+            data?.role == 'user'
               ? $t('user.placeholder')
               : assistantName ?? $t('assistant.placeholder')
           }}
         </div>
-        <div v-dompurify-html="htmlContent" class="w-full pr-10"></div>
+        <div v-dompurify-html="htmlContent()" class="w-full pr-10"></div>
       </div>
     </div>
   </div>

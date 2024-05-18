@@ -16,10 +16,9 @@ const bodySchema = z.object({
 });
 
 export async function getConversationBody(event: H3Event) {
-  const result = await readValidatedBody(event, (body) => {
-    console.log('body', body);
-    return bodySchema.safeParse(body);
-  });
+  const result = await readValidatedBody(event, (body) =>
+    bodySchema.safeParse(body),
+  );
 
   if (!result.success) {
     console.log('result.error', result.error);
