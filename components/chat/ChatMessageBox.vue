@@ -2,32 +2,32 @@
   import 'highlight.js/styles/stackoverflow-light.min.css';
   import type { ChatMessage } from '~/interfaces/chat.interfaces';
 
-  const props = defineProps<{
+  defineProps<{
     data: ChatMessage;
     assistantName?: string;
   }>();
 
   const { render } = useMarkdown();
 
-  const htmlContent = () => {
-    if (Array.isArray(props.data.message)) {
-      const visionContent = props.data.message;
+  function getContent(data: ChatMessage) {
+    if (Array.isArray(data.message)) {
+      const visionContent = data.message;
       if (!visionContent) return '';
       return visionContent
         .map((vc) => {
           if (vc.type === 'image_url') {
             return `<img src="${vc.image_url.url}" alt="Input Image" class="min-h-52 max-h-96 object-cover py-5" />`;
           } else {
-            return render(vc.text);
+            return vc.text;
           }
         })
         .join('');
     } else {
-      const content = props.data.message?.content;
+      const content = data.message?.content;
       if (!content) return '';
-      return render(content);
+      return content;
     }
-  };
+  }
 </script>
 
 <template>
@@ -42,7 +42,10 @@
               : assistantName ?? $t('assistant.placeholder')
           }}
         </div>
-        <div v-dompurify-html="htmlContent()" class="w-full pr-10"></div>
+        <div
+          v-dompurify-html="render(getContent(data))"
+          class="w-full pr-10"
+        ></div>
       </div>
     </div>
   </div>
