@@ -9,9 +9,11 @@
 
   const { render } = useMarkdown();
 
+  const messageData = toRef(props?.data);
+
   const htmlContent = computed(() => {
-    if (Array.isArray(props.data.message)) {
-      const visionContent = props.data.message;
+    if (Array.isArray(messageData.value.message)) {
+      const visionContent = messageData.value.message;
       if (!visionContent) return '';
       return visionContent
         .map((vc) => {
@@ -23,7 +25,7 @@
         })
         .join('');
     } else {
-      const content = props.data.message?.content;
+      const content = messageData.value.message?.content;
       if (!content) return '';
       return render(content);
     }
@@ -37,7 +39,7 @@
       <div class="flex flex-col">
         <div class="select-none font-semibold" style="padding-top: 1.5px">
           {{
-            data.role == 'user'
+            messageData?.role == 'user'
               ? $t('user.placeholder')
               : assistantName ?? $t('assistant.placeholder')
           }}
