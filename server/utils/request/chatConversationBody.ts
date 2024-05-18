@@ -1,20 +1,12 @@
 import { z } from 'zod';
 import type { H3Event } from 'h3';
 
-// content can be either a string or an array such as
-// [{ type: 'image_url', image_url: { url: string, detail: 'low' | 'high' | 'auto' } },
-// { type: 'text', text: string }]
-
-const ChatMessageSchema = z.object({
-  role: z.enum(['user', 'assistant']),
-  message: ChatMessageRule(),
-});
-
+// TODO: Fix model validation !!!
 const modelRule = z.string();
 // .refine((model) => Object.values(ModelEnum).includes(model as ModelEnum));
 
 const bodySchema = z.object({
-  messages: z.any(),
+  messages: z.array(ChatMessageRule()),
   model: modelRule,
   lang: langRule(),
   chatId: ulidRule(),

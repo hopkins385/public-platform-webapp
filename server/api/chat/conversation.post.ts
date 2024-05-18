@@ -11,6 +11,7 @@ import { ChatEvent } from '~/server/utils/enums/chat-event.enum';
 import consola from 'consola';
 import { UsageEvent } from '~/server/utils/enums/usage-event.enum';
 import { TrackTokensDto } from '~/server/services/dto/track-tokens.dto';
+import type { ChatMessage } from '~/interfaces/chat.interfaces';
 
 const config = useRuntimeConfig();
 const chatService = new ChatService();
@@ -66,10 +67,13 @@ export default defineEventHandler(async (_event) => {
   */
 
   function normalizeMessages(messages: any) {
-    return messages.map((m) => {
-      const content = Array.isArray(m.message) ? m.message : m.message.content;
+    return messages.map((data: ChatMessage) => {
+      console.log('data', data);
+      const content = Array.isArray(data.message)
+        ? data.message
+        : data.message.content;
       return {
-        role: m.role,
+        role: data.role,
         content,
       };
     });
@@ -85,7 +89,7 @@ export default defineEventHandler(async (_event) => {
     ...history,
   ];
 
-  console.log('messages', messages);
+  // console.log('messages', JSON.stringify(messages));
   // return;
 
   try {

@@ -9,18 +9,14 @@
 
   const { render } = useMarkdown();
 
-  const isVisionMessage = computed(() => {
-    return Array.isArray(props.data.message);
-  });
-
   const htmlContent = computed(() => {
-    if (isVisionMessage.value) {
+    if (Array.isArray(props.data.message)) {
       const visionContent = props.data.message;
       if (!visionContent) return '';
       return visionContent
         .map((vc) => {
           if (vc.type === 'image_url') {
-            return `<img src="${vc.image_url.url}" alt="Input Image" class="w-full p-5" />`;
+            return `<img src="${vc.image_url.url}" alt="Input Image" class="min-h-52 max-h-96 object-cover py-5" />`;
           } else {
             return render(vc.text);
           }

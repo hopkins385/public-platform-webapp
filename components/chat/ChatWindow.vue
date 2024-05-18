@@ -8,7 +8,11 @@
     SquareIcon,
   } from 'lucide-vue-next';
   import ChatSettings from './ChatSettings.vue';
-  import type { ChatMessage, ChatImage } from '~/interfaces/chat.interfaces';
+  import type {
+    ChatMessage,
+    ChatImage,
+    ChatMessageContent,
+  } from '~/interfaces/chat.interfaces';
 
   const props = defineProps<{
     chatId: string;
@@ -16,7 +20,7 @@
     chatMessages?: ChatMessage[];
   }>();
 
-  const inputMessage = ref('');
+  const inputMessage = ref<any>('');
   const messageChunk = ref('');
   const isPending = ref(false);
   const isStreaming = ref(false);
@@ -72,12 +76,14 @@
     clearError();
   }
 
+  // TODO: REFACTOR ME!!!
   async function onSubmit() {
     if (!inputMessage.value || isPending.value || isStreaming.value) {
       return;
     }
 
-    /*
+    let chatMessage: any;
+
     if (inputImages.value.length > 0) {
       const visionContent = [
         {
@@ -93,17 +99,17 @@
           };
         }),
       ];
-      console.log(visionContent);
-      inputMessage.value = visionContent;
+      chatMessage = visionContent;
+    } else {
+      chatMessage = { content: inputMessage.value };
     }
-    */
 
     $client.chat.createMessage
       .query({
         chatId: props.chatId,
         data: {
           role: 'user',
-          message: { content: inputMessage.value },
+          message: chatMessage,
         },
       })
       .catch(() => {
@@ -113,7 +119,7 @@
     clearError();
     addMessage({
       role: 'user',
-      message: { content: inputMessage.value },
+      message: chatMessage,
     });
     inputMessage.value = '';
 
