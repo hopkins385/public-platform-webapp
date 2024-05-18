@@ -68,7 +68,6 @@ export default defineEventHandler(async (_event) => {
 
   function normalizeMessages(messages: any) {
     return messages.map((data: ChatMessage) => {
-      console.log('data', data);
       const content = Array.isArray(data.message)
         ? data.message
         : data.message.content;

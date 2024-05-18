@@ -366,7 +366,6 @@
       <ChatMessageBox
         v-if="messageChunk"
         id="chatMessage"
-        :key="messageChunk?.length"
         :data="{ role: 'assistant', message: { content: messageChunk } }"
         :assistant-name="assistant?.title"
       />

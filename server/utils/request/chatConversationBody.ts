@@ -21,11 +21,10 @@ export async function getConversationBody(event: H3Event) {
   );
 
   if (!result.success) {
-    console.log('result.error', result.error);
     throw createError({
       statusCode: 400,
       statusMessage: 'Bad Request',
-      message: JSON.stringify(result.error.issues),
+      message: 'Invalid request body',
     });
   }
 
