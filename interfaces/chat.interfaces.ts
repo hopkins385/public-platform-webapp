@@ -1,6 +1,25 @@
 export interface ChatMessage {
-  content: string;
   role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface VisionTextContent {
+  type: 'text';
+  text: string;
+}
+
+export interface VisionImageUrlContent {
+  type: 'image_url';
+  image_url: {
+    url: string;
+  };
+}
+
+type VisionContent = VisionTextContent | VisionImageUrlContent;
+
+export interface VisionChatMessage {
+  role: 'user' | 'assistant';
+  content: VisionContent[];
 }
 
 export interface ChatConversation {

@@ -5,15 +5,15 @@
     hide: boolean;
   }>();
 
-  const open = ref(false);
+  const settings = useChatSettingsStore();
 </script>
 
 <template>
-  <Dialog v-model:open="open">
+  <Dialog v-model:open="settings.newChatModalOpen">
     <DialogTrigger as-child>
       <Button
         variant="outline"
-        class="text-xs text-muted-foreground transition-opacity duration-300 ease-in-out"
+        class="text-xs transition-opacity duration-300 ease-in-out"
         :class="{
           'opacity-0': hide,
           'opacity-90': !hide,
@@ -26,7 +26,7 @@
     </DialogTrigger>
     <DialogContent class="max-h-screen max-w-6xl overflow-y-scroll">
       <DialogHeader>
-        <DialogTitle>Choose an Assistant</DialogTitle>
+        <DialogTitle>New Chat</DialogTitle>
         <DialogDescription>
           Choose an assistant to start a new chat.
         </DialogDescription>
@@ -35,7 +35,9 @@
         <AssistantAllTable />
       </Suspense>
       <DialogFooter>
-        <Button variant="outline" @click="open = false">Cancel</Button>
+        <Button variant="outline" @click="settings.newChatModalOpen = false"
+          >Cancel</Button
+        >
       </DialogFooter>
     </DialogContent>
   </Dialog>

@@ -3,8 +3,8 @@
   import {
     ArrowBigDownDashIcon,
     ChevronLeftIcon,
+    MessageSquareTextIcon,
     MessageSquareXIcon,
-    ShareIcon,
     SquareIcon,
   } from 'lucide-vue-next';
   import ChatSettings from './ChatSettings.vue';
@@ -26,7 +26,6 @@
   const settings = useChatSettingsStore();
   const { $client } = useNuxtApp();
   const { locale } = useI18n();
-  const { render } = useMarkdown();
   const { postConversation, hasError, errorMessage, setError, clearError } =
     useChatConversation();
   const {
@@ -37,6 +36,11 @@
     clearMessages,
     initMessages,
   } = useChatMessages();
+
+  const chatMessagesContainerRef = ref<HTMLElement | null>(null);
+
+  const visibilityTargetRef = ref<HTMLElement | null>(null);
+  const targetIsVisible = useElementVisibility(visibilityTargetRef);
 
   let ac: AbortController;
 
@@ -49,12 +53,12 @@
     isStreaming.value = false;
   };
 
-  const onAbort = () => {
+  function onAbort() {
     addMessage(messageChunk.value, 'assistant');
     resetForm();
-  };
+  }
 
-  const clearChatMessages = () => {
+  function clearChatMessages() {
     if (props.chatId) {
       $client.chat.clearMessages.query({ chatId: props.chatId }).catch(() => {
         setError('Ups something went wrong');
@@ -63,9 +67,9 @@
     clearMessages();
     resetForm();
     clearError();
-  };
+  }
 
-  const onSubmit = async () => {
+  async function onSubmit() {
     if (!inputMessage.value || isPending.value || isStreaming.value) {
       return;
     }
@@ -128,7 +132,7 @@
       }
       setError(error.message);
     }
-  };
+  }
 
   function onKeyDownEnter(event: KeyboardEvent) {
     if (event.key === 'Enter' && !event.shiftKey && settings.submitOnEnter) {
@@ -137,24 +141,19 @@
     }
   }
 
-  const onPresetClick = (value: string) => {
+  function onPresetClick(value: string) {
     inputMessage.value = value;
     onSubmit();
-  };
+  }
 
-  const chatMessagesContainerRef = ref<HTMLElement | null>(null);
-
-  const visibilityTargetRef = ref<HTMLElement | null>(null);
-  const targetIsVisible = useElementVisibility(visibilityTargetRef);
-
-  const scrollToBottom = () => {
+  function scrollToBottom() {
     nextTick(() => {
       chatMessagesContainerRef.value?.scrollTo({
         top: chatMessagesContainerRef.value.scrollHeight,
         behavior: 'smooth',
       });
     });
-  };
+  }
 
   function setModelFromAssistant() {
     if (props?.assistant?.llm) {
@@ -185,15 +184,12 @@
       scrollToBottom();
     }
   });
-
-  const chatHeader = true;
-  const chatSelector = false;
 </script>
 
 <template>
   <BoxContainer
     id="chatWrapper"
-    class="relative flex size-full flex-col px-10 py-10 xl:px-20"
+    class="relative flex size-full flex-col px-10 pb-10 pt-20 md:px-20 2xl:px-40"
   >
     <div class="absolute left-0 top-1/2 -translate-y-1/2">
       <Button
@@ -211,23 +207,32 @@
     </div>
     <div
       id="chatHeader"
-      v-if="chatHeader"
-      class="pointer-events-none absolute left-0 top-0 z-10 flex w-full items-center justify-between px-8 py-5"
+      class="pointer-events-none absolute left-0 top-0 z-10 flex w-full justify-between px-8 py-5"
     >
-      <div v-if="!chatSelector"></div>
-      <div class="pointer-events-auto" v-if="chatSelector">
+      <!-- chat model selector -->
+      <div class="pointer-events-auto flex items-center space-x-4">
         <Suspense>
           <ChatModelSelector />
           <template #fallback> Loading... </template>
         </Suspense>
         <div>
-          <AssistantDetailsActive :assistant="assistant" />
+          <Button
+            variant="outline"
+            size="icon"
+            @click="settings.newChatModalOpen = true"
+          >
+            <MessageSquareTextIcon
+              class="size-4 stroke-1.5 group-hover:stroke-2"
+            />
+          </Button>
         </div>
       </div>
+      <!-- active assistant -->
+      <div class="flex shrink items-center 2xl:pr-28">
+        <AssistantDetailsActive :key="assistant?.id" :assistant="assistant" />
+      </div>
 
-      <div
-        class="pointer-events-auto flex items-center justify-center space-x-3"
-      >
+      <div class="pointer-events-auto shrink-0 space-x-3">
         <Button size="icon" variant="outline" @click="clearChatMessages">
           <MessageSquareXIcon class="size-4 stroke-1.5 group-hover:stroke-2" />
         </Button>
@@ -257,18 +262,25 @@
         style="width: 100%; max-width: 800px; max-height: 80%"
         @clicked="(value) => onPresetClick(value)"
       />
+      <!-- chat messages -->
       <ChatMessageBox
         v-for="(message, index) in messages"
         :key="index"
-        :message="render(message.content)"
-        :role="message.role"
+        :message="message"
+        :assistant-name="assistant?.title"
       />
-      <ChatMessageBox v-if="isPending" message="..." role="assistant" />
+      <!-- pending message -->
+      <ChatMessageBox
+        v-if="isPending"
+        :message="{ role: 'assistant', content: '...' }"
+        :assistant-name="assistant?.title"
+      />
+      <!-- streaming message -->
       <ChatMessageBox
         v-if="messageChunk"
         id="chatMessage"
-        :message="render(messageChunk)"
-        role="assistant"
+        :message="{ role: 'assistant', content: messageChunk }"
+        :assistant-name="assistant?.title"
       />
       <div v-if="hasError" class="px-20 text-sm text-destructive">
         <p class="pb-2 font-semibold">Ups, something went wrong:</p>

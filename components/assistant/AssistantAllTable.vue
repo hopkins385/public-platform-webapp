@@ -84,7 +84,7 @@
           <TableHead> Avatar </TableHead>
           <TableHead> Title </TableHead>
           <TableHead> Shared </TableHead>
-          <TableHead> Ai Model </TableHead>
+          <TableHead class="whitespace-nowrap"> Ai Model </TableHead>
           <TableHead class="text-right"> Actions </TableHead>
         </TableRow>
       </TableHeader>
@@ -96,12 +96,18 @@
           <TableCell>
             <div class="size-8 rounded-full bg-slate-200"></div>
           </TableCell>
-          <TableCell>{{ assistant.title }}</TableCell>
-          <TableCell>
+          <TableCell class="max-w-full truncate">
+            {{ assistant.title }}
+          </TableCell>
+          <TableCell class="whitespace-nowrap">
             {{ assistant.isShared ? 'Organisation' : 'Team' }}
           </TableCell>
-          <TableCell>{{ assistant.llm.displayName }}</TableCell>
-          <TableCell class="flex justify-end space-x-2 text-right">
+          <TableCell class="whitespace-nowrap">
+            {{ assistant.llm.displayName }}
+          </TableCell>
+          <TableCell
+            class="flex justify-end space-x-2 whitespace-nowrap text-right"
+          >
             <Button variant="outline" @click="onStart(assistant.id)">
               New Chat
               <MessageSquareIcon

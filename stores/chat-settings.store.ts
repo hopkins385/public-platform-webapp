@@ -6,6 +6,7 @@ interface IChatSettings {
   maxTokens: [number];
   submitOnEnter: boolean;
   sideBarOpen: boolean;
+  newChatModalOpen: boolean;
 }
 
 export const useChatSettingsStore = defineStore('chat-settings', {
@@ -15,6 +16,7 @@ export const useChatSettingsStore = defineStore('chat-settings', {
     maxTokens: [1500],
     submitOnEnter: false,
     sideBarOpen: false,
+    newChatModalOpen: false,
   }),
   getters: {
     getTemperature(state) {

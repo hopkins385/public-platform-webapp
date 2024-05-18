@@ -9,8 +9,10 @@
 
 <template>
   <Popover v-model:open="show">
-    <PopoverTrigger class="rounded-lg border p-3">
-      <SlidersHorizontalIcon class="size-4 text-primary/70" />
+    <PopoverTrigger as-child>
+      <Button variant="outline" size="icon">
+        <SlidersHorizontalIcon class="size-4 text-primary/70" />
+      </Button>
     </PopoverTrigger>
     <PopoverContent align="end" class="mt-1 w-60 text-sm">
       <div class="flex items-center justify-between">

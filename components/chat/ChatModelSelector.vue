@@ -30,6 +30,26 @@
       : 'Select Model...',
   );
 
+  function onSelect(event: SelectEvent, model: any) {
+    // if premium model
+    if (model?.free === false) {
+      // if not premium user
+      /*if (!user.premium) {
+                      // show modal
+                      $modal.show('premium');
+                      // close popover
+                      open = false;
+                      // return
+                      return;
+                    }*/
+      // return;
+    }
+    if (typeof event.detail.value === 'string') {
+      chatStore.model = event.detail.value;
+    }
+    open.value = false;
+  }
+
   // const filterFunction = (list: typeof frameworks, search: string) => list.filter(i => i.value.toLowerCase().includes(search.toLowerCase()))
 </script>
 
@@ -56,29 +76,9 @@
               v-for="model in models"
               :key="model?.id"
               :value="model?.apiName || ''"
-              @select="
-                (ev) => {
-                  // if premium model
-                  if (model?.free === false) {
-                    // if not premium user
-                    /*if (!user.premium) {
-                      // show modal
-                      $modal.show('premium');
-                      // close popover
-                      open = false;
-                      // return
-                      return;
-                    }*/
-                    return;
-                  }
-                  if (typeof ev.detail.value === 'string') {
-                    chatStore.model = ev.detail.value;
-                  }
-                  open = false;
-                }
-              "
+              @select="(event) => onSelect(event, model)"
             >
-              <LockIcon v-if="!model?.free" class="mr-2 size-3" />
+              <!-- LockIcon v-if="!model?.free" class="mr-2 size-3" /-->
               {{ model?.displayName }}
               <CheckIcon
                 :class="

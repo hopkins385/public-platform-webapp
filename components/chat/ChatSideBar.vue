@@ -1,6 +1,4 @@
 <script setup lang="ts">
-  import { PanelRightIcon } from 'lucide-vue-next';
-
   const settings = useChatSettingsStore();
 
   const { getAllChatsForUser } = useChat();

@@ -1,45 +1,38 @@
 <script setup lang="ts">
   import 'highlight.js/styles/stackoverflow-light.min.css';
+  import type {
+    ChatMessage,
+    VisionChatMessage,
+  } from '~/interfaces/chat.interfaces';
 
   const props = defineProps<{
-    message: string;
-    role: 'user' | 'assistant';
+    message: ChatMessage | VisionChatMessage;
+    assistantName?: string;
   }>();
 
-  const messageContentRef = ref<HTMLElement | null>(null);
+  const { render } = useMarkdown();
 
-  function buttonClick(event: Event) {
-    console.log('Button clicked');
-    // content of the node that the button is attached to
-    const content = event.target?.parentNode?.textContent;
-    if (content) {
-      console.log(content);
-    }
-  }
-  /*
-  onMounted(() => {
-    if (props.role == 'assistant' && messageContentRef.value) {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(props.message, 'text/html');
-      doc.querySelectorAll('p, li').forEach((el) => {
-        el.classList.add('backlog-button-container');
-        const button = doc.createElement('button');
-        // add id to button
-        button.id = 'add-to-backlog-button';
-        button.classList.add('add-to-backlog-button');
-        button.textContent = '+';
-        el.appendChild(button);
-      });
-      messageContentRef.value.innerHTML = doc.body.innerHTML;
+  const isVisionMessage = computed(() => {
+    return Array.isArray(props.message.content);
+  });
 
-      messageContentRef.value
-        .querySelectorAll('#add-to-backlog-button')
-        .forEach((button) => {
-          button.addEventListener('click', buttonClick);
-        });
+  const htmlContent = computed(() => {
+    if (isVisionMessage.value) {
+      const { content } = props.message as VisionChatMessage;
+      return content
+        .map((visionContent) => {
+          if (visionContent.type === 'image_url') {
+            return `<img src="${visionContent.image_url.url}" alt="Input Image" class="w-full p-5" />`;
+          } else {
+            return render(visionContent.text);
+          }
+        })
+        .join('');
+    } else {
+      const { content } = props.message as ChatMessage;
+      return render(content);
     }
   });
-  */
 </script>
 
 <template>
@@ -49,16 +42,12 @@
       <div class="flex flex-col">
         <div class="select-none font-semibold" style="padding-top: 1.5px">
           {{
-            role == 'user'
+            message?.role == 'user'
               ? $t('user.placeholder')
-              : $t('assistant.placeholder')
+              : assistantName ?? $t('assistant.placeholder')
           }}
         </div>
-        <div
-          v-dompurify-html="message"
-          class="w-full pr-10"
-          ref="messageContentRef"
-        ></div>
+        <div v-dompurify-html="htmlContent" class="w-full pr-10"></div>
       </div>
     </div>
   </div>
