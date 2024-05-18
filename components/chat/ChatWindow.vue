@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { useElementVisibility, useMutationObserver } from '@vueuse/core';
+  import { useDropZone, useMutationObserver } from '@vueuse/core';
   import {
     ArrowBigDownDashIcon,
     ChevronLeftIcon,
@@ -8,10 +8,10 @@
     SquareIcon,
   } from 'lucide-vue-next';
   import ChatSettings from './ChatSettings.vue';
-  import type { ChatMessage } from '~/interfaces/chat.interfaces';
+  import type { ChatMessage, ChatImage } from '~/interfaces/chat.interfaces';
 
   const props = defineProps<{
-    chatId?: string | null;
+    chatId: string;
     assistant?: any;
     chatMessages?: ChatMessage[];
   }>();
@@ -38,9 +38,9 @@
   } = useChatMessages();
 
   const chatMessagesContainerRef = ref<HTMLElement | null>(null);
+  const chatBoxContainerRef = ref<HTMLElement | null>(null);
 
-  const visibilityTargetRef = ref<HTMLElement | null>(null);
-  const targetIsVisible = useElementVisibility(visibilityTargetRef);
+  const inputImages = ref<ChatImage[]>([]);
 
   let ac: AbortController;
 
@@ -54,7 +54,10 @@
   };
 
   function onAbort() {
-    addMessage(messageChunk.value, 'assistant');
+    addMessage({
+      role: 'assistant',
+      message: { content: messageChunk.value },
+    });
     resetForm();
   }
 
@@ -74,22 +77,44 @@
       return;
     }
 
-    if (props.chatId) {
-      $client.chat.createMessage
-        .query({
-          chatId: props.chatId,
-          chatMessage: {
-            role: 'user',
-            content: inputMessage.value,
-          },
-        })
-        .catch(() => {
-          setError('Ups something went wrong');
-        });
+    /*
+    if (inputImages.value.length > 0) {
+      const visionContent = [
+        {
+          type: 'text',
+          text: inputMessage.value,
+        },
+        ...inputImages.value.map((image) => {
+          return {
+            type: 'image_url',
+            image_url: {
+              url: image.src,
+            },
+          };
+        }),
+      ];
+      console.log(visionContent);
+      inputMessage.value = visionContent;
     }
+    */
+
+    $client.chat.createMessage
+      .query({
+        chatId: props.chatId,
+        data: {
+          role: 'user',
+          message: { content: inputMessage.value },
+        },
+      })
+      .catch(() => {
+        setError('Ups something went wrong');
+      });
 
     clearError();
-    addMessage(inputMessage.value, 'user');
+    addMessage({
+      role: 'user',
+      message: { content: inputMessage.value },
+    });
     inputMessage.value = '';
 
     isPending.value = true;
@@ -124,7 +149,10 @@
       }
       isStreaming.value = false;
 
-      addMessage(messageChunk.value, 'assistant');
+      addMessage({
+        role: 'assistant',
+        message: { content: messageChunk.value },
+      });
       messageChunk.value = '';
     } catch (error: any) {
       if (error.name === 'AbortError') {
@@ -162,6 +190,55 @@
     }
   }
 
+  const { uploadManyFiles } = useManageMedia();
+
+  // Vision
+  function addInputImage(image: ChatImage): number | null {
+    const count = inputImages.value.length;
+    if (count >= 5) {
+      return null;
+    }
+    inputImages.value = [...inputImages.value, image];
+    const index = inputImages.value.length - 1;
+    return index;
+  }
+
+  function updateInputImage(index: number, image: ChatImage) {
+    inputImages.value = inputImages.value.map((img, i) =>
+      i === index ? image : img,
+    );
+  }
+
+  useDropZone(chatBoxContainerRef, {
+    onDrop: (files) => {
+      const file = files[0];
+      if (!file) {
+        return;
+      }
+      // validate image
+      if (!file.type.startsWith('image/')) {
+        console.error('Invalid file type', file.type);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const imageSrc = reader.result as string;
+        const index = addInputImage({ src: imageSrc, status: 'loading' });
+        if (index === null) {
+          return;
+        }
+        const uploadedImages = await uploadManyFiles([file]);
+        if (!uploadedImages || uploadedImages.length === 0) {
+          updateInputImage(index, { src: imageSrc, status: 'error' });
+          return;
+        }
+        const uploadedImage = uploadedImages[0];
+        updateInputImage(index, { src: uploadedImage.path, status: 'loaded' });
+      };
+      reader.readAsDataURL(file);
+    },
+  });
+
   // observer
   useMutationObserver(
     chatMessagesContainerRef,
@@ -188,9 +265,11 @@
 
 <template>
   <BoxContainer
+    ref="chatBoxContainerRef"
     id="chatWrapper"
     class="relative flex size-full flex-col px-10 pb-10 pt-20 md:px-20 2xl:px-40"
   >
+    <!-- toggle sidebar -->
     <div class="absolute left-0 top-1/2 -translate-y-1/2">
       <Button
         size="icon"
@@ -205,6 +284,7 @@
         />
       </Button>
     </div>
+    <!-- chat header -->
     <div
       id="chatHeader"
       class="pointer-events-none absolute left-0 top-0 z-10 flex w-full justify-between px-8 py-5"
@@ -250,6 +330,7 @@
         <ChatSettings />
       </div>
     </div>
+    <!-- chat messages container -->
     <div
       id="chatMessagesContainer"
       ref="chatMessagesContainerRef"
@@ -264,32 +345,33 @@
       />
       <!-- chat messages -->
       <ChatMessageBox
-        v-for="(message, index) in messages"
+        v-for="(data, index) in messages"
         :key="index"
-        :message="message"
+        :data="data"
         :assistant-name="assistant?.title"
       />
       <!-- pending message -->
       <ChatMessageBox
         v-if="isPending"
-        :message="{ role: 'assistant', content: '...' }"
+        :data="{ role: 'assistant', message: { content: '...' } }"
         :assistant-name="assistant?.title"
       />
       <!-- streaming message -->
       <ChatMessageBox
         v-if="messageChunk"
         id="chatMessage"
-        :message="{ role: 'assistant', content: messageChunk }"
+        :data="{ role: 'assistant', message: { content: messageChunk } }"
         :assistant-name="assistant?.title"
       />
+      <!-- error message -->
       <div v-if="hasError" class="px-20 text-sm text-destructive">
         <p class="pb-2 font-semibold">Ups, something went wrong:</p>
         <p>{{ errorMessage }}</p>
       </div>
       <div class="h-10 border-0"></div>
-      <!-- ref="visibilityTargetRef" -->
+      <!-- scroll to bottom button -->
       <div
-        v-if="!targetIsVisible && hasMessages"
+        v-if="hasMessages"
         class="sticky bottom-2 right-1/2 hidden opacity-95"
         style="transform: translateX(50%)"
       >
@@ -305,7 +387,11 @@
         </Button>
       </div>
     </div>
+    <!-- Input wrapper -->
     <div id="chatInputWrapper" class="relative shrink-0 pt-5">
+      <!-- Image input -->
+      <ChatImageInput v-model:input-images="inputImages" />
+      <!-- message input form -->
       <form class="flex items-center space-x-2" @submit.prevent="onSubmit">
         <div class="z-10 max-h-96 w-full">
           <Textarea
@@ -332,6 +418,7 @@
         <SquareIcon class="size-3 text-slate-500 group-hover:text-slate-900" />
       </Button>
     </div>
+    <!-- Notification -->
     <div
       class="absolute bottom-3 left-0 w-full text-center text-slate-500"
       style="font-size: 0.65rem"

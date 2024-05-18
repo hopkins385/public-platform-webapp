@@ -1,6 +1,6 @@
-import type { Chat } from '@prisma/client';
 import type { ChatMessage } from '~/interfaces/chat.interfaces';
 import { ULID } from '~/server/utils/ulid';
+import type { CreateChatMessageDto } from './dto/chat-message.dto';
 
 interface UpsertMessage extends ChatMessage {
   id: string;
@@ -13,11 +13,6 @@ interface UpsertChatMessages {
 
 interface UpsertChat {
   chatId: string;
-}
-
-interface StoreChatMessage {
-  chatId: string;
-  chatMessage: ChatMessage;
 }
 
 function notLowerZero(value: number) {
@@ -61,21 +56,22 @@ export class ChatService {
 
   upsertMessages(payload: UpsertChatMessages) {
     // update or create messages
-    const messages = payload.chatMessages.map((message) => {
+    const messages = payload.chatMessages.map((data) => {
+      const tokenCount = getTokenCount(data.message?.content);
       return this.prisma.chatMessage.upsert({
         where: {
-          id: message.id,
+          id: data.id,
         },
         create: {
-          id: message.id,
+          id: data.id,
           chatId: payload.chatId.toLowerCase(),
-          role: message.role,
-          content: message.content,
-          tokenCount: getTokenCount(message.content),
+          role: data.role,
+          message: data.message,
+          tokenCount,
         },
         update: {
-          content: message.content,
-          tokenCount: getTokenCount(message.content),
+          message: data.message,
+          tokenCount,
         },
       });
     });
@@ -103,12 +99,6 @@ export class ChatService {
         id: true,
         title: true,
         createdAt: true,
-        /*assistant: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },*/
       },
       where: {
         userId,
@@ -183,7 +173,7 @@ export class ChatService {
           select: {
             id: true,
             role: true,
-            content: true,
+            message: true,
             tokenCount: true,
           },
         },
@@ -229,15 +219,17 @@ export class ChatService {
     });
   }
 
-  async createMessage(payload: StoreChatMessage) {
+  async createMessage(payload: CreateChatMessageDto) {
+    const tokenCount = getTokenCount(payload.data.message?.content);
+
     try {
       return await this.prisma.chatMessage.create({
         data: {
           id: ULID(),
           chatId: payload.chatId.toLowerCase(),
-          role: payload.chatMessage.role,
-          content: payload.chatMessage.content,
-          tokenCount: getTokenCount(payload.chatMessage.content),
+          role: payload.data.role,
+          message: payload.data.message,
+          tokenCount,
         },
       });
     } catch (error) {

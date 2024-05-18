@@ -1,5 +1,4 @@
-import { TokenizerService } from './../../services/tokenizer.service';
-import { VectorService } from './../../services/vector.service';
+import { TokenizerService } from '~/server/services/tokenizer.service';
 import { getServerSession } from '#auth';
 import { Readable, Transform } from 'stream';
 import { sendStream } from 'h3';
@@ -10,8 +9,6 @@ import { CreditService } from '~/server/services/credit.service';
 import { getConversationBody } from '~/server/utils/request/chatConversationBody';
 import { ChatEvent } from '~/server/utils/enums/chat-event.enum';
 import consola from 'consola';
-import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
-import { CollectionService } from '~/server/services/collection.service';
 import { UsageEvent } from '~/server/utils/enums/usage-event.enum';
 import { TrackTokensDto } from '~/server/services/dto/track-tokens.dto';
 
@@ -68,17 +65,33 @@ export default defineEventHandler(async (_event) => {
   return;
   */
 
+  function normalizeMessages(messages: any) {
+    return messages.map((m) => {
+      const content = Array.isArray(m.message) ? m.message : m.message.content;
+      return {
+        role: m.role,
+        content,
+      };
+    });
+  }
+
+  const history = normalizeMessages(body.messages);
+  const messages = [
+    {
+      role: 'system',
+      content: chat.assistant.systemPrompt,
+    },
+    // TODO: handle context size of llm and reduce messages
+    ...history,
+  ];
+
+  console.log('messages', messages);
+  // return;
+
   try {
     const completion = new CompletionFactory(body.model, config);
     const response = await completion.create({
-      messages: [
-        {
-          role: 'system',
-          content: chat.assistant.systemPrompt,
-        },
-        ...body.messages, // TODO: handle context size of llm and reduce messages
-        // ...history,
-      ],
+      messages,
       maxTokens: body.maxTokens,
       temperature: body.temperature,
     });
@@ -119,7 +132,7 @@ export default defineEventHandler(async (_event) => {
       stream.destroy();
 
       const inputTokens = tokenizerService.getTokens(
-        body.messages[body.messages.length - 1].content,
+        body.messages[body.messages.length - 1]?.message?.content,
       );
       const outputTokens = tokenizerService.getTokens(llmResponseMessage);
 

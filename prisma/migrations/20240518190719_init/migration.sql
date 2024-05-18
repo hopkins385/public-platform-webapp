@@ -111,7 +111,7 @@ CREATE TABLE "chat_messages" (
     "id" TEXT NOT NULL,
     "chat_id" TEXT NOT NULL,
     "role" "chat_messages_role_enum" NOT NULL,
-    "content" TEXT NOT NULL,
+    "message" JSON NOT NULL,
     "token_count" INTEGER NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,

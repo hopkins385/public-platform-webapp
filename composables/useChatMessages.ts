@@ -1,37 +1,20 @@
-import type { ChatMessage } from '../interfaces/chat.interfaces';
-
-const dummy = [
-  {
-    role: 'user',
-    content: [
-      {
-        type: 'text',
-        text: 'What are in these images? Is there any difference between them?',
-      },
-      {
-        type: 'image_url',
-        image_url: {
-          url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg',
-        },
-      },
-      {
-        type: 'image_url',
-        image_url: {
-          url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg',
-        },
-      },
-    ],
-  },
-];
+import type {
+  ChatMessage,
+  ChatMessageContent,
+  ChatMessageVisionContent,
+} from '../interfaces/chat.interfaces';
 
 export default function useChatMessages() {
-  const chatMessages = ref<ChatMessage[]>(dummy);
+  const chatMessages = ref<ChatMessage[]>([]);
 
-  function addMessage(
-    content: ChatMessage['content'],
-    role: ChatMessage['role'],
-  ) {
-    chatMessages.value.push({ content, role });
+  function addMessage({
+    role,
+    message,
+  }: {
+    role: 'user' | 'assistant';
+    message: ChatMessageContent | ChatMessageVisionContent[];
+  }) {
+    chatMessages.value.push({ role: role, message: message });
   }
 
   function getRawMessages() {

@@ -85,7 +85,7 @@ export default function useManageMedia() {
       formData.append('clientFiles', file);
     });
     try {
-      const success = await $fetch('/api/file/upload', {
+      return await $fetch('/api/file/upload', {
         method: 'POST',
         body: formData,
       });
@@ -94,29 +94,22 @@ export default function useManageMedia() {
     }
   }
 
-  async function uploadMediaFile(file: File, model: { id: string; type: any }) {
-    const formData = new FormData();
-    formData.append('clientFiles', file);
-
-    throw new Error('Not implemented');
-
-    /*
-
-    const success = await $fetch('/api/file/upload', {
-      method: 'POST',
-      body: formData,
-    });
-
-    const mediaAble = await $client.mediaAble.attachTo.mutate(
-      {
-        mediaId: files[0]?.id,
-        model,
-      },
+  function attachMediaTo(model: any, media: any) {
+    return $client.media.attachTo.mutate(
+      { model, media },
       {
         signal: ac.signal,
       },
     );
-    */
+  }
+
+  function detachMediaFrom(model: any, media: any) {
+    return $client.media.detachFrom.mutate(
+      { model, media },
+      {
+        signal: ac.signal,
+      },
+    );
   }
 
   return {
@@ -126,6 +119,7 @@ export default function useManageMedia() {
     findPaginateAllMediaFor,
     deleteMedia,
     uploadManyFiles,
-    uploadMediaFile,
+    attachMediaTo,
+    detachMediaFrom,
   };
 }

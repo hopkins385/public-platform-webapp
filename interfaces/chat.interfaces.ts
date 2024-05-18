@@ -1,6 +1,6 @@
-export interface ChatMessage {
-  role: 'user' | 'assistant';
-  content: string;
+export interface ChatImage {
+  src: string;
+  status: 'loading' | 'loaded' | 'error';
 }
 
 export interface VisionTextContent {
@@ -12,14 +12,22 @@ export interface VisionImageUrlContent {
   type: 'image_url';
   image_url: {
     url: string;
+    detail?: 'low' | 'high' | 'auto';
   };
 }
 
-type VisionContent = VisionTextContent | VisionImageUrlContent;
+export interface ChatMessageContent {
+  content: string;
+}
 
-export interface VisionChatMessage {
+// see above example for visionContent
+export type ChatMessageVisionContent =
+  | VisionTextContent
+  | VisionImageUrlContent;
+
+export interface ChatMessage {
   role: 'user' | 'assistant';
-  content: VisionContent[];
+  message: ChatMessageContent | ChatMessageVisionContent[];
 }
 
 export interface ChatConversation {

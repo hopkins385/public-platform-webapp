@@ -1,35 +1,34 @@
 <script setup lang="ts">
   import 'highlight.js/styles/stackoverflow-light.min.css';
-  import type {
-    ChatMessage,
-    VisionChatMessage,
-  } from '~/interfaces/chat.interfaces';
+  import type { ChatMessage } from '~/interfaces/chat.interfaces';
 
   const props = defineProps<{
-    message: ChatMessage | VisionChatMessage;
+    data: ChatMessage;
     assistantName?: string;
   }>();
 
   const { render } = useMarkdown();
 
   const isVisionMessage = computed(() => {
-    return Array.isArray(props.message.content);
+    return Array.isArray(props.data.message);
   });
 
   const htmlContent = computed(() => {
     if (isVisionMessage.value) {
-      const { content } = props.message as VisionChatMessage;
-      return content
-        .map((visionContent) => {
-          if (visionContent.type === 'image_url') {
-            return `<img src="${visionContent.image_url.url}" alt="Input Image" class="w-full p-5" />`;
+      const visionContent = props.data.message;
+      if (!visionContent) return '';
+      return visionContent
+        .map((vc) => {
+          if (vc.type === 'image_url') {
+            return `<img src="${vc.image_url.url}" alt="Input Image" class="w-full p-5" />`;
           } else {
-            return render(visionContent.text);
+            return render(vc.text);
           }
         })
         .join('');
     } else {
-      const { content } = props.message as ChatMessage;
+      const content = props.data.message?.content;
+      if (!content) return '';
       return render(content);
     }
   });
@@ -42,7 +41,7 @@
       <div class="flex flex-col">
         <div class="select-none font-semibold" style="padding-top: 1.5px">
           {{
-            message?.role == 'user'
+            data.role == 'user'
               ? $t('user.placeholder')
               : assistantName ?? $t('assistant.placeholder')
           }}

@@ -1,16 +1,20 @@
 import { z } from 'zod';
 import type { H3Event } from 'h3';
 
-const mMessageSchema = z.object({
+// content can be either a string or an array such as
+// [{ type: 'image_url', image_url: { url: string, detail: 'low' | 'high' | 'auto' } },
+// { type: 'text', text: string }]
+
+const ChatMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
-  content: z.string().min(1),
+  message: ChatMessageRule(),
 });
 
 const modelRule = z.string();
 // .refine((model) => Object.values(ModelEnum).includes(model as ModelEnum));
 
 const bodySchema = z.object({
-  messages: z.array(mMessageSchema),
+  messages: z.any(),
   model: modelRule,
   lang: langRule(),
   chatId: ulidRule(),
@@ -20,11 +24,13 @@ const bodySchema = z.object({
 });
 
 export async function getConversationBody(event: H3Event) {
-  const result = await readValidatedBody(event, (body) =>
-    bodySchema.safeParse(body),
-  );
+  const result = await readValidatedBody(event, (body) => {
+    console.log('body', body);
+    return bodySchema.safeParse(body);
+  });
 
   if (!result.success) {
+    console.log('result.error', result.error);
     throw createError({
       statusCode: 400,
       statusMessage: 'Bad Request',

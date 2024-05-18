@@ -61,7 +61,13 @@ export default defineEventHandler(async (_event) => {
     }
 
     // return medias;
-    return { success: true };
+    return medias.map((media) => {
+      return {
+        id: media.id,
+        path: media.filePath.replace(basePath, '/uploads'),
+        name: media.name,
+      };
+    });
     //
   } catch (error) {
     console.error(error);

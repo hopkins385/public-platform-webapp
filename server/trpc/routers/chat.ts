@@ -1,7 +1,9 @@
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
-import { ChatService } from './../../services/chat.service';
+import { ChatService } from '~/server/services/chat.service';
 import { ulidRule } from '~/server/utils/validation/ulid.rule';
+import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
+import { ChatMessageRule } from '~/server/utils/validation/chat-message.rule';
 
 const chatService = new ChatService();
 
@@ -23,17 +25,16 @@ export const chatRouter = router({
     .input(
       z.object({
         chatId: ulidRule(),
-        chatMessage: z.object({
-          role: z.enum(['user', 'assistant']),
-          content: z.string(),
-        }),
+        data: ChatMessageRule(),
       }),
     )
     .query(({ ctx, input }) => {
-      return chatService.createMessage({
-        chatId: input.chatId.toLocaleLowerCase(),
-        chatMessage: input.chatMessage,
+      const payload = CreateChatMessageDto.fromInput({
+        userId: ctx.user.id,
+        chatId: input.chatId,
+        data: input.data,
       });
+      return chatService.createMessage(payload);
     }),
 
   allForUser: protectedProcedure.query(({ ctx }) => {
