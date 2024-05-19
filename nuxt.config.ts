@@ -127,6 +127,7 @@ export default defineNuxtConfig({
         'img-src': ["'self'", 'data:', 'blob:', 'https://static.ragna.app'],
         'media-src': ["'self'", 'data:', 'blob:', 'https://static.ragna.app'],
       },
+      crossOriginEmbedderPolicy: false,
     },
   },
   routeRules: {
