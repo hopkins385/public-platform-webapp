@@ -7,7 +7,7 @@ services:
       - 'traefik.http.routers.webapp.entrypoints=https'
       - 'traefik.http.services.webapp.loadbalancer.server.port=3000'
       - 'traefik.http.routers.webapp.service=webapp'
-      - 'traefik.http.routers.webapp.middlewares=crowdsec-bouncer@file,default@file'
+      - 'traefik.http.routers.webapp.middlewares=default@file' #,gzip@file
       - 'traefik.http.routers.webapp.tls=true'
       - 'traefik.http.routers.webapp.tls.certresolver=http'
       - 'traefik.docker.network=traefik_net'
@@ -15,7 +15,7 @@ services:
       - 'traefik.http.routers.ws-webapp.rule=Host(`app.svenson.ai`) && PathPrefix(`/socket.io`)'
       - 'traefik.http.routers.ws-webapp.service=ws-webapp'
       - 'traefik.http.services.ws-webapp.loadbalancer.server.port=3010'
-      - 'traefik.http.routers.ws-webapp.middlewares=for-websocket@file'
+      - 'traefik.http.routers.ws-webapp.middlewares=crowdsec-bouncer@file,websocket@file'
       - 'traefik.http.routers.ws-webapp.tls=true'
     networks:
       traefik_net:
