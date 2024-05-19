@@ -89,12 +89,13 @@
     }
 
     const visionContent = getVisionContent(inputImages.value);
+    const msgType = visionContent.length > 0 ? 'image' : 'text';
 
     $client.chat.createMessage
       .query({
         chatId: props.chatId,
         message: {
-          type: 'text',
+          type: msgType,
           role: 'user',
           content: inputMessage.value,
           visionContent,
@@ -106,7 +107,7 @@
 
     clearError();
     addMessage({
-      type: 'text',
+      type: msgType,
       role: 'user',
       content: inputMessage.value,
       visionContent,

@@ -11,7 +11,10 @@ import { ChatEvent } from '~/server/utils/enums/chat-event.enum';
 import consola from 'consola';
 import { UsageEvent } from '~/server/utils/enums/usage-event.enum';
 import { TrackTokensDto } from '~/server/services/dto/track-tokens.dto';
-import type { ChatMessage } from '~/interfaces/chat.interfaces';
+import type {
+  ChatMessage,
+  VisionImageUrlContent,
+} from '~/interfaces/chat.interfaces';
 
 const config = useRuntimeConfig();
 const chatService = new ChatService();
@@ -44,6 +47,17 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
+  function getVisionMessage(vis: VisionImageUrlContent[]) {
+    return vis.map((v) => {
+      return {
+        type: 'image_url',
+        image_url: {
+          url: 'https://app.svenson.ai' + v.url,
+        },
+      };
+    });
+  }
+
   function normalizeBodyMessages(messages: ChatMessage[]) {
     return messages.map((message) => {
       if (message.type === 'image' && message.visionContent) {
@@ -53,7 +67,7 @@ export default defineEventHandler(async (_event) => {
         };
         return {
           role: message.role,
-          content: [text, ...message.visionContent],
+          content: [text, ...getVisionMessage(message.visionContent)],
         };
       }
       return {
