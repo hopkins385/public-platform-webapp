@@ -67,6 +67,6 @@ export class StorageService {
   }
 
   getBasePath() {
-    return path.join(process.cwd(), 'public', 'uploads');
+    return path.join(process.cwd(), 'uploads');
   }
 }

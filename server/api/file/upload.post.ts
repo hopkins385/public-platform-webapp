@@ -64,7 +64,7 @@ export default defineEventHandler(async (_event) => {
     return medias.map((media) => {
       return {
         id: media.id,
-        path: media.filePath.replace(basePath, '/uploads'),
+        path: media.filePath,
         name: media.name,
       };
     });
