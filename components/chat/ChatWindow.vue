@@ -344,7 +344,6 @@
       <ChatMessageChunk
         v-if="messageChunk.length > 0"
         id="chatMessage"
-        :key="messageChunk.length"
         :chunk="messageChunk"
         :assistant-name="assistant?.title"
       />
