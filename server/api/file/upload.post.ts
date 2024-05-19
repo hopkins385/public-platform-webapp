@@ -14,7 +14,7 @@ export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);
   const user = getAuthUser(session); // do not remove this line
 
-  const basePath = storageService.getBasePath();
+  const basePath = path.join(process.cwd(), storageService.getBasePath());
   const userPath = path.join(basePath, user.id);
 
   if (!fs.existsSync(basePath)) {
