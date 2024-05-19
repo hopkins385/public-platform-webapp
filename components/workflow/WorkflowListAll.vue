@@ -13,10 +13,6 @@
     showConfirmDialog.value = true;
   }
 
-  async function onOpenClick(projectId: string, workflowId: string) {
-    return await navigateTo(`/project/${projectId}/workflow/${workflowId}`);
-  }
-
   async function onPageChange(value: number) {
     throw new Error('Not implemented');
   }
@@ -59,16 +55,16 @@
           </TableCell>
           <TableCell>{{ item.project?.name }}</TableCell>
           <TableCell class="space-x-2 text-right">
-            <Button
+            <LinkButton
               class="group"
               variant="outline"
               size="icon"
-              @click="() => onOpenClick(item.project?.id, item?.id)"
+              :to="`/project/${item.project?.id}/workflow/${item.id}`"
             >
               <SquareArrowOutUpRightIcon
                 class="size-4 stroke-1.5 text-primary group-hover:stroke-2"
               />
-            </Button>
+            </LinkButton>
             <Button variant="outline" size="icon" @click="onDelete(item.id)">
               <Trash2Icon class="size-4 stroke-1.5 text-destructive" />
             </Button>

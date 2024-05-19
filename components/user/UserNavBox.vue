@@ -36,7 +36,7 @@
     <div class="flex px-2">
       <div class="w-full pr-4">
         <div class="opacity-50">Account</div>
-        <div class="opacity-75">
+        <div class="pr-2 opacity-75">
           <NuxtLinkLocale to="/user/profile" class="hover:underline">
             <span>{{ user?.name }}</span>
             <span>

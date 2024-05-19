@@ -29,10 +29,6 @@
     await refresh();
   }
 
-  function onEdit(chatId: string) {
-    navigateTo(`/chat/${chatId}`);
-  }
-
   function onDelete(chatId: string) {
     showConfirmDialog.value = true;
     chatIdToDelete.value = chatId;
@@ -87,9 +83,14 @@
               {{ getDateTimeForHumans(chat.createdAt) }}
             </TableCell>
             <TableCell class="space-x-2 text-right">
-              <Button variant="outline" size="icon" @click="onEdit(chat.id)">
+              <LinkButton
+                :to="`/chat/${chat.id}`"
+                class="group"
+                variant="outline"
+                size="icon"
+              >
                 <MessageCircleMoreIcon class="size-4 stroke-1.5 text-primary" />
-              </Button>
+              </LinkButton>
               <Button
                 variant="outline"
                 size="icon"
