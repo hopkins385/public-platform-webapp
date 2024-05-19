@@ -25,14 +25,14 @@ export const chatRouter = router({
     .input(
       z.object({
         chatId: ulidRule(),
-        data: ChatMessageRule(),
+        message: ChatMessageRule(),
       }),
     )
     .query(({ ctx, input }) => {
       const payload = CreateChatMessageDto.fromInput({
         userId: ctx.user.id,
         chatId: input.chatId,
-        data: input.data,
+        message: input.message,
       });
       return chatService.createMessage(payload);
     }),

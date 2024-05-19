@@ -11,7 +11,6 @@ import { ChatEvent } from '~/server/utils/enums/chat-event.enum';
 import consola from 'consola';
 import { UsageEvent } from '~/server/utils/enums/usage-event.enum';
 import { TrackTokensDto } from '~/server/services/dto/track-tokens.dto';
-import type { ChatMessage } from '~/interfaces/chat.interfaces';
 
 const config = useRuntimeConfig();
 const chatService = new ChatService();
@@ -66,26 +65,13 @@ export default defineEventHandler(async (_event) => {
   return;
   */
 
-  function normalizeMessages(messages: any) {
-    return messages.map((data: ChatMessage) => {
-      const content = Array.isArray(data.message)
-        ? data.message
-        : data.message.content;
-      return {
-        role: data.role,
-        content,
-      };
-    });
-  }
-
-  const history = normalizeMessages(body.messages);
   const messages = [
     {
       role: 'system',
       content: chat.assistant.systemPrompt,
     },
     // TODO: handle context size of llm and reduce messages
-    ...history,
+    ...body.messages,
   ];
 
   // console.log('messages', JSON.stringify(messages));
@@ -135,7 +121,7 @@ export default defineEventHandler(async (_event) => {
       stream.destroy();
 
       const inputTokens = tokenizerService.getTokens(
-        body.messages[body.messages.length - 1]?.message?.content,
+        body.messages[body.messages.length - 1].content,
       );
       const outputTokens = tokenizerService.getTokens(llmResponseMessage);
 

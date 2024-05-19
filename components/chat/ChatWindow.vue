@@ -60,7 +60,7 @@
   function onAbort() {
     addMessage({
       role: 'assistant',
-      message: { content: messageChunk.value },
+      content: messageChunk.value,
     });
     resetForm();
   }
@@ -82,34 +82,12 @@
       return;
     }
 
-    let chatMessage: any;
-
-    if (inputImages.value.length > 0) {
-      const visionContent = [
-        {
-          type: 'text',
-          text: inputMessage.value,
-        },
-        ...inputImages.value.map((image) => {
-          return {
-            type: 'image_url',
-            image_url: {
-              url: image.src,
-            },
-          };
-        }),
-      ];
-      chatMessage = visionContent;
-    } else {
-      chatMessage = { content: inputMessage.value };
-    }
-
     $client.chat.createMessage
       .query({
         chatId: props.chatId,
-        data: {
+        message: {
           role: 'user',
-          message: chatMessage,
+          content: inputMessage.value,
         },
       })
       .catch(() => {
@@ -119,7 +97,7 @@
     clearError();
     addMessage({
       role: 'user',
-      message: chatMessage,
+      content: inputMessage.value,
     });
     inputMessage.value = '';
 
@@ -157,7 +135,7 @@
 
       addMessage({
         role: 'assistant',
-        message: { content: messageChunk.value },
+        content: messageChunk.value,
       });
       messageChunk.value = '';
     } catch (error: any) {
@@ -351,22 +329,23 @@
       />
       <!-- chat messages -->
       <ChatMessageBox
-        v-for="(data, index) in messages"
+        v-for="(message, index) in messages"
         :key="index"
-        :data="data"
+        :message="message"
         :assistant-name="assistant?.title"
       />
       <!-- pending message -->
       <ChatMessageBox
         v-if="isPending"
-        :data="{ role: 'assistant', message: { content: '...' } }"
+        :message="{ role: 'user', content: '...' }"
         :assistant-name="assistant?.title"
       />
       <!-- streaming message -->
-      <ChatMessageBox
-        v-if="messageChunk"
+      <ChatMessageChunk
+        v-if="messageChunk.length > 0"
         id="chatMessage"
-        :data="{ role: 'assistant', message: { content: messageChunk } }"
+        :key="messageChunk.length"
+        :chunk="messageChunk"
         :assistant-name="assistant?.title"
       />
       <!-- error message -->

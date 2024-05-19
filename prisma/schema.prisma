@@ -144,14 +144,16 @@ model Chat {
 }
 
 model ChatMessage {
-  id         String                  @id
-  chatId     String                  @map("chat_id")
-  role       chat_messages_role_enum @map("role")
-  message    Json                    @db.Json
-  tokenCount Int                     @map("token_count")
-  createdAt  DateTime                @default(now()) @map("created_at")
-  updatedAt  DateTime                @updatedAt @map("updated_at")
-  deletedAt  DateTime?               @map("deleted_at")
+  id            String                  @id
+  chatId        String                  @map("chat_id")
+  type          String?
+  role          chat_messages_role_enum @map("role")
+  content       String                  @db.Text
+  visionContent Json?                   @map("vision_content") @db.Json
+  tokenCount    Int                     @map("token_count")
+  createdAt     DateTime                @default(now()) @map("created_at")
+  updatedAt     DateTime                @updatedAt @map("updated_at")
+  deletedAt     DateTime?               @map("deleted_at")
 
   chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
 

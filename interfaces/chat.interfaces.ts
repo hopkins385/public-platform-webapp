@@ -27,7 +27,7 @@ export type ChatMessageVisionContent =
 
 export interface ChatMessage {
   role: 'user' | 'assistant';
-  message: ChatMessageContent | ChatMessageVisionContent[];
+  content: string;
 }
 
 export interface ChatConversation {

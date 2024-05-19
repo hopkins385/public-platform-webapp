@@ -56,21 +56,21 @@ export class ChatService {
 
   upsertMessages(payload: UpsertChatMessages) {
     // update or create messages
-    const messages = payload.chatMessages.map((data) => {
-      const tokenCount = getTokenCount(data.message?.content);
+    const messages = payload.chatMessages.map((message) => {
+      const tokenCount = getTokenCount(message.content);
       return this.prisma.chatMessage.upsert({
         where: {
-          id: data.id,
+          id: message.id,
         },
         create: {
-          id: data.id,
+          id: message.id,
           chatId: payload.chatId.toLowerCase(),
-          role: data.role,
-          message: data.message,
+          role: message.role,
+          content: message.content,
           tokenCount,
         },
         update: {
-          message: data.message,
+          content: message.content,
           tokenCount,
         },
       });
@@ -172,8 +172,10 @@ export class ChatService {
         messages: {
           select: {
             id: true,
+            type: true,
             role: true,
-            message: true,
+            content: true,
+            visionContent: true,
             tokenCount: true,
           },
         },
@@ -220,15 +222,15 @@ export class ChatService {
   }
 
   async createMessage(payload: CreateChatMessageDto) {
-    const tokenCount = getTokenCount(payload.data.message?.content);
+    const tokenCount = getTokenCount(payload.message.content);
 
     try {
       return await this.prisma.chatMessage.create({
         data: {
           id: ULID(),
           chatId: payload.chatId.toLowerCase(),
-          role: payload.data.role,
-          message: payload.data.message,
+          role: payload.message.role,
+          content: payload.message.content,
           tokenCount,
         },
       });

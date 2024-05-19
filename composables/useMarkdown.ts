@@ -45,11 +45,11 @@ export default function useMarkdown() {
   const md = new MarkdownIt(mdOptions ?? {}).disable(disable);
   md.linkify.set(linkifyOptions ?? {});
 
-  function render(text: string) {
+  function parseMarkdown(text: string) {
     return md.render(text);
   }
 
   return {
-    render,
+    parseMarkdown,
   };
 }

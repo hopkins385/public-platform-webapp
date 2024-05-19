@@ -3,13 +3,13 @@
   import type { ChatMessage } from '~/interfaces/chat.interfaces';
 
   defineProps<{
-    data: ChatMessage;
+    message: ChatMessage;
     assistantName?: string;
   }>();
 
-  const { render } = useMarkdown();
+  const { parseMarkdown } = useMarkdown();
 
-  function getContent(data: ChatMessage) {
+  /*function getContent(data: ChatMessage) {
     if (Array.isArray(data.message)) {
       const visionContent = data.message;
       if (!visionContent) return '';
@@ -27,7 +27,7 @@
       if (!content) return '';
       return content;
     }
-  }
+  }*/
 </script>
 
 <template>
@@ -37,13 +37,13 @@
       <div class="flex flex-col">
         <div class="select-none font-semibold" style="padding-top: 1.5px">
           {{
-            data?.role == 'user'
+            message.role == 'user'
               ? $t('user.placeholder')
               : assistantName ?? $t('assistant.placeholder')
           }}
         </div>
         <div
-          v-dompurify-html="render(getContent(data))"
+          v-dompurify-html="parseMarkdown(message.content)"
           class="w-full pr-10"
         ></div>
       </div>
