@@ -123,6 +123,9 @@ export default defineNuxtConfig({
     enabled: process.env.NODE_ENV === 'production',
     headers: {
       referrerPolicy: 'strict-origin-when-cross-origin',
+      contentSecurityPolicy: {
+        'img-src': ["'self'", 'data:', 'blob:', 'https://static.ragna.app'],
+      },
     },
   },
   routeRules: {

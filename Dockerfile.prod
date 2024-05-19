@@ -39,6 +39,9 @@ COPY --chown=node:node --from=build /app/prisma ./prisma
 # temp folder
 RUN mkdir -p /app/temp
 RUN chown -R node:node /app/temp
+# uploads folder
+RUN mkdir -p /app/uploads
+RUN chown -R node:node /app/uploads
 
 # ts-node
 RUN npm i ts-node
