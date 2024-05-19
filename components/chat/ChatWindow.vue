@@ -331,14 +331,16 @@
       <ChatMessageBox
         v-for="(message, index) in messages"
         :key="index"
-        :message="message"
-        :assistant-name="assistant?.title"
+        :content="message.content"
+        :display-name="
+          message.role === 'user' ? $t('user.placeholder') : assistant?.title
+        "
       />
       <!-- pending message -->
       <ChatMessageBox
         v-if="isPending"
-        :message="{ role: 'user', content: '...' }"
-        :assistant-name="assistant?.title"
+        :display-name="assistant?.title"
+        content="..."
       />
       <!-- streaming message -->
       <ChatMessageChunk

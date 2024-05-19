@@ -1,10 +1,9 @@
 <script setup lang="ts">
   import 'highlight.js/styles/stackoverflow-light.min.css';
-  import type { ChatMessage } from '~/interfaces/chat.interfaces';
 
   defineProps<{
-    message: ChatMessage;
-    assistantName?: string;
+    content: string;
+    displayName: string;
   }>();
 
   const { parseMarkdown } = useMarkdown();
@@ -36,14 +35,10 @@
       <div class="size-6 shrink-0 rounded-full bg-slate-200"></div>
       <div class="flex flex-col">
         <div class="select-none font-semibold" style="padding-top: 1.5px">
-          {{
-            message.role == 'user'
-              ? $t('user.placeholder')
-              : assistantName ?? $t('assistant.placeholder')
-          }}
+          {{ displayName }}
         </div>
         <div
-          v-dompurify-html="parseMarkdown(message.content)"
+          v-dompurify-html="parseMarkdown(content)"
           class="w-full pr-10"
         ></div>
       </div>
