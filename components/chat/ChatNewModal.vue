@@ -32,12 +32,12 @@
         </DialogDescription>
       </DialogHeader>
       <Suspense>
-        <AssistantAllTable />
+        <AssistantAllTable @new-chat="settings.newChatModalOpen = false" />
       </Suspense>
       <DialogFooter>
-        <Button variant="outline" @click="settings.newChatModalOpen = false"
-          >Cancel</Button
-        >
+        <Button variant="outline" @click="settings.newChatModalOpen = false">
+          Cancel
+        </Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>

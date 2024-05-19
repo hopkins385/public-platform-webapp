@@ -1,6 +1,10 @@
 <script setup lang="ts">
   import { SettingsIcon, Trash2Icon, MessageSquareIcon } from 'lucide-vue-next';
 
+  const emit = defineEmits<{
+    newChat: [string];
+  }>();
+
   const showConfirmDialog = ref(false);
   const errorAlert = reactive({
     show: false,
@@ -43,11 +47,8 @@
       errorAlert.show = true;
       return;
     }
+    emit('newChat', chat.id);
     return await navigateTo(`/chat/${chat.id}`);
-  }
-
-  async function onEdit(id: string) {
-    return await navigateTo(`/assistant/${id}/edit`);
   }
 
   function onDelete(id: string) {
@@ -114,9 +115,13 @@
                 class="ml-2 size-4 shrink-0 stroke-1.5 text-primary"
               />
             </Button>
-            <Button variant="outline" size="icon" @click="onEdit(assistant.id)">
+            <LinkButton
+              :to="`/assistant/${assistant.id}/edit`"
+              variant="outline"
+              size="icon"
+            >
               <SettingsIcon class="size-4 stroke-1.5 text-primary" />
-            </Button>
+            </LinkButton>
             <Button
               variant="outline"
               size="icon"
