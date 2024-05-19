@@ -125,6 +125,7 @@ export default defineNuxtConfig({
       referrerPolicy: 'strict-origin-when-cross-origin',
       contentSecurityPolicy: {
         'img-src': ["'self'", 'data:', 'blob:', 'https://static.ragna.app'],
+        'media-src': ["'self'", 'data:', 'blob:', 'https://static.ragna.app'],
       },
     },
   },

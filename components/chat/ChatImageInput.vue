@@ -50,6 +50,7 @@
         :src="image?.src"
         alt="image"
         class="size-full overflow-hidden rounded-lg object-cover"
+        crossorigin="anonymous"
       />
     </div>
   </div>

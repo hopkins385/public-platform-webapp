@@ -26,6 +26,7 @@
               v-if="visionContent.type === 'image'"
               :src="visionContent.url"
               class="max-h-96 max-w-xl object-cover"
+              crossorigin="anonymous"
             />
           </div>
         </div>
