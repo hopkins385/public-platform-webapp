@@ -17,7 +17,7 @@
     <div class="flex space-x-3">
       <div class="size-6 shrink-0 rounded-full bg-slate-200"></div>
       <div class="flex flex-col space-y-2">
-        <div class="select-nonefont-semibold" style="padding-top: 1.5px">
+        <div class="select-none font-semibold" style="padding-top: 1.5px">
           {{ displayName }}
         </div>
         <div v-if="visionContents?.length">

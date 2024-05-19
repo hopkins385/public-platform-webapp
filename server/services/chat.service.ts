@@ -178,6 +178,9 @@ export class ChatService {
             visionContent: true,
             tokenCount: true,
           },
+          orderBy: {
+            createdAt: 'asc',
+          },
         },
         assistant: {
           select: {
@@ -253,6 +256,9 @@ export class ChatService {
     return this.prisma.chatMessage.findMany({
       where: {
         chatId,
+      },
+      orderBy: {
+        createdAt: 'asc',
       },
     });
   }

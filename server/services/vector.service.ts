@@ -1,17 +1,22 @@
+import { StorageService } from '~/server/services/storage.service';
 import consola from 'consola';
 import type { QdrantVectorStore } from 'llamaindex';
 import { VectorStoreIndex } from 'llamaindex';
 import OpenAI from 'openai';
 import { FileReaderFactory } from '~/server/factories/fileReaderFactory';
+import path from 'path';
+import fs from 'fs/promises';
 
 const logger = consola.create({}).withTag('VectorService');
 
 export class VectorService {
   private readonly vectorStore: QdrantVectorStore;
+  private readonly storageService: StorageService;
 
   constructor() {
     const { getVectorStore } = useQdrant();
     this.vectorStore = getVectorStore({ collectionName: 'media' });
+    this.storageService = new StorageService();
   }
 
   async createIndex(payload: {
@@ -21,8 +26,8 @@ export class VectorService {
     path: string;
   }) {
     try {
-      const reader = new FileReaderFactory(payload.mimeType, payload.path);
-      const documents = await reader.loadData();
+      const reader = new FileReaderFactory(payload.mimeType); // throws error if unsupported file type
+      const documents = await reader.loadData(payload.path);
 
       // add metadata to documents
       documents.forEach((doc) => {

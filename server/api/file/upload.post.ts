@@ -51,7 +51,7 @@ export default defineEventHandler(async (_event) => {
     const medias = [];
 
     for (const file of files.clientFiles) {
-      const payload = await storageService.uploadFile(
+      const payload = await storageService.uploadFileToBucket(
         file,
         user.id,
         user.teamId, // TODO: fix typescript error

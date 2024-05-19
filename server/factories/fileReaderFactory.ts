@@ -11,17 +11,15 @@ import { FileType } from '~/server/utils/enums/file-type.enum';
 
 export class FileReaderFactory {
   type: string;
-  filePath: string;
   reader: FileReader;
 
-  constructor(type: string, filePath: string) {
+  constructor(type: string) {
     this.type = type;
-    this.filePath = filePath;
     this.reader = this.getReader();
   }
 
-  loadData() {
-    return this.reader.loadData(this.filePath);
+  loadData(filePath: string) {
+    return this.reader.loadData(filePath);
   }
 
   getReader() {

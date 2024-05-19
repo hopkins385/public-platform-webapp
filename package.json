@@ -77,6 +77,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.20.9",
+    "@aws-sdk/client-s3": "^3.577.0",
     "@azure/msal-node": "^2.8.0",
     "@devmehq/email-validator-js": "^1.0.19",
     "@google-cloud/local-auth": "^3.0.1",

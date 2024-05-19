@@ -59,6 +59,12 @@ export default defineNuxtConfig({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       redirectUrl: process.env.GOOGLE_REDIRECT_URL,
     },
+    cloudflare: {
+      accountId: process.env.CLOUDFLARE_ACCOUNT_ID,
+      accessKeyId: process.env.CLOUDFLARE_ACCESS_KEY_ID,
+      secretAccessKey: process.env.CLOUDFLARE_SECRET_ACCESS_KEY,
+      bucket: process.env.CLOUDFLARE_BUCKET,
+    },
     stripe: {
       secretApiKey: process.env.STRIPE_SECRET_API_KEY,
       webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,

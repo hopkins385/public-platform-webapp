@@ -52,7 +52,7 @@ export default defineEventHandler(async (_event) => {
       return {
         type: 'image_url',
         image_url: {
-          url: 'https://app.svenson.ai' + v.url,
+          url: v.url,
         },
       };
     });
@@ -88,7 +88,7 @@ export default defineEventHandler(async (_event) => {
     ...bodyMessages,
   ];
 
-  // console.log('messages', JSON.stringify(messages, null, 2));
+  console.log('messages', JSON.stringify(messages, null, 2));
   // return;
 
   try {
