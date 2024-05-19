@@ -3,31 +3,19 @@ export interface ChatImage {
   status: 'loading' | 'loaded' | 'error';
 }
 
-export interface VisionTextContent {
-  type: 'text';
-  text: string;
-}
-
 export interface VisionImageUrlContent {
-  type: 'image_url';
-  image_url: {
-    url: string;
-    detail?: 'low' | 'high' | 'auto';
-  };
-}
-
-export interface ChatMessageContent {
-  content: string;
+  type: string;
+  url: string;
 }
 
 // see above example for visionContent
-export type ChatMessageVisionContent =
-  | VisionTextContent
-  | VisionImageUrlContent;
+export type ChatMessageVisionContent = VisionImageUrlContent;
 
 export interface ChatMessage {
+  type: 'text' | 'image' | 'video' | 'audio';
   role: 'user' | 'assistant';
   content: string;
+  visionContent?: ChatMessageVisionContent[];
 }
 
 export interface ChatConversation {

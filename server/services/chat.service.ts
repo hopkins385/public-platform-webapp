@@ -229,8 +229,10 @@ export class ChatService {
         data: {
           id: ULID(),
           chatId: payload.chatId.toLowerCase(),
+          type: payload.message.type,
           role: payload.message.role,
           content: payload.message.content,
+          visionContent: payload.message.visionContent,
           tokenCount,
         },
       });

@@ -11,7 +11,7 @@ export async function chatStreamFinished(data: any) {
   const payload = CreateChatMessageDto.fromInput({
     userId,
     chatId,
-    message: { role: 'assistant', content: messageContent },
+    message: { type: 'text', role: 'assistant', content: messageContent },
   });
 
   await chatService.createMessage(payload);

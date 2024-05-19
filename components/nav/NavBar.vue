@@ -14,6 +14,7 @@
     LayersIcon,
     ChevronRightIcon,
     ChevronDownIcon,
+    ExpandIcon,
   } from 'lucide-vue-next';
 
   const navBarRef = ref(null);
@@ -122,6 +123,15 @@
 
   const { pressed } = useMousePressed({ target: navBarResizerRef });
 
+  function onFullScreenClick() {
+    const elem = document.documentElement;
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      elem.requestFullscreen();
+    }
+  }
+
   watch(pressed, (isPressed) => {
     if (isPressed && navBar.isOpen) {
       addEventListener('mousemove', navBar.setWidth);
@@ -156,8 +166,15 @@
         }"
         style="width: 0.25rem"
       ></div>
-      <div class="flex border-0 pl-8 pt-4">
+      <div class="flex justify-between border-0 pl-8 pt-4">
         <BrandLogo :text-visible="navBar.isOpen" />
+        <!-- div v-show="navBar.isOpen" class="pr-4">
+          <button class="group rounded-full p-2" @click="onFullScreenClick">
+            <ExpandIcon
+              class="size-4 stroke-1 opacity-50 group-hover:opacity-100"
+            />
+          </button>
+        </!-->
       </div>
       <div class="h-4" id="spacer"></div>
       <!-- div class="px-4 pb-4">

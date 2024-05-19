@@ -1,18 +1,14 @@
 <script setup lang="ts">
   import { useDropZone, useMutationObserver } from '@vueuse/core';
   import {
-    ArrowBigDownDashIcon,
     ChevronLeftIcon,
     MessageSquareTextIcon,
     MessageSquareXIcon,
+    PaperclipIcon,
     SquareIcon,
   } from 'lucide-vue-next';
   import ChatSettings from './ChatSettings.vue';
-  import type {
-    ChatMessage,
-    ChatImage,
-    ChatMessageContent,
-  } from '~/interfaces/chat.interfaces';
+  import type { ChatMessage, ChatImage } from '~/interfaces/chat.interfaces';
 
   const props = defineProps<{
     chatId: string;
@@ -48,14 +44,14 @@
 
   let ac: AbortController;
 
-  const resetForm = () => {
+  function resetForm() {
     if (ac) {
       ac.abort();
     }
     messageChunk.value = '';
     isPending.value = false;
     isStreaming.value = false;
-  };
+  }
 
   function onAbort() {
     addMessage({
@@ -76,18 +72,32 @@
     clearError();
   }
 
+  function getVisionContent(images: ChatImage[]): any {
+    return images.map((image) => {
+      if (image.status !== 'loaded') return;
+      return {
+        type: 'image',
+        url: image.src,
+      };
+    });
+  }
+
   // TODO: REFACTOR ME!!!
   async function onSubmit() {
     if (!inputMessage.value || isPending.value || isStreaming.value) {
       return;
     }
 
+    const visionContent = getVisionContent(inputImages.value);
+
     $client.chat.createMessage
       .query({
         chatId: props.chatId,
         message: {
+          type: 'text',
           role: 'user',
           content: inputMessage.value,
+          visionContent,
         },
       })
       .catch(() => {
@@ -96,8 +106,10 @@
 
     clearError();
     addMessage({
+      type: 'text',
       role: 'user',
       content: inputMessage.value,
+      visionContent,
     });
     inputMessage.value = '';
 
@@ -134,6 +146,7 @@
       isStreaming.value = false;
 
       addMessage({
+        type: 'text',
         role: 'assistant',
         content: messageChunk.value,
       });
@@ -193,6 +206,40 @@
     );
   }
 
+  async function onFileReaderLoad(imageSrc: string, file: File) {
+    const index = addInputImage({ src: imageSrc, status: 'loading' });
+    if (index === null) {
+      return;
+    }
+    const uploadedImages = await uploadManyFiles([file]);
+    if (!uploadedImages || uploadedImages.length === 0) {
+      updateInputImage(index, { src: imageSrc, status: 'error' });
+      return;
+    }
+    const uploadedImage = uploadedImages[0];
+    updateInputImage(index, { src: uploadedImage.path, status: 'loaded' });
+  }
+
+  function openFileDialog(options: { accept: string }) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = options.accept;
+    input.multiple = false;
+    input.onchange = () => {
+      const file = input.files?.[0];
+      if (!file) {
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const imageSrc = reader.result as string;
+        await onFileReaderLoad(imageSrc, file);
+      };
+      reader.readAsDataURL(file);
+    };
+    input.click();
+  }
+
   useDropZone(chatBoxContainerRef, {
     onDrop: (files) => {
       const file = files[0];
@@ -207,17 +254,7 @@
       const reader = new FileReader();
       reader.onload = async () => {
         const imageSrc = reader.result as string;
-        const index = addInputImage({ src: imageSrc, status: 'loading' });
-        if (index === null) {
-          return;
-        }
-        const uploadedImages = await uploadManyFiles([file]);
-        if (!uploadedImages || uploadedImages.length === 0) {
-          updateInputImage(index, { src: imageSrc, status: 'error' });
-          return;
-        }
-        const uploadedImage = uploadedImages[0];
-        updateInputImage(index, { src: uploadedImage.path, status: 'loaded' });
+        await onFileReaderLoad(imageSrc, file);
       };
       reader.readAsDataURL(file);
     },
@@ -331,7 +368,9 @@
       <ChatMessageBox
         v-for="(message, index) in messages"
         :key="index"
+        :type="message.type"
         :content="message.content"
+        :vision-contents="message.visionContent"
         :display-name="
           message.role === 'user' ? $t('user.placeholder') : assistant?.title
         "
@@ -339,6 +378,7 @@
       <!-- pending message -->
       <ChatMessageBox
         v-if="isPending"
+        type="text"
         :display-name="assistant?.title"
         content="..."
       />
@@ -356,9 +396,9 @@
       </div>
       <div class="h-10 border-0"></div>
       <!-- scroll to bottom button -->
-      <div
+      <!-- div
         v-if="hasMessages"
-        class="sticky bottom-2 right-1/2 hidden opacity-95"
+        class="sticky bottom-2 right-1/2 opacity-95"
         style="transform: translateX(50%)"
       >
         <Button
@@ -371,38 +411,55 @@
             class="size-5 stroke-1.5 group-hover:stroke-2"
           />
         </Button>
-      </div>
+      </!-->
     </div>
     <!-- Input wrapper -->
     <div id="chatInputWrapper" class="relative shrink-0 pt-5">
       <!-- Image input -->
       <ChatImageInput v-model:input-images="inputImages" />
-      <!-- message input form -->
-      <form class="flex items-center space-x-2" @submit.prevent="onSubmit">
-        <div class="z-10 max-h-96 w-full">
-          <Textarea
-            v-model="inputMessage"
-            :placeholder="$t('chat.placeholder')"
-            class="resize-none rounded-2xl py-3 focus:shadow-lg"
-            @keydown.enter="onKeyDownEnter"
-          />
-        </div>
+      <div class="flex space-x-1">
         <Button
-          type="submit"
-          :disabled="!inputMessage || isPending || isStreaming"
+          variant="ghost"
+          size="icon"
+          class="group"
+          @click="() => openFileDialog({ accept: 'image/*' })"
         >
-          {{ $t('chat.send') }}
+          <PaperclipIcon
+            class="size-5 -rotate-45 stroke-1 text-slate-500 group-hover:stroke-1.5"
+          />
         </Button>
-      </form>
-      <Button
-        v-if="isStreaming"
-        variant="outline"
-        size="icon"
-        class="group absolute right-24 top-7 z-20 mr-1 size-8 rounded-full bg-slate-100"
-        @click="() => onAbort()"
-      >
-        <SquareIcon class="size-3 text-slate-500 group-hover:text-slate-900" />
-      </Button>
+        <!-- message input form -->
+        <form
+          class="flex w-full items-center space-x-2"
+          @submit.prevent="onSubmit"
+        >
+          <div class="relative z-10 max-h-96 w-full">
+            <Textarea
+              v-model="inputMessage"
+              :placeholder="$t('chat.placeholder')"
+              class="resize-none rounded-2xl py-3 focus:shadow-lg"
+              @keydown.enter="onKeyDownEnter"
+            />
+          </div>
+          <Button
+            type="submit"
+            :disabled="!inputMessage || isPending || isStreaming"
+          >
+            {{ $t('chat.send') }}
+          </Button>
+        </form>
+        <Button
+          v-if="isStreaming"
+          variant="outline"
+          size="icon"
+          class="group absolute right-24 top-7 z-20 mr-1 size-8 rounded-full bg-slate-100"
+          @click="() => onAbort()"
+        >
+          <SquareIcon
+            class="size-3 text-slate-500 group-hover:text-slate-900"
+          />
+        </Button>
+      </div>
     </div>
     <!-- Notification -->
     <div

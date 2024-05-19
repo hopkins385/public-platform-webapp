@@ -11,6 +11,7 @@ import { ChatEvent } from '~/server/utils/enums/chat-event.enum';
 import consola from 'consola';
 import { UsageEvent } from '~/server/utils/enums/usage-event.enum';
 import { TrackTokensDto } from '~/server/services/dto/track-tokens.dto';
+import type { ChatMessage } from '~/interfaces/chat.interfaces';
 
 const config = useRuntimeConfig();
 const chatService = new ChatService();
@@ -43,38 +44,37 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
-  // Get collection_ables
-  /*
-  const collectionService = new CollectionService();
-  const colPayload = CollectionAbleDto.fromInput({
-    type: 'assistant',
-    id: chat.assistant.id,
-  });
-  const collectionAble =
-    await collectionService.findAllWithRecordsFor(colPayload);
-  const recordIds =
-    collectionAble?.flatMap((ca) => ca.records?.flatMap((r) => r.id)) || [];
-  console.log('records', recordIds);
-  const vectorService = new VectorService();
-  const lastMessage = chat.messages[chat.messages.length - 1];
-  const res = await vectorService.searchIndex({
-    recordIds,
-    query: lastMessage.content,
-  });
-  console.log('res', res);
-  return;
-  */
+  function normalizeBodyMessages(messages: ChatMessage[]) {
+    return messages.map((message) => {
+      if (message.type === 'image' && message.visionContent) {
+        const text = {
+          type: 'text',
+          text: message.content,
+        };
+        return {
+          role: message.role,
+          content: [text, ...message.visionContent],
+        };
+      }
+      return {
+        role: message.role,
+        content: message.content,
+      };
+    });
+  }
 
+  const bodyMessages = normalizeBodyMessages(body.messages);
+
+  // TODO: handle context size of llm and reduce messages
   const messages = [
     {
       role: 'system',
       content: chat.assistant.systemPrompt,
     },
-    // TODO: handle context size of llm and reduce messages
-    ...body.messages,
+    ...bodyMessages,
   ];
 
-  // console.log('messages', JSON.stringify(messages));
+  // console.log('messages', JSON.stringify(messages, null, 2));
   // return;
 
   try {

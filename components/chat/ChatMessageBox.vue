@@ -1,32 +1,15 @@
 <script setup lang="ts">
   import 'highlight.js/styles/stackoverflow-light.min.css';
+  import type { ChatMessageVisionContent } from '~/interfaces/chat.interfaces';
 
   defineProps<{
+    type: 'text' | 'image' | 'video' | 'audio' | null | undefined;
     content: string;
     displayName: string;
+    visionContents?: ChatMessageVisionContent[];
   }>();
 
   const { parseMarkdown } = useMarkdown();
-
-  /*function getContent(data: ChatMessage) {
-    if (Array.isArray(data.message)) {
-      const visionContent = data.message;
-      if (!visionContent) return '';
-      return visionContent
-        .map((vc) => {
-          if (vc.type === 'image_url') {
-            return `<img src="${vc.image_url.url}" alt="Input Image" class="min-h-52 max-h-96 object-cover py-5" />`;
-          } else {
-            return vc.text;
-          }
-        })
-        .join('');
-    } else {
-      const content = data.message?.content;
-      if (!content) return '';
-      return content;
-    }
-  }*/
 </script>
 
 <template>
@@ -41,6 +24,15 @@
           v-dompurify-html="parseMarkdown(content)"
           class="w-full pr-10"
         ></div>
+        <div v-if="visionContents?.length">
+          <div v-for="(visionContent, index) in visionContents" :key="index">
+            <img
+              v-if="visionContent.type === 'image'"
+              :src="visionContent.url"
+              class="max-h-96 max-w-xl object-cover"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </div>

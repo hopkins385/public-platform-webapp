@@ -23,7 +23,7 @@
 </script>
 
 <template>
-  <div class="absolute -top-12 left-2 flex space-x-1">
+  <div class="absolute -top-12 left-12 flex space-x-1">
     <div
       v-for="(image, index) in inputImages"
       :key="image?.src"

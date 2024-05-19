@@ -1,16 +1,23 @@
-import type { ChatMessage } from '../interfaces/chat.interfaces';
+import type {
+  ChatMessage,
+  ChatMessageVisionContent,
+} from '../interfaces/chat.interfaces';
 
 export default function useChatMessages() {
   const chatMessages = ref<ChatMessage[]>([]);
 
   function addMessage({
+    type,
     role,
     content,
+    visionContent,
   }: {
+    type: 'text' | 'image';
     role: 'user' | 'assistant';
     content: string;
+    visionContent?: ChatMessageVisionContent[];
   }) {
-    chatMessages.value.push({ role, content });
+    chatMessages.value.push({ type, role, content, visionContent });
   }
 
   function getRawMessages() {
