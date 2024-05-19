@@ -1,29 +1,19 @@
-import fs from 'fs';
-import path from 'path';
 import { readFiles } from 'h3-formidable';
 import type { Options as FormidableOptions } from 'formidable';
 import { getServerSession } from '#auth';
 import { getAuthUser } from '~/server/utils/auth/permission';
 import { MediaService } from '~/server/services/media.service';
 import { StorageService } from '~/server/services/storage.service';
+import consola from 'consola';
 
 const storageService = new StorageService();
 const mediaService = new MediaService();
 
+const logger = consola.create({}).withTag('api.upload.post');
+
 export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);
   const user = getAuthUser(session); // do not remove this line
-
-  const basePath = path.join(process.cwd(), storageService.getBasePath());
-  const userPath = path.join(basePath, user.id);
-
-  if (!fs.existsSync(basePath)) {
-    fs.mkdirSync(basePath);
-  }
-
-  if (!fs.existsSync(userPath)) {
-    fs.mkdirSync(userPath);
-  }
 
   const options = {
     includeFields: true,
@@ -70,7 +60,7 @@ export default defineEventHandler(async (_event) => {
     });
     //
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     throw createError({
       statusCode: 500,
       statusMessage: 'Internal Server Error',

@@ -1,4 +1,5 @@
 import fs from 'fs/promises';
+import { existsSync } from 'fs';
 import path from 'path';
 import type { File as FormidableFile } from 'formidable';
 import { CreateMediaDto } from './dto/media.dto';
@@ -45,6 +46,18 @@ export class StorageService {
         message: 'Unsupported file type: ' + file.mimetype,
       });
     }
+
+    const basePath = this.getBasePath();
+    const userPath = path.join(basePath, userId);
+
+    if (!existsSync(basePath)) {
+      await fs.mkdir(basePath);
+    }
+
+    if (!existsSync(userPath)) {
+      await fs.mkdir(userPath);
+    }
+
     const originalFilename = file.originalFilename ?? 'Untitled';
     const fileName = `${Date.now()}-${file.newFilename}.${mimeType}`;
     const newPath = `${path.join(this.getBasePath(), userId, fileName)}`;
@@ -169,6 +182,6 @@ export class StorageService {
   }
 
   getBasePath() {
-    return path.join('uploads');
+    return path.join(process.cwd(), 'uploads');
   }
 }

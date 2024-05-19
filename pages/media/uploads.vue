@@ -51,7 +51,7 @@
   <SectionContainer class="space-y-4">
     <SectionHeading
       title="Uploads"
-      subtitle="Upload files to your team account"
+      subtitle="You can view your uploaded files below."
     />
     <BoxContainer>
       <FileDropzone v-model="dropzoneFiles" />
