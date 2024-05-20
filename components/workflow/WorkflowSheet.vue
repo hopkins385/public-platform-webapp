@@ -279,7 +279,7 @@
           @click="(e) => e.stopPropagation()"
         >
           <NuxtLinkLocale
-            :to="`/workflow/${workflowData.id}/detail?row=${rowIndex}`"
+            :to="`/workflows/${workflowData.id}/detail?row=${rowIndex}`"
             class="flex items-center justify-center rounded-lg border bg-white p-1 shadow-md group-hover/link:bg-slate-100"
           >
             <LayoutDashboard class="size-3 stroke-1" />

@@ -18,7 +18,7 @@
 <template>
   <div
     class="flex h-16 cursor-pointer border-0 text-xs text-muted-foreground"
-    @click="navigateTo(`/chat/${id}`)"
+    @click="navigateTo(`/chats/${id}`)"
   >
     <div class="size-8 shrink-0 rounded-full bg-slate-100"></div>
     <div

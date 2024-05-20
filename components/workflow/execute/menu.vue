@@ -60,7 +60,7 @@
       <DropdownMenuSeparator />
       <DropdownMenuItem class="text-xs">
         <NuxtLinkLocale
-          :to="`/project/${projectId}/workflow/${workflowId}/settings`"
+          :to="`/projects/${projectId}/workflows/${workflowId}/settings`"
           class="flex w-full items-center"
         >
           <SettingsIcon class="mr-1 size-3 stroke-1.5" />

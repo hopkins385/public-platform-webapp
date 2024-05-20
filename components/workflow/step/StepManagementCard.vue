@@ -34,9 +34,6 @@
   function onSettingsClick() {
     emits('show-settings');
     emits('close');
-    // navigateTo(
-    //   `/project/${props.projectId}/workflow/${props.workflowId}/step/${props.workflowStep.id}/settings`,
-    // );
   }
 
   async function onDeleteClick() {

@@ -48,7 +48,7 @@
       return;
     }
     emit('newChat', chat.id);
-    return await navigateTo(`/chat/${chat.id}`);
+    return await navigateTo(`/chats/${chat.id}`);
   }
 
   function onDelete(id: string) {
@@ -116,7 +116,7 @@
               />
             </Button>
             <LinkButton
-              :to="`/assistant/${assistant.id}/edit`"
+              :to="`/assistants/${assistant.id}/edit`"
               variant="outline"
               size="icon"
             >

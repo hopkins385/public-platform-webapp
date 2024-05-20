@@ -59,7 +59,7 @@
               class="group"
               variant="outline"
               size="icon"
-              :to="`/project/${item.project?.id}/workflow/${item.id}`"
+              :to="`/projects/${item.project?.id}/workflows/${item.id}`"
             >
               <SquareArrowOutUpRightIcon
                 class="size-4 stroke-1.5 text-primary group-hover:stroke-2"

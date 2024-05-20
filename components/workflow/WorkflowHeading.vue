@@ -62,7 +62,7 @@
         <div class="mr-3 opacity-75">
           <PanelLeftIcon class="size-4 stroke-1.5" />
         </div>
-        <NuxtLinkLocale to="/project" class="opacity-50">
+        <NuxtLinkLocale to="/projects" class="opacity-50">
           All Projects
         </NuxtLinkLocale>
       </div>
@@ -86,7 +86,7 @@
       <div class="no-scrollbar flex items-center overflow-y-scroll">
         <div v-for="(workflow, index) in projectWorkflows" class="py-2">
           <NuxtLinkLocale
-            :to="`/project/${projectId}/workflow/${workflow.id}`"
+            :to="`/projects/${projectId}/workflows/${workflow.id}`"
             class="mx-2 flex max-w-72 rounded-lg border px-3 py-2 text-xs"
             :class="{ '-mt-1 bg-white shadow-md': workflow.id === workflowId }"
           >
@@ -98,7 +98,7 @@
         </div>
         <div class="opacity-60 hover:opacity-100">
           <NuxtLinkLocale
-            :to="`/project/${projectId}/workflow/create`"
+            :to="`/projects/${projectId}/workflows/create`"
             class="group mx-2 flex w-fit cursor-pointer rounded-lg border border-transparent px-3 py-2 text-xs hover:border-slate-300"
           >
             <PlusIcon class="mr-1 size-4 stroke-1.5" />

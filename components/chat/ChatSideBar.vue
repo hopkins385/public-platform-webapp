@@ -78,7 +78,7 @@
         }"
       >
         <NuxtLinkLocale
-          to="/chat/history"
+          to="/chats/history"
           class="text-xs text-muted-foreground opacity-60 hover:underline"
         >
           Go to full History

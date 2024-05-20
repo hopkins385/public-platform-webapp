@@ -32,7 +32,7 @@
       return {
         name: 'project-child',
         icon: FolderIcon,
-        to: `/project/${project.id}`,
+        to: `/projects/${project.id}`,
         label: project.name,
         hidden: false,
       };
@@ -44,7 +44,7 @@
       {
         name: 'home',
         icon: HomeIcon,
-        to: '/project',
+        to: '/projects',
         label: 'Home',
         hidden: false,
         children: [],
@@ -52,7 +52,7 @@
       {
         name: 'projects',
         icon: LayersIcon,
-        to: '/project',
+        to: '/projects',
         label: 'Projects',
         hidden: false,
         children: projectChildren.value || [],
@@ -60,7 +60,7 @@
       {
         name: 'workflows',
         icon: WorkflowIcon,
-        to: '/workflow',
+        to: '/workflows',
         label: 'Workflows',
         hidden: false,
         children: [],
@@ -68,14 +68,14 @@
       {
         name: 'documents',
         icon: FileTextIcon,
-        to: `/document`,
+        to: `/documents`,
         label: 'Documents',
         children: [],
       },
       {
         name: 'collections',
         icon: DatabaseIcon,
-        to: `/collection`,
+        to: `/collections`,
         label: 'Collections',
         children: [],
       },
@@ -90,7 +90,7 @@
       {
         name: 'assistants',
         icon: BotIcon,
-        to: '/assistant',
+        to: '/assistants',
         label: 'Assistants',
         hidden: false,
         children: [],
@@ -98,7 +98,7 @@
       {
         name: 'chats',
         icon: MessagesSquareIcon,
-        to: '/chat',
+        to: '/chats',
         label: 'Chat',
         hidden: false,
         children: [],
@@ -106,7 +106,7 @@
       {
         name: 'chat-history',
         icon: ArchiveIcon,
-        to: '/chat/history',
+        to: '/chats/history',
         label: 'Chat History',
         hidden: false,
         children: [],

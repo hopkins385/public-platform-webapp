@@ -16,7 +16,7 @@
   const onStartClick = async () => {
     const chat = await createChat();
     if (!chat) return;
-    navigateTo(`/chat/${chat.id}`);
+    navigateTo(`/chats/${chat.id}`);
   };
 </script>
 
@@ -29,7 +29,7 @@
       <Button
         size="icon"
         variant="ghost"
-        @click.stop="navigateTo(`/assistant/${assistant.id}/edit`)"
+        @click.stop="navigateTo(`/assistants/${assistant.id}/edit`)"
       >
         <EditIcon
           class="size-4 stroke-1.5 opacity-50 group-hover/icon:stroke-2"

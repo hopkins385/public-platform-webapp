@@ -84,7 +84,7 @@
             </TableCell>
             <TableCell class="space-x-2 text-right">
               <LinkButton
-                :to="`/chat/${chat.id}`"
+                :to="`/chats/${chat.id}`"
                 class="group"
                 variant="outline"
                 size="icon"

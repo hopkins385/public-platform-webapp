@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  await navigateTo('/project');
+  await navigateTo('/projects');
 </script>
 
 <template>

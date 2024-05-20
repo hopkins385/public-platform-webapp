@@ -28,11 +28,11 @@
   });
 
   function onOpenClick(id: string) {
-    return navigateTo(`/project/${props.projectId}/workflow/${id}`);
+    return navigateTo(`/projects/${props.projectId}/workflows/${id}`);
   }
 
   function onSettingsClick(id: string) {
-    return navigateTo(`/project/${props.projectId}/workflow/${id}/settings`);
+    return navigateTo(`/projects/${props.projectId}/workflows/${id}/settings`);
   }
 
   function onDeleteClick(id: string) {

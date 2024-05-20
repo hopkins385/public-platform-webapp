@@ -31,7 +31,7 @@
   }
 
   function onOpen(id: string) {
-    return navigateTo(`/collection/${id}`);
+    return navigateTo(`/collections/${id}`);
   }
 
   function onDelete(id: string) {
