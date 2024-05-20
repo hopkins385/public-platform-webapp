@@ -10,6 +10,14 @@
   import ChatSettings from './ChatSettings.vue';
   import type { ChatMessage, ChatImage } from '~/interfaces/chat.interfaces';
 
+  const allowedFileMimeTypes = [
+    'image/jpg',
+    'image/png',
+    'image/jpeg',
+    'image/gif',
+    'image/webp',
+  ];
+
   const props = defineProps<{
     chatId: string;
     assistant?: any;
@@ -31,7 +39,7 @@
   const {
     messages,
     hasMessages,
-    addMessage,
+    addMessageToChat,
     getFormattedMessages,
     clearMessages,
     initMessages,
@@ -54,7 +62,8 @@
   }
 
   function onAbort() {
-    addMessage({
+    addMessageToChat({
+      type: 'text',
       role: 'assistant',
       content: messageChunk.value,
     });
@@ -82,15 +91,23 @@
     });
   }
 
+  function clearVisionContent() {
+    inputImages.value = [];
+  }
+
   // TODO: REFACTOR ME!!!
   async function onSubmit() {
     if (!inputMessage.value || isPending.value || isStreaming.value) {
       return;
     }
 
+    const hasImages = inputImages.value.some(
+      (image) => image.status === 'loaded',
+    );
+    const msgType = hasImages ? 'image' : 'text';
     const visionContent = getVisionContent(inputImages.value);
-    const msgType = visionContent.length > 0 ? 'image' : 'text';
 
+    // store user message in db
     $client.chat.createMessage
       .query({
         chatId: props.chatId,
@@ -106,14 +123,20 @@
       });
 
     clearError();
-    addMessage({
+    clearVisionContent();
+
+    // add user message to chat
+    addMessageToChat({
       type: msgType,
       role: 'user',
       content: inputMessage.value,
       visionContent,
     });
+
+    // clear input
     inputMessage.value = '';
 
+    // send message to assistant
     isPending.value = true;
     messageChunk.value = '';
 
@@ -146,7 +169,7 @@
       }
       isStreaming.value = false;
 
-      addMessage({
+      addMessageToChat({
         type: 'text',
         role: 'assistant',
         content: messageChunk.value,
@@ -156,7 +179,8 @@
       if (error.name === 'AbortError') {
         return;
       }
-      setError(error.message);
+      console.error('[stream assistant message] ', error);
+      setError('Ups something went wrong');
     }
   }
 
@@ -221,10 +245,13 @@
     updateInputImage(index, { src: uploadedImage.path, status: 'loaded' });
   }
 
-  function openFileDialog(options: { accept: string }) {
+  function openFileDialog() {
+    const accept = Array.isArray(allowedFileMimeTypes)
+      ? allowedFileMimeTypes.join(',')
+      : allowedFileMimeTypes;
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = options.accept;
+    input.accept = accept;
     input.multiple = false;
     input.onchange = () => {
       const file = input.files?.[0];
@@ -241,7 +268,7 @@
     input.click();
   }
 
-  useDropZone(chatBoxContainerRef, {
+  const { isOverDropZone } = useDropZone(chatBoxContainerRef, {
     onDrop: (files) => {
       const file = files[0];
       if (!file) {
@@ -259,6 +286,7 @@
       };
       reader.readAsDataURL(file);
     },
+    dataTypes: allowedFileMimeTypes,
   });
 
   // observer
@@ -422,11 +450,15 @@
         <Button
           variant="ghost"
           size="icon"
-          class="group"
-          @click="() => openFileDialog({ accept: 'image/*' })"
+          class="group text-slate-500"
+          :class="{
+            'bg-slate-100 text-green-600': isOverDropZone,
+          }"
+          @click="() => openFileDialog()"
         >
           <PaperclipIcon
-            class="size-5 -rotate-45 stroke-1 text-slate-500 group-hover:stroke-1.5"
+            class="size-5 -rotate-45 stroke-1 group-hover:stroke-1.5"
+            :class="{ 'stroke-2': isOverDropZone }"
           />
         </Button>
         <!-- message input form -->

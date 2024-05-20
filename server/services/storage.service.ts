@@ -178,6 +178,8 @@ export class StorageService {
       'image/png': 'png',
       'image/jpg': 'jpg',
       'image/jpeg': 'jpeg',
+      'image/gif': 'gif',
+      'image/webp': 'webp',
     }[mimeType];
   }
 

@@ -1,5 +1,8 @@
 import { z } from 'zod';
 import type { H3Event } from 'h3';
+import consola from 'consola';
+
+const logger = consola.create({}).withTag('chatConversationBody');
 
 // TODO: Fix model validation !!!
 const modelRule = z.string();
@@ -21,6 +24,7 @@ export async function getConversationBody(event: H3Event) {
   );
 
   if (!result.success) {
+    logger.error('Invalid request body', result.error);
     throw createError({
       statusCode: 400,
       statusMessage: 'Bad Request',

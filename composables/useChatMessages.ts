@@ -6,7 +6,7 @@ import type {
 export default function useChatMessages() {
   const chatMessages = ref<ChatMessage[]>([]);
 
-  function addMessage({
+  function addMessageToChat({
     type,
     role,
     content,
@@ -42,7 +42,7 @@ export default function useChatMessages() {
   return {
     messages,
     hasMessages,
-    addMessage,
+    addMessageToChat,
     getRawMessages,
     getFormattedMessages,
     clearMessages,
