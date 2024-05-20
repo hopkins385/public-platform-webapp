@@ -2,6 +2,7 @@ import type { AsyncDataOptions } from '#app';
 
 export default function useManageMyUserProfile() {
   const { $client } = useNuxtApp();
+  const { data: auth } = useAuth();
   const ac = new AbortController();
 
   onScopeDispose(() => {
@@ -10,7 +11,7 @@ export default function useManageMyUserProfile() {
 
   function getMe(options: AsyncDataOptions<any> = {}) {
     return useAsyncData(
-      `meUserData`,
+      `user:${auth.value?.user.id}`,
       async () => {
         const user = await $client.me.user.query(undefined, {
           signal: ac.signal,

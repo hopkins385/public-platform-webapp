@@ -7,20 +7,18 @@
 
   const socket = useWebsocket();
   const { data: auth } = useAuth();
+
   const { getMe } = useManageMyUserProfile();
   const { data: user, refresh } = await getMe({ immediate: false });
 
-  const creditsChangedListener = useDebounceFn((data: any) => {
+  const creditsChangedListener = useDebounceFn(async (data: any) => {
     console.log('credits changed', data);
-    refresh();
+    await refresh();
   }, 1000);
 
-  onMounted(() => {
-    if (!auth.value?.user) return;
-    console.log('joining user channel');
-    refresh();
-    socket.emit('join', `user:${auth.value.user.id}`);
+  onMounted(async () => {
     socket.on('usage', creditsChangedListener);
+    await refresh();
   });
 
   onBeforeUnmount(() => {

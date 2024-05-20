@@ -13,8 +13,6 @@
     CloudUploadIcon,
     LayersIcon,
     ChevronRightIcon,
-    ChevronDownIcon,
-    ExpandIcon,
   } from 'lucide-vue-next';
 
   const navBarRef = ref(null);

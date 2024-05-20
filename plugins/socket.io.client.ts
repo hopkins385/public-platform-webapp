@@ -7,11 +7,13 @@ export default defineNuxtPlugin(() => {
 
   const url = `${host}:${port}`;
 
+  const { data: auth } = useAuth();
+
   const socketSrv = io(url, {
-    autoConnect: true, // TODO: change this to false
+    autoConnect: true,
     transports: ['websocket', 'polling'],
-    query: {
-      auth: '',
+    auth: (cb) => {
+      cb({ token: auth.value?.user.id });
     },
   });
 
