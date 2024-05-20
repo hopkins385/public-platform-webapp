@@ -2,7 +2,7 @@ import { z } from 'zod';
 import type { H3Event } from 'h3';
 import consola from 'consola';
 
-const logger = consola.create({}).withTag('chatConversationBody');
+const logger = consola.create({}).withTag('getConversationBody');
 
 // TODO: Fix model validation !!!
 const modelRule = z.string();

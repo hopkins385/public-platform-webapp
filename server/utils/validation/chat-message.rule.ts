@@ -4,5 +4,5 @@ export const ChatMessageRule = () =>
     type: z.enum(['text', 'image']),
     role: z.enum(['user', 'assistant']),
     content: z.string().min(1),
-    visionContent: VisionContentRule().optional(),
+    visionContent: VisionContentRule().nullable().optional(), // TODO: this should be called "AttachmentContentRule"
   });

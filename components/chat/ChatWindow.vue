@@ -119,7 +119,7 @@
         },
       })
       .catch(() => {
-        setError('Ups something went wrong');
+        setError('Cannot store message in database');
       });
 
     clearError();
@@ -152,7 +152,7 @@
       isPending.value = false;
 
       if (!(stream instanceof ReadableStream)) {
-        setError('Ups something went wrong');
+        setError('Invalid response from server');
         return;
       }
 
@@ -179,8 +179,8 @@
       if (error.name === 'AbortError') {
         return;
       }
-      console.error('[stream assistant message] ', error);
-      setError('Ups something went wrong');
+      console.error('[stream assistant] ', error);
+      setError('Cannot process message');
     }
   }
 
