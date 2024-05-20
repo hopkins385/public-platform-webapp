@@ -31,6 +31,7 @@ export default NuxtAuthHandler({
       if (isSignIn) {
         token.id = user ? user.id || '' : '';
         token.teams = user ? (user as any).teams || '' : '';
+        token.roles = user ? (user as any).roles || [] : [];
       }
       return Promise.resolve(token);
     },
@@ -38,6 +39,7 @@ export default NuxtAuthHandler({
       // (session as any).accessToken = token.accessToken;
       (session as any).user.id = token.id;
       (session as any).user.teamId = (token as any).teams[0].teamId;
+      (session as any).user.roles = token.roles;
       return Promise.resolve(session);
     },
   },

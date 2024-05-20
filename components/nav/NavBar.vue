@@ -13,6 +13,7 @@
     CloudUploadIcon,
     LayersIcon,
     ChevronRightIcon,
+    UsersIcon,
   } from 'lucide-vue-next';
 
   const navBarRef = ref(null);
@@ -20,10 +21,23 @@
 
   const navBar = useNavBarStore();
 
+  const { data: auth } = useAuth();
+
   const { getAllProjects } = useManageProjects();
   const { data: projects } = await getAllProjects({
     lazy: true,
   });
+
+  const adminRoutes = [
+    {
+      name: 'admin',
+      icon: UsersIcon,
+      to: '/admin',
+      label: 'Admin',
+      hidden: false,
+      children: [],
+    },
+  ];
 
   const projectChildren = computed(() => {
     return projects.value?.map((project: any) => {
@@ -38,7 +52,7 @@
   });
 
   const navItems = computed(() => {
-    return [
+    const publicRoutes = [
       {
         name: 'home',
         icon: HomeIcon,
@@ -117,6 +131,10 @@
         children: [],
       },
     ];
+    if (auth.value?.user.roles?.includes('admin')) {
+      return [...adminRoutes, ...publicRoutes];
+    }
+    return publicRoutes;
   });
 
   const { pressed } = useMousePressed({ target: navBarResizerRef });
