@@ -1,8 +1,9 @@
 import { ChatService } from '~/server/services/chat.service';
 import { CreditService } from '~/server/services/credit.service';
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
+import type { StreamFinishedEventDto } from '~/server/services/dto/event.dto';
 
-export async function chatStreamFinished(data: any) {
+export async function chatStreamFinished(data: StreamFinishedEventDto) {
   const chatService = new ChatService();
   const creditService = new CreditService();
 

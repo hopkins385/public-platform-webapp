@@ -15,6 +15,7 @@ import type {
   ChatMessage,
   VisionImageUrlContent,
 } from '~/interfaces/chat.interfaces';
+import { StreamFinishedEventDto } from '~/server/services/dto/event.dto';
 
 const config = useRuntimeConfig();
 const chatService = new ChatService();
@@ -131,20 +132,23 @@ export default defineEventHandler(async (_event) => {
     });
 
     _event.node.res.on('close', () => {
-      const { event } = useEvents();
       stream.destroy();
 
       const inputTokens = tokenizerService.getTokens(
         body.messages[body.messages.length - 1].content,
       );
       const outputTokens = tokenizerService.getTokens(llmResponseMessage);
+      const { event } = useEvents();
 
-      event(ChatEvent.STREAMFINISHED, {
-        chatId: chat.id,
-        userId: user.id,
-        assistantId: chat.assistant.id,
-        messageContent: llmResponseMessage,
-      });
+      event(
+        ChatEvent.STREAMFINISHED,
+        StreamFinishedEventDto.fromInput({
+          chatId: chat.id,
+          userId: user.id,
+          assistantId: chat.assistant.id,
+          messageContent: llmResponseMessage,
+        }),
+      );
 
       event(
         UsageEvent.TRACKTOKENS,
