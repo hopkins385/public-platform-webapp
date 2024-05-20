@@ -6,7 +6,7 @@
     type: 'text' | 'image' | 'video' | 'audio' | null | undefined;
     content: string;
     displayName: string;
-    visionContents?: ChatMessageVisionContent[];
+    visionContents?: ChatMessageVisionContent[] | null;
   }>();
 
   const { parseMarkdown } = useMarkdown();

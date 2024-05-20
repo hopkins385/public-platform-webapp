@@ -15,7 +15,7 @@ export interface ChatMessage {
   type: 'text' | 'image' | 'video' | 'audio';
   role: 'user' | 'assistant';
   content: string;
-  visionContent?: ChatMessageVisionContent[] | null;
+  visionContent: ChatMessageVisionContent[] | null | undefined;
 }
 
 export interface ChatConversation {
