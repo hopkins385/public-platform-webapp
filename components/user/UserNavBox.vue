@@ -1,12 +1,8 @@
 <script setup lang="ts">
   import { useDebounceFn } from '@vueuse/core';
-  import {
-    SquareArrowOutUpRightIcon,
-    SquareArrowUpRightIcon,
-  } from 'lucide-vue-next';
+  import { SquareArrowOutUpRightIcon } from 'lucide-vue-next';
 
   const socket = useWebsocket();
-  const { data: auth } = useAuth();
 
   const { getMe } = useManageMyUserProfile();
   const { data: user, refresh } = await getMe({ immediate: false });
@@ -22,9 +18,6 @@
   });
 
   onBeforeUnmount(() => {
-    if (!auth.value?.user) return;
-    console.log('leaving user channel');
-    socket.emit('leave', `user:${auth.value.user.id}`);
     socket.off('usage', creditsChangedListener);
   });
 </script>
