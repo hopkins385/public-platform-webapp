@@ -13,7 +13,7 @@
     CloudUploadIcon,
     LayersIcon,
     ChevronRightIcon,
-    UsersIcon,
+    SettingsIcon,
   } from 'lucide-vue-next';
 
   const navBarRef = ref(null);
@@ -31,9 +31,9 @@
   const adminRoutes = [
     {
       name: 'admin',
-      icon: UsersIcon,
+      icon: SettingsIcon,
       to: '/admin',
-      label: 'Admin',
+      label: 'Space Manager',
       hidden: false,
       children: [],
     },
@@ -132,7 +132,7 @@
       },
     ];
     if (auth.value?.user.roles?.includes('admin')) {
-      return [...adminRoutes, ...publicRoutes];
+      return [...publicRoutes, ...adminRoutes];
     }
     return publicRoutes;
   });
