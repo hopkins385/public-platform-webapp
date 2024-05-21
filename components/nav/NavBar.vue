@@ -163,16 +163,16 @@
     class="relative flex h-full shrink-0 flex-col justify-between border-r bg-stone-50"
     :style="{ width: `${navBar.width}rem` }"
   >
+    <div
+      ref="navBarResizerRef"
+      class="absolute right-0 top-0 z-10 h-full"
+      :class="{
+        'bg-blue-600': pressed && navBar.isOpen,
+        ' cursor-ew-resize hover:bg-blue-600': navBar.isOpen,
+      }"
+      style="width: 0.25rem"
+    ></div>
     <div class="relative h-full">
-      <div
-        ref="navBarResizerRef"
-        class="absolute right-0 top-0 h-full"
-        :class="{
-          'bg-blue-600': pressed && navBar.isOpen,
-          'cursor-move hover:bg-blue-600': navBar.isOpen,
-        }"
-        style="width: 0.25rem"
-      ></div>
       <div class="flex justify-between border-0 pl-8 pt-4">
         <BrandLogo :text-visible="navBar.isOpen" />
         <!-- div v-show="navBar.isOpen" class="pr-4">

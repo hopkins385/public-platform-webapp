@@ -15,8 +15,7 @@
     },
   });
 
-  const { getTeamsAllPaginated, setPage, setSearch, search } = useAdminTeams();
-  const { data: teams } = await getTeamsAllPaginated({});
+  const { setSearch, search } = useAdminTeams();
 </script>
 
 <template>
@@ -46,5 +45,13 @@
         </div>
       </template>
     </Heading>
+    <BoxContainer>
+      <div>
+        <Suspense>
+          <AdminTeamsTable />
+          <template #fallback> Loading ... </template>
+        </Suspense>
+      </div>
+    </BoxContainer>
   </SectionContainer>
 </template>

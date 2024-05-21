@@ -29,7 +29,7 @@
       </template>
     </Heading>
 
-    <BoxContainer class="w-full">
+    <BoxContainer>
       <div>
         <Suspense>
           <AssistantAllTable />

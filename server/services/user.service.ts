@@ -198,6 +198,10 @@ export class UserService {
         },
         where: {
           deletedAt: null,
+          name: {
+            contains: payload.search,
+            mode: 'insensitive',
+          },
           teams: {
             some: {
               team: {

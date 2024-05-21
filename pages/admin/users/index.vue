@@ -15,8 +15,7 @@
     },
   });
 
-  const { getUsersAllPaginated, setPage, setSearch, search } = useAdminUsers();
-  const { data: users } = await getUsersAllPaginated();
+  const { setSearch, search } = useAdminUsers();
 </script>
 
 <template>
@@ -46,8 +45,13 @@
         </div>
       </template>
     </Heading>
-    <div>
-      {{ users }}
-    </div>
+    <BoxContainer>
+      <div>
+        <Suspense>
+          <AdminUsersTable />
+          <template #fallback> Loading ... </template>
+        </Suspense>
+      </div>
+    </BoxContainer>
   </SectionContainer>
 </template>
