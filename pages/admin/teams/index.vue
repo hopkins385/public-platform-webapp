@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { PlusIcon } from 'lucide-vue-next';
+
   /**
    * Admin Teams Index
    * Route: /admin/teams
@@ -12,6 +14,9 @@
       label: 'Teams',
     },
   });
+
+  const { getTeamsAllPaginated, setPage, setSearch, search } = useAdminTeams();
+  const { data: teams } = await getTeamsAllPaginated({});
 </script>
 
 <template>
@@ -20,5 +25,26 @@
       title="Manage Teams"
       subtitle="Add, edit, and remove teams from your space"
     />
+    <Heading>
+      <template #top> </template>
+      <template #bottom>
+        <div class="flex h-24 w-full items-end justify-between space-x-4 p-2">
+          <!-- div> filter tbd </!-->
+          <div class="w-full">
+            <Input
+              :model-value="search"
+              @update:model-value="(val) => setSearch(val)"
+              placeholder="Search teams..."
+            />
+          </div>
+          <div class="shrink-0">
+            <LinkButton to="/admin/teams/create">
+              New Team
+              <PlusIcon class="ml-2 size-4 stroke-2" />
+            </LinkButton>
+          </div>
+        </div>
+      </template>
+    </Heading>
   </SectionContainer>
 </template>

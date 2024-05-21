@@ -149,6 +149,17 @@ export class UserService {
         teams: {
           select: {
             teamId: true,
+            team: {
+              select: {
+                name: true,
+                organisation: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
           },
         },
         roles: {
@@ -168,28 +179,39 @@ export class UserService {
     });
   }
 
-  async getAllUsersByOrgId(orgId: string) {
-    return this.prisma.user.findMany({
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        emailVerifiedAt: true,
-        lastLoginAt: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-      where: {
-        deletedAt: null,
-        teams: {
-          some: {
-            team: {
-              organisationId: orgId.toLowerCase(),
+  async getAllUsersByOrgId(payload: {
+    orgId: string;
+    page: number;
+    limit: number;
+    search?: string;
+  }) {
+    return this.prisma.user
+      .paginate({
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          emailVerifiedAt: true,
+          lastLoginAt: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+        where: {
+          deletedAt: null,
+          teams: {
+            some: {
+              team: {
+                organisationId: payload.orgId.toLowerCase(),
+              },
             },
           },
         },
-      },
-    });
+      })
+      .withPages({
+        limit: payload.limit || 20,
+        page: payload.page || 1,
+        includePageCount: true,
+      });
   }
 
   async updatePassword(

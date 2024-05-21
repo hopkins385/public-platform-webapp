@@ -17,6 +17,16 @@ function getRoles(user: any) {
   return user.roles.map((r: any) => r.role.name);
 }
 
+function getFirstTeam(teams: any) {
+  if (!Array.isArray(teams)) {
+    return null;
+  }
+  return {
+    teamId: teams[0].teamId,
+    orgId: teams[0].team.organisation.id,
+  };
+}
+
 export default NuxtAuthHandler({
   // adapter: PrismaAdapter(getClient()),
   secret: config.secret,
@@ -46,8 +56,10 @@ export default NuxtAuthHandler({
     },
     session: async ({ session, token }) => {
       // (session as any).accessToken = token.accessToken;
+      const firstTeam = getFirstTeam(token.teams);
       (session as any).user.id = token.id;
-      (session as any).user.teamId = (token as any).teams[0].teamId;
+      (session as any).user.teamId = firstTeam?.teamId;
+      (session as any).user.orgId = firstTeam?.orgId;
       (session as any).user.roles = (token as any).roles;
       return Promise.resolve(session);
     },
@@ -81,16 +93,12 @@ export default NuxtAuthHandler({
           });
         }
 
-        const roles = getRoles(user);
-
-        console.log('User roles', roles);
-
         const sessionUser = {
           id: user.id,
           email: user.email,
           name: user.name,
           teams: user.teams,
-          roles,
+          roles: getRoles(user),
         };
 
         return sessionUser;
