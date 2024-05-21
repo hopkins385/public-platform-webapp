@@ -8,6 +8,15 @@ const { event } = useEvents();
 const userService = new UserService();
 const config = useRuntimeConfig().auth;
 
+function getRoles(user: any) {
+  if (!Array.isArray(user.roles)) {
+    return [];
+  }
+  // example "roles":[{"role":{"name":"admin"}}]}
+  // return an array with just the role names like so ['admin', 'user']
+  return user.roles.map((r: any) => r.role.name);
+}
+
 export default NuxtAuthHandler({
   // adapter: PrismaAdapter(getClient()),
   secret: config.secret,
@@ -39,7 +48,7 @@ export default NuxtAuthHandler({
       // (session as any).accessToken = token.accessToken;
       (session as any).user.id = token.id;
       (session as any).user.teamId = (token as any).teams[0].teamId;
-      (session as any).user.roles = token.roles;
+      (session as any).user.roles = (token as any).roles;
       return Promise.resolve(session);
     },
   },
@@ -72,11 +81,16 @@ export default NuxtAuthHandler({
           });
         }
 
+        const roles = getRoles(user);
+
+        console.log('User roles', roles);
+
         const sessionUser = {
           id: user.id,
           email: user.email,
           name: user.name,
           teams: user.teams,
+          roles,
         };
 
         return sessionUser;

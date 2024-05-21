@@ -15,5 +15,10 @@
 </script>
 
 <template>
-  <div></div>
+  <SectionContainer>
+    <SectionHeading
+      title="Manage Teams"
+      subtitle="Add, edit, and remove teams from your space"
+    />
+  </SectionContainer>
 </template>

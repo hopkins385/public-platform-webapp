@@ -15,5 +15,10 @@
 </script>
 
 <template>
-  <div></div>
+  <SectionContainer>
+    <SectionHeading
+      title="Create Team"
+      subtitle="Add a new team to your space"
+    />
+  </SectionContainer>
 </template>

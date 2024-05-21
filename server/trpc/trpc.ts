@@ -56,3 +56,12 @@ const isAuthed = t.middleware((opts) => {
   return opts.next();
 });
 export const protectedProcedure = t.procedure.use(isAuthed);
+
+const isAdmin = t.middleware((opts) => {
+  const { ctx } = opts;
+  if (!ctx.user || !ctx.user.roles.includes('admin')) {
+    throw new TRPCError({ code: 'FORBIDDEN' });
+  }
+  return opts.next();
+});
+export const adminProcedure = protectedProcedure.use(isAdmin);

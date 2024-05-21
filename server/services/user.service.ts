@@ -91,29 +91,7 @@ export class UserService {
     return user;
   }
 
-  async updatePassword(
-    userId: string,
-    currentPassword: string,
-    newPassword: string,
-  ) {
-    const user = await this.prisma.user.findFirst({
-      where: { id: userId },
-    });
-    if (!user) {
-      throw new Error('User not found');
-    }
-    const result = await comparePasswords(currentPassword, user.password);
-    if (!result) {
-      throw new Error('Invalid password');
-    }
-    const hashedPassword = await hashPassword(newPassword);
-    return this.prisma.user.update({
-      where: { id: userId },
-      data: { password: hashedPassword },
-    });
-  }
-
-  getUserById(id: string) {
+  async getUserById(id: string) {
     return this.prisma.user.findFirst({
       relationLoadStrategy: 'join', // or 'query'
       where: { id },
@@ -124,7 +102,6 @@ export class UserService {
         lastName: true,
         email: true,
         password: false,
-        isAdmin: true,
         emailVerifiedAt: true,
         credit: {
           select: {
@@ -147,6 +124,15 @@ export class UserService {
             },
           },
         },
+        roles: {
+          select: {
+            role: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
   }
@@ -165,11 +151,66 @@ export class UserService {
             teamId: true,
           },
         },
+        roles: {
+          select: {
+            role: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
       },
       where: {
         email,
         deletedAt: null,
       },
+    });
+  }
+
+  async getAllUsersByOrgId(orgId: string) {
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        emailVerifiedAt: true,
+        lastLoginAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      where: {
+        deletedAt: null,
+        teams: {
+          some: {
+            team: {
+              organisationId: orgId.toLowerCase(),
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async updatePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ) {
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new Error('User not found');
+    }
+    const result = await comparePasswords(currentPassword, user.password);
+    if (!result) {
+      throw new Error('Invalid password');
+    }
+    const hashedPassword = await hashPassword(newPassword);
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
     });
   }
 

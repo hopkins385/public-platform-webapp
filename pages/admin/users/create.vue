@@ -15,5 +15,10 @@
 </script>
 
 <template>
-  <div></div>
+  <SectionContainer>
+    <SectionHeading
+      title="Create User"
+      subtitle="Add a new user to your space"
+    />
+  </SectionContainer>
 </template>

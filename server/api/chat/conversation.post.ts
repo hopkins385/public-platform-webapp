@@ -16,6 +16,7 @@ import type {
   VisionImageUrlContent,
 } from '~/interfaces/chat.interfaces';
 import { StreamFinishedEventDto } from '~/server/services/dto/event.dto';
+import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 
 const config = useRuntimeConfig();
 const chatService = new ChatService();
@@ -35,20 +36,51 @@ export default defineEventHandler(async (_event) => {
   if (!credit || credit.amount < 1) {
     throw createError({
       statusCode: 402,
-      message: 'Insufficient credits to continue conversation.',
+      message: 'Insufficient credits',
     });
   }
+
+  const lastMessage = body.messages[body.messages.length - 1];
+  if (!lastMessage) {
+    logger.error('No last message');
+    throw createError({
+      statusCode: 400,
+      message: 'Invalid body message length',
+    });
+  }
+
+  // store last message in chat
+  await chatService.createMessage(
+    CreateChatMessageDto.fromInput({
+      userId: user.id,
+      chatId: body.chatId,
+      message: {
+        type: lastMessage.type,
+        role: lastMessage.role,
+        content: lastMessage.content,
+        visionContent: lastMessage.visionContent,
+      },
+    }),
+  );
 
   // Get chat
   const chat = await chatService.getChatForUser(body.chatId, user.id);
   if (!chat) {
+    logger.error('Chat not found', {
+      chatId: body.chatId,
+      userId: user.id,
+      chat,
+    });
     throw createError({
       statusCode: 404,
       message: 'Chat not found',
     });
   }
 
-  function getVisionMessage(vis: VisionImageUrlContent[]) {
+  function getVisionMessages(vis: VisionImageUrlContent[] | null | undefined) {
+    if (!vis) {
+      return [];
+    }
     return vis.map((v) => {
       return {
         type: 'image_url',
@@ -59,7 +91,10 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
-  function normalizeBodyMessages(messages: ChatMessage[]) {
+  function normalizeBodyMessages(messages: ChatMessage[] | null | undefined) {
+    if (!messages) {
+      return [];
+    }
     return messages.map((message) => {
       if (message.type === 'image' && message.visionContent) {
         const text = {
@@ -68,7 +103,7 @@ export default defineEventHandler(async (_event) => {
         };
         return {
           role: message.role,
-          content: [text, ...getVisionMessage(message.visionContent)],
+          content: [text, ...getVisionMessages(message.visionContent)],
         };
       }
       return {
@@ -89,7 +124,7 @@ export default defineEventHandler(async (_event) => {
     ...bodyMessages,
   ];
 
-  console.log('messages', JSON.stringify(messages, null, 2));
+  // console.log('messages', JSON.stringify(messages, null, 2));
   // return;
 
   try {

@@ -15,5 +15,7 @@
 </script>
 
 <template>
-  <div></div>
+  <SectionContainer>
+    <SectionHeading title="Edit Team" subtitle="Update team details" />
+  </SectionContainer>
 </template>

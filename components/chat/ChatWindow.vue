@@ -107,21 +107,6 @@
     const msgType = hasImages ? 'image' : 'text';
     const visionContent = getVisionContent(inputImages.value);
 
-    // store user message in db
-    $client.chat.createMessage
-      .query({
-        chatId: props.chatId,
-        message: {
-          type: msgType,
-          role: 'user',
-          content: inputMessage.value,
-          visionContent,
-        },
-      })
-      .catch(() => {
-        setError('Cannot store message in database');
-      });
-
     clearError();
     clearVisionContent();
 

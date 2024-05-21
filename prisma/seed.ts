@@ -68,6 +68,23 @@ async function main() {
     },
   });
 
+  // create role
+  const adminRole = await prisma.role.create({
+    data: {
+      id: ulid().toLowerCase(),
+      name: 'admin',
+    },
+  });
+
+  // connect user with role
+  await prisma.userRole.create({
+    data: {
+      id: ulid().toLowerCase(),
+      user: { connect: { id: user.id } },
+      role: { connect: { id: adminRole.id } },
+    },
+  });
+
   // create organization
   const org = await prisma.organisation.create({
     data: {

@@ -40,6 +40,20 @@
     },
     "email": "E-Mail Bestätigung"
   },
+  "admin": {
+    "meta": {
+      "index": {
+        "title": "Administration",
+        "description": "Administration"
+      },
+      "users": {
+        "index": {
+          "title": "Benutzer verwalten",
+          "description": "Benutzer verwalten"
+        }
+      }
+    }
+  },
   "user": {
     "placeholder": "Ich",
     "meta": {
@@ -51,9 +65,12 @@
     "email": "E-Mail",
     "password": "Passwort"
   },
-  "editor": {
+  "collections": {
     "meta": {
-      "title": "Editor"
+      "index": {
+        "title": "Wissensdatenbank",
+        "description": "Wissensdatenbank"
+      }
     }
   },
   "chat": {
@@ -61,6 +78,10 @@
       "index": {
         "title": "Chat",
         "description": "Chat"
+      },
+      "history": {
+        "title": "Chat Verlauf",
+        "description": "Chat Verlauf"
       },
       "title": "Chat",
       "description": "Chat"
@@ -109,6 +130,14 @@
       "systemPrompt": {
         "label": "Persönlichkeit",
         "description": "Beschreibe wie der Assistent sich verhalten soll."
+      }
+    }
+  },
+  "media": {
+    "meta": {
+      "index": {
+        "title": "Dateimanager",
+        "description": "Dateimanager"
       }
     }
   },

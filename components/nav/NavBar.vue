@@ -163,16 +163,7 @@
     class="relative flex h-full shrink-0 flex-col justify-between border-r bg-stone-50"
     :style="{ width: `${navBar.width}rem` }"
   >
-    <div>
-      <div
-        class="absolute bottom-40 right-2 z-10 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-white/0 opacity-80 hover:border"
-        @click="() => navBar.toggleOpen()"
-      >
-        <ChevronRightIcon
-          class="size-4 text-muted-foreground/50"
-          :class="{ 'rotate-180 transform': navBar.isOpen }"
-        />
-      </div>
+    <div class="relative h-full">
       <div
         ref="navBarResizerRef"
         class="absolute right-0 top-0 h-full"
@@ -228,6 +219,15 @@
             </li>
           </template>
         </ul>
+      </div>
+      <div
+        class="absolute bottom-2 right-2 z-10 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-white/0 opacity-80 hover:border"
+        @click="() => navBar.toggleOpen()"
+      >
+        <ChevronRightIcon
+          class="size-4 text-muted-foreground/50"
+          :class="{ 'rotate-180 transform': navBar.isOpen }"
+        />
       </div>
     </div>
     <div

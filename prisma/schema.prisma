@@ -38,15 +38,27 @@ model User {
   @@map("users")
 }
 
+model Role {
+  id        String     @id
+  name      String
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  deletedAt DateTime?  @map("deleted_at")
+  userRoles UserRole[]
+
+  @@map("roles")
+}
+
 model UserRole {
   id        String    @id
   userId    String    @map("user_id")
-  role      String
+  roleId    String    @map("role_id")
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
   user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
 
   @@map("user_roles")
 }

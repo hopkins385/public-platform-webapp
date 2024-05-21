@@ -15,5 +15,10 @@
 </script>
 
 <template>
-  <div></div>
+  <SectionContainer>
+    <SectionHeading
+      title="Manage Users"
+      subtitle="Add, edit, and remove users from your space"
+    />
+  </SectionContainer>
 </template>
