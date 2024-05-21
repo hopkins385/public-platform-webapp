@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { SettingsIcon, Trash2Icon } from 'lucide-vue-next';
 
-  const { getUsersAllPaginated, setPage } = useAdminUsers();
+  const { getUsersAllPaginated, setPage } = useAdminUsersSharedComp();
   const { data } = await getUsersAllPaginated();
 
   const users = computed(() => data.value?.users || []);

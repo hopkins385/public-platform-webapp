@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  const { getTeamsAllPaginated, setPage } = useAdminTeams();
+  const { getTeamsAllPaginated, setPage } = useAdminTeamsSharedComp();
   const { data } = await getTeamsAllPaginated();
 
   const teams = computed(() => data.value?.teams || []);

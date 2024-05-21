@@ -15,7 +15,7 @@
     },
   });
 
-  const { setSearch, search } = useAdminUsers();
+  const { setSearch, search } = useAdminUsersSharedComp();
 </script>
 
 <template>

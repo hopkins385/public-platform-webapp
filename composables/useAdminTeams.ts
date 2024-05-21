@@ -1,23 +1,6 @@
 import type { AsyncDataOptions } from '#app';
 import { useDebounceFn } from '@vueuse/core';
 
-const page = ref(1);
-const limit = ref(20);
-const search = ref('');
-
-function setPage(newPage: number) {
-  page.value = Number(newPage);
-}
-
-function setLimit(newLimit: number) {
-  limit.value = Number(newLimit);
-}
-
-const setSearch = useDebounceFn(
-  (newSearch: string | number) => (search.value = newSearch.toString()),
-  300,
-);
-
 export default function useAdminTeams() {
   const ac = new AbortController();
   const { $client } = useNuxtApp();
@@ -25,6 +8,23 @@ export default function useAdminTeams() {
   onScopeDispose(() => {
     ac.abort();
   });
+
+  const page = ref(1);
+  const limit = ref(20);
+  const search = ref('');
+
+  function setPage(newPage: number) {
+    page.value = Number(newPage);
+  }
+
+  function setLimit(newLimit: number) {
+    limit.value = Number(newLimit);
+  }
+
+  const setSearch = useDebounceFn(
+    (newSearch: string | number) => (search.value = newSearch.toString()),
+    300,
+  );
 
   function getTeamsAllPaginated(options: AsyncDataOptions<any> = {}) {
     return useAsyncData(

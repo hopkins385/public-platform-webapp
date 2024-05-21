@@ -15,7 +15,7 @@
     },
   });
 
-  const { setSearch, search } = useAdminTeams();
+  const { setSearch, search } = useAdminTeamsSharedComp();
 </script>
 
 <template>
