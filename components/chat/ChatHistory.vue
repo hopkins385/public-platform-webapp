@@ -98,7 +98,7 @@
                 @click="onDelete(chat.id)"
               >
                 <Trash2Icon
-                  class="size-4 stroke-1 text-destructive group-hover:stroke-1.5"
+                  class="size-4 stroke-1.5 text-destructive group-hover:stroke-1.5"
                 />
               </Button>
             </TableCell>

@@ -119,11 +119,11 @@
             {{ getFileSizeForHumans(item.fileSize) }}
           </TableCell>
           <TableCell class="space-x-2 text-right">
-            <Button variant="outline" size="icon" @click="onPlusClick(item.id)">
+            <!-- Button variant="outline" size="icon" @click="onPlusClick(item.id)">
               <PlusIcon class="size-4" />
-            </Button>
+            </!-->
             <Button variant="outline" size="icon" @click="onDelete(item.id)">
-              <Trash2Icon class="size-4 text-destructive" />
+              <Trash2Icon class="size-4 stroke-1.5 text-destructive" />
             </Button>
           </TableCell>
         </TableRow>

@@ -169,7 +169,7 @@ async function main() {
           id: ulid().toLowerCase(),
           team: { connect: { id: team.id } },
           llm: { connect: { id: randomLlm.id } },
-          title: 'Assistant Nr. ' + i,
+          title: randomLlm.displayName,
           description: 'This is an assistant description',
           systemPrompt:
             'You are a friendly and helpful assistant. Your goal is to help the user.',
@@ -194,7 +194,7 @@ async function main() {
             id: ulid().toLowerCase(),
             document: { connect: { id: document.id } },
             orderColumn: j,
-            content: 'This is a document item',
+            content: '',
             type: 'text',
           },
         });
