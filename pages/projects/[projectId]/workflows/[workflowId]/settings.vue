@@ -38,7 +38,7 @@
     validationSchema: updateWorkflowSchema,
     initialValues: {
       workflowId: workflow.value?.id,
-      projectId: workflow.value?.projectId,
+      projectId: workflow.value?.project.id,
       name: workflow.value?.name,
       description: workflow.value?.description,
     },
@@ -83,7 +83,7 @@
                     v-for="project in projects"
                     :key="project.id"
                     :value="project.id"
-                    :selected="project.id === workflow?.projectId"
+                    :selected="project.id === workflow?.project.id"
                   >
                     {{ project.name }}
                   </SelectItem>

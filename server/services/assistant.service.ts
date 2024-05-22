@@ -1,3 +1,4 @@
+import { TRPCError } from '@trpc/server';
 import type {
   FindAllAssistantsDto,
   FindAssistantDto,
@@ -80,6 +81,18 @@ export class AssistantService {
             multiModal: true,
             provider: true,
             hidden: true,
+          },
+        },
+        team: {
+          select: {
+            id: true,
+            name: true,
+            organisation: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
         },
       },
@@ -166,5 +179,90 @@ export class AssistantService {
         id: payload.assistantId,
       },
     });
+  }
+
+  // POLICIES
+
+  canCreateAssistantPolicy(payload: CreateAssistantDto, user: any) {
+    if (user.teamId !== payload.teamId) {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'You do not have access to this team',
+      });
+    }
+
+    return true;
+  }
+
+  canAccessAssistantPolicy(assistant: any, user: any) {
+    if (assistant.isShared !== true) {
+      if (assistant.team.id !== user.teamId) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'You do not have access to this assistant',
+        });
+      }
+    } else {
+      if (assistant.team.organistation.id !== user.orgId) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'You do not have access to this assistant',
+        });
+      }
+    }
+
+    return true;
+  }
+
+  async canUpdateAssistantPolicy(payload: UpdateAssistantDto, user: any) {
+    const assistant = await this.prisma.assistant.findFirst({
+      where: {
+        id: payload.assistantId,
+        teamId: payload.teamId,
+        deletedAt: null,
+      },
+    });
+
+    if (!assistant) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Assistant not found',
+      });
+    }
+
+    if (assistant.teamId !== user.teamId) {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'You do not have access to this assistant',
+      });
+    }
+
+    return true;
+  }
+
+  async canDeleteAssistantPolicy(payload: DeleteAssistantDto, user: any) {
+    const assistant = await this.prisma.assistant.findFirst({
+      where: {
+        id: payload.assistantId,
+        teamId: payload.teamId,
+        deletedAt: null,
+      },
+    });
+
+    if (!assistant) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Assistant not found',
+      });
+    }
+
+    if (assistant.teamId !== user.teamId) {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'You do not have access to this assistant',
+      });
+    }
+
+    return true;
   }
 }

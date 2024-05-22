@@ -19,6 +19,40 @@ export class TeamService {
     return user;
   }
 
+  async getAllTeamsByOrgId(payload: {
+    orgId: string;
+    page: number;
+    limit: number;
+    search?: string;
+  }) {
+    return await this.prisma.team
+      .paginate({
+        select: {
+          id: true,
+          name: true,
+          organisation: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+        where: {
+          organisationId: payload.orgId,
+          name: {
+            contains: payload.search,
+            mode: 'insensitive',
+          },
+          deletedAt: null,
+        },
+      })
+      .withPages({
+        limit: payload.limit || 20,
+        page: payload.page || 1,
+        includePageCount: true,
+      });
+  }
+
   async findOrCreateTeamUser(payload: CreateTeamUserDto) {
     const user = await this.prisma.teamUser.findFirst({
       where: {
@@ -61,5 +95,15 @@ export class TeamService {
       },
     });
     return user;
+  }
+
+  async softDeleteTeam(id: string, orgId: string) {
+    return this.prisma.team.update({
+      where: {
+        id: id.toLowerCase(),
+        organisationId: orgId.toLowerCase(),
+      },
+      data: { deletedAt: new Date() },
+    });
   }
 }

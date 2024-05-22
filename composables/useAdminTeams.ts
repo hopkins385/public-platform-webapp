@@ -47,6 +47,10 @@ export default function useAdminTeams() {
     );
   }
 
+  function deleteTeam(id: string) {
+    return $client.admin.teams.deleteTeam.mutate({ id });
+  }
+
   return {
     page,
     limit,
@@ -55,5 +59,6 @@ export default function useAdminTeams() {
     setLimit,
     setSearch,
     getTeamsAllPaginated,
+    deleteTeam,
   };
 }

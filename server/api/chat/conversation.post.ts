@@ -40,6 +40,20 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
+  // Get chat
+  const chat = await chatService.getChatForUser(body.chatId, user.id);
+  if (!chat) {
+    logger.error('Chat not found', {
+      chatId: body.chatId,
+      userId: user.id,
+      chat,
+    });
+    throw createError({
+      statusCode: 404,
+      message: 'Chat not found',
+    });
+  }
+
   const lastMessage = body.messages[body.messages.length - 1];
   if (!lastMessage) {
     logger.error('No last message');
@@ -62,20 +76,6 @@ export default defineEventHandler(async (_event) => {
       },
     }),
   );
-
-  // Get chat
-  const chat = await chatService.getChatForUser(body.chatId, user.id);
-  if (!chat) {
-    logger.error('Chat not found', {
-      chatId: body.chatId,
-      userId: user.id,
-      chat,
-    });
-    throw createError({
-      statusCode: 404,
-      message: 'Chat not found',
-    });
-  }
 
   function getVisionMessages(vis: VisionImageUrlContent[] | null | undefined) {
     if (!vis) {

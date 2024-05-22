@@ -14,7 +14,7 @@ interface SheetDimension {
   ];
 }
 
-export const useSheetStore = defineStore('sheet.store', {
+export const useSheetStore = defineStore('workflow-sheet-store', {
   state: () => ({
     dimensions: [] as SheetDimension[],
   }),
@@ -66,5 +66,7 @@ export const useSheetStore = defineStore('sheet.store', {
       }
     },
   },
-  persist: true,
+  persist: {
+    storage: persistedState.localStorage,
+  },
 });

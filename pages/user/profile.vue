@@ -41,12 +41,9 @@
       isLoading.value = false;
     }
   };
-
-  const { data: auth } = useAuth();
 </script>
 
 <template>
-  {{ auth }}
   <SectionContainer>
     <SectionHeading
       :title="`${user?.firstName ?? ''}'s Profile`"

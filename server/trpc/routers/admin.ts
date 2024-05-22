@@ -1,4 +1,5 @@
-import { UserService } from './../../services/user.service';
+import { TeamService } from '~/server/services/team.service';
+import { UserService } from '~/server/services/user.service';
 import { z } from 'zod';
 import { adminProcedure, router } from '../trpc';
 
@@ -6,6 +7,7 @@ const pageRule = () => z.number().int().positive().default(1);
 const limitRule = () => z.number().int().positive().default(20);
 
 const userService = new UserService();
+const teamService = new TeamService();
 
 const adminUsersRouter = router({
   allPaginated: adminProcedure
@@ -17,12 +19,18 @@ const adminUsersRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      return userService.getAllUsersByOrgId({
+      return await userService.getAllUsersByOrgId({
         orgId: ctx.user.orgId,
         page: input.page,
         limit: input.limit,
         search: input.search,
       });
+    }),
+
+  deleteUser: adminProcedure
+    .input(z.object({ id: ulidRule() }))
+    .mutation(async ({ ctx, input }) => {
+      return await userService.softDeleteUser(input.id, ctx.user.orgId);
     }),
 });
 
@@ -36,12 +44,18 @@ const adminTeamsRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      return userService.getAllTeamsByOrgId({
+      return await teamService.getAllTeamsByOrgId({
         orgId: ctx.user.orgId,
         page: input.page,
         limit: input.limit,
         search: input.search,
       });
+    }),
+
+  deleteTeam: adminProcedure
+    .input(z.object({ id: ulidRule() }))
+    .mutation(async ({ ctx, input }) => {
+      return await teamService.softDeleteTeam(input.id, ctx.user.orgId);
     }),
 });
 

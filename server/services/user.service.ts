@@ -303,4 +303,20 @@ export class UserService {
       data: { deletedAt: new Date() },
     });
   }
+
+  async softDeleteUser(userId: string, orgId: string) {
+    return this.prisma.user.update({
+      where: {
+        id: userId.toLowerCase(),
+        teams: {
+          some: {
+            team: {
+              organisationId: orgId.toLowerCase(),
+            },
+          },
+        },
+      },
+      data: { deletedAt: new Date() },
+    });
+  }
 }

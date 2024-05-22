@@ -1,6 +1,15 @@
 <script setup lang="ts">
-  const { getTeamsAllPaginated, setPage } = useAdminTeamsSharedComp();
-  const { data } = await getTeamsAllPaginated();
+  import { SettingsIcon, Trash2Icon } from 'lucide-vue-next';
+
+  const toast = useToast();
+
+  const errorAlert = ref({ show: false, message: '' });
+  const showConfirmDialog = ref(false);
+  const deleteTeamId = ref('');
+
+  const { deleteTeam, getTeamsAllPaginated, setPage } =
+    useAdminTeamsSharedComp();
+  const { data, refresh } = await getTeamsAllPaginated();
 
   const teams = computed(() => data.value?.teams || []);
   const meta = computed(() => {
@@ -10,19 +19,29 @@
     };
   });
 
-  const onDelete = async (id: number) => {
-    // showConfirmDialog = true;
-    // confirmDialogMessage = 'Are you sure you want to delete this team?';
-    // confirmDialogId = id;
-  };
+  function onDelete(id: string) {
+    showConfirmDialog.value = true;
+    deleteTeamId.value = id;
+  }
+
+  async function handleDelete() {
+    try {
+      await deleteTeam(deleteTeamId.value);
+      showConfirmDialog.value = false;
+      await refresh();
+      toast.success({ description: 'Team deleted successfully' });
+    } catch (error) {
+      errorAlert.value.show = true;
+      errorAlert.value.message = error?.message || 'An error occurred';
+    }
+  }
 </script>
 
 <template>
   <div>
-    <!--
     <ErrorAlert v-model="errorAlert.show" :message="errorAlert.message" />
     <ConfirmDialog v-model="showConfirmDialog" @confirm="handleDelete" />
--->
+
     <Table>
       <TableCaption>
         Showing from
@@ -65,7 +84,11 @@
             >
               <SettingsIcon class="size-4 stroke-1.5 text-primary" />
             </LinkButton>
-            <Button variant="outline" size="icon" @click="onDelete(team.id)">
+            <Button
+              variant="outline"
+              size="icon"
+              @click="() => onDelete(team.id)"
+            >
               <Trash2Icon class="size-4 stroke-1.5 text-destructive" />
             </Button>
           </TableCell>

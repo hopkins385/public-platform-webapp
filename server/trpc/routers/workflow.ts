@@ -2,11 +2,12 @@ import {
   CreateWorkflowDto,
   FindAllWorkflowsDto,
   UpdateWorkflowDto,
-} from './../../services/dto/workflow.dto';
-import { WorkflowService } from './../../services/workflow.service';
+} from '~/server/services/dto/workflow.dto';
+import { WorkflowService } from '~/server/services/workflow.service';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { ulidRule } from '~/server/utils/validation/ulid.rule';
+import { TRPCError } from '@trpc/server';
 
 const workflowService = new WorkflowService();
 
@@ -23,7 +24,11 @@ export const workflowRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const payload = CreateWorkflowDto.fromInput(input);
-      return workflowService.create(payload);
+      const pass = await workflowService.canCreateWorkflowPolicy(
+        payload,
+        ctx.user,
+      );
+      return await workflowService.create(payload);
     }),
   // find workflow including steps
   full: protectedProcedure
@@ -33,8 +38,26 @@ export const workflowRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      return workflowService.findFirstWithSteps(input.workflowId);
+      const workflow = await workflowService.findFirstWithSteps(
+        input.workflowId,
+      );
+
+      if (!workflow) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Workflow not found',
+        });
+      }
+
+      // policy check
+      workflowService.canAccessWorkflowPolicy(
+        workflow.project.team.id,
+        ctx.user,
+      );
+
+      return workflow;
     }),
+
   // find workflow settings
   settings: protectedProcedure
     .input(
@@ -43,7 +66,22 @@ export const workflowRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      return workflowService.findFirst(input.workflowId);
+      const workflow = await workflowService.findFirst(input.workflowId);
+
+      if (!workflow) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Workflow not found',
+        });
+      }
+
+      // policy check
+      workflowService.canAccessWorkflowPolicy(
+        workflow.project.team.id,
+        ctx.user,
+      );
+
+      return workflow;
     }),
   // find all workflows for a project
   allForProject: protectedProcedure
@@ -55,7 +93,15 @@ export const workflowRouter = router({
     )
     .query(async ({ ctx, input }) => {
       const payload = FindAllWorkflowsDto.fromInput(input);
-      return workflowService.findAll(payload);
+
+      const workflow = await workflowService.findAll(payload);
+
+      // TODO: policy check
+      // const pass = workflowService.canAccessWorkflowPolicy(
+      //   workflow.project.team.id,
+      //   ctx.user,
+      // );
+      return workflow;
     }),
 
   allForUser: protectedProcedure
@@ -83,8 +129,15 @@ export const workflowRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const payload = UpdateWorkflowDto.fromInput(input);
+
+      const pass = await workflowService.canUpdateWorkflowPolicy(
+        payload,
+        ctx.user,
+      );
+
       return workflowService.update(payload);
     }),
+
   // delete workflow
   delete: protectedProcedure
     .input(
@@ -93,6 +146,11 @@ export const workflowRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return workflowService.delete(input.workflowId);
+      const pass = await workflowService.canDeleteWorkflowPolicy(
+        input.workflowId,
+        ctx.user,
+      );
+
+      return await workflowService.delete(input.workflowId);
     }),
 });

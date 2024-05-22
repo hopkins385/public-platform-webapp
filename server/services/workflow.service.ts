@@ -7,6 +7,7 @@ import type {
 import { CreateWorkflowStepDto } from './dto/workflow-step.dto';
 
 import xlsx from 'node-xlsx';
+import { TRPCError } from '@trpc/server';
 
 export class WorkflowService {
   private readonly prisma: ExtendedPrismaClient;
@@ -45,6 +46,23 @@ export class WorkflowService {
 
   findFirst(workflowId: string) {
     return this.prisma.workflow.findFirst({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        project: {
+          select: {
+            id: true,
+            name: true,
+            team: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
       where: {
         id: workflowId.toLowerCase(),
         deletedAt: null,
@@ -66,6 +84,12 @@ export class WorkflowService {
           select: {
             id: true,
             name: true,
+            team: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
         },
       },
@@ -304,5 +328,82 @@ export class WorkflowService {
         options: {},
       },
     ]);
+  }
+
+  // POLICIES
+
+  async canCreateWorkflowPolicy(payload: CreateWorkflowDto, user: any) {
+    const { teamId } = user;
+    // find the user that belongs to the project
+    const project = await this.prisma.project.findFirst({
+      select: {
+        id: true,
+      },
+      where: {
+        id: payload.projectId.toLowerCase(),
+        teamId: teamId.toLowerCase(),
+        deletedAt: null,
+      },
+    });
+
+    if (!project) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Project not found',
+      });
+    }
+
+    return true;
+  }
+
+  canAccessWorkflowPolicy(teamId: string, user: any) {
+    const { teamId: userTeamId } = user;
+    if (teamId !== userTeamId) {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'You do not have access to this workflow',
+      });
+    }
+    return true;
+  }
+
+  async canUpdateWorkflowPolicy(payload: UpdateWorkflowDto, user: any) {
+    const { teamId } = user;
+    const workflow = await this.findFirst(payload.workflowId);
+    if (!workflow) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Workflow not found',
+      });
+    }
+
+    if (workflow.project.team.id !== teamId) {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'You do not have access to this workflow',
+      });
+    }
+
+    return true;
+  }
+
+  async canDeleteWorkflowPolicy(workflowId: string, user: any) {
+    const { teamId } = user;
+    const workflow = await this.findFirst(workflowId);
+    if (!workflow) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Workflow not found',
+      });
+    }
+
+    if (workflow.project.team.id !== teamId) {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'You do not have access to this workflow',
+      });
+    }
+
+    return true;
   }
 }

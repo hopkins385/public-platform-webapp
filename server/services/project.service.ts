@@ -1,4 +1,10 @@
+import { TRPCError } from '@trpc/server';
 import { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
+
+interface UserProjectPolicyPayload {
+  project: any;
+  user: any;
+}
 
 export class ProjectService {
   private readonly prisma: ExtendedPrismaClient;
@@ -6,6 +12,35 @@ export class ProjectService {
   constructor() {
     const { getClient } = usePrisma();
     this.prisma = getClient();
+  }
+
+  canCreateProjectPolicy(payload: CreateProjectDto) {
+    if (!payload.teamId) {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'User does not belong to a team',
+      });
+    }
+
+    return true;
+  }
+
+  canAccessProjectPolicy(payload: UserProjectPolicyPayload) {
+    if (!payload.project) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Project not found',
+      });
+    }
+
+    if (payload.project.teamId !== payload.user.teamId) {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'You do not have access to this project',
+      });
+    }
+
+    return true;
   }
 
   create(payload: CreateProjectDto) {

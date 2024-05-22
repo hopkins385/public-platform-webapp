@@ -5,32 +5,8 @@ import {
   CreateProjectDto,
   UpdateProjectDto,
 } from '~/server/services/dto/project.dto';
-import { TRPCError } from '@trpc/server';
-
-interface UserProjectPolicyPayload {
-  project: any;
-  user: any;
-}
 
 const projectService = new ProjectService();
-
-function userCanAccessProjectPolicy(payload: UserProjectPolicyPayload) {
-  if (!payload.project) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: 'Project not found',
-    });
-  }
-
-  if (payload.project.teamId !== payload.user.teamId) {
-    throw new TRPCError({
-      code: 'FORBIDDEN',
-      message: 'You do not have access to this project',
-    });
-  }
-
-  return true;
-}
 
 export const projectRouter = router({
   // create project
@@ -46,9 +22,13 @@ export const projectRouter = router({
         teamId: ctx.user.teamId,
         ...input,
       });
-      const project = await projectService.create(payload);
-      return project;
+
+      // policy check
+      projectService.canCreateProjectPolicy(payload);
+
+      return await projectService.create(payload);
     }),
+
   // find project by id
   first: protectedProcedure
     .input(
@@ -59,13 +39,15 @@ export const projectRouter = router({
     .query(async ({ ctx, input }) => {
       const project = await projectService.findFirst(input.id);
 
-      const pass = userCanAccessProjectPolicy({
+      // policy check
+      projectService.canAccessProjectPolicy({
         project,
         user: ctx.user,
       });
 
       return project;
     }),
+
   // get all projects
   allPaginated: protectedProcedure
     .input(
@@ -74,16 +56,17 @@ export const projectRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const projects = await projectService.findManyPaginated(
+      return await projectService.findManyPaginated(
         ctx.user.teamId,
         input.page,
       );
-      return projects;
     }),
 
+  // get all projects
   all: protectedProcedure.query(async ({ ctx, input }) => {
     return await projectService.findMany(ctx.user.teamId);
   }),
+
   // update project
   update: protectedProcedure
     .input(
@@ -98,14 +81,15 @@ export const projectRouter = router({
 
       const project = await projectService.findFirst(payload.projectId);
 
-      const pass = userCanAccessProjectPolicy({
+      // policy check
+      projectService.canAccessProjectPolicy({
         project,
         user: ctx.user,
       });
 
-      const result = await projectService.update(payload);
-      return result;
+      return await projectService.update(payload);
     }),
+
   // delete project
   delete: protectedProcedure
     .input(
@@ -116,12 +100,12 @@ export const projectRouter = router({
     .mutation(async ({ ctx, input }) => {
       const project = await projectService.findFirst(input.projectId);
 
-      const pass = userCanAccessProjectPolicy({
+      // policy check
+      projectService.canAccessProjectPolicy({
         project,
         user: ctx.user,
       });
 
-      const result = await projectService.softDelete(input.projectId);
-      return result;
+      return await projectService.softDelete(input.projectId);
     }),
 });

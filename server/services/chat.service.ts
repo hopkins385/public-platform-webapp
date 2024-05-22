@@ -1,6 +1,7 @@
 import type { ChatMessage } from '~/interfaces/chat.interfaces';
 import { ULID } from '~/server/utils/ulid';
 import type { CreateChatMessageDto } from './dto/chat-message.dto';
+import { TRPCError } from '@trpc/server';
 
 interface UpsertMessage extends ChatMessage {
   id: string;
@@ -285,5 +286,104 @@ export class ChatService {
         messages: true,
       },
     });
+  }
+
+  // POLICIES
+
+  async canAccessChatPolicy(chat: any, user: any) {
+    if (chat.user.id !== user.id) {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'You do not have access to this chat',
+      });
+    }
+
+    return true;
+  }
+
+  async canCreateChatPolicy(
+    assistantId: string,
+    teamId: string,
+    userId: string,
+  ) {
+    // find the assistant by id
+    const assistant = await this.prisma.assistant.findFirst({
+      where: {
+        id: assistantId.toLowerCase(),
+        teamId: teamId.toLowerCase(),
+      },
+    });
+
+    if (!assistant) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Assistant not found',
+      });
+    }
+
+    return true;
+  }
+
+  async canCreateMessagePolicy(payload: CreateChatMessageDto) {
+    // get the chat
+    const chat = await this.getFirst(payload.chatId);
+    if (!chat) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Chat not found',
+      });
+    }
+
+    // check if the user is the owner of the chat
+    if (chat.userId !== payload.userId) {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'You do not have access to this chat',
+      });
+    }
+
+    return true;
+  }
+
+  async canClearMessagesPolicy(chatId: string, userId: string) {
+    // get the chat
+    const chat = await this.getFirst(chatId);
+    if (!chat) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Chat not found',
+      });
+    }
+
+    // check if the user is the owner of the chat
+    if (chat.userId !== userId) {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'You do not have access to this chat',
+      });
+    }
+
+    return true;
+  }
+
+  async canDeletePolicy(chatId: string, userId: string) {
+    // get the chat
+    const chat = await this.getFirst(chatId);
+    if (!chat) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Chat not found',
+      });
+    }
+
+    // check if the user is the owner of the chat
+    if (chat.userId !== userId) {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'You do not have access to this chat',
+      });
+    }
+
+    return true;
   }
 }

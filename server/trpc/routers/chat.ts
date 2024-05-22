@@ -8,19 +8,25 @@ import { ChatMessageRule } from '~/server/utils/validation/chat-message.rule';
 const chatService = new ChatService();
 
 export const chatRouter = router({
+  // create a chat
   create: protectedProcedure
     .input(
       z.object({
         assistantId: ulidRule(),
       }),
     )
-    .query(({ ctx, input }) => {
+    .query(async ({ ctx, input }) => {
       const userId = ctx.user.id;
+      const teamId = ctx.user.teamId;
       const assistantId = input.assistantId.toLowerCase();
 
-      return chatService.create(assistantId, userId);
+      // policy check
+      await chatService.canCreateChatPolicy(assistantId, teamId, userId);
+
+      return await chatService.create(assistantId, userId);
     }),
 
+  // create a message
   createMessage: protectedProcedure
     .input(
       z.object({
@@ -28,21 +34,25 @@ export const chatRouter = router({
         message: ChatMessageRule(),
       }),
     )
-    .query(({ ctx, input }) => {
+    .query(async ({ ctx, input }) => {
       const payload = CreateChatMessageDto.fromInput({
         userId: ctx.user.id,
         chatId: input.chatId,
         message: input.message,
       });
-      return chatService.createMessage(payload);
+
+      // policy check
+      await chatService.canCreateMessagePolicy(payload);
+
+      return await chatService.createMessage(payload);
     }),
 
-  allForUser: protectedProcedure.query(({ ctx }) => {
-    return chatService.getAllForUser(ctx.user.id);
+  allForUser: protectedProcedure.query(async ({ ctx }) => {
+    return await chatService.getAllForUser(ctx.user.id);
   }),
 
-  recentForUser: protectedProcedure.query(({ ctx }) => {
-    return chatService.getRecentForUser(ctx.user.id);
+  recentForUser: protectedProcedure.query(async ({ ctx }) => {
+    return await chatService.getRecentForUser(ctx.user.id);
   }),
 
   allForUserPaginate: protectedProcedure
@@ -51,10 +61,9 @@ export const chatRouter = router({
         page: z.number().default(1),
       }),
     )
-    .query(({ ctx, input }) => {
+    .query(async ({ ctx, input }) => {
       const { page } = input;
-
-      return chatService.getAllForUserPaginate(ctx.user.id, page);
+      return await chatService.getAllForUserPaginate(ctx.user.id, page);
     }),
 
   clearMessages: protectedProcedure
@@ -63,8 +72,10 @@ export const chatRouter = router({
         chatId: ulidRule(),
       }),
     )
-    .query(({ ctx, input }) => {
-      return chatService.clearMessages(input.chatId.toLowerCase());
+    .query(async ({ ctx, input }) => {
+      // policy check
+      await chatService.canClearMessagesPolicy(input.chatId, ctx.user.id);
+      return await chatService.clearMessages(input.chatId.toLowerCase());
     }),
 
   forUser: protectedProcedure
@@ -73,8 +84,8 @@ export const chatRouter = router({
         chatId: ulidRule(),
       }),
     )
-    .query(({ ctx, input }) => {
-      return chatService.getChatForUser(
+    .query(async ({ ctx, input }) => {
+      return await chatService.getChatForUser(
         input.chatId.toLowerCase(),
         ctx.user.id,
       );
@@ -86,7 +97,12 @@ export const chatRouter = router({
         chatId: ulidRule(),
       }),
     )
-    .query(({ ctx, input }) => {
-      return chatService.softDelete(ctx.user.id, input.chatId.toLowerCase());
+    .query(async ({ ctx, input }) => {
+      // policy check
+      await chatService.canDeletePolicy(input.chatId, ctx.user.id);
+      return await chatService.softDelete(
+        ctx.user.id,
+        input.chatId.toLowerCase(),
+      );
     }),
 });

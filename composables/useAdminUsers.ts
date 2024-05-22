@@ -44,6 +44,10 @@ export default function useAdminUsers() {
     );
   }
 
+  function deleteUser(id: string) {
+    return $client.admin.users.deleteUser.mutate({ id });
+  }
+
   return {
     page,
     limit,
@@ -52,5 +56,6 @@ export default function useAdminUsers() {
     setLimit,
     setSearch,
     getUsersAllPaginated,
+    deleteUser,
   };
 }

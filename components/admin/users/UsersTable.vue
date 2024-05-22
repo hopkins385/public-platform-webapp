@@ -1,8 +1,15 @@
 <script setup lang="ts">
   import { SettingsIcon, Trash2Icon } from 'lucide-vue-next';
 
-  const { getUsersAllPaginated, setPage } = useAdminUsersSharedComp();
-  const { data } = await getUsersAllPaginated();
+  const toast = useToast();
+
+  const errorAlert = ref({ show: false, message: '' });
+  const showConfirmDialog = ref(false);
+  const deleteUserId = ref('');
+
+  const { deleteUser, getUsersAllPaginated, setPage } =
+    useAdminUsersSharedComp();
+  const { data, refresh } = await getUsersAllPaginated();
 
   const users = computed(() => data.value?.users || []);
   const meta = computed(() => {
@@ -12,19 +19,28 @@
     };
   });
 
-  const onDelete = async (id: number) => {
-    // showConfirmDialog = true;
-    // confirmDialogMessage = 'Are you sure you want to delete this user?';
-    // confirmDialogId = id;
-  };
+  function onDelete(id: string) {
+    showConfirmDialog.value = true;
+    deleteUserId.value = id;
+  }
+
+  async function handleDelete() {
+    try {
+      await deleteUser(deleteUserId.value);
+      showConfirmDialog.value = false;
+      await refresh();
+      toast.success({ description: 'User deleted successfully' });
+    } catch (error) {
+      errorAlert.value.show = true;
+      errorAlert.value.message = error?.message || 'An error occurred';
+    }
+  }
 </script>
 
 <template>
   <div>
-    <!--
     <ErrorAlert v-model="errorAlert.show" :message="errorAlert.message" />
     <ConfirmDialog v-model="showConfirmDialog" @confirm="handleDelete" />
--->
     <Table>
       <TableCaption>
         Showing from

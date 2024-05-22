@@ -2,8 +2,6 @@ import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { AssistantService } from '~/server/services/assistant.service';
-import type { Assistant } from '@prisma/client';
-import type { Session } from 'next-auth';
 import {
   CreateAssistantDto,
   DeleteAssistantDto,
@@ -13,46 +11,7 @@ import {
 } from '~/server/services/dto/assistant.dto';
 import { ulidRule } from '~/server/utils/validation/ulid.rule';
 
-interface UserAssistantPolicyPayload {
-  assistant: Assistant | null | undefined;
-  user: Session['user'];
-}
-
-interface UserBelongsToTeamPayload {
-  teamId: string;
-  user: Session['user'];
-}
-
 const assistantService = new AssistantService();
-
-function userBelongsToTeamPolicy(payload: UserBelongsToTeamPayload) {
-  if (payload.user.teamId !== payload.teamId.toLowerCase()) {
-    throw new TRPCError({
-      code: 'FORBIDDEN',
-      message: 'You do not have access to this team',
-    });
-  }
-
-  return true;
-}
-
-function userCanAccessAssistantPolicy(payload: UserAssistantPolicyPayload) {
-  if (!payload.assistant) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: 'Assistant not found',
-    });
-  }
-
-  if (payload.assistant.teamId !== payload.user.teamId) {
-    throw new TRPCError({
-      code: 'FORBIDDEN',
-      message: 'You do not have access to this assistant',
-    });
-  }
-
-  return true;
-}
 
 export const assistantRouter = router({
   // create assistant
@@ -69,15 +28,12 @@ export const assistantRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      // const pass = userBelongsToTeamPolicy({
-      //   teamId: input.teamId,
-      //   user: ctx.user,
-      // });
-
       const payload = CreateAssistantDto.fromInput(input);
-      const result = await assistantService.create(payload);
 
-      return result;
+      // policy check
+      assistantService.canCreateAssistantPolicy(payload, ctx.user);
+
+      return await assistantService.create(payload);
     }),
   // get assistant by id
   one: protectedProcedure
@@ -90,10 +46,15 @@ export const assistantRouter = router({
       const payload = FindAssistantDto.fromInput(input);
       const assistant = await assistantService.findFirst(payload);
 
-      // const pass = userCanAccessAssistantPolicy({
-      //   assistant,
-      //   user: ctx.user,
-      // });
+      if (!assistant) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Assistant not found',
+        });
+      }
+
+      // policy check
+      assistantService.canAccessAssistantPolicy(assistant, ctx.user);
 
       return assistant;
     }),
@@ -127,18 +88,12 @@ export const assistantRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const payload = FindAssistantDto.fromInput(input);
-      const assistant = await assistantService.findFirst(payload);
+      const payload = UpdateAssistantDto.fromInput(input);
 
-      // const pass = userCanAccessAssistantPolicy({
-      //   assistant,
-      //   user: ctx.user,
-      // });
+      // policy check
+      await assistantService.canUpdateAssistantPolicy(payload, ctx.user);
 
-      const updatePayload = UpdateAssistantDto.fromInput(input);
-      const result = await assistantService.update(updatePayload);
-
-      return result;
+      return await assistantService.update(payload);
     }),
   // delete assistant by id
   delete: protectedProcedure
@@ -149,17 +104,11 @@ export const assistantRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const payload = FindAssistantDto.fromInput(input);
-      const assistant = await assistantService.findFirst(payload);
-
-      // const pass = userCanAccessAssistantPolicy({
-      //   assistant,
-      //   user: ctx.user,
-      // });
-
       const deletePayload = DeleteAssistantDto.fromInput(input);
-      const result = await assistantService.softDelete(deletePayload);
 
-      return result;
+      // policy check
+      await assistantService.canDeleteAssistantPolicy(deletePayload, ctx.user);
+
+      return await assistantService.softDelete(deletePayload);
     }),
 });
