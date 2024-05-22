@@ -12,6 +12,11 @@ export default defineNuxtConfig({
   sourcemap: isDevelopment,
   typescript: {
     shim: false,
+    tsConfig: {
+      compilerOptions: {
+        baseUrl: '.',
+      },
+    },
   },
   modules: [
     '@nuxtjs/tailwindcss',

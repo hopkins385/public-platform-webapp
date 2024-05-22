@@ -269,7 +269,7 @@
         class="cell group relative"
       >
         <!-- Cell content -->
-        <div class="cell-content">
+        <div :id="`cell_content_${docItem.id}`" class="cell-content">
           {{ docItem.content }}
         </div>
         <!-- Row Detail Link -->
