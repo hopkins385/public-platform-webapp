@@ -15,7 +15,10 @@ import type {
   ChatMessage,
   VisionImageUrlContent,
 } from '~/interfaces/chat.interfaces';
-import { StreamFinishedEventDto } from '~/server/services/dto/event.dto';
+import {
+  StreamFinishedEventDto,
+  FirstUserMessageEventDto,
+} from '~/server/services/dto/event.dto';
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 
 const config = useRuntimeConfig();
@@ -53,7 +56,7 @@ export default defineEventHandler(async (_event) => {
       message: 'Chat not found',
     });
   }
-
+  const bodyMessagesCount = body.messages.length;
   const lastMessage = body.messages[body.messages.length - 1];
   if (!lastMessage) {
     logger.error('No last message');
@@ -64,7 +67,7 @@ export default defineEventHandler(async (_event) => {
   }
 
   // store last message in chat
-  await chatService.createMessage(
+  const message = await chatService.createMessage(
     CreateChatMessageDto.fromInput({
       userId: user.id,
       chatId: body.chatId,
@@ -76,6 +79,27 @@ export default defineEventHandler(async (_event) => {
       },
     }),
   );
+
+  if (!message) {
+    logger.error('Message not created');
+    throw createError({
+      statusCode: 500,
+      message: 'Cannot create message',
+    });
+  }
+
+  // Event to update chat title
+  if (bodyMessagesCount === 1 && message.role === 'user') {
+    const { event } = useEvents();
+    event(
+      ChatEvent.FIRST_USERMESSAGE,
+      FirstUserMessageEventDto.fromInput({
+        chatId: chat.id,
+        userId: user.id,
+        messageContent: message.content,
+      }),
+    );
+  }
 
   function getVisionMessages(vis: VisionImageUrlContent[] | null | undefined) {
     if (!vis) {

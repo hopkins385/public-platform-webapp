@@ -9,6 +9,16 @@ const assistantJobService = new AssistantJobService();
 export default defineNitroPlugin((nitroApp) => {
   const { createWorker } = useBullmq();
 
+  const createChatTitleQueue = createWorker(
+    QueueEnum.CREATE_CHAT_TITLE,
+    async (job) => {
+      const { data } = job;
+      console.log(
+        `Worker 'CreateChatTitle' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
+      );
+    },
+  );
+
   const tokenUsageQueue = createWorker(QueueEnum.TOKENUSAGE, async (job) => {
     switch (job.name) {
       case JobEnum.TRACKTOKENS:
@@ -22,7 +32,7 @@ export default defineNitroPlugin((nitroApp) => {
   });
 
   const workflowRowCompletion = createWorker(
-    QueueEnum.WORKFLOWROWCOMLETED,
+    QueueEnum.WORKFLOW_ROW_COMLETED,
     async (job) => {
       const { event } = useEvents();
       const { data } = job;

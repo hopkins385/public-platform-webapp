@@ -4,7 +4,10 @@ import { consola } from 'consola';
 import { AuthEvent } from '~/server/utils/enums/auth-event.enum';
 import { WorkflowEvent } from '~/server/utils/enums/workflow-event.enum';
 import { updateLastLogin } from '~/server/utils/events/login.events';
-import { chatStreamFinished } from '~/server/utils/events/chat.events';
+import {
+  firstUserMessageEvent,
+  chatStreamFinishedEvent,
+} from '~/server/utils/events/chat.events';
 import { rowCompleted } from '~/server/utils/events/workflow.events';
 import { UsageEvent } from '../utils/enums/usage-event.enum';
 import { TrackTokensDto } from '../services/dto/track-tokens.dto';
@@ -18,7 +21,8 @@ export default defineNitroPlugin((nitroApp) => {
   eventEmitter.on(AuthEvent.LOGIN, updateLastLogin);
 
   // Chat
-  eventEmitter.on(ChatEvent.STREAMFINISHED, chatStreamFinished);
+  eventEmitter.on(ChatEvent.FIRST_USERMESSAGE, firstUserMessageEvent);
+  eventEmitter.on(ChatEvent.STREAMFINISHED, chatStreamFinishedEvent);
 
   // Workflow
   eventEmitter.on(WorkflowEvent.ROWCOMPLETED, rowCompleted);

@@ -1,4 +1,5 @@
 export enum QueueEnum {
   TOKENUSAGE = 'queue.tokenusage',
-  WORKFLOWROWCOMLETED = 'queue.workflow.row.completed',
+  WORKFLOW_ROW_COMLETED = 'queue.workflow.row.completed',
+  CREATE_CHAT_TITLE = 'queue.createchat.title',
 }

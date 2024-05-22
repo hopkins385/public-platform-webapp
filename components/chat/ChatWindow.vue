@@ -181,11 +181,11 @@
     onSubmit();
   }
 
-  function scrollToBottom() {
+  function scrollToBottom(options: { instant: boolean } = { instant: false }) {
     nextTick(() => {
       chatMessagesContainerRef.value?.scrollTo({
         top: chatMessagesContainerRef.value.scrollHeight,
-        behavior: 'smooth',
+        behavior: options.instant ? 'instant' : 'smooth',
       });
     });
   }
@@ -293,7 +293,7 @@
     setModelFromAssistant();
     if (props.chatMessages && props.chatMessages.length > 0) {
       initMessages(props.chatMessages);
-      scrollToBottom();
+      scrollToBottom({ instant: true });
     }
   });
 </script>
@@ -302,7 +302,7 @@
   <BoxContainer
     ref="chatBoxContainerRef"
     id="chatWrapper"
-    class="relative flex size-full flex-col px-10 pb-10 pt-20 md:px-20 2xl:px-40"
+    class="relative flex size-full flex-col border-0 px-10 pb-10 pt-20 md:px-20 2xl:px-40"
   >
     <!-- toggle sidebar -->
     <div class="absolute left-0 top-1/2 -translate-y-1/2">
@@ -325,29 +325,20 @@
       class="pointer-events-none absolute left-0 top-0 z-10 flex w-full justify-between px-8 py-5"
     >
       <!-- chat model selector -->
-      <div class="pointer-events-auto flex items-center space-x-4">
+      <div
+        class="pointer-events-auto flex items-center space-x-4 text-muted-foreground"
+      >
         <Suspense>
           <ChatModelSelector />
           <template #fallback> Loading... </template>
         </Suspense>
-        <div>
-          <Button
-            variant="outline"
-            size="icon"
-            @click="settings.newChatModalOpen = true"
-          >
-            <MessageSquareTextIcon
-              class="size-4 stroke-1.5 group-hover:stroke-2"
-            />
-          </Button>
-        </div>
       </div>
       <!-- active assistant -->
-      <div class="flex shrink items-center 2xl:pr-28">
+      <div class="flex shrink items-center 2xl:pr-8">
         <AssistantDetailsActive :key="assistant?.id" :assistant="assistant" />
       </div>
 
-      <div class="pointer-events-auto shrink-0 space-x-3">
+      <div class="pointer-events-auto flex shrink-0 space-x-3">
         <Button size="icon" variant="outline" @click="clearChatMessages">
           <MessageSquareXIcon class="size-4 stroke-1.5 group-hover:stroke-2" />
         </Button>
@@ -363,6 +354,17 @@
         </Button>
         -->
         <ChatSettings />
+        <div>
+          <Button
+            variant="outline"
+            size="icon"
+            @click="settings.newChatModalOpen = true"
+          >
+            <MessageSquareTextIcon
+              class="size-4 stroke-1.5 group-hover:stroke-2"
+            />
+          </Button>
+        </div>
       </div>
     </div>
     <!-- chat messages container -->

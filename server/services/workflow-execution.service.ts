@@ -90,7 +90,7 @@ export class WorkflowExecutionService {
       const jobs = {
         name: 'Final Step',
         data: { row: i, userId, workflowId },
-        queueName: QueueEnum.WORKFLOWROWCOMLETED,
+        queueName: QueueEnum.WORKFLOW_ROW_COMLETED,
         children: [jobChild(stepsMaxIndex, i)],
       };
       rows.push(jobs);

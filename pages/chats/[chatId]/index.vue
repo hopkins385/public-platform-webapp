@@ -23,9 +23,9 @@
 </script>
 
 <template>
-  <div class="h-full p-10">
+  <div class="h-full">
     <ErrorAlertStatic v-if="error" type="error" :message="error.message" />
-    <div class="flex h-full space-x-4">
+    <div class="flex h-full">
       <ChatSideBar />
       <ChatWindow
         v-if="chat"
