@@ -21,48 +21,15 @@ export default defineNitroPlugin((nitroApp) => {
     }
   });
 
-  const stepCompletion = createWorker('RowCompletion', async (job) => {
-    const { event } = useEvents();
-    const { data } = job;
-    console.log(
-      `Worker 'RowCompletion' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
-    );
-    event(WorkflowEvent.ROWCOMPLETED, data);
-  });
-
-  const openai_gpt_3_5_turbo = createWorker(
-    'openai-gpt-3.5-turbo',
+  const workflowRowCompletion = createWorker(
+    QueueEnum.WORKFLOWROWCOMLETED,
     async (job) => {
+      const { event } = useEvents();
       const { data } = job;
       console.log(
-        `Worker 'openai-gpt-3.5-turbo' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
+        `Worker 'RowCompletion' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
       );
-      await assistantJobService.processJob(data);
-    },
-    {
-      concurrency: 10,
-      limiter: {
-        max: 5000,
-        duration: 1000,
-      },
-    },
-  );
-
-  const openai_gpt_4 = createWorker(
-    'openai-gpt-4',
-    async (job) => {
-      const { data } = job;
-      console.log(
-        `Worker 'openai-gpt-4' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
-      );
-      await assistantJobService.processJob(data);
-    },
-    {
-      concurrency: 10,
-      limiter: {
-        max: 5000,
-        duration: 1000,
-      },
+      event(WorkflowEvent.ROWCOMPLETED, data);
     },
   );
 
@@ -120,12 +87,12 @@ export default defineNitroPlugin((nitroApp) => {
     },
   );
 
-  const mixtral_8x7b_32768 = createWorker(
-    'mistral-open-mixtral-8x7b',
+  const mistral_small = createWorker(
+    'mistral-small-latest',
     async (job) => {
       const { data } = job;
       console.log(
-        `Worker 'mistral-open-mixtral-8x7b' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
+        `Worker 'mistral-small-latest' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
       );
       await assistantJobService.processJob(data);
     },
@@ -133,6 +100,96 @@ export default defineNitroPlugin((nitroApp) => {
       concurrency: 10,
       limiter: {
         max: 30,
+        duration: 1000,
+      },
+    },
+  );
+
+  const mistral_large = createWorker(
+    'mistral-large-latest',
+    async (job) => {
+      const { data } = job;
+      console.log(
+        `Worker 'mistral-large-latest' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
+      );
+      await assistantJobService.processJob(data);
+    },
+    {
+      concurrency: 10,
+      limiter: {
+        max: 30,
+        duration: 1000,
+      },
+    },
+  );
+
+  const openai_gpt_3_5_turbo = createWorker(
+    'openai-gpt-3.5-turbo',
+    async (job) => {
+      const { data } = job;
+      console.log(
+        `Worker 'openai-gpt-3.5-turbo' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
+      );
+      await assistantJobService.processJob(data);
+    },
+    {
+      concurrency: 10,
+      limiter: {
+        max: 5000,
+        duration: 1000,
+      },
+    },
+  );
+
+  const openai_gpt_4 = createWorker(
+    'openai-gpt-4',
+    async (job) => {
+      const { data } = job;
+      console.log(
+        `Worker 'openai-gpt-4' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
+      );
+      await assistantJobService.processJob(data);
+    },
+    {
+      concurrency: 10,
+      limiter: {
+        max: 5000,
+        duration: 1000,
+      },
+    },
+  );
+
+  const openai_gpt_4o = createWorker(
+    'openai-gpt-4o',
+    async (job) => {
+      const { data } = job;
+      console.log(
+        `Worker 'openai-gpt-4o' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
+      );
+      await assistantJobService.processJob(data);
+    },
+    {
+      concurrency: 10,
+      limiter: {
+        max: 5000,
+        duration: 1000,
+      },
+    },
+  );
+
+  const anthropic_claude_3_haiku = createWorker(
+    'anthropic-claude-3-haiku-20240307',
+    async (job) => {
+      const { data } = job;
+      console.log(
+        `Worker 'anthropic-claude-3-haiku-20240307' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
+      );
+      await assistantJobService.processJob(data);
+    },
+    {
+      concurrency: 10,
+      limiter: {
+        max: 50,
         duration: 1000,
       },
     },
@@ -154,15 +211,23 @@ export default defineNitroPlugin((nitroApp) => {
         duration: 1000,
       },
     },
-  )
-    .on('failed', (job, err) => {
-      // logger.error(`Worker ${name} failed job ${job?.id}: ${err}`);
-    })
-    .on('completed', (job) => {
-      // logger.info(`Worker ${name} completed job ${job.id}`);
-    })
-    .on('drained', () => {
-      // console.log(`Worker 'anthropic-claude-3-sonnet-20240229' is drained`);
-      // logger.info(`Worker ${name} completed job ${job.id}`);
-    });
+  );
+
+  const anthropic_claude_3_opus = createWorker(
+    'anthropic-claude-3-opus-20240229',
+    async (job) => {
+      const { data } = job;
+      console.log(
+        `Worker 'anthropic-claude-3-opus-20240229' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
+      );
+      await assistantJobService.processJob(data);
+    },
+    {
+      concurrency: 10,
+      limiter: {
+        max: 50,
+        duration: 1000,
+      },
+    },
+  );
 });

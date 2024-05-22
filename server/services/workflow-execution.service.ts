@@ -1,5 +1,6 @@
 import { AssistantJobDto } from './dto/job.dto';
 import { WorkflowService } from './workflow.service';
+import { QueueEnum } from '../utils/enums/queue.enum';
 
 export class WorkflowExecutionService {
   private readonly workflowService: WorkflowService;
@@ -89,7 +90,7 @@ export class WorkflowExecutionService {
       const jobs = {
         name: 'Final Step',
         data: { row: i, userId, workflowId },
-        queueName: 'RowCompletion',
+        queueName: QueueEnum.WORKFLOWROWCOMLETED,
         children: [jobChild(stepsMaxIndex, i)],
       };
       rows.push(jobs);
