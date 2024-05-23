@@ -1,5 +1,6 @@
 import consola from 'consola';
 import type { ProviderAuthDto } from './dto/provider-auth.dto';
+import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 const logger = consola.create({}).withTag('ProviderAuthService');
 
@@ -7,8 +8,7 @@ export class ProviderAuthService {
   private readonly prisma: ExtendedPrismaClient;
 
   constructor() {
-    const { getClient } = usePrisma();
-    this.prisma = getClient();
+    this.prisma = getPrismaClient();
   }
 
   async findFirst(payload: {

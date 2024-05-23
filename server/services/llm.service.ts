@@ -1,11 +1,11 @@
 import type { LargeLangModel } from '@prisma/client';
+import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 export class LLMService {
   private readonly prisma: ExtendedPrismaClient;
 
   constructor() {
-    const { getClient } = usePrisma();
-    this.prisma = getClient();
+    this.prisma = getPrismaClient();
   }
 
   getModels() {

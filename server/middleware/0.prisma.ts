@@ -1,4 +1,5 @@
 import { eventHandler } from 'h3';
+import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 declare module 'h3' {
   interface H3EventContext {
@@ -7,6 +8,5 @@ declare module 'h3' {
 }
 
 export default eventHandler((event) => {
-  const { getClient } = usePrisma();
-  event.context.prisma = getClient();
+  event.context.prisma = getPrismaClient();
 });

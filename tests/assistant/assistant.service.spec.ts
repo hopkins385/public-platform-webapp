@@ -6,11 +6,11 @@ import {
   FindAssistantDto,
 } from '~/server/services/dto/assistant.dto';
 import type { ExtendedPrismaClient } from '~/server/utils/prisma/usePrisma';
-import { usePrisma } from '~/server/utils/prisma/usePrisma';
+import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 describe('AssistantService', () => {
   const assistantService = new AssistantService();
-  const prisma: ExtendedPrismaClient = usePrisma().getClient();
+  const prisma: ExtendedPrismaClient = getPrismaClient();
   let teamUser: any;
   let llm: any;
 

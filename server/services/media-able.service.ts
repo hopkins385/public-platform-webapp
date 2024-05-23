@@ -1,16 +1,15 @@
 import type {
   AttachMediaAbleDto,
-  CreateMediaAbleDto,
   DetachMediaAbleDto,
   MediaAbleDto,
 } from './dto/media-able.dto';
+import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 export class MediaAbleService {
   private readonly prisma: ExtendedPrismaClient;
 
   constructor() {
-    const { getClient } = usePrisma();
-    this.prisma = getClient();
+    this.prisma = getPrismaClient();
   }
 
   // create(payload: CreateMediaAbleDto) {

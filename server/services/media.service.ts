@@ -2,6 +2,7 @@ import { CreateMediaAbleDto, MediaAbleDto } from './dto/media-able.dto';
 import type { CreateMediaDto } from './dto/media.dto';
 import { MediaAbleService } from './media-able.service';
 import { StorageService } from './storage.service';
+import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 export class MediaService {
   private readonly prisma: ExtendedPrismaClient;
@@ -9,8 +10,7 @@ export class MediaService {
   private readonly storageService: StorageService;
 
   constructor() {
-    const { getClient } = usePrisma();
-    this.prisma = getClient();
+    this.prisma = getPrismaClient();
     this.mediaAbleService = new MediaAbleService();
     this.storageService = new StorageService();
   }

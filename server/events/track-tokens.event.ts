@@ -1,11 +1,12 @@
 import consola from 'consola';
 import type { TrackTokensDto } from '~/server/services/dto/track-tokens.dto';
 import { getIO } from '../socket/socketInstance';
+import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 const logger = consola.create({}).withTag('track-tokens.worker');
 
 export async function trackTokensEvent(payload: TrackTokensDto) {
-  const prisma = usePrisma().getClient();
+  const prisma = getPrismaClient();
   const io = getIO();
   const { userId, llm, usage } = payload;
 

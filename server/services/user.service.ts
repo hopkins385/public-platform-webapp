@@ -8,6 +8,7 @@ import { useRuntimeConfig } from '#imports';
 import type { RuntimeConfig } from 'nuxt/schema';
 import jwt from 'jsonwebtoken';
 import consola from 'consola';
+import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 interface RegisterNewUser {
   email: string;
@@ -26,8 +27,7 @@ export class UserService {
   private readonly config: RuntimeConfig['mailer'];
 
   constructor() {
-    const { getClient } = usePrisma();
-    this.prisma = getClient();
+    this.prisma = getPrismaClient();
     this.config = useRuntimeConfig().mailer;
   }
 

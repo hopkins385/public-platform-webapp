@@ -26,16 +26,10 @@ function getExtendedClient() {
 }
 export type ExtendedPrismaClient = ReturnType<typeof getExtendedClient>;
 
-export function usePrisma() {
-  function getClient() {
-    if (!prisma) {
-      logger.info('Creating Prisma client');
-      prisma = getExtendedClient();
-    }
-    return prisma;
+export function getPrismaClient() {
+  if (!prisma) {
+    logger.info('Creating Prisma client');
+    prisma = getExtendedClient();
   }
-
-  return {
-    getClient,
-  };
+  return prisma;
 }

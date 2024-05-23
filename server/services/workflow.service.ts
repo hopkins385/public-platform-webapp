@@ -5,6 +5,7 @@ import type {
   UpdateWorkflowDto,
 } from './dto/workflow.dto';
 import { CreateWorkflowStepDto } from './dto/workflow-step.dto';
+import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 import xlsx from 'node-xlsx';
 import { TRPCError } from '@trpc/server';
@@ -14,8 +15,7 @@ export class WorkflowService {
   private readonly workflowStepService: WorkflowStepService;
 
   constructor() {
-    const { getClient } = usePrisma();
-    this.prisma = getClient();
+    this.prisma = getPrismaClient();
     this.workflowStepService = new WorkflowStepService();
   }
 

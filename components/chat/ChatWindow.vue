@@ -5,6 +5,7 @@
     MessageSquareTextIcon,
     MessageSquareXIcon,
     PaperclipIcon,
+    SendIcon,
     SquareIcon,
   } from 'lucide-vue-next';
   import ChatSettings from './ChatSettings.vue';
@@ -450,35 +451,39 @@
         </Button>
         <!-- message input form -->
         <form
-          class="flex w-full items-center space-x-2"
+          class="relative flex w-full items-center space-x-2 border-0"
           @submit.prevent="onSubmit"
         >
           <div class="relative z-10 max-h-96 w-full">
             <Textarea
               v-model="inputMessage"
               :placeholder="$t('chat.placeholder')"
-              class="resize-none rounded-2xl py-3 focus:shadow-lg"
+              class="resize-none rounded-2xl py-3 pr-14 focus:shadow-lg"
               @keydown.enter="onKeyDownEnter"
             />
           </div>
           <Button
+            class="absolute bottom-1 right-2 z-10"
             type="submit"
+            size="icon"
+            variant="ghost"
             :disabled="!inputMessage || isPending || isStreaming"
           >
-            {{ $t('chat.send') }}
+            <SendIcon class="size-5 stroke-1.5" />
+          </Button>
+          <Button
+            v-if="isStreaming"
+            variant="outline"
+            size="icon"
+            class="group absolute right-2 top-1 z-20 mr-1 size-8 rounded-full bg-slate-100"
+            @click="() => onAbort()"
+          >
+            <SquareIcon
+              class="size-3 text-slate-500 group-hover:text-slate-900"
+            />
           </Button>
         </form>
-        <Button
-          v-if="isStreaming"
-          variant="outline"
-          size="icon"
-          class="group absolute right-24 top-7 z-20 mr-1 size-8 rounded-full bg-slate-100"
-          @click="() => onAbort()"
-        >
-          <SquareIcon
-            class="size-3 text-slate-500 group-hover:text-slate-900"
-          />
-        </Button>
+        <div class="w-10"></div>
       </div>
     </div>
     <!-- Notification -->

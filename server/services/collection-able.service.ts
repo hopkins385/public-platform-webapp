@@ -3,13 +3,13 @@ import type {
   DetachAllCollectionAbleDto,
   DetachCollectionAbleDto,
 } from './dto/collection-able.dto';
+import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 export class CollectionAbleService {
   private readonly prisma: ExtendedPrismaClient;
 
   constructor() {
-    const { getClient } = usePrisma();
-    this.prisma = getClient();
+    this.prisma = getPrismaClient();
   }
 
   async attachTo(payload: AttachCollectionAbleDto) {

@@ -2,6 +2,7 @@ import type { ChatMessage } from '~/interfaces/chat.interfaces';
 import { ULID } from '~/server/utils/ulid';
 import type { CreateChatMessageDto } from './dto/chat-message.dto';
 import { TRPCError } from '@trpc/server';
+import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 interface UpsertMessage extends ChatMessage {
   id: string;
@@ -24,8 +25,7 @@ export class ChatService {
   private readonly prisma: ExtendedPrismaClient;
 
   constructor() {
-    const { getClient } = usePrisma();
-    this.prisma = getClient();
+    this.prisma = getPrismaClient();
   }
 
   getHistory(

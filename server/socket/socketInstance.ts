@@ -8,7 +8,11 @@ let io: Server;
 let engine: Engine;
 
 export function init(serverPort: number, serverOrigin: string) {
-  logger.info('Creating new socket server');
+  logger.info(
+    'Creating new socket server at port %d with origin %s',
+    serverPort,
+    serverOrigin,
+  );
   engine = new Engine();
   io = new Server(serverPort, {
     serveClient: false,
@@ -33,7 +37,7 @@ export function getIO() {
 
 export function getEngine() {
   if (!engine) {
-    throw new Error('Engine.io not initialized!');
+    throw new Error('Socket.io not initialized!');
   }
   return engine;
 }

@@ -6,7 +6,7 @@ import type {
   CreateAssistantDto,
   DeleteAssistantDto,
 } from './dto/assistant.dto';
-import { usePrisma } from '~/server/utils/prisma/usePrisma';
+import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 import { ULID } from '~/server/utils/ulid';
 
 export class AssistantService {
@@ -14,8 +14,7 @@ export class AssistantService {
   private defaultSystemPrompt: Record<string, string>;
 
   constructor() {
-    const { getClient } = usePrisma();
-    this.prisma = getClient();
+    this.prisma = getPrismaClient();
     this.defaultSystemPrompt = {
       de: `Sie sind ein freundlicher und hilfsbereiter Assistent.\n`,
       en: `You are a friendly and helpful assistant.\n`,
