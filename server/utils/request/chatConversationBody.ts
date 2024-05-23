@@ -1,3 +1,4 @@
+import { ChatModelProviderEnum } from './../enums/chat-model-provider.enum';
 import { z } from 'zod';
 import type { H3Event } from 'h3';
 import consola from 'consola';
@@ -8,7 +9,7 @@ const logger = consola.create({}).withTag('getConversationBody');
 const modelRule = () => z.string();
 // .refine((model) => Object.values(ModelEnum).includes(model as ModelEnum));
 
-const providerRule = () => z.string();
+const providerRule = () => z.nativeEnum(ChatModelProviderEnum);
 
 const bodySchema = z.object({
   messages: z.array(ChatMessageRule()),

@@ -23,7 +23,6 @@ import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import { useEvents } from '~/server/events/useEvents';
 import { CompletionFactoryStatic } from '~/server/factories/completionFactoryStatic';
 
-const config = useRuntimeConfig();
 const prisma = getPrismaClient();
 const chatService = new ChatService(prisma);
 const creditService = new CreditService(prisma);
