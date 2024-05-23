@@ -90,7 +90,8 @@ export default NuxtAuthHandler({
         if (!user) {
           throw createError({
             statusCode: 403,
-            statusMessage: 'Credentials wrong',
+            statusMessage: 'Forbidden',
+            message: 'Credentials wrong',
           });
         }
 

@@ -17,6 +17,7 @@ export default defineEventHandler(async (_event) => {
   if (!workflowId) {
     throw createError({
       statusCode: 400,
+      statusMessage: 'Bad Request',
       message: 'Workflow ID is required',
     });
   }
@@ -34,6 +35,7 @@ export default defineEventHandler(async (_event) => {
     logger.error(`Error exporting workflow to ${type}: Error is: ${error}`);
     throw createError({
       statusCode: 500,
+      statusMessage: 'Internal Server Error',
       message: 'Error exporting workflow',
     });
   }

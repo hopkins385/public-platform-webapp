@@ -29,7 +29,8 @@ export default defineEventHandler(async (_event) => {
   if (!provider || !provider?.accessToken || !provider?.refreshToken) {
     throw createError({
       statusCode: 401,
-      statusMessage: 'Invalid auth tokens',
+      statusMessage: 'Unauthorized',
+      message: 'Invalid auth tokens',
     });
   }
 

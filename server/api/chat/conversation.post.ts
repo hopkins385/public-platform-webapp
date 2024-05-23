@@ -4,7 +4,6 @@ import { Readable, Transform } from 'stream';
 import { sendStream } from 'h3';
 import { OpenAI } from 'openai';
 import { ChatService } from '~/server/services/chat.service';
-import { CompletionFactory } from '~/server/factories/completionFactory';
 import { CreditService } from '~/server/services/credit.service';
 import { getConversationBody } from '~/server/utils/request/chatConversationBody';
 import { ChatEvent } from '~/server/utils/enums/chat-event.enum';
@@ -41,6 +40,7 @@ export default defineEventHandler(async (_event) => {
   if (!credit || credit.amount < 1) {
     throw createError({
       statusCode: 402,
+      statusMessage: 'Payment Required',
       message: 'Insufficient credits',
     });
   }
@@ -55,6 +55,7 @@ export default defineEventHandler(async (_event) => {
     });
     throw createError({
       statusCode: 404,
+      statusMessage: 'Not Found',
       message: 'Chat not found',
     });
   }
@@ -64,6 +65,7 @@ export default defineEventHandler(async (_event) => {
     logger.error('No last message');
     throw createError({
       statusCode: 400,
+      statusMessage: 'Bad Request',
       message: 'Invalid body message length',
     });
   }
@@ -86,6 +88,7 @@ export default defineEventHandler(async (_event) => {
     logger.error('Message not created');
     throw createError({
       statusCode: 500,
+      statusMessage: 'Internal Server Error',
       message: 'Cannot create message',
     });
   }
@@ -185,6 +188,7 @@ export default defineEventHandler(async (_event) => {
       logger.error(`Stream failed: ${error}`);
       throw createError({
         statusCode: 500,
+        statusMessage: 'Internal Server Error',
         message: 'Stream error',
       });
     });
@@ -235,6 +239,7 @@ export default defineEventHandler(async (_event) => {
     logger.error(`Chat completion failed: ${error}`);
     throw createError({
       statusCode: 500,
+      statusMessage: 'Internal Server Error',
       message: 'Error processing conversation',
     });
   }
