@@ -1,14 +1,16 @@
 import consola from 'consola';
 import type { ProviderAuthDto } from './dto/provider-auth.dto';
-import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 const logger = consola.create({}).withTag('ProviderAuthService');
 
 export class ProviderAuthService {
   private readonly prisma: ExtendedPrismaClient;
 
-  constructor() {
-    this.prisma = getPrismaClient();
+  constructor(prisma: ExtendedPrismaClient) {
+    if (!prisma) {
+      throw new Error('Prisma client not found');
+    }
+    this.prisma = prisma;
   }
 
   async findFirst(payload: {

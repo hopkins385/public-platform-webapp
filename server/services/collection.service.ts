@@ -1,12 +1,14 @@
 import type { CollectionAbleDto } from './dto/collection-able.dto';
 import type { CreateCollectionDto } from './dto/collection.dto';
-import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 export class CollectionService {
   private readonly prisma: ExtendedPrismaClient;
 
-  constructor() {
-    this.prisma = getPrismaClient();
+  constructor(prisma: ExtendedPrismaClient) {
+    if (!prisma) {
+      throw new Error('Prisma client not found');
+    }
+    this.prisma = prisma;
   }
 
   async createCollection(payload: CreateCollectionDto) {

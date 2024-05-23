@@ -1,12 +1,18 @@
 import { AssistantJobDto } from './dto/job.dto';
 import { WorkflowService } from './workflow.service';
 import { QueueEnum } from '../utils/enums/queue.enum';
+import type { ExtendedPrismaClient } from '../utils/prisma/usePrisma';
 
 export class WorkflowExecutionService {
+  private readonly prisma: ExtendedPrismaClient;
   private readonly workflowService: WorkflowService;
 
-  constructor() {
-    this.workflowService = new WorkflowService();
+  constructor(prisma: ExtendedPrismaClient) {
+    if (!prisma) {
+      throw new Error('Prisma client not found');
+    }
+    this.prisma = prisma;
+    this.workflowService = new WorkflowService(prisma);
   }
 
   /**

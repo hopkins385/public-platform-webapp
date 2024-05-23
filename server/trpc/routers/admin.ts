@@ -6,8 +6,9 @@ import { adminProcedure, router } from '../trpc';
 const pageRule = () => z.number().int().positive().default(1);
 const limitRule = () => z.number().int().positive().default(20);
 
-const userService = new UserService();
-const teamService = new TeamService();
+const prisma = getPrismaClient();
+const userService = new UserService(prisma);
+const teamService = new TeamService(prisma);
 
 const adminUsersRouter = router({
   allPaginated: adminProcedure

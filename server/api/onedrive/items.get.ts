@@ -10,15 +10,16 @@ import { getServerSession } from '#auth';
 import 'isomorphic-fetch';
 import consola from 'consola';
 
-const logger = consola.create({}).withTag('api.onedrive.items.get');
+const prisma = getPrismaClient();
+const config = useRuntimeConfig().azure;
+const providerAuthService = new ProviderAuthService(prisma);
 
 const querySchema = z.object({
   search: z.string().max(50).optional(),
   itemId: z.string().max(50).optional(),
 });
 
-const providerAuthService = new ProviderAuthService();
-const config = useRuntimeConfig().azure;
+const logger = consola.create({}).withTag('api.onedrive.items.get');
 
 function getAuthenticatedClient(
   msalClient: ConfidentialClientApplication,

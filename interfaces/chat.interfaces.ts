@@ -21,6 +21,7 @@ export interface ChatMessage {
 export interface ChatConversation {
   messages: ChatMessage[];
   model: string;
+  provider: string;
   lang: string;
   chatId?: string | null;
 }

@@ -8,7 +8,8 @@ import {
   DetachMediaAbleDto,
 } from '~/server/services/dto/media-able.dto';
 
-const mediaAbleService = new MediaAbleService();
+const prisma = getPrismaClient();
+const mediaAbleService = new MediaAbleService(prisma);
 
 export const mediaAbleRouter = router({
   attachTo: protectedProcedure

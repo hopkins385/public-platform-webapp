@@ -9,7 +9,8 @@ import {
   UpdateWorkflowStepNameDto,
 } from '~/server/services/dto/workflow-step.dto';
 
-const workflowStepService = new WorkflowStepService();
+const prisma = getPrismaClient();
+const workflowStepService = new WorkflowStepService(prisma);
 
 export const workflowStepRouter = router({
   // create workflow step

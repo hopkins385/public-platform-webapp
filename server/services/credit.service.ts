@@ -1,5 +1,4 @@
 import { ULID } from '~/server/utils/ulid';
-import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 function idToLowerCase(id: string) {
   return id.toLowerCase();
@@ -8,8 +7,8 @@ function idToLowerCase(id: string) {
 export class CreditService {
   private readonly prisma: ExtendedPrismaClient;
 
-  constructor() {
-    this.prisma = getPrismaClient();
+  constructor(prisma: ExtendedPrismaClient) {
+    this.prisma = prisma;
   }
 
   createCredit(userId: string, amount: number) {

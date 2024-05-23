@@ -2,13 +2,15 @@ import type {
   CreateDocumentItemDto,
   UpdateDocumentItemDto,
 } from './dto/document-item.dto';
-import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 export class DocumentItemService {
   private readonly prisma: ExtendedPrismaClient;
 
-  constructor() {
-    this.prisma = getPrismaClient();
+  constructor(prisma: ExtendedPrismaClient) {
+    if (!prisma) {
+      throw new Error('Prisma client not found');
+    }
+    this.prisma = prisma;
   }
 
   create(payload: CreateDocumentItemDto) {

@@ -8,8 +8,9 @@ import { ChatService } from '../services/chat.service';
 import type { FirstUserMessageEventDto } from '../services/dto/event.dto';
 import { useEvents } from '../events/useEvents';
 
-const assistantJobService = new AssistantJobService();
-const chatService = new ChatService();
+const prisma = getPrismaClient();
+const assistantJobService = new AssistantJobService(prisma);
+const chatService = new ChatService(prisma);
 
 export default defineNitroPlugin((nitroApp) => {
   const { createWorker } = useBullmq();

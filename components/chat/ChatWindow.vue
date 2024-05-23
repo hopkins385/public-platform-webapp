@@ -130,6 +130,7 @@
     try {
       const stream = await postConversation(ac.signal, {
         model: chatStore.model,
+        provider: chatStore.provider,
         lang: locale.value,
         messages: getFormattedMessages(),
         chatId: props.chatId,
@@ -193,8 +194,9 @@
 
   function setModelFromAssistant() {
     if (props?.assistant?.llm) {
-      const { apiName } = props.assistant?.llm;
+      const { apiName, provider } = props.assistant?.llm;
       chatStore.model = apiName;
+      chatStore.provider = provider;
     }
   }
 

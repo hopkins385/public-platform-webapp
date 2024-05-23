@@ -6,11 +6,21 @@ import { AssistantJobDto } from './dto/job.dto';
 import { TrackTokensDto } from './dto/track-tokens.dto';
 import { useEvents } from '../events/useEvents';
 
+const { event } = useEvents();
+
 export class AssistantJobService {
-  constructor(
-    private readonly documentItemService: DocumentItemService = new DocumentItemService(),
-    private readonly event = useEvents().event,
-  ) {}
+  private readonly prisma: ExtendedPrismaClient;
+  private readonly documentItemService: DocumentItemService;
+  private readonly event;
+
+  constructor(prisma: ExtendedPrismaClient) {
+    if (!prisma) {
+      throw new Error('Prisma client not found');
+    }
+    this.prisma = prisma;
+    this.event = event;
+    this.documentItemService = new DocumentItemService(prisma);
+  }
 
   async processJob(payload: AssistantJobDto) {
     const {

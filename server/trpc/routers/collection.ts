@@ -5,7 +5,8 @@ import { CollectionService } from '~/server/services/collection.service';
 import { collectionAbleRule } from '~/server/utils/validation/collection-able.rule';
 import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
 
-const collectionService = new CollectionService();
+const prisma = getPrismaClient();
+const collectionService = new CollectionService(prisma);
 
 export const collectionRouter = router({
   create: protectedProcedure

@@ -2,7 +2,6 @@ import type { ChatMessage } from '~/interfaces/chat.interfaces';
 import { ULID } from '~/server/utils/ulid';
 import type { CreateChatMessageDto } from './dto/chat-message.dto';
 import { TRPCError } from '@trpc/server';
-import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 interface UpsertMessage extends ChatMessage {
   id: string;
@@ -24,8 +23,11 @@ function notLowerZero(value: number) {
 export class ChatService {
   private readonly prisma: ExtendedPrismaClient;
 
-  constructor() {
-    this.prisma = getPrismaClient();
+  constructor(prisma: ExtendedPrismaClient) {
+    if (!prisma) {
+      throw new Error('Prisma client not found');
+    }
+    this.prisma = prisma;
   }
 
   getHistory(

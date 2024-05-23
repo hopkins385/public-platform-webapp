@@ -5,8 +5,9 @@ import { AuthEvent } from '~/server/utils/enums/auth-event.enum';
 import { useEvents } from '~/server/events/useEvents';
 
 const { event } = useEvents();
-const userService = new UserService();
+const prisma = getPrismaClient();
 const config = useRuntimeConfig().auth;
+const userService = new UserService(prisma);
 
 function getRoles(user: any) {
   if (!Array.isArray(user.roles)) {

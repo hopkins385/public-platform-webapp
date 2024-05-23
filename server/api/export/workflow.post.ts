@@ -4,7 +4,8 @@ import consola from 'consola';
 
 const logger = consola.create({}).withTag('api.export.workflow.post');
 
-const workflowService = new WorkflowService();
+const prisma = getPrismaClient();
+const workflowService = new WorkflowService(prisma);
 
 export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);

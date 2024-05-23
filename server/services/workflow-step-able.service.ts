@@ -2,13 +2,15 @@ import type {
   CreateWorkflowStepAbleDto,
   UpdateWorkflowStepAbleDto,
 } from './dto/workflow-step-able.dto';
-import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 export class WorkflowStepAbleService {
   private readonly prisma: ExtendedPrismaClient;
 
-  constructor() {
-    this.prisma = getPrismaClient();
+  constructor(prisma: ExtendedPrismaClient) {
+    if (!prisma) {
+      throw new Error('Prisma client not found');
+    }
+    this.prisma = prisma;
   }
 
   create(payload: CreateWorkflowStepAbleDto) {

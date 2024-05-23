@@ -9,7 +9,8 @@ import { protectedProcedure, router } from '../trpc';
 import { ulidRule } from '~/server/utils/validation/ulid.rule';
 import { TRPCError } from '@trpc/server';
 
-const workflowService = new WorkflowService();
+const prisma = getPrismaClient();
+const workflowService = new WorkflowService(prisma);
 
 export const workflowRouter = router({
   // create workflow

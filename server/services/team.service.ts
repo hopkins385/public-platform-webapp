@@ -1,11 +1,13 @@
 import type { CreateTeamUserDto, FindTeamUserDto } from './dto/team.dto';
-import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 export class TeamService {
   private readonly prisma: ExtendedPrismaClient;
 
-  constructor() {
-    this.prisma = getPrismaClient();
+  constructor(prisma: ExtendedPrismaClient) {
+    if (!prisma) {
+      throw new Error('Prisma client not found');
+    }
+    this.prisma = prisma;
   }
 
   async createTeamUser(payload: CreateTeamUserDto) {

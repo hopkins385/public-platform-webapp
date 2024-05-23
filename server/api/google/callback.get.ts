@@ -4,7 +4,8 @@ import { z } from 'zod';
 import { getServerSession } from '#auth';
 import { ProviderAuthDto } from '~/server/services/dto/provider-auth.dto';
 
-const providerAuthService = new ProviderAuthService();
+const prisma = getPrismaClient();
+const providerAuthService = new ProviderAuthService(prisma);
 
 const codeSchema = z.object({
   code: z.string(),

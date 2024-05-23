@@ -1,6 +1,5 @@
 import { TRPCError } from '@trpc/server';
 import { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
-import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 interface UserProjectPolicyPayload {
   project: any;
@@ -10,8 +9,11 @@ interface UserProjectPolicyPayload {
 export class ProjectService {
   private readonly prisma: ExtendedPrismaClient;
 
-  constructor() {
-    this.prisma = getPrismaClient();
+  constructor(prisma: ExtendedPrismaClient) {
+    if (!prisma) {
+      throw new Error('Prisma client not found');
+    }
+    this.prisma = prisma;
   }
 
   canCreateProjectPolicy(payload: CreateProjectDto) {

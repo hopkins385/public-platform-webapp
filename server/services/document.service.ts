@@ -4,13 +4,15 @@ import type {
   FindAllDocumentsDto,
   UpdateDocumentDto,
 } from './dto/document.dto';
-import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 export class DocumentService {
   private readonly prisma: ExtendedPrismaClient;
 
-  constructor() {
-    this.prisma = getPrismaClient();
+  constructor(prisma: ExtendedPrismaClient) {
+    if (!prisma) {
+      throw new Error('Prisma client not found');
+    }
+    this.prisma = prisma;
   }
 
   async create(payload: CreateDocumentDto) {

@@ -11,7 +11,8 @@ import {
 } from '~/server/services/dto/assistant.dto';
 import { ulidRule } from '~/server/utils/validation/ulid.rule';
 
-const assistantService = new AssistantService();
+const prisma = getPrismaClient();
+const assistantService = new AssistantService(prisma);
 
 export const assistantRouter = router({
   // create assistant

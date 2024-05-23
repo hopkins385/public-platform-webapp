@@ -3,7 +3,8 @@ import { publicProcedure, router } from '../trpc';
 import { z } from 'zod';
 import { verifyEmail } from '@devmehq/email-validator-js';
 
-const userService = new UserService();
+const prisma = getPrismaClient();
+const userService = new UserService(prisma);
 
 export const registerRouter = router({
   newUser: publicProcedure

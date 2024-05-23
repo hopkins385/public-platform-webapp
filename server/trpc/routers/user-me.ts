@@ -2,7 +2,8 @@ import { UserService } from '~/server/services/user.service';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 
-const userService = new UserService();
+const prisma = getPrismaClient();
+const userService = new UserService(prisma);
 
 export const userMeRouter = router({
   // get me

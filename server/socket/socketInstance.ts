@@ -41,14 +41,3 @@ export function getEngine() {
   }
   return engine;
 }
-
-/*declare const globalThis: {
-  io: ReturnType<typeof clientSingleton>;
-} & typeof global;
-
-const io = globalThis.io ?? clientSingleton();
-
-export default io;
-
-if (process.env.NODE_ENV !== 'production') globalThis.io = io;
-*/

@@ -6,7 +6,8 @@ import {
   UpdateProjectDto,
 } from '~/server/services/dto/project.dto';
 
-const projectService = new ProjectService();
+const prisma = getPrismaClient();
+const projectService = new ProjectService(prisma);
 
 export const projectRouter = router({
   // create project

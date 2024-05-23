@@ -4,7 +4,8 @@ import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { MediaAbleDto } from '~/server/services/dto/media-able.dto';
 
-const mediaService = new MediaService();
+const prisma = getPrismaClient();
+const mediaService = new MediaService(prisma);
 
 export const mediaRouter = router({
   find: protectedProcedure

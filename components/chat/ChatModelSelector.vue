@@ -46,6 +46,7 @@
     }
     if (typeof event.detail.value === 'string') {
       chatStore.model = event.detail.value;
+      chatStore.provider = model?.provider;
     }
     open.value = false;
   }

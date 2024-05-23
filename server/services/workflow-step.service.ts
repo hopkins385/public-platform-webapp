@@ -8,17 +8,19 @@ import type {
   UpdateWorkflowStepDto,
   UpdateWorkflowStepNameDto,
 } from './dto/workflow-step.dto';
-import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
 
 export class WorkflowStepService {
   private readonly prisma: ExtendedPrismaClient;
   private readonly documentService: DocumentService;
   private readonly documentItemService: DocumentItemService;
 
-  constructor() {
-    this.prisma = getPrismaClient();
-    this.documentService = new DocumentService();
-    this.documentItemService = new DocumentItemService();
+  constructor(prisma: ExtendedPrismaClient) {
+    if (!prisma) {
+      throw new Error('Prisma client not found');
+    }
+    this.prisma = prisma;
+    this.documentService = new DocumentService(prisma);
+    this.documentItemService = new DocumentItemService(prisma);
   }
 
   async create(payload: CreateWorkflowStepDto) {

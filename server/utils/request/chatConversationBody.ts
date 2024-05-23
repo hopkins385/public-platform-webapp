@@ -5,12 +5,15 @@ import consola from 'consola';
 const logger = consola.create({}).withTag('getConversationBody');
 
 // TODO: Fix model validation !!!
-const modelRule = z.string();
+const modelRule = () => z.string();
 // .refine((model) => Object.values(ModelEnum).includes(model as ModelEnum));
+
+const providerRule = () => z.string();
 
 const bodySchema = z.object({
   messages: z.array(ChatMessageRule()),
-  model: modelRule,
+  model: modelRule(),
+  provider: providerRule(),
   lang: langRule(),
   chatId: ulidRule(),
   maxTokens: z.number().int().gte(0),

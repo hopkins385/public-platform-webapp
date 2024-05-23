@@ -5,13 +5,15 @@ import { ProviderAuthDto } from '~/server/services/dto/provider-auth.dto';
 import consola from 'consola';
 import type * as msal from '@azure/msal-node';
 
-const logger = consola.create({}).withTag('api.onedrive.callback.get');
+const prisma = getPrismaClient();
+const config = useRuntimeConfig().azure;
+const providerAuthService = new ProviderAuthService(prisma);
 
 const querySchema = z.object({
   code: z.string(),
 });
-const config = useRuntimeConfig().azure;
-const providerAuthService = new ProviderAuthService();
+
+const logger = consola.create({}).withTag('api.onedrive.callback.get');
 
 export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);

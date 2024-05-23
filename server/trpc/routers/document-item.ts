@@ -7,7 +7,8 @@ import {
   UpdateDocumentItemDto,
 } from '~/server/services/dto/document-item.dto';
 
-const documentItemService = new DocumentItemService();
+const prisma = getPrismaClient();
+const documentItemService = new DocumentItemService(prisma);
 
 export const documentItemRouter = router({
   create: protectedProcedure

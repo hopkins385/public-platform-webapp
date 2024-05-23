@@ -6,8 +6,9 @@ import type {
   StreamFinishedEventDto,
 } from '~/server/services/dto/event.dto';
 
-const chatService = new ChatService();
-const creditService = new CreditService();
+const prisma = getPrismaClient();
+const chatService = new ChatService(prisma);
+const creditService = new CreditService(prisma);
 const { queueAdd } = useBullmq();
 
 export async function chatStreamFinishedEvent(data: StreamFinishedEventDto) {

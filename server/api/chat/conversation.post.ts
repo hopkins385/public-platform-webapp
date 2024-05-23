@@ -21,10 +21,12 @@ import {
 } from '~/server/services/dto/event.dto';
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import { useEvents } from '~/server/events/useEvents';
+import { CompletionFactoryStatic } from '~/server/factories/completionFactoryStatic';
 
 const config = useRuntimeConfig();
-const chatService = new ChatService();
-const creditService = new CreditService();
+const prisma = getPrismaClient();
+const chatService = new ChatService(prisma);
+const creditService = new CreditService(prisma);
 const tokenizerService = new TokenizerService();
 
 const logger = consola.create({}).withTag('conversation.post');
@@ -153,11 +155,12 @@ export default defineEventHandler(async (_event) => {
   // return;
 
   try {
-    const completion = new CompletionFactory(body.model, config);
+    const completion = new CompletionFactoryStatic(body.provider, body.model);
     const response = await completion.create({
       messages,
       maxTokens: body.maxTokens,
       temperature: body.temperature,
+      stream: true,
     });
 
     let llmResponseMessage = '';

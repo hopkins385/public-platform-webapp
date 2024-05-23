@@ -7,7 +7,8 @@ import {
 } from '~/server/services/dto/collection-able.dto';
 import { CollectionAbleService } from '~/server/services/collection-able.service';
 
-const collectionAbleService = new CollectionAbleService();
+const prisma = getPrismaClient();
+const collectionAbleService = new CollectionAbleService(prisma);
 
 export const collectionAbleRouter = router({
   attachTo: protectedProcedure

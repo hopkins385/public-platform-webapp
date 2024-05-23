@@ -6,8 +6,9 @@ import { MediaService } from '~/server/services/media.service';
 import { StorageService } from '~/server/services/storage.service';
 import consola from 'consola';
 
+const prisma = getPrismaClient();
 const storageService = new StorageService();
-const mediaService = new MediaService();
+const mediaService = new MediaService(prisma);
 
 const logger = consola.create({}).withTag('api.upload.post');
 

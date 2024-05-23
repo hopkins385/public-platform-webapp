@@ -8,7 +8,8 @@ import {
   UpdateDocumentDto,
 } from '~/server/services/dto/document.dto';
 
-const documentService = new DocumentService();
+const prisma = getPrismaClient();
+const documentService = new DocumentService(prisma);
 
 export const documentRouter = router({
   // create document

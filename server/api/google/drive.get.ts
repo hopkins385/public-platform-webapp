@@ -5,7 +5,8 @@ import { ProviderAuthService } from '~/server/services/provider-auth.service';
 import { google } from 'googleapis';
 import consola from 'consola';
 
-const logger = consola.create({}).withTag('api.google.drive.get');
+const prisma = getPrismaClient();
+const providerAuthService = new ProviderAuthService(prisma);
 
 const querySchema = z.object({
   search: z.string().max(50).optional(),
@@ -13,7 +14,7 @@ const querySchema = z.object({
   pageToken: z.string().max(512).optional(),
 });
 
-const providerAuthService = new ProviderAuthService();
+const logger = consola.create({}).withTag('api.google.drive.get');
 
 export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);
