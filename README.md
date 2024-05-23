@@ -84,3 +84,6 @@ Locally preview production build:
 ```bash
 npm run preview
 ```
+
+
+"seed": "ts-node --compiler-options {\"module\":\"CommonJS\",\"verbatimModuleSyntax\":false,\"types\":[\"node\"]} prisma/seed.ts"

@@ -1,5 +1,38 @@
 [
   {
+    "apiName": "gpt-3.5-turbo",
+    "displayName": "OpenAI GPT-3.5 Turbo",
+    "provider": "openai",
+    "description": "",
+    "contextSize": 16,
+    "maxTokens": 4,
+    "multiModal": false,
+    "hidden": false,
+    "free": false
+  },
+  {
+    "apiName": "gpt-4-turbo",
+    "displayName": "OpenAI GPT-4 Turbo",
+    "provider": "openai",
+    "description": "",
+    "contextSize": 8,
+    "maxTokens": 0,
+    "multiModal": true,
+    "hidden": false,
+    "free": false
+  },
+  {
+    "apiName": "gpt-4o",
+    "displayName": "OpenAI GPT-4 Omni",
+    "provider": "openai",
+    "description": "",
+    "contextSize": 128,
+    "maxTokens": 0,
+    "multiModal": true,
+    "hidden": false,
+    "free": false
+  },
+  {
     "apiName": "llama3-8b-8192",
     "displayName": "Groq Llama 3 8B",
     "provider": "groq",
@@ -51,39 +84,6 @@
     "contextSize": 32,
     "maxTokens": 0,
     "multiModal": false,
-    "hidden": false,
-    "free": false
-  },
-  {
-    "apiName": "gpt-3.5-turbo",
-    "displayName": "OpenAI GPT-3.5 Turbo",
-    "provider": "openai",
-    "description": "",
-    "contextSize": 16,
-    "maxTokens": 4,
-    "multiModal": false,
-    "hidden": false,
-    "free": false
-  },
-  {
-    "apiName": "gpt-4-turbo",
-    "displayName": "OpenAI GPT-4 Turbo",
-    "provider": "openai",
-    "description": "",
-    "contextSize": 8,
-    "maxTokens": 0,
-    "multiModal": true,
-    "hidden": false,
-    "free": false
-  },
-  {
-    "apiName": "gpt-4o",
-    "displayName": "OpenAI GPT-4 Omni",
-    "provider": "openai",
-    "description": "",
-    "contextSize": 128,
-    "maxTokens": 0,
-    "multiModal": true,
     "hidden": false,
     "free": false
   },
