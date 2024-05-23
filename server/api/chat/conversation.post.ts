@@ -20,6 +20,7 @@ import {
   FirstUserMessageEventDto,
 } from '~/server/services/dto/event.dto';
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
+import { useEvents } from '~/server/events/useEvents';
 
 const config = useRuntimeConfig();
 const chatService = new ChatService();

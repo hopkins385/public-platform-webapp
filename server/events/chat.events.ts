@@ -6,10 +6,11 @@ import type {
   StreamFinishedEventDto,
 } from '~/server/services/dto/event.dto';
 
-export async function chatStreamFinishedEvent(data: StreamFinishedEventDto) {
-  const chatService = new ChatService();
-  const creditService = new CreditService();
+const chatService = new ChatService();
+const creditService = new CreditService();
+const { queueAdd } = useBullmq();
 
+export async function chatStreamFinishedEvent(data: StreamFinishedEventDto) {
   const { chatId, userId, messageContent } = data;
 
   const payload = CreateChatMessageDto.fromInput({
@@ -24,7 +25,6 @@ export async function chatStreamFinishedEvent(data: StreamFinishedEventDto) {
 }
 
 export async function firstUserMessageEvent(data: FirstUserMessageEventDto) {
-  const { queueAdd } = useBullmq();
   const options = {
     delay: 1000,
   };

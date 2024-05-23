@@ -2,11 +2,11 @@ import { AssistantJobService } from './../services/assistant-job.service';
 import { WorkflowEvent } from '../utils/enums/workflow-event.enum';
 import { QueueEnum } from '../utils/enums/queue.enum';
 import { JobEnum } from '../utils/enums/job.enum';
-import { trackTokens } from '../utils/track-tokens';
-import { ChatTitleWorker } from '../workers/chat-title-worker';
-import type { FirstUserMessageEventDto } from '../services/dto/event.dto';
+import { trackTokensEvent } from '../events/track-tokens.event';
 import { CompletionFactoryStatic } from '../factories/completionFactoryStatic';
 import { ChatService } from '../services/chat.service';
+import type { FirstUserMessageEventDto } from '../services/dto/event.dto';
+import { useEvents } from '../events/useEvents';
 
 const assistantJobService = new AssistantJobService();
 const chatService = new ChatService();
@@ -55,7 +55,7 @@ export default defineNitroPlugin((nitroApp) => {
   const tokenUsageQueue = createWorker(QueueEnum.TOKENUSAGE, async (job) => {
     switch (job.name) {
       case JobEnum.TRACKTOKENS:
-        await trackTokens(job.data);
+        await trackTokensEvent(job.data);
         break;
       default:
         throw new Error(

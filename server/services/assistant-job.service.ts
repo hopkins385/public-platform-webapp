@@ -4,6 +4,7 @@ import { UsageEvent } from '../utils/enums/usage-event.enum';
 import { DocumentItemService } from './document-item.service';
 import { AssistantJobDto } from './dto/job.dto';
 import { TrackTokensDto } from './dto/track-tokens.dto';
+import { useEvents } from '../events/useEvents';
 
 export class AssistantJobService {
   constructor(

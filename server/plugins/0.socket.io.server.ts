@@ -1,11 +1,15 @@
 import type { NitroApp } from 'nitropack';
 import consola from 'consola';
+import { init, getEngine } from '../socket/socketInstance';
 
 const logger = consola.create({}).withTag('socket-server');
 
 export default defineNitroPlugin((nitroApp: NitroApp) => {
-  const { getSocketServer, getEngine } = useSocketServer();
-  const io = getSocketServer();
+  const { port, origin } = useRuntimeConfig().websocket;
+  const serverPort = port ? Number(port) : 3001;
+  const serverOrigin = origin || 'http://localhost';
+
+  const io = init(serverPort, serverOrigin);
   const engine = getEngine();
 
   // middleware

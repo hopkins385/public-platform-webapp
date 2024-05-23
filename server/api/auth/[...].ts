@@ -2,7 +2,7 @@ import { NuxtAuthHandler } from '#auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { UserService } from '~/server/services/user.service';
 import { AuthEvent } from '~/server/utils/enums/auth-event.enum';
-import { useEvents } from '~/server/utils/events/useEvents';
+import { useEvents } from '~/server/events/useEvents';
 
 const { event } = useEvents();
 const userService = new UserService();

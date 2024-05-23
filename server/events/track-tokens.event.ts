@@ -1,11 +1,12 @@
 import consola from 'consola';
 import type { TrackTokensDto } from '~/server/services/dto/track-tokens.dto';
+import { getIO } from '../socket/socketInstance';
 
 const logger = consola.create({}).withTag('track-tokens.worker');
 
-export async function trackTokens(payload: TrackTokensDto) {
-  const io = useSocketServer().getSocketServer();
+export async function trackTokensEvent(payload: TrackTokensDto) {
   const prisma = usePrisma().getClient();
+  const io = getIO();
   const { userId, llm, usage } = payload;
 
   const inputPrice1KTokens = 0.001;
