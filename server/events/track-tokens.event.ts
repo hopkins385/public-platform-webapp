@@ -23,7 +23,7 @@ export async function trackTokensEvent(payload: TrackTokensDto) {
     return Math.round(num);
   }
 
-  logger.info('Tracking tokens usage for user %s', userId);
+  logger.info('Tracking token usage for user %s', userId);
 
   try {
     await prisma.tokenUsage.create({

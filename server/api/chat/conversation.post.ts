@@ -217,8 +217,8 @@ export default defineEventHandler(async (_event) => {
         TrackTokensDto.fromInput({
           userId: user.id,
           llm: {
-            provider: chat.assistant.llm.provider,
-            model: chat.assistant.llm.apiName,
+            provider: body.provider, //chat.assistant.llm.provider,
+            model: body.model, //chat.assistant.llm.apiName,
           },
           usage: {
             promptTokens: inputTokens.tokenCount,

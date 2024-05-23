@@ -193,11 +193,13 @@
   }
 
   function setModelFromAssistant() {
-    if (props?.assistant?.llm) {
-      const { apiName, provider } = props.assistant?.llm;
-      chatStore.model = apiName;
-      chatStore.provider = provider;
-    }
+    if (!props.assistant) return;
+    const { apiName, provider, multiModal } = props.assistant.llm;
+    chatStore.setModel({
+      model: apiName,
+      provider: provider,
+      hasVision: multiModal,
+    });
   }
 
   const { uploadManyFiles } = useManageMedia();
@@ -258,6 +260,7 @@
 
   const { isOverDropZone } = useDropZone(chatBoxContainerRef, {
     onDrop: (files) => {
+      if (!chatStore.modelWithVision) return;
       const file = files[0];
       if (!file) {
         return;
@@ -437,20 +440,23 @@
       <!-- Image input -->
       <ChatImageInput v-model:input-images="inputImages" />
       <div class="flex space-x-1">
-        <Button
-          variant="ghost"
-          size="icon"
-          class="group text-slate-500"
-          :class="{
-            'bg-slate-100 text-green-600': isOverDropZone,
-          }"
-          @click="() => openFileDialog()"
-        >
-          <PaperclipIcon
-            class="size-5 -rotate-45 stroke-1 group-hover:stroke-1.5"
-            :class="{ 'stroke-2': isOverDropZone }"
-          />
-        </Button>
+        <!-- vision input -->
+        <div v-if="chatStore.modelWithVision">
+          <Button
+            variant="ghost"
+            size="icon"
+            class="group text-slate-500"
+            :class="{
+              'bg-slate-100 text-green-600': isOverDropZone,
+            }"
+            @click="() => openFileDialog()"
+          >
+            <PaperclipIcon
+              class="size-5 -rotate-45 stroke-1 group-hover:stroke-1.5"
+              :class="{ 'stroke-2': isOverDropZone }"
+            />
+          </Button>
+        </div>
         <!-- message input form -->
         <form
           class="relative flex w-full items-center space-x-2 border-0"

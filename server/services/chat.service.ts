@@ -195,6 +195,7 @@ export class ChatService {
                 provider: true,
                 displayName: true,
                 apiName: true,
+                multiModal: true,
               },
             },
           },

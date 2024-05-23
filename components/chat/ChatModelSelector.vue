@@ -45,8 +45,13 @@
       // return;
     }
     if (typeof event.detail.value === 'string') {
-      chatStore.model = event.detail.value;
-      chatStore.provider = model?.provider;
+      // chatStore.model = event.detail.value;
+      // chatStore.provider = model?.provider;
+      chatStore.setModel({
+        model: event.detail.value,
+        provider: model?.provider,
+        hasVision: model?.multiModal,
+      });
     }
     open.value = false;
   }

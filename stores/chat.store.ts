@@ -1,21 +1,24 @@
 export const useChatStore = defineStore('chatStore', {
   state: () => ({
-    model: 'gpt-4o',
-    provider: 'openai',
+    modelWithVision: false,
+    model: '',
+    provider: '',
   }),
   getters: {
     selectedModel: (state) => state.model,
   },
   actions: {
-    setModel(model: string) {
+    setOnlyModel(model: string, hasVision: boolean) {
+      this.modelWithVision = hasVision || false;
       this.model = model;
     },
-    setProvider(provider: string) {
+    setOnlyProvider(provider: string) {
       this.provider = provider;
     },
-    setModelAndProvider(model: string, provider: string) {
-      this.model = model;
-      this.provider = provider;
+    setModel(payload: { model: string; provider: string; hasVision: boolean }) {
+      this.model = payload.model;
+      this.provider = payload.provider;
+      this.modelWithVision = payload.hasVision || false;
     },
   },
 });
