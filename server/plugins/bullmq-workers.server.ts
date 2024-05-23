@@ -3,19 +3,52 @@ import { WorkflowEvent } from '../utils/enums/workflow-event.enum';
 import { QueueEnum } from '../utils/enums/queue.enum';
 import { JobEnum } from '../utils/enums/job.enum';
 import { trackTokens } from '../utils/track-tokens';
+import { ChatTitleWorker } from '../workers/chat-title-worker';
+import type { FirstUserMessageEventDto } from '../services/dto/event.dto';
+import { CompletionFactoryStatic } from '../factories/completionFactoryStatic';
+import { ChatService } from '../services/chat.service';
 
 const assistantJobService = new AssistantJobService();
+const chatService = new ChatService();
 
 export default defineNitroPlugin((nitroApp) => {
   const { createWorker } = useBullmq();
 
-  const createChatTitleQueue = createWorker(
+  const createChatTitle = createWorker(
     QueueEnum.CREATE_CHAT_TITLE,
     async (job) => {
-      const { data } = job;
-      console.log(
-        `Worker 'CreateChatTitle' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
-      );
+      const payload = job.data as FirstUserMessageEventDto;
+
+      // limit to max 1000 characters
+      const firstMessage = payload.messageContent.slice(0, 1000);
+
+      const messages = [
+        {
+          role: 'system',
+          content: `Your task is to create a very short chat title for this conversation based on the user message.\n
+           You only respond with the chat title.\n
+           You will be provided with the user message encapsulated in three hyphens.\n
+           You always respond in the exact same language as the user message.\n`,
+        },
+        {
+          role: 'user',
+          content: `"""${firstMessage}"""`,
+        },
+      ];
+      // 1. make a request to
+      const completion = new CompletionFactoryStatic('openai', 'gpt-3.5-turbo');
+      const response = await completion.create({
+        messages,
+        maxTokens: 20,
+        temperature: 0.5,
+        stream: false,
+      });
+      const message = response.choices[0].message.content;
+
+      // remove " from the beginning and end of the message
+      const chatTitle = message.replace(/^"|"$/g, '');
+
+      await chatService.updateChatTitle(payload.chatId, chatTitle);
     },
   );
 

@@ -264,6 +264,18 @@ export class ChatService {
     });
   }
 
+  updateChatTitle(chatId: string, title: string) {
+    return this.prisma.chat.update({
+      where: {
+        id: chatId.toLowerCase(),
+        deletedAt: null,
+      },
+      data: {
+        title,
+      },
+    });
+  }
+
   softDelete(userId: string, chatId: string) {
     return this.prisma.chat.update({
       where: {

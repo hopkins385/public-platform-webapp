@@ -182,3 +182,6 @@ export function useBullmq() {
     getFlowProducer,
   };
 }
+
+// createWorker type
+export type createWorker = ReturnType<typeof useBullmq>['createWorker'];
