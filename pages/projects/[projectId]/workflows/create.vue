@@ -31,6 +31,7 @@
   ];
 
   const acceptMimeTypes = allowedMimeTypes.join(',');
+  const maxFileSize = 1 * 1024 * 1024; // 1MB
 
   const errorAlert = reactive({
     show: false,
@@ -54,7 +55,7 @@
     errorAlert.show = true;
     errorAlert.message = 'Please create an assistant first, before creating a workflow.';
   }
-
+  const { getFileSizeForHumans } = useForHumans();
   const createWorkflowSchema = toTypedSchema(
     z.object({
       projectId: z.string().min(3).max(255),
@@ -66,6 +67,9 @@
         .instanceof(File)
         .refine((file) => allowedMimeTypes.includes(file.type), {
           message: 'Invalid file type.',
+        })
+        .refine((file) => file.size <= maxFileSize, {
+          message: `File too large. Max file size is ${getFileSizeForHumans(maxFileSize)}`,
         })
         .optional(),
     }),
@@ -100,7 +104,7 @@
         const medias = await uploadManyFiles([file]);
         const mediaId = medias?.[0].id;
         if (!mediaId) {
-          throw new Error('Failed to upload file');
+          throw new Error('Workflow created but unable to upload file');
         }
         const model = {
           id: workflow.id,
@@ -178,7 +182,10 @@
                 @change="(event: any) => handleChange(event.target.files && event.target.files[0])"
               />
             </FormControl>
-            <FormDescription> Supported file types .csv, .xls, .xlsx </FormDescription>
+            <FormDescription>
+              Supported file types .csv, .xls, .xlsx. Size max
+              {{ getFileSizeForHumans(maxFileSize) }}
+            </FormDescription>
             <FormMessage />
           </FormItem>
         </FormField>
