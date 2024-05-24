@@ -7,7 +7,7 @@ const logger = consola.create({}).withTag('prisma-client');
 
 function getExtendedClient() {
   return new PrismaClient({
-    log: ['info', 'warn', 'error'], // 'query', TODO: remove in production
+    log: ['info', 'warn', 'error'], // 'query'
   })
     .$extends(pagination())
     .$extends({

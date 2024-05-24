@@ -4,10 +4,8 @@ import { Readable, Transform } from 'stream';
 import { sendStream } from 'h3';
 import { OpenAI } from 'openai';
 import { ChatService } from '~/server/services/chat.service';
-import { CreditService } from '~/server/services/credit.service';
 import { getConversationBody } from '~/server/utils/request/chatConversationBody';
 import { ChatEvent } from '~/server/utils/enums/chat-event.enum';
-import consola from 'consola';
 import { UsageEvent } from '~/server/utils/enums/usage-event.enum';
 import { TrackTokensDto } from '~/server/services/dto/track-tokens.dto';
 import type {
@@ -21,10 +19,10 @@ import {
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import { useEvents } from '~/server/events/useEvents';
 import { CompletionFactoryStatic } from '~/server/factories/completionFactoryStatic';
+import consola from 'consola';
 
 const prisma = getPrismaClient();
 const chatService = new ChatService(prisma);
-const creditService = new CreditService(prisma);
 const tokenizerService = new TokenizerService();
 
 const logger = consola.create({}).withTag('conversation.post');
@@ -35,9 +33,17 @@ export default defineEventHandler(async (_event) => {
 
   const body = await getConversationBody(_event);
 
-  // Check if user has enough credits
-  const credit = await creditService.getCreditAmount(user.id);
-  if (!credit || credit.amount < 1) {
+  // Check if user has enough credits and is allowed to access the chat
+  const chat = await chatService.getChatAndCreditsForUser(body.chatId, user.id);
+  if (!chat) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Not Found',
+      message: 'Chat not found',
+    });
+  }
+
+  if (chat.user.credit[0].amount < 1) {
     throw createError({
       statusCode: 402,
       statusMessage: 'Payment Required',
@@ -45,21 +51,6 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
-  // Get chat
-  const chat = await chatService.getChatForUser(body.chatId, user.id);
-  if (!chat) {
-    logger.error('Chat not found', {
-      chatId: body.chatId,
-      userId: user.id,
-      chat,
-    });
-    throw createError({
-      statusCode: 404,
-      statusMessage: 'Not Found',
-      message: 'Chat not found',
-    });
-  }
-  const bodyMessagesCount = body.messages.length;
   const lastMessage = body.messages[body.messages.length - 1];
   if (!lastMessage) {
     logger.error('No last message');
@@ -70,38 +61,23 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
-  // store last message in chat
   const message = await chatService.createMessage(
     CreateChatMessageDto.fromInput({
-      userId: user.id,
-      chatId: body.chatId,
-      message: {
-        type: lastMessage.type,
-        role: lastMessage.role,
-        content: lastMessage.content,
-        visionContent: lastMessage.visionContent,
-      },
+      userId: chat.user.id,
+      chatId: chat.id,
+      message: lastMessage,
     }),
   );
 
-  if (!message) {
-    logger.error('Message not created');
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Internal Server Error',
-      message: 'Cannot create message',
-    });
-  }
-
   // Event to update chat title
-  if (bodyMessagesCount === 1 && message.role === 'user') {
+  if (body.messages.length === 1) {
     const { event } = useEvents();
     event(
       ChatEvent.FIRST_USERMESSAGE,
       FirstUserMessageEventDto.fromInput({
         chatId: chat.id,
         userId: user.id,
-        messageContent: message.content,
+        messageContent: body.messages[0].content,
       }),
     );
   }
@@ -221,8 +197,8 @@ export default defineEventHandler(async (_event) => {
         TrackTokensDto.fromInput({
           userId: user.id,
           llm: {
-            provider: body.provider, //chat.assistant.llm.provider,
-            model: body.model, //chat.assistant.llm.apiName,
+            provider: body.provider,
+            model: body.model,
           },
           usage: {
             promptTokens: inputTokens.tokenCount,

@@ -370,7 +370,7 @@
   }
 
   .cell {
-    @apply relative h-8 w-52 border-b border-l p-2;
+    @apply relative h-8 min-w-40 border-b border-l p-2;
   }
 
   .cell-content {

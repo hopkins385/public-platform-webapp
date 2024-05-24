@@ -2,6 +2,7 @@ import type { ChatMessage } from '~/interfaces/chat.interfaces';
 import { ULID } from '~/server/utils/ulid';
 import type { CreateChatMessageDto } from './dto/chat-message.dto';
 import { TRPCError } from '@trpc/server';
+import consola from 'consola';
 
 interface UpsertMessage extends ChatMessage {
   id: string;
@@ -15,6 +16,8 @@ interface UpsertChatMessages {
 interface UpsertChat {
   chatId: string;
 }
+
+const logger = consola.create({}).withTag('chat.service');
 
 function notLowerZero(value: number) {
   return value < 0 ? 0 : value;
@@ -168,6 +171,7 @@ export class ChatService {
       return null;
     }
     return this.prisma.chat.findFirst({
+      relationLoadStrategy: 'join',
       select: {
         id: true,
         title: true,
@@ -209,6 +213,40 @@ export class ChatService {
     });
   }
 
+  getChatAndCreditsForUser(chatId: string, userId: string) {
+    if (!chatId || !userId) {
+      return null;
+    }
+    return this.prisma.chat.findFirst({
+      relationLoadStrategy: 'join',
+      select: {
+        id: true,
+        title: true,
+        user: {
+          select: {
+            id: true,
+            credit: {
+              select: {
+                amount: true,
+              },
+            },
+          },
+        },
+        assistant: {
+          select: {
+            id: true,
+            systemPrompt: true,
+          },
+        },
+      },
+      where: {
+        id: chatId.toLowerCase(),
+        userId: userId.toLowerCase(),
+        deletedAt: null,
+      },
+    });
+  }
+
   create(assistantId: string, userId: string) {
     return this.prisma.chat.create({
       data: {
@@ -230,12 +268,11 @@ export class ChatService {
 
   async createMessage(payload: CreateChatMessageDto) {
     const tokenCount = getTokenCount(payload.message.content);
-
     try {
       return await this.prisma.chatMessage.create({
         data: {
           id: ULID(),
-          chatId: payload.chatId.toLowerCase(),
+          chatId: payload.chatId,
           type: payload.message.type,
           role: payload.message.role,
           content: payload.message.content,
@@ -244,7 +281,7 @@ export class ChatService {
         },
       });
     } catch (error) {
-      console.log(error);
+      logger.error(error);
     }
   }
 
