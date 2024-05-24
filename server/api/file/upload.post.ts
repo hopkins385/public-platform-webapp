@@ -5,6 +5,7 @@ import { getAuthUser } from '~/server/utils/auth/permission';
 import { MediaService } from '~/server/services/media.service';
 import { StorageService } from '~/server/services/storage.service';
 import consola from 'consola';
+import { UploadFiletDto } from '~/server/services/dto/file.dto';
 
 const prisma = getPrismaClient();
 const storageService = new StorageService();
@@ -39,15 +40,24 @@ export default defineEventHandler(async (_event) => {
       });
     }
 
+    //if vision then store external
+    const vision = Boolean(fields.vision?.[0] === 'true');
+
     const medias = [];
+    let createMediaPayload;
 
     for (const file of files.clientFiles) {
-      const payload = await storageService.uploadFileToBucket(
+      const uploadPayload = UploadFiletDto.fromInput({
         file,
-        user.id,
-        user.teamId, // TODO: fix typescript error
-      );
-      const media = await mediaService.create(payload);
+        userId: user.id,
+        teamId: user.teamId, // TODO: fix typescript error
+      });
+      if (vision) {
+        createMediaPayload = await storageService.uploadFileToBucket(uploadPayload);
+      } else {
+        createMediaPayload = await storageService.uploadFile(uploadPayload);
+      }
+      const media = await mediaService.create(createMediaPayload);
       medias.push(media);
     }
 

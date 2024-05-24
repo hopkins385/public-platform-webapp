@@ -58,11 +58,6 @@
   const { resizeRowListener, resizeColumnListener, initSheetDimensions } =
     useResizeSheet();
 
-  async function onPlayClick() {
-    const { executeWorkflow } = useExecuteWorkflow();
-    const { error } = await executeWorkflow(props.workflowId);
-  }
-
   async function onAddWorkflowStep() {
     const { createWorkflowStep } = useManageWorkflowSteps();
     const assistant = workflowData.value?.steps[0]?.assistant;
@@ -139,12 +134,6 @@
     cellCard.content = '';
   }
 
-  async function onReloadDataClick() {
-    const toast = useToast();
-    await refresh();
-    toast.success({ description: 'Data reloaded' });
-  }
-
   function workflowUpdateListener(message: any) {
     console.log('workflow channel message', message);
     refresh();
@@ -177,13 +166,7 @@
         class="index relative flex items-center justify-center"
         id="row_0_cell_x0_y1"
       >
-        <WorkflowExecuteMenu
-          v-if="sheetRef"
-          :projectId="projectId"
-          :workflowId="workflowId"
-          @play="onPlayClick"
-          @reload="onReloadDataClick"
-        />
+        --
       </div>
       <div
         v-for="(count, rowIndex) in rowCount"

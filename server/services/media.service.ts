@@ -72,20 +72,14 @@ export class MediaService {
     });
   }
 
-  async paginateFindAllFor(
-    model: MediaAbleDto,
-    page: number,
-    limit: number = 10,
-  ) {
+  async paginateFindAllFor(model: MediaAbleDto, page: number, limit: number = 10) {
     return this.prisma.media
       .paginate({
         select: {
           id: true,
           name: true,
-          fileName: false,
-          filePath: false,
-          fileMime: false,
           fileSize: true,
+          isExternal: true,
         },
         where: {
           mediaAbles: {

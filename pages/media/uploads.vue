@@ -22,6 +22,10 @@
     files.forEach((file) => {
       formData.append('clientFiles', file);
     });
+
+    // add to form vision key
+    formData.append('vision', 'false');
+
     try {
       isLoading.value = true;
       dropzoneFiles.value = [];
@@ -49,10 +53,7 @@
 
 <template>
   <SectionContainer class="space-y-4">
-    <SectionHeading
-      title="Uploads"
-      subtitle="You can view your uploaded files below."
-    />
+    <SectionHeading title="Uploads" subtitle="You can view your uploaded files below." />
     <BoxContainer>
       <FileDropzone v-model="dropzoneFiles" />
       <div class="flex justify-end">

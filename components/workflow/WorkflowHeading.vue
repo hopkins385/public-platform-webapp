@@ -28,9 +28,21 @@
 
   const exportIsLoading = ref(false);
 
+  const { exportWorkflow } = useManageWorkflows();
+  const { executeWorkflow } = useExecuteWorkflow();
+
+  async function onPlayClick() {
+    const { error } = await executeWorkflow(props.workflowId);
+  }
+
+  async function onReloadDataClick() {
+    const toast = useToast();
+    // await refresh();
+    // toast.success({ description: 'Data reloaded' });
+  }
+
   async function onExportData() {
     exportIsLoading.value = true;
-    const { exportWorkflow } = useManageWorkflows();
     try {
       const response = await exportWorkflow(props.workflowId);
       if (!response || !response?._data) {
@@ -66,7 +78,19 @@
           All Projects
         </NuxtLinkLocale>
       </div>
-      <div>
+      <div class="space-x-2">
+        <!-- Button
+          variant="outline"
+          size="sm"
+          class="text-xs"
+          @click="onExportData"
+          :disabled="exportIsLoading"
+        >
+          <span v-if="exportIsLoading" class="mr-1">
+            <Loader2Icon class="size-3 animate-spin stroke-1.5" />
+          </span>
+          Import Data
+        </!-->
         <Button
           variant="outline"
           size="sm"
@@ -108,6 +132,14 @@
       </div>
       <!-- Control Section -->
       <div class="flex px-4">
+        <div class="mr-2 flex rounded-lg p-1">
+          <WorkflowExecuteMenu
+            :projectId="projectId"
+            :workflowId="workflowId"
+            @play="onPlayClick"
+            @reload="onReloadDataClick"
+          />
+        </div>
         <div class="flex items-center space-x-1 rounded-lg bg-stone-200/60 p-1">
           <button
             class="flex h-6 w-7 items-center justify-center rounded-lg"

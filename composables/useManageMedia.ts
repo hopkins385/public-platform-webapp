@@ -79,11 +79,12 @@ export default function useManageMedia() {
     );
   }
 
-  async function uploadManyFiles(files: File[]) {
+  async function uploadManyFiles(files: File[], vision: boolean = false) {
     const formData = new FormData();
     files.forEach((file) => {
       formData.append('clientFiles', file);
     });
+    formData.append('vision', vision.toString());
     try {
       return await $fetch('/api/file/upload', {
         method: 'POST',

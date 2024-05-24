@@ -11,13 +11,7 @@
   import ChatSettings from './ChatSettings.vue';
   import type { ChatMessage, ChatImage } from '~/interfaces/chat.interfaces';
 
-  const allowedFileMimeTypes = [
-    'image/jpg',
-    'image/png',
-    'image/jpeg',
-    'image/gif',
-    'image/webp',
-  ];
+  const allowedFileMimeTypes = ['image/jpg', 'image/png', 'image/jpeg', 'image/gif', 'image/webp'];
 
   const props = defineProps<{
     chatId: string;
@@ -35,16 +29,9 @@
   const settings = useChatSettingsStore();
   const { $client } = useNuxtApp();
   const { locale } = useI18n();
-  const { postConversation, hasError, errorMessage, setError, clearError } =
-    useChatConversation();
-  const {
-    messages,
-    hasMessages,
-    addMessageToChat,
-    getFormattedMessages,
-    clearMessages,
-    initMessages,
-  } = useChatMessages();
+  const { postConversation, hasError, errorMessage, setError, clearError } = useChatConversation();
+  const { messages, hasMessages, addMessageToChat, getFormattedMessages, clearMessages, initMessages } =
+    useChatMessages();
 
   const chatMessagesContainerRef = ref<HTMLElement | null>(null);
   const chatBoxContainerRef = ref<HTMLElement | null>(null);
@@ -102,9 +89,7 @@
       return;
     }
 
-    const hasImages = inputImages.value.some(
-      (image) => image.status === 'loaded',
-    );
+    const hasImages = inputImages.value.some((image) => image.status === 'loaded');
     const msgType = hasImages ? 'image' : 'text';
     const visionContent = getVisionContent(inputImages.value);
 
@@ -216,9 +201,7 @@
   }
 
   function updateInputImage(index: number, image: ChatImage) {
-    inputImages.value = inputImages.value.map((img, i) =>
-      i === index ? image : img,
-    );
+    inputImages.value = inputImages.value.map((img, i) => (i === index ? image : img));
   }
 
   async function onFileReaderLoad(imageSrc: string, file: File) {
@@ -226,7 +209,8 @@
     if (index === null) {
       return;
     }
-    const uploadedImages = await uploadManyFiles([file]);
+    const isVisonEnabled = chatStore.modelWithVision;
+    const uploadedImages = await uploadManyFiles([file], isVisonEnabled);
     if (!uploadedImages || uploadedImages.length === 0) {
       updateInputImage(index, { src: imageSrc, status: 'error' });
       return;
@@ -235,25 +219,32 @@
     updateInputImage(index, { src: uploadedImage.path, status: 'loaded' });
   }
 
+  function readFile(file: File | null | undefined) {
+    if (!file) {
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      console.error('Invalid file type', file.type);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const imageSrc = reader.result as string;
+      await onFileReaderLoad(imageSrc, file);
+    };
+    reader.readAsDataURL(file);
+  }
+
   function openFileDialog() {
-    const accept = Array.isArray(allowedFileMimeTypes)
-      ? allowedFileMimeTypes.join(',')
-      : allowedFileMimeTypes;
+    if (!chatStore.modelWithVision) return;
+    const accept = Array.isArray(allowedFileMimeTypes) ? allowedFileMimeTypes.join(',') : allowedFileMimeTypes;
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = accept;
     input.multiple = false;
     input.onchange = () => {
       const file = input.files?.[0];
-      if (!file) {
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const imageSrc = reader.result as string;
-        await onFileReaderLoad(imageSrc, file);
-      };
-      reader.readAsDataURL(file);
+      readFile(file);
     };
     input.click();
   }
@@ -261,21 +252,8 @@
   const { isOverDropZone } = useDropZone(chatBoxContainerRef, {
     onDrop: (files) => {
       if (!chatStore.modelWithVision) return;
-      const file = files[0];
-      if (!file) {
-        return;
-      }
-      // validate image
-      if (!file.type.startsWith('image/')) {
-        console.error('Invalid file type', file.type);
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const imageSrc = reader.result as string;
-        await onFileReaderLoad(imageSrc, file);
-      };
-      reader.readAsDataURL(file);
+      const file = files?.[0];
+      readFile(file);
     },
     dataTypes: allowedFileMimeTypes,
   });
@@ -312,11 +290,7 @@
   >
     <!-- toggle sidebar -->
     <div class="absolute left-0 top-1/2 -translate-y-1/2">
-      <Button
-        size="icon"
-        variant="ghost"
-        @click="() => settings.toggleSideBarOpen()"
-      >
+      <Button size="icon" variant="ghost" @click="() => settings.toggleSideBarOpen()">
         <ChevronLeftIcon
           class="size-4 stroke-1.5"
           :class="{
@@ -326,14 +300,9 @@
       </Button>
     </div>
     <!-- chat header -->
-    <div
-      id="chatHeader"
-      class="pointer-events-none absolute left-0 top-0 z-10 flex w-full justify-between px-8 py-5"
-    >
+    <div id="chatHeader" class="pointer-events-none absolute left-0 top-0 z-10 flex w-full justify-between px-8 py-5">
       <!-- chat model selector -->
-      <div
-        class="pointer-events-auto flex items-center space-x-4 text-muted-foreground"
-      >
+      <div class="pointer-events-auto flex items-center space-x-4 text-muted-foreground">
         <Suspense>
           <ChatModelSelector />
           <template #fallback> Loading... </template>
@@ -361,14 +330,8 @@
         -->
         <ChatSettings />
         <div>
-          <Button
-            variant="outline"
-            size="icon"
-            @click="settings.newChatModalOpen = true"
-          >
-            <MessageSquareTextIcon
-              class="size-4 stroke-1.5 group-hover:stroke-2"
-            />
+          <Button variant="outline" size="icon" @click="settings.newChatModalOpen = true">
+            <MessageSquareTextIcon class="size-4 stroke-1.5 group-hover:stroke-2" />
           </Button>
         </div>
       </div>
@@ -393,17 +356,10 @@
         :type="message.type"
         :content="message.content"
         :vision-contents="message.visionContent"
-        :display-name="
-          message.role === 'user' ? $t('user.placeholder') : assistant?.title
-        "
+        :display-name="message.role === 'user' ? $t('user.placeholder') : assistant?.title"
       />
       <!-- pending message -->
-      <ChatMessageBox
-        v-if="isPending"
-        type="text"
-        :display-name="assistant?.title"
-        content="..."
-      />
+      <ChatMessageBox v-if="isPending" type="text" :display-name="assistant?.title" content="..." />
       <!-- streaming message -->
       <ChatMessageChunk
         v-if="messageChunk.length > 0"
@@ -458,10 +414,7 @@
           </Button>
         </div>
         <!-- message input form -->
-        <form
-          class="relative flex w-full items-center space-x-2 border-0"
-          @submit.prevent="onSubmit"
-        >
+        <form class="relative flex w-full items-center space-x-2 border-0" @submit.prevent="onSubmit">
           <div class="relative z-10 max-h-96 w-full">
             <Textarea
               v-model="inputMessage"
@@ -486,19 +439,14 @@
             class="group absolute right-2 top-1 z-20 mr-1 size-8 rounded-full bg-slate-100"
             @click="() => onAbort()"
           >
-            <SquareIcon
-              class="size-3 text-slate-500 group-hover:text-slate-900"
-            />
+            <SquareIcon class="size-3 text-slate-500 group-hover:text-slate-900" />
           </Button>
         </form>
         <div class="w-10"></div>
       </div>
     </div>
     <!-- Notification -->
-    <div
-      class="absolute bottom-3 left-0 w-full text-center text-slate-500"
-      style="font-size: 0.65rem"
-    >
+    <div class="absolute bottom-3 left-0 w-full text-center text-slate-500" style="font-size: 0.65rem">
       <p>{{ $t('chat.notification') }}</p>
     </div>
   </BoxContainer>

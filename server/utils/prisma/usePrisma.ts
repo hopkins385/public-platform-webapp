@@ -22,6 +22,19 @@ function getExtendedClient() {
           },
         },
       },
+    })
+    .$extends({
+      name: 'isExternal',
+      result: {
+        media: {
+          isExternal: {
+            needs: { filePath: true },
+            compute(media) {
+              return media.filePath.startsWith('http');
+            },
+          },
+        },
+      },
     });
 }
 export type ExtendedPrismaClient = ReturnType<typeof getExtendedClient>;

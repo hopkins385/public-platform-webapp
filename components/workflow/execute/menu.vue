@@ -25,7 +25,7 @@
       </div>
     </DropdownMenuTrigger>
     <DropdownMenuContent
-      align="start"
+      align="end"
       :avoid-collisions="true"
       :loop="true"
       class="w-48 p-2"

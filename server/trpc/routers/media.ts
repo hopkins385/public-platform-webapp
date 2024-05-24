@@ -15,7 +15,7 @@ export const mediaRouter = router({
       }),
     )
     .query(async ({ input }) => {
-      return mediaService.findFirst(input.mediaId);
+      return await mediaService.findFirst(input.mediaId);
     }),
 
   findAllFor: protectedProcedure
@@ -26,7 +26,7 @@ export const mediaRouter = router({
     )
     .query(async ({ input }) => {
       const model = MediaAbleDto.fromInput(input.model);
-      return mediaService.findAllFor(model);
+      return await mediaService.findAllFor(model);
     }),
 
   paginateFindAllFor: protectedProcedure
@@ -40,7 +40,7 @@ export const mediaRouter = router({
     .query(async ({ input }) => {
       const { limit, page, model } = input;
       const payload = MediaAbleDto.fromInput(model);
-      return mediaService.paginateFindAllFor(payload, page, limit);
+      return await mediaService.paginateFindAllFor(payload, page, limit);
     }),
 
   delete: protectedProcedure
@@ -50,6 +50,6 @@ export const mediaRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      return mediaService.delete(input.mediaId);
+      return await mediaService.delete(input.mediaId);
     }),
 });
