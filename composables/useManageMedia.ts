@@ -95,18 +95,18 @@ export default function useManageMedia() {
     }
   }
 
-  function attachMediaTo(model: any, media: any) {
-    return $client.media.attachTo.mutate(
-      { model, media },
+  function attachMediaTo(mediaId: string, model: any) {
+    return $client.mediaAble.attachTo.mutate(
+      { mediaId, model },
       {
         signal: ac.signal,
       },
     );
   }
 
-  function detachMediaFrom(model: any, media: any) {
-    return $client.media.detachFrom.mutate(
-      { model, media },
+  function detachMediaFrom(model: any) {
+    return $client.mediaAble.detachFrom.mutate(
+      { model },
       {
         signal: ac.signal,
       },

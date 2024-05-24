@@ -158,12 +158,16 @@
   "workflow": {
     "meta": {
       "full": {
-        "title": "Show Workflow",
-        "description": "Show Workflow"
+        "title": "Workflow",
+        "description": "Workflow"
       },
       "index": {
         "title": "Workflows %{project}",
         "description": "Workflows %{project}"
+      },
+      "create": {
+        "title": "Workflow erstellen",
+        "description": "Workflow erstellen"
       }
     }
   },

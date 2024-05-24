@@ -3,10 +3,7 @@ import { MediaAbleService } from '~/server/services/media-able.service';
 import { mediaAbleRule } from '~/server/utils/validation/media-able.rule';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
-import {
-  AttachMediaAbleDto,
-  DetachMediaAbleDto,
-} from '~/server/services/dto/media-able.dto';
+import { AttachMediaAbleDto, DetachMediaAbleDto } from '~/server/services/dto/media-able.dto';
 
 const prisma = getPrismaClient();
 const mediaAbleService = new MediaAbleService(prisma);

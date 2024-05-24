@@ -1,8 +1,4 @@
-import {
-  CreateWorkflowDto,
-  FindAllWorkflowsDto,
-  UpdateWorkflowDto,
-} from '~/server/services/dto/workflow.dto';
+import { CreateWorkflowDto, FindAllWorkflowsDto, UpdateWorkflowDto } from '~/server/services/dto/workflow.dto';
 import { WorkflowService } from '~/server/services/workflow.service';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
@@ -25,10 +21,7 @@ export const workflowRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const payload = CreateWorkflowDto.fromInput(input);
-      const pass = await workflowService.canCreateWorkflowPolicy(
-        payload,
-        ctx.user,
-      );
+      const pass = await workflowService.canCreateWorkflowPolicy(payload, ctx.user);
       return await workflowService.create(payload);
     }),
   // find workflow including steps
@@ -39,9 +32,7 @@ export const workflowRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const workflow = await workflowService.findFirstWithSteps(
-        input.workflowId,
-      );
+      const workflow = await workflowService.findFirstWithSteps(input.workflowId);
 
       if (!workflow) {
         throw new TRPCError({
@@ -51,10 +42,7 @@ export const workflowRouter = router({
       }
 
       // policy check
-      workflowService.canAccessWorkflowPolicy(
-        workflow.project.team.id,
-        ctx.user,
-      );
+      workflowService.canAccessWorkflowPolicy(workflow.project.team.id, ctx.user);
 
       return workflow;
     }),
@@ -77,10 +65,7 @@ export const workflowRouter = router({
       }
 
       // policy check
-      workflowService.canAccessWorkflowPolicy(
-        workflow.project.team.id,
-        ctx.user,
-      );
+      workflowService.canAccessWorkflowPolicy(workflow.project.team.id, ctx.user);
 
       return workflow;
     }),
@@ -131,10 +116,7 @@ export const workflowRouter = router({
     .mutation(async ({ ctx, input }) => {
       const payload = UpdateWorkflowDto.fromInput(input);
 
-      const pass = await workflowService.canUpdateWorkflowPolicy(
-        payload,
-        ctx.user,
-      );
+      const pass = await workflowService.canUpdateWorkflowPolicy(payload, ctx.user);
 
       return workflowService.update(payload);
     }),
@@ -147,10 +129,7 @@ export const workflowRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const pass = await workflowService.canDeleteWorkflowPolicy(
-        input.workflowId,
-        ctx.user,
-      );
+      const pass = await workflowService.canDeleteWorkflowPolicy(input.workflowId, ctx.user);
 
       return await workflowService.delete(input.workflowId);
     }),

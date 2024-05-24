@@ -43,10 +43,7 @@ export default function useManageWorkflows() {
     );
   }
 
-  function getProjectWorkflows(
-    projectId: string | string[] | undefined | null,
-    options: AsyncDataOptions<any> = {},
-  ) {
+  function getProjectWorkflows(projectId: string | string[] | undefined | null, options: AsyncDataOptions<any> = {}) {
     return useAsyncData(
       `workflows:${projectId}`,
       async () => {
@@ -65,11 +62,7 @@ export default function useManageWorkflows() {
     );
   }
 
-  function getAllWorkflowsForUser(
-    projectId: Ref<string | undefined>,
-    options: AsyncDataOptions<any> = {},
-  ) {
-    console.log('getAllWorkflowsForUser', projectId.value);
+  function getAllWorkflowsForUser(projectId: Ref<string | undefined>, options: AsyncDataOptions<any> = {}) {
     return useAsyncData(
       `allWorkflowsForUser:${projectId.value}`,
       async () => {
@@ -89,10 +82,7 @@ export default function useManageWorkflows() {
   }
 
   // with assistants, steps, and documents
-  function getFullWorkflow(
-    id: string | string[] | undefined | null,
-    options: AsyncDataOptions<any> = {},
-  ) {
+  function getFullWorkflow(id: string | string[] | undefined | null, options: AsyncDataOptions<any> = {}) {
     setWorkflowId(id);
     return useAsyncData(
       `workflow:${workflowId}`,
@@ -110,10 +100,7 @@ export default function useManageWorkflows() {
     );
   }
 
-  function getWorkflowSettings(
-    id: string | string[] | undefined | null,
-    options: AsyncDataOptions<any> = {},
-  ) {
+  function getWorkflowSettings(id: string | string[] | undefined | null, options: AsyncDataOptions<any> = {}) {
     setWorkflowId(id);
     return useAsyncData(
       `workflowSettings:${workflowId}`,

@@ -1,5 +1,4 @@
 import { router } from '../trpc';
-import { embedRouter } from './embed';
 import { getStripeCheckoutUrl } from './stripe';
 import { userMeRouter } from './user-me';
 import { assistantRouter } from './assistant';
@@ -29,7 +28,6 @@ export const appRouter = router({
   collection: collectionRouter,
   collectionAble: collectionAbleRouter,
   record: recordRouter,
-  // embed: embedRouter,
   tokenizer: tokenizerRouter,
   assistant: assistantRouter,
   me: userMeRouter,
