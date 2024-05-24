@@ -26,13 +26,9 @@
   <div class="h-full">
     <ErrorAlertStatic v-if="error" type="error" :message="error.message" />
     <div class="flex h-full">
-      <ChatSideBar />
-      <ChatWindow
-        v-if="chat"
-        :chat-id="chat?.id"
-        :chat-messages="chat?.messages"
-        :assistant="chat?.assistant"
-      />
+      <!-- ChatSideBar /-->
+      <ChatNewModal />
+      <ChatWindow v-if="chat" :chat-id="chat?.id" :chat-messages="chat?.messages" :assistant="chat?.assistant" />
     </div>
   </div>
 </template>
