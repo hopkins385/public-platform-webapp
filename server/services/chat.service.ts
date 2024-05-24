@@ -285,6 +285,41 @@ export class ChatService {
     }
   }
 
+  async createMessageAndReduceCredit(payload: CreateChatMessageDto) {
+    const tokenCount = getTokenCount(payload.message.content);
+    try {
+      const res = await this.prisma.$transaction([
+        // create message
+        this.prisma.chatMessage.create({
+          data: {
+            id: ULID(),
+            chatId: payload.chatId,
+            type: payload.message.type,
+            role: payload.message.role,
+            content: payload.message.content,
+            visionContent: payload.message.visionContent,
+            tokenCount,
+          },
+        }),
+        // reduce credit
+        this.prisma.credit.update({
+          where: {
+            userId: payload.userId,
+          },
+          data: {
+            amount: {
+              decrement: 1,
+            },
+          },
+        }),
+      ]);
+
+      return res[0];
+    } catch (error) {
+      logger.error(error);
+    }
+  }
+
   clearMessages(chatId: string) {
     return this.prisma.chatMessage.deleteMany({
       where: {

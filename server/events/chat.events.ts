@@ -1,5 +1,4 @@
 import { ChatService } from '~/server/services/chat.service';
-import { CreditService } from '~/server/services/credit.service';
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import type {
   FirstUserMessageEventDto,
@@ -8,21 +7,18 @@ import type {
 
 const prisma = getPrismaClient();
 const chatService = new ChatService(prisma);
-const creditService = new CreditService(prisma);
 const { queueAdd } = useBullmq();
 
 export async function chatStreamFinishedEvent(data: StreamFinishedEventDto) {
   const { chatId, userId, messageContent } = data;
 
-  const payload = CreateChatMessageDto.fromInput({
-    userId,
-    chatId,
-    message: { type: 'text', role: 'assistant', content: messageContent },
-  });
-
-  await chatService.createMessage(payload);
-
-  await creditService.reduceCredit(userId, 1);
+  await chatService.createMessageAndReduceCredit(
+    CreateChatMessageDto.fromInput({
+      userId,
+      chatId,
+      message: { type: 'text', role: 'assistant', content: messageContent },
+    }),
+  );
 }
 
 export async function firstUserMessageEvent(data: FirstUserMessageEventDto) {
