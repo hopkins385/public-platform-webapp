@@ -88,6 +88,15 @@ export default function useManageWorkflowSteps() {
     );
   }
 
+  async function updatePrevSteps(workflowStepId: string, prevStepIds: string[]) {
+    return $client.workflowStep.updatePrevSteps.mutate(
+      { workflowStepId, prevStepIds },
+      {
+        signal: ac.signal,
+      },
+    );
+  }
+
   async function updateWorkflowStepAssistant(payload: { workflowStepId: string; assistantId: string }) {
     return $client.workflowStep.updateAssistant.mutate(
       {
@@ -119,9 +128,11 @@ export default function useManageWorkflowSteps() {
   }
 
   return {
+    setPage,
     createWorkflowStep,
     getWorkflowStep,
     getFullWorkflowStep,
+    updatePrevSteps,
     updateWorkflowStep,
     updateWorkflowStepName,
     updateWorkflowStepAssistant,

@@ -28,6 +28,10 @@
     content: '',
   });
 
+  const { resizeRowListener, resizeColumnListener, initSheetDimensions } = useResizeSheet();
+  const { createWorkflowStep, updatePrevSteps } = useManageWorkflowSteps();
+  const { createManyDocumentItems } = useManageDocumentItems();
+
   const { getFullWorkflow } = useManageWorkflows();
   const { data: workflowData, refresh, error } = await getFullWorkflow(props.workflowId);
 
@@ -49,10 +53,7 @@
     return steps.value.find((step: any) => step.id === stepCard.workflowStepId);
   });
 
-  const { resizeRowListener, resizeColumnListener, initSheetDimensions } = useResizeSheet();
-
   async function onAddWorkflowStep() {
-    const { createWorkflowStep } = useManageWorkflowSteps();
     const assistant = workflowData.value?.steps[0]?.assistant;
     if (!assistant || !assistant?.id) {
       console.error('No assistant found');
@@ -73,7 +74,6 @@
   }
 
   async function onAddWorkflowRow() {
-    const { createManyDocumentItems } = useManageDocumentItems();
     const documentItems = workflowData.value.steps.map((step: any) => {
       return {
         documentId: step.document.id,
@@ -123,8 +123,9 @@
     cellCard.content = '';
   }
 
-  function onPrevStepsUpdated(payload: { prevSteps: string[]; stepId: string }) {
-    console.log('prev steps updated', payload);
+  async function onPrevStepsUpdated(payload: { prevSteps: string[]; stepId: string }) {
+    await updatePrevSteps(payload.stepId, payload.prevSteps);
+    await refresh();
   }
 
   function workflowUpdateListener(message: any) {

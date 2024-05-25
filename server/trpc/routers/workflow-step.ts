@@ -77,6 +77,7 @@ export const workflowStepRouter = router({
       return workflowStepService.updateName(payload);
     }),
 
+  // update the assistant
   updateAssistant: protectedProcedure
     .input(
       z.object({
@@ -88,6 +89,20 @@ export const workflowStepRouter = router({
       const updatePayload = UpdateWorkflowStepAssistantDto.fromInput(input);
       return workflowStepService.updateAssistant(updatePayload);
     }),
+
+  // update the previous steps
+  updatePrevSteps: protectedProcedure
+    .input(
+      z.object({
+        workflowStepId: ulidRule(),
+        prevStepIds: z.array(ulidRule()),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return workflowStepService.updatePrevSteps(input.workflowStepId, input.prevStepIds);
+    }),
+
+  // delete the workflow step
   delete: protectedProcedure
     .input(
       z.object({

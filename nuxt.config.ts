@@ -3,6 +3,12 @@ import { isDevelopment } from 'std-env';
 export default defineNuxtConfig({
   experimental: {
     typedPages: false,
+    defaults: {
+      useAsyncData: {
+        // should give performance gains (default: true)
+        deep: false,
+      },
+    },
   },
   devtools: {
     enabled: true,
