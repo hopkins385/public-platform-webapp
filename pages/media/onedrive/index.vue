@@ -8,10 +8,10 @@
   const { data: providerAuthTokens } = await getProviderAuthTokens('onedrive');
 
   async function onConnect() {
-    const { data: url } = await useFetch('/api/onedrive/consent', {
+    const url = await $fetch('/api/onedrive/consent', {
       method: 'GET',
     });
-    await navigateTo(url.value, { external: true });
+    await navigateTo(url, { external: true });
   }
 </script>
 

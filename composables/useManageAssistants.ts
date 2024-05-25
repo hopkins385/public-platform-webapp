@@ -18,7 +18,7 @@ export default function useManageAssistants() {
   const { $client } = useNuxtApp();
   const ac = new AbortController();
 
-  let page: number = 1;
+  const page = ref<number>(1);
   let assistantId: string = '';
 
   onScopeDispose(() => {
@@ -26,7 +26,7 @@ export default function useManageAssistants() {
   });
 
   function setPage(p: number) {
-    page = p;
+    page.value = p;
   }
 
   function setAssistantId(id: string | string[] | undefined | null) {
@@ -49,14 +49,17 @@ export default function useManageAssistants() {
       'allAssistants',
       async () => {
         const [assistants, meta] = await $client.assistant.all.query(
-          { page },
+          { page: page.value },
           {
             signal: ac.signal,
           },
         );
         return { assistants, meta };
       },
-      options,
+      {
+        watch: [page],
+        ...options,
+      },
     );
   }
 
@@ -92,12 +95,13 @@ export default function useManageAssistants() {
   }
 
   return {
+    page,
+    setPage,
     createAssistant,
     updateAssistant,
     getAllAssistants,
     getOneAssistant,
     deleteAssistant,
     setAssistantId,
-    setPage,
   };
 }

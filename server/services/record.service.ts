@@ -96,7 +96,7 @@ export class RecordService {
     }
   }
 
-  async findAllPaginated(payload: FindRecordsDto, page: number = 1) {
+  async findAllPaginated(payload: FindRecordsDto, page: number = 1, limit = 10) {
     return await this.prisma.record
       .paginate({
         select: {
@@ -123,7 +123,7 @@ export class RecordService {
         },
       })
       .withPages({
-        limit: 10,
+        limit,
         page,
         includePageCount: true,
       });

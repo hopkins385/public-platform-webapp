@@ -62,11 +62,6 @@
       });
   }
 
-  async function onPageChange(value: number) {
-    setPage(value);
-    await refresh();
-  }
-
   watch(
     () => props.refresh,
     async (value) => {
@@ -89,11 +84,7 @@
         Showing from
         {{ meta.totalCount > 10 ? meta.currentPage * 10 - 10 + 1 : 1 }}
         to
-        {{
-          meta.totalCount > 10
-            ? meta.currentPage * 10 - 10 + media.length
-            : meta.totalCount
-        }}
+        {{ meta.totalCount > 10 ? meta.currentPage * 10 - 10 + media.length : meta.totalCount }}
         of total
         {{ meta.totalCount }}
       </TableCaption>
@@ -108,9 +99,7 @@
       <TableBody>
         <TableRow v-for="item in media || []" :key="item.id">
           <TableCell>
-            <div
-              class="flex size-8 items-center justify-center truncate rounded-full"
-            >
+            <div class="flex size-8 items-center justify-center truncate rounded-full">
               <FileIcon class="size-4" />
             </div>
           </TableCell>
@@ -138,23 +127,15 @@
       show-edges
       :default-page="1"
       :items-per-page="10"
-      @update:page="(value) => onPageChange(value)"
+      @update:page="(value) => setPage(value)"
     >
       <PaginationList v-slot="{ items }" class="flex items-center gap-1">
         <PaginationFirst />
         <PaginationPrev />
 
         <template v-for="(item, index) in items">
-          <PaginationListItem
-            v-if="item.type === 'page'"
-            :key="index"
-            :value="item.value"
-            as-child
-          >
-            <Button
-              class="size-10 p-0"
-              :variant="item.value === page ? 'default' : 'outline'"
-            >
+          <PaginationListItem v-if="item.type === 'page'" :key="index" :value="item.value" as-child>
+            <Button class="size-10 p-0" :variant="item.value === page ? 'default' : 'outline'">
               {{ item.value }}
             </Button>
           </PaginationListItem>

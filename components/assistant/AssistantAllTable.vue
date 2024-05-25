@@ -55,11 +55,6 @@
     deleteAssistantId.value = id;
     showConfirmDialog.value = true;
   }
-
-  function onPageChange(value: number) {
-    setPage(value);
-    refresh();
-  }
 </script>
 
 <template>
@@ -72,11 +67,7 @@
         Showing from
         {{ meta.totalCount > 10 ? meta.currentPage * 10 - 10 + 1 : 1 }}
         to
-        {{
-          meta.totalCount > 10
-            ? meta.currentPage * 10 - 10 + assistants.length
-            : meta.totalCount
-        }}
+        {{ meta.totalCount > 10 ? meta.currentPage * 10 - 10 + assistants.length : meta.totalCount }}
         of total
         {{ meta.totalCount }}
       </TableCaption>
@@ -90,10 +81,7 @@
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow
-          v-for="assistant in data?.assistants || []"
-          :key="assistant.id"
-        >
+        <TableRow v-for="assistant in data?.assistants || []" :key="assistant.id">
           <TableCell>
             <div class="size-8 rounded-full bg-slate-200"></div>
           </TableCell>
@@ -106,27 +94,15 @@
           <TableCell class="whitespace-nowrap">
             {{ assistant.llm.displayName }}
           </TableCell>
-          <TableCell
-            class="flex justify-end space-x-2 whitespace-nowrap text-right"
-          >
+          <TableCell class="flex justify-end space-x-2 whitespace-nowrap text-right">
             <Button variant="outline" @click="onStart(assistant.id)">
               New Chat
-              <MessageSquareIcon
-                class="ml-2 size-4 shrink-0 stroke-1.5 text-primary"
-              />
+              <MessageSquareIcon class="ml-2 size-4 shrink-0 stroke-1.5 text-primary" />
             </Button>
-            <LinkButton
-              :to="`/assistants/${assistant.id}/edit`"
-              variant="outline"
-              size="icon"
-            >
+            <LinkButton :to="`/assistants/${assistant.id}/edit`" variant="outline" size="icon">
               <SettingsIcon class="size-4 stroke-1.5 text-primary" />
             </LinkButton>
-            <Button
-              variant="outline"
-              size="icon"
-              @click="onDelete(assistant.id)"
-            >
+            <Button variant="outline" size="icon" @click="onDelete(assistant.id)">
               <Trash2Icon class="size-4 stroke-1.5 text-destructive" />
             </Button>
           </TableCell>
@@ -142,23 +118,15 @@
       show-edges
       :default-page="1"
       :items-per-page="10"
-      @update:page="(value) => onPageChange(value)"
+      @update:page="(value) => setPage(value)"
     >
       <PaginationList v-slot="{ items }" class="flex items-center gap-1">
         <PaginationFirst />
         <PaginationPrev />
 
         <template v-for="(item, index) in items">
-          <PaginationListItem
-            v-if="item.type === 'page'"
-            :key="index"
-            :value="item.value"
-            as-child
-          >
-            <Button
-              class="size-10 p-0"
-              :variant="item.value === page ? 'default' : 'outline'"
-            >
+          <PaginationListItem v-if="item.type === 'page'" :key="index" :value="item.value" as-child>
+            <Button class="size-10 p-0" :variant="item.value === page ? 'default' : 'outline'">
               {{ item.value }}
             </Button>
           </PaginationListItem>

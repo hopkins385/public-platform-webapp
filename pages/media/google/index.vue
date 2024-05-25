@@ -5,14 +5,13 @@
   });
 
   const { getProviderAuthTokens } = useProviderAuth();
-  const { data: providerAuthTokens } =
-    await getProviderAuthTokens('googledrive');
+  const { data: providerAuthTokens } = await getProviderAuthTokens('googledrive');
 
   async function onConnect() {
-    const { data: url } = await useFetch('/api/google/consent', {
+    const url = await $fetch('/api/google/consent', {
       method: 'GET',
     });
-    await navigateTo(url.value, { external: true });
+    await navigateTo(url, { external: true });
   }
 </script>
 

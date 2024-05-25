@@ -1,10 +1,7 @@
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { RecordService } from '~/server/services/record.service';
-import {
-  CreateRecordDto,
-  FindRecordsDto,
-} from '~/server/services/dto/record.dto';
+import { CreateRecordDto, FindRecordsDto } from '~/server/services/dto/record.dto';
 
 const prisma = getPrismaClient();
 const recordService = new RecordService(prisma);
@@ -31,6 +28,7 @@ export const recordRouter = router({
       z.object({
         collectionId: ulidRule(),
         page: z.number().default(1).optional(),
+        limit: z.number().default(10).optional(),
       }),
     )
     .query(async ({ input, ctx }) => {
@@ -38,6 +36,6 @@ export const recordRouter = router({
         collectionId: input.collectionId,
         teamId: ctx.user.teamId,
       });
-      return recordService.findAllPaginated(payload, input.page);
+      return recordService.findAllPaginated(payload, input.page, input.limit);
     }),
 });

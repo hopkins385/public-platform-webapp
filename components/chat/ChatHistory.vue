@@ -20,11 +20,6 @@
   const showConfirmDialog = ref(false);
   const chatIdToDelete = ref('');
 
-  async function onPageChange(value: number) {
-    setPage(value);
-    await refresh();
-  }
-
   function onDelete(chatId: string) {
     showConfirmDialog.value = true;
     chatIdToDelete.value = chatId;
@@ -95,7 +90,7 @@
       show-edges
       :default-page="1"
       :items-per-page="10"
-      @update:page="(value) => onPageChange(value)"
+      @update:page="(value) => setPage(value)"
     >
       <PaginationList v-slot="{ items }" class="flex items-center gap-1">
         <PaginationFirst />

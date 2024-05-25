@@ -9,8 +9,8 @@ export default function useManageRecords() {
   const { $client } = useNuxtApp();
   const ac = new AbortController();
 
-  let page: number = 1;
-  let limit: number = 10;
+  const page = ref<number>(1);
+  const limit = ref<number>(10);
   let collectionId: string = '';
 
   onScopeDispose(() => {
@@ -18,7 +18,7 @@ export default function useManageRecords() {
   });
 
   function setPage(p: number) {
-    page = p;
+    page.value = p;
   }
 
   function setCollectionId(id: string | string[] | undefined | null) {
@@ -36,10 +36,7 @@ export default function useManageRecords() {
     );
   }
 
-  function findAllPaginated(
-    id: string | string[] | undefined | null,
-    options: AsyncDataOptions<any> = {},
-  ) {
+  function findAllPaginated(id: string | string[] | undefined | null, options: AsyncDataOptions<any> = {}) {
     setCollectionId(id);
     return useAsyncData(
       `records:${collectionId}`,
@@ -47,7 +44,8 @@ export default function useManageRecords() {
         const [records, meta] = await $client.record.findAllPaginated.query(
           {
             collectionId,
-            page,
+            page: page.value,
+            limit: limit.value,
           },
           {
             signal: ac.signal,
@@ -55,7 +53,10 @@ export default function useManageRecords() {
         );
         return { records, meta };
       },
-      options,
+      {
+        watch: [page, limit],
+        ...options,
+      },
     );
   }
 

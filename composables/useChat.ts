@@ -4,14 +4,14 @@ export default function useChat() {
   const ac = new AbortController();
   const { $client } = useNuxtApp();
 
-  let page = 1;
+  const page = ref<number>(1);
 
   onScopeDispose(() => {
     ac.abort();
   });
 
   function setPage(newPage: number) {
-    page = newPage;
+    page.value = newPage;
   }
 
   async function createChat(assistantId: string) {
@@ -30,14 +30,17 @@ export default function useChat() {
       'allChats',
       async () => {
         const [chats, meta] = await $client.chat.allForUserPaginate.query(
-          { page },
+          { page: page.value },
           {
             signal: ac.signal,
           },
         );
         return { chats, meta };
       },
-      options,
+      {
+        watch: [page],
+        ...options,
+      },
     );
   }
 

@@ -13,7 +13,7 @@
     showConfirmDialog.value = true;
   }
 
-  async function onPageChange(value: number) {
+  async function setPage(value: number) {
     throw new Error('Not implemented');
   }
 
@@ -33,11 +33,7 @@
         Showing from
         {{ meta.totalCount > 10 ? meta.currentPage * 10 - 10 + 1 : 1 }}
         to
-        {{
-          meta.totalCount > 10
-            ? meta.currentPage * 10 - 10 + workflows.length
-            : meta.totalCount
-        }}
+        {{ meta.totalCount > 10 ? meta.currentPage * 10 - 10 + workflows.length : meta.totalCount }}
         of total
         {{ meta.totalCount }}
       </TableCaption>
@@ -61,9 +57,7 @@
               size="icon"
               :to="`/projects/${item.project?.id}/workflows/${item.id}`"
             >
-              <SquareArrowOutUpRightIcon
-                class="size-4 stroke-1.5 text-primary group-hover:stroke-2"
-              />
+              <SquareArrowOutUpRightIcon class="size-4 stroke-1.5 text-primary group-hover:stroke-2" />
             </LinkButton>
             <Button variant="outline" size="icon" @click="onDelete(item.id)">
               <Trash2Icon class="size-4 stroke-1.5 text-destructive" />
@@ -81,23 +75,15 @@
       show-edges
       :default-page="1"
       :items-per-page="10"
-      @update:page="(value) => onPageChange(value)"
+      @update:page="(value) => setPage(value)"
     >
       <PaginationList v-slot="{ items }" class="flex items-center gap-1">
         <PaginationFirst />
         <PaginationPrev />
 
         <template v-for="(item, index) in items">
-          <PaginationListItem
-            v-if="item.type === 'page'"
-            :key="index"
-            :value="item.value"
-            as-child
-          >
-            <Button
-              class="size-10 p-0"
-              :variant="item.value === page ? 'default' : 'outline'"
-            >
+          <PaginationListItem v-if="item.type === 'page'" :key="index" :value="item.value" as-child>
+            <Button class="size-10 p-0" :variant="item.value === page ? 'default' : 'outline'">
               {{ item.value }}
             </Button>
           </PaginationListItem>

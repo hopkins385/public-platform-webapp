@@ -17,7 +17,7 @@ export default function useManageWorkflows() {
   const { $client } = useNuxtApp();
   const ac = new AbortController();
 
-  let page: number = 1;
+  const page = ref<number>(1);
   let workflowId: string = '';
 
   onScopeDispose(() => {
@@ -25,7 +25,7 @@ export default function useManageWorkflows() {
   });
 
   function setPage(p: number) {
-    page = p;
+    page.value = p;
   }
 
   function setWorkflowId(id: string | string[] | undefined | null) {
@@ -50,7 +50,7 @@ export default function useManageWorkflows() {
         const [workflows, meta] = await $client.workflow.allForProject.query(
           {
             projectId: projectId as string,
-            page,
+            page: page.value,
           },
           {
             signal: ac.signal,
@@ -58,7 +58,10 @@ export default function useManageWorkflows() {
         );
         return { workflows, meta };
       },
-      options,
+      {
+        watch: [page],
+        ...options,
+      },
     );
   }
 
@@ -69,7 +72,7 @@ export default function useManageWorkflows() {
         const [allWorkflows, meta] = await $client.workflow.allForUser.query(
           {
             projectId: projectId.value,
-            page,
+            page: page.value,
           },
           {
             signal: ac.signal,
@@ -77,7 +80,10 @@ export default function useManageWorkflows() {
         );
         return { allWorkflows, meta };
       },
-      options,
+      {
+        watch: [page],
+        ...options,
+      },
     );
   }
 

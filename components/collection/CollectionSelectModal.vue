@@ -3,7 +3,7 @@
 
   const props = defineProps<{
     initialDisplayName: string;
-    id: string;
+    id: string | undefined;
   }>();
 
   const emits = defineEmits<{
@@ -18,9 +18,7 @@
   const { data: collections } = await findAll({ lazy: true });
 
   const selectdCollection = computed(() =>
-    collections.value?.find(
-      (collection: any) => collection.id === collectionId.value,
-    ),
+    collections.value?.find((collection: any) => collection.id === collectionId.value),
   );
 
   function setOpen(value: boolean) {
@@ -40,10 +38,7 @@
 
 <template>
   <div class="flex items-center space-x-3">
-    <div
-      class="cursor-pointer rounded-lg border px-5 py-2.5 text-sm"
-      @click="() => (open = true)"
-    >
+    <div class="cursor-pointer rounded-lg border px-5 py-2.5 text-sm" @click="() => (open = true)">
       {{ selectdCollection?.name || initialDisplayName }}
     </div>
     <Dialog v-model:open="open">
@@ -55,9 +50,7 @@
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add Collection</DialogTitle>
-          <DialogDescription>
-            This is a list of all available collections.
-          </DialogDescription>
+          <DialogDescription> This is a list of all available collections. </DialogDescription>
         </DialogHeader>
         <Button
           variant="outline"

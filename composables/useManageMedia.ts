@@ -12,19 +12,19 @@ export default function useManageMedia() {
   const { $client } = useNuxtApp();
   const ac = new AbortController();
 
-  let page: number = 1;
-  let limit: number = 10;
+  const page = ref<number>(1);
+  const limit = ref<number>(10);
 
   onScopeDispose(() => {
     ac.abort();
   });
 
   function setPage(p: number) {
-    page = p;
+    page.value = p;
   }
 
   function setLimit(l: number) {
-    limit = l;
+    limit.value = l;
   }
 
   function findAllMediaFor(
@@ -59,14 +59,17 @@ export default function useManageMedia() {
       `allMediaPaginatedFor:${JSON.stringify(model)}`,
       async () => {
         const [media, meta] = await $client.media.paginateFindAllFor.query(
-          { model, limit, page },
+          { model, limit: limit.value, page: page.value },
           {
             signal: ac.signal,
           },
         );
         return { media, meta };
       },
-      options,
+      {
+        watch: [page, limit],
+        ...options,
+      },
     );
   }
 

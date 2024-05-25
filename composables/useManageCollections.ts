@@ -14,7 +14,7 @@ export default function useManageCollections() {
   const { $client } = useNuxtApp();
   const ac = new AbortController();
 
-  let page: number = 1;
+  const page = ref<number>(1);
   let collectionId: string = '';
 
   onScopeDispose(() => {
@@ -22,7 +22,7 @@ export default function useManageCollections() {
   });
 
   function setPage(p: number) {
-    page = p;
+    page.value = p;
   }
 
   function setCollectionId(id: string | string[] | undefined | null) {
@@ -40,10 +40,7 @@ export default function useManageCollections() {
     );
   }
 
-  function updateCollection(
-    id: string | string[] | undefined | null,
-    payload: IUpdateCollection,
-  ) {
+  function updateCollection(id: string | string[] | undefined | null, payload: IUpdateCollection) {
     setCollectionId(id);
     return $client.collection.update.mutate(
       {
@@ -56,10 +53,7 @@ export default function useManageCollections() {
     );
   }
 
-  function findFirst(
-    id: string | string[] | undefined | null,
-    options: AsyncDataOptions<any> = {},
-  ) {
+  function findFirst(id: string | string[] | undefined | null, options: AsyncDataOptions<any> = {}) {
     setCollectionId(id);
     return useAsyncData(
       `collection:${collectionId}`,
@@ -91,16 +85,18 @@ export default function useManageCollections() {
     return useAsyncData(
       'allCollectionsPaginated',
       async () => {
-        const [collections, meta] =
-          await $client.collection.findAllPaginated.query(
-            { page },
-            {
-              signal: ac.signal,
-            },
-          );
+        const [collections, meta] = await $client.collection.findAllPaginated.query(
+          { page: page.value },
+          {
+            signal: ac.signal,
+          },
+        );
         return { collections, meta };
       },
-      options,
+      {
+        watch: [page],
+        ...options,
+      },
     );
   }
 
@@ -136,6 +132,7 @@ export default function useManageCollections() {
   }
 
   return {
+    page,
     setPage,
     setCollectionId,
     createCollection,
