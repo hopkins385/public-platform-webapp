@@ -1,6 +1,6 @@
 import type { AsyncDataOptions } from '#app';
 
-export interface ICreateWorkflowStep {
+interface ICreateWorkflowStep {
   workflowId: string;
   projectId: string;
   assistantId: string;
@@ -10,7 +10,7 @@ export interface ICreateWorkflowStep {
   rowCount: number;
 }
 
-export interface IUpdateWorkflowStep {
+interface IUpdateWorkflowStep {
   workflowStepId: string;
   name: string;
   description: string;
@@ -47,10 +47,7 @@ export default function useManageWorkflowSteps() {
     );
   }
 
-  async function getWorkflowStep(
-    id: string | string[] | undefined | null,
-    options: AsyncDataOptions<any> = {},
-  ) {
+  async function getWorkflowStep(id: string | string[] | undefined | null, options: AsyncDataOptions<any> = {}) {
     setWorkflowStepId(id);
     return useAsyncData(
       `workflowStep:${workflowStepId}`,
@@ -66,10 +63,7 @@ export default function useManageWorkflowSteps() {
     );
   }
 
-  async function getFullWorkflowStep(
-    id: string | string[] | undefined | null,
-    options: AsyncDataOptions<any> = {},
-  ) {
+  async function getFullWorkflowStep(id: string | string[] | undefined | null, options: AsyncDataOptions<any> = {}) {
     setWorkflowStepId(id);
     return useAsyncData(
       `fullWorkflowStep:${workflowStepId}`,
@@ -94,10 +88,7 @@ export default function useManageWorkflowSteps() {
     );
   }
 
-  async function updateWorkflowStepAssistant(payload: {
-    workflowStepId: string;
-    assistantId: string;
-  }) {
+  async function updateWorkflowStepAssistant(payload: { workflowStepId: string; assistantId: string }) {
     return $client.workflowStep.updateAssistant.mutate(
       {
         workflowStepId: payload.workflowStepId,

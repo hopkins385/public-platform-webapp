@@ -1,6 +1,6 @@
 import type { AsyncDataOptions } from '#app';
 
-export interface ICreateMedia {
+interface ICreateMedia {
   name: string;
   fileName: string;
   filePath: string;

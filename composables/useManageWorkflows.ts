@@ -1,13 +1,13 @@
 import type { AsyncDataOptions } from '#app';
 
-export interface ICreateWorkflow {
+interface ICreateWorkflow {
   projectId: string;
   assistantId: string;
   name: string;
   description: string;
 }
 
-export interface IUpdateWorkflow {
+interface IUpdateWorkflow {
   workflowId: string;
   name: string;
   description: string;
