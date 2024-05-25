@@ -21,26 +21,24 @@ export class WorkflowExecutionService {
    *
    */
 
-  getFlowRows(
-    userId: string,
-    workflowSteps: any[],
-    rowCount: number,
-    stepsMaxIndex: number,
-    workflowId: string,
-  ) {
-    // create for each step a row with corresponding chils recursively
+  getFlowRows(payload: {
+    userId: string;
+    workflowSteps: any[];
+    rowCount: number;
+    stepsMaxIndex: number;
+    workflowId: string;
+  }) {
+    // create for each step a row with corresponding childs recursively
     const rows = [];
 
-    function jobChild(stepIndex: number, rowNumber: number): any {
+    /*function jobChild(stepIndex: number, rowNumber: number): any {
       const index = stepIndex;
       const row = rowNumber;
       const { assistant, document, name } = workflowSteps[index];
       const documentItem = document.documentItems[row];
 
       if (!assistant) {
-        throw new Error(
-          `Assistant not found for step ${index} with name ${workflowSteps[index].name}`,
-        );
+        throw new Error(`Assistant not found for step ${index} with name ${workflowSteps[index].name}`);
       }
 
       // const prevDocumentItem =
@@ -50,14 +48,13 @@ export class WorkflowExecutionService {
 
       const prevDocumentItemIds = [];
       for (let i = 0; i < index; i++) {
-        prevDocumentItemIds.push(
-          workflowSteps[i].document.documentItems[row].id,
-        );
+        prevDocumentItemIds.push(workflowSteps[i].document.documentItems[row].id);
       }
 
       const jobData = AssistantJobDto.fromInput({
         index,
         row,
+        prevStepName: index > 0 ? workflowSteps[index - 1].name : '',
         stepName: name,
         assistantId: assistant.id,
         llmProvider: assistant.llm.provider,
@@ -101,6 +98,7 @@ export class WorkflowExecutionService {
       };
       rows.push(jobs);
     }
+    */
 
     return rows;
   }
@@ -115,15 +113,25 @@ export class WorkflowExecutionService {
       throw new Error(`Workflow not found: ${workflowId}`);
     }
     const { steps, id } = workflow;
-    const stepsCount = steps.length;
-    const stepsMaxIndex = stepsCount - 1;
+
+    console.log(`Workflow: ${JSON.stringify(workflow, null, 2)}`);
+    throw new Error('Not implemented');
+
+    const workflowStepsCount = steps.length;
+    const workflowStepsMaxIndex = workflowStepsCount - 1;
     const rowCount = steps[0].document?.documentItems.length || 0;
     const rowMaxIndex = rowCount ? rowCount - 1 : 0;
 
     const bullmq = useBullmq();
     const flowProducer = bullmq.getFlowProducer();
 
-    const rows = this.getFlowRows(userId, steps, rowCount, stepsMaxIndex, id);
+    /*const rows = this.getFlowRows({
+      userId,
+      workflowSteps,
+      rowCount,
+      stepsMaxIndex: workflowStepsMaxIndex,
+      workflowId: id,
+    });*/
 
     // console.log(`Rows: ${JSON.stringify(rows, null, 2)}`);
 

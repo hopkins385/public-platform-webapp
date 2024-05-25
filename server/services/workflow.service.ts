@@ -1,9 +1,6 @@
 import { WorkflowStepService } from '~/server/services/workflow-step.service';
 import { CreateWorkflowDto } from './dto/workflow.dto';
-import type {
-  FindAllWorkflowsDto,
-  UpdateWorkflowDto,
-} from './dto/workflow.dto';
+import type { FindAllWorkflowsDto, UpdateWorkflowDto } from './dto/workflow.dto';
 import { CreateWorkflowStepDto } from './dto/workflow-step.dto';
 
 import xlsx from 'node-xlsx';
@@ -112,6 +109,7 @@ export class WorkflowService {
         name: true,
         description: true,
         orderColumn: true,
+        prevSteps: true,
         createdAt: true,
         updatedAt: true,
         document: {
@@ -248,10 +246,7 @@ export class WorkflowService {
     });
   }
 
-  async export(
-    workflowId: string,
-    type: 'json' | 'xml' | 'csv' | 'xlsx' | 'pdf',
-  ) {
+  async export(workflowId: string, type: 'json' | 'xml' | 'csv' | 'xlsx' | 'pdf') {
     const workflow = await this.prisma.workflow.findFirst({
       where: {
         id: workflowId.toLowerCase(),

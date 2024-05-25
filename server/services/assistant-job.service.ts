@@ -24,6 +24,8 @@ export class AssistantJobService {
 
   async processJob(payload: AssistantJobDto) {
     const {
+      prevStepName,
+      stepName,
       userId,
       llmProvider,
       llmNameApi,
@@ -35,33 +37,27 @@ export class AssistantJobService {
       systemPrompt,
     } = payload;
 
-    const completionFactory = new CompletionFactoryStatic(
-      llmProvider,
-      llmNameApi,
-    );
+    const completionFactory = new CompletionFactoryStatic(llmProvider, llmNameApi);
 
     console.log(`Processing job for document item: ${documentItemId}`);
     console.log(`Previous document item ids: ${prevDocumentItemIds}`);
 
     // this.event(WorkflowEvent.ROWCOMPLETED, payload);
 
-    const documentItem =
-      await this.documentItemService.findFirst(documentItemId);
+    const documentItem = await this.documentItemService.findFirst(documentItemId);
     if (!documentItem) return;
     // if (documentItem.status === 'completed') return;
     // if (documentItem.content === '') return;
 
     // previous document item
     if (!prevDocumentItemIds || prevDocumentItemIds.length < 1) return;
-    const prevDocumentItems =
-      await this.documentItemService.findManyItems(prevDocumentItemIds);
+    const prevDocumentItems = await this.documentItemService.findManyItems(prevDocumentItemIds);
 
-    const content = `This is what I have so far:\n
-      ${prevDocumentItems.map((item) => item.content).join('\n\n')}`;
-
-    console.log(`Content: ${content}`);
-
-    // throw new Error('Stop here');
+    const content = prevDocumentItems
+      .map((item) => {
+        return `# ${item.document.name}\n${item.content}`;
+      })
+      .join('\n');
 
     const messages = [
       {
@@ -74,6 +70,9 @@ export class AssistantJobService {
       },
     ];
 
+    console.log(`{messages} ${JSON.stringify(messages)}`);
+    throw new Error('stop');
+
     const response = (await completionFactory.create({
       messages,
       temperature,
@@ -81,8 +80,7 @@ export class AssistantJobService {
       stream: false,
     })) as ChatCompletion;
 
-    const message =
-      response?.choices[0]?.message.content || 'something went wrong';
+    const message = response?.choices[0]?.message.content || 'something went wrong';
 
     const update = await this.documentItemService.update({
       documentItemId,

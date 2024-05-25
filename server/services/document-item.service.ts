@@ -1,7 +1,4 @@
-import type {
-  CreateDocumentItemDto,
-  UpdateDocumentItemDto,
-} from './dto/document-item.dto';
+import type { CreateDocumentItemDto, UpdateDocumentItemDto } from './dto/document-item.dto';
 
 export class DocumentItemService {
   private readonly prisma: ExtendedPrismaClient;
@@ -64,6 +61,16 @@ export class DocumentItemService {
       where: {
         id: {
           in: documentItemIds.map((id) => id.toLowerCase()),
+        },
+      },
+      select: {
+        id: true,
+        content: true,
+        document: {
+          select: {
+            id: true,
+            name: true,
+          },
         },
       },
     });

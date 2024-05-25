@@ -7,13 +7,13 @@ export function useResizeSheet() {
     e.stopImmediatePropagation();
     e.preventDefault();
 
-    const rowCells = document.querySelectorAll(
-      `[id^=row_${rowId}_cell]`,
-    ) as NodeListOf<HTMLElement>;
+    const rowCells = document.querySelectorAll(`[id^=row_${rowId}_cell]`) as NodeListOf<HTMLElement>;
 
     const row = document.getElementById(`row_${rowId}`) as HTMLElement;
 
     const newHeight = e.clientY - row.getBoundingClientRect().top;
+
+    if (newHeight < 32) return;
 
     rowCells.forEach((cell) => {
       cell.style.height = `${newHeight}px`;
@@ -22,11 +22,7 @@ export function useResizeSheet() {
     return newHeight;
   }
 
-  function resizeRowListener(
-    ev: MouseEvent,
-    rowIndex: number,
-    workflowId: string,
-  ) {
+  function resizeRowListener(ev: MouseEvent, rowIndex: number, workflowId: string) {
     const mouseMoveEventListener = useEventListener('mousemove', (e) => {
       const newHeight = setRowHeight(e, rowIndex);
       sheetStore.updateOrCreateHeight(workflowId, rowIndex, newHeight);
@@ -44,11 +40,11 @@ export function useResizeSheet() {
     const column = document.getElementById(`column_${columnId}`) as HTMLElement;
     // column.style.width = `${e.clientX - column.getBoundingClientRect().left}px`;
 
-    const columnCells = document.querySelectorAll(
-      `[id^="row_"][id$="cell_${columnId}"]`,
-    ) as NodeListOf<HTMLElement>;
+    const columnCells = document.querySelectorAll(`[id^="row_"][id$="cell_${columnId}"]`) as NodeListOf<HTMLElement>;
 
     const newWidth = e.clientX - column.getBoundingClientRect().left;
+
+    if (newWidth < 160) return;
 
     columnCells.forEach((cell) => {
       cell.style.width = `${newWidth}px`;
@@ -57,11 +53,7 @@ export function useResizeSheet() {
     return newWidth;
   }
 
-  function resizeColumnListener(
-    ev: MouseEvent,
-    columnIndex: number,
-    workflowId: string,
-  ) {
+  function resizeColumnListener(ev: MouseEvent, columnIndex: number, workflowId: string) {
     const mouseMoveEventListener = useEventListener('mousemove', (e) => {
       const newWidth = setColumWidth(e, columnIndex);
       sheetStore.updateOrCreateWidth(workflowId, columnIndex, newWidth);
@@ -73,18 +65,12 @@ export function useResizeSheet() {
   }
 
   function resizeAll(e: MouseEvent, workflowId: string) {
-    const rows = document.querySelectorAll(
-      '[id^=row_]',
-    ) as NodeListOf<HTMLElement>;
-    const columns = document.querySelectorAll(
-      '[id^=column_]',
-    ) as NodeListOf<HTMLElement>;
+    const rows = document.querySelectorAll('[id^=row_]') as NodeListOf<HTMLElement>;
+    const columns = document.querySelectorAll('[id^=column_]') as NodeListOf<HTMLElement>;
 
     rows.forEach((row) => {
       const rowId = row.id.split('_')[1];
-      const rowCells = document.querySelectorAll(
-        `[id^=row_${rowId}_cell]`,
-      ) as NodeListOf<HTMLElement>;
+      const rowCells = document.querySelectorAll(`[id^=row_${rowId}_cell]`) as NodeListOf<HTMLElement>;
       const newHeight = e.clientX - rowCells[0].getBoundingClientRect().height;
       row.style.height = `${newHeight}px`;
       // sheetStore.updateOrCreateHeight(rowId, newHeight);
@@ -96,9 +82,7 @@ export function useResizeSheet() {
 
     columns.forEach((column) => {
       const columnId = column.id.split('_')[1];
-      const columnCells = document.querySelectorAll(
-        `[id^=row_][id$=cell_${columnId}]`,
-      ) as NodeListOf<HTMLElement>;
+      const columnCells = document.querySelectorAll(`[id^=row_][id$=cell_${columnId}]`) as NodeListOf<HTMLElement>;
       const newWidth = e.clientX - columnCells[0].getBoundingClientRect().width;
       // sheetStore.updateOrCreateWidth(columnId, newWidth);
       // apply new width to all cells in the column
@@ -120,9 +104,7 @@ export function useResizeSheet() {
 
   function initRowHeights(rows: any[]) {
     rows.forEach((row) => {
-      const rowCells = document.querySelectorAll(
-        `[id^=row_${row.id}_cell]`,
-      ) as NodeListOf<HTMLElement>;
+      const rowCells = document.querySelectorAll(`[id^=row_${row.id}_cell]`) as NodeListOf<HTMLElement>;
 
       rowCells.forEach((cell) => {
         cell.style.height = `${row.height}px`;
@@ -132,9 +114,7 @@ export function useResizeSheet() {
 
   function initColumnWidths(columns: any[]) {
     columns.forEach((column) => {
-      const columnCells = document.querySelectorAll(
-        `[id^=row_][id$=cell_${column.id}]`,
-      ) as NodeListOf<HTMLElement>;
+      const columnCells = document.querySelectorAll(`[id^=row_][id$=cell_${column.id}]`) as NodeListOf<HTMLElement>;
 
       columnCells.forEach((cell) => {
         cell.style.width = `${column.width}px`;
@@ -143,9 +123,7 @@ export function useResizeSheet() {
   }
 
   function initSheetDimensions(workflowId: string) {
-    const sheet = sheetStore.dimensions.find(
-      (sheet) => sheet.workflowId === workflowId.toLowerCase(),
-    );
+    const sheet = sheetStore.dimensions.find((sheet) => sheet.workflowId === workflowId.toLowerCase());
 
     if (sheet) {
       initRowHeights(sheet.row);

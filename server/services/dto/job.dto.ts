@@ -1,6 +1,7 @@
 export class AssistantJobDto {
   readonly index: number;
   readonly row: number;
+  readonly prevStepName: string;
   readonly stepName: string;
   readonly llmProvider: string;
   readonly llmNameApi: string;
@@ -15,6 +16,7 @@ export class AssistantJobDto {
   constructor(
     index: number,
     row: number,
+    prevStepName: string,
     stepName: string,
     assistantId: string,
     llmProvider: string,
@@ -28,6 +30,7 @@ export class AssistantJobDto {
   ) {
     this.index = Number(index);
     this.row = Number(row);
+    this.prevStepName = prevStepName;
     this.stepName = stepName;
     this.assistantId = assistantId.toLowerCase();
     this.llmProvider = llmProvider;
@@ -43,6 +46,7 @@ export class AssistantJobDto {
   static fromInput(input: {
     index: number;
     row: number;
+    prevStepName: string;
     stepName: string;
     assistantId: string;
     llmProvider: string;
@@ -57,6 +61,7 @@ export class AssistantJobDto {
     return new AssistantJobDto(
       input.index,
       input.row,
+      input.prevStepName,
       input.stepName,
       input.assistantId,
       input.llmProvider,

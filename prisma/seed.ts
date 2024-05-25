@@ -160,6 +160,8 @@ async function main() {
       },
     });
 
+    let prevStepIds: string[] = [];
+
     // create i workflow steps
     for (let i = 0; i < 3; i++) {
       const randomLlm = llms[Math.floor(Math.random() * llms.length)];
@@ -171,8 +173,7 @@ async function main() {
           llm: { connect: { id: randomLlm.id } },
           title: randomLlm.displayName,
           description: 'This is an assistant description',
-          systemPrompt:
-            'You are a friendly and helpful assistant. Your goal is to help the user.',
+          systemPrompt: 'You are a friendly and helpful assistant. Your goal is to help the user.',
           systemPromptTokenCount: 10,
         },
       });
@@ -203,6 +204,7 @@ async function main() {
       const workflowStep = await prisma.workflowStep.create({
         data: {
           id: ulid().toLowerCase(),
+          prevSteps: { set: prevStepIds },
           name: `Step ${i}`,
           description: 'This is a workflow step',
           orderColumn: i,
@@ -211,6 +213,8 @@ async function main() {
           assistant: { connect: { id: assistant.id } },
         },
       });
+
+      prevStepIds.push(workflowStep.id);
     }
   }
 }

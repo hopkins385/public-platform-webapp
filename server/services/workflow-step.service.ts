@@ -24,6 +24,31 @@ export class WorkflowStepService {
   }
 
   async create(payload: CreateWorkflowStepDto) {
+    const workflow = await this.prisma.workflow.findFirst({
+      where: {
+        id: payload.workflowId,
+      },
+      select: {
+        id: true,
+        projectId: true,
+        steps: {
+          select: {
+            id: true,
+          },
+          where: {
+            deletedAt: null,
+          },
+          orderBy: {
+            orderColumn: 'asc',
+          },
+        },
+      },
+    });
+
+    if (!workflow) {
+      throw new Error(`Workflow with id ${payload.workflowId} not found`);
+    }
+
     const docPayload = CreateDocumentDto.fromInput({
       name: 'New Document',
       description: 'New Document Description',
@@ -47,10 +72,13 @@ export class WorkflowStepService {
 
     await this.documentItemService.createMany(documentItemPayloads);
 
+    const prevStepIds = workflow.steps.map((step) => step.id);
+
     const step = await this.prisma.workflowStep.create({
       data: {
         id: ULID(),
         workflowId: payload.workflowId,
+        prevSteps: prevStepIds,
         documentId: document.id,
         assistantId: payload.assistantId,
         name: payload.name,

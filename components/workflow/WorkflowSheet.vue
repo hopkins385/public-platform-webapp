@@ -29,16 +29,10 @@
   });
 
   const { getFullWorkflow } = useManageWorkflows();
-  const {
-    data: workflowData,
-    refresh,
-    error,
-  } = await getFullWorkflow(props.workflowId);
+  const { data: workflowData, refresh, error } = await getFullWorkflow(props.workflowId);
 
   const steps = computed(() => workflowData.value?.steps || []);
-  const rowCount = computed(
-    () => steps.value[0]?.document.documentItems.length || 0,
-  );
+  const rowCount = computed(() => steps.value[0]?.document.documentItems.length || 0);
   const columnCount = computed(() => steps.value.length);
 
   // TODO: optimize this
@@ -55,8 +49,7 @@
     return steps.value.find((step: any) => step.id === stepCard.workflowStepId);
   });
 
-  const { resizeRowListener, resizeColumnListener, initSheetDimensions } =
-    useResizeSheet();
+  const { resizeRowListener, resizeColumnListener, initSheetDimensions } = useResizeSheet();
 
   async function onAddWorkflowStep() {
     const { createWorkflowStep } = useManageWorkflowSteps();
@@ -113,11 +106,7 @@
 
   function toggleCellCard(x: number, y: number, content: string, id: string) {
     // if click again on the same item, ignore
-    if (
-      cellCard.show &&
-      cellCard.teleportTo.x === x &&
-      cellCard.teleportTo.y === y
-    ) {
+    if (cellCard.show && cellCard.teleportTo.x === x && cellCard.teleportTo.y === y) {
       return;
     }
     cellCard.teleportTo.x = Number(x);
@@ -132,6 +121,10 @@
     cellCard.teleportTo = { x: 0, y: 0 };
     cellCard.contentId = '';
     cellCard.content = '';
+  }
+
+  function onPrevStepsUpdated(payload: { prevSteps: string[]; stepId: string }) {
+    console.log('prev steps updated', payload);
   }
 
   function workflowUpdateListener(message: any) {
@@ -152,28 +145,13 @@
 <template>
   <!-- Sheet-->
   <div class="p-4 text-sm" v-if="error || !workflowData">
-    Ups something went wrong.<br />The Data you are looking for is not
-    available.
+    Ups something went wrong.<br />The Data you are looking for is not available.
   </div>
-  <div
-    ref="sheetRef"
-    class="no-scrollbar flex overflow-visible bg-white pb-10 text-xs"
-    id="grid_list"
-  >
+  <div ref="sheetRef" class="no-scrollbar flex overflow-visible bg-white pb-10 text-xs" id="grid_list">
     <!-- Row Index -->
     <div class="column" id="column_0">
-      <div
-        class="index relative flex items-center justify-center"
-        id="row_0_cell_x0_y1"
-      >
-        --
-      </div>
-      <div
-        v-for="(count, rowIndex) in rowCount"
-        :key="rowIndex"
-        :id="`row_${rowIndex + 1}`"
-        class="relative"
-      >
+      <div class="index relative flex items-center justify-center" id="row_0_cell_x0_y1">--</div>
+      <div v-for="(count, rowIndex) in rowCount" :key="rowIndex" :id="`row_${rowIndex + 1}`" class="relative">
         <div
           class="index group flex flex-col items-center justify-between"
           :id="`row_${rowIndex + 1}_cell_x0_y${rowIndex + 1}`"
@@ -185,13 +163,9 @@
           <div
             class="group/icon flex h-3 w-full cursor-ns-resize items-center px-2"
             style="padding-bottom: 0.1rem"
-            @mousedown="
-              (event) => resizeRowListener(event, rowIndex + 1, workflowId)
-            "
+            @mousedown="(event) => resizeRowListener(event, rowIndex + 1, workflowId)"
           >
-            <div
-              class="h-1 w-full shrink-0 rounded-lg group-hover/icon:bg-slate-400 group-hover:bg-slate-200"
-            ></div>
+            <div class="h-1 w-full shrink-0 rounded-lg group-hover/icon:bg-slate-400 group-hover:bg-slate-200"></div>
           </div>
         </div>
       </div>
@@ -201,17 +175,9 @@
       </div>
     </div>
     <!-- WorkflowSteps as Columns -->
-    <div
-      v-for="(step, columnIndex) in steps"
-      :key="columnIndex"
-      :id="`column_${columnIndex}`"
-      class="column relative"
-    >
+    <div v-for="(step, columnIndex) in steps" :key="columnIndex" :id="`column_${columnIndex}`" class="column relative">
       <!-- Teleport Anker -->
-      <div
-        class="absolute left-0 top-8 z-10 overflow-visible"
-        :id="`step_teleport_anker_${columnIndex}`"
-      ></div>
+      <div class="absolute left-0 top-8 z-10 overflow-visible" :id="`step_teleport_anker_${columnIndex}`"></div>
       <!-- Heading Column -->
       <div
         :id="`row_0_cell_${columnIndex}`"
@@ -229,9 +195,7 @@
         <div class="-mr-1 h-full opacity-0 group-hover:opacity-100">
           <div
             class="h-full w-1 shrink-0 cursor-ew-resize rounded-lg bg-slate-300 hover:bg-slate-400"
-            @mousedown="
-              (event) => resizeColumnListener(event, columnIndex, workflowId)
-            "
+            @mousedown="(event) => resizeColumnListener(event, columnIndex, workflowId)"
           ></div>
         </div>
       </div>
@@ -240,15 +204,7 @@
         v-for="(docItem, rowIndex) in step.document.documentItems"
         :id="`row_${rowIndex + 1}_cell_${columnIndex}`"
         :key="rowIndex"
-        @click="
-          () =>
-            toggleCellCard(
-              columnIndex,
-              rowIndex + 1,
-              docItem.content,
-              docItem.id,
-            )
-        "
+        @click="() => toggleCellCard(columnIndex, rowIndex + 1, docItem.content, docItem.id)"
         class="cell group relative"
       >
         <!-- Cell content -->
@@ -269,10 +225,7 @@
           </NuxtLinkLocale>
         </div>
         <!-- Cellcard teleport anker -->
-        <div
-          class="absolute left-0 top-0 z-10"
-          :id="`cellcard_teleport_anker_x${columnIndex}_y${rowIndex + 1}`"
-        ></div>
+        <div class="absolute left-0 top-0 z-10" :id="`cellcard_teleport_anker_x${columnIndex}_y${rowIndex + 1}`"></div>
       </div>
       <!-- Last Cells -->
       <div class="cell cell-last"></div>
@@ -283,22 +236,14 @@
       <div class="index plus-button" @click="onAddWorkflowStep">
         <PlusIcon class="size-3 stroke-1.5" />
       </div>
-      <div
-        v-for="(count, index) in rowCount"
-        :key="index"
-        :id="`row_${index + 1}_cell_last`"
-        class="index"
-      ></div>
+      <div v-for="(count, index) in rowCount" :key="index" :id="`row_${index + 1}_cell_last`" class="index"></div>
       <div class="index index-last">
         <!-- div @mousedown="(e) => resizeAllListener(e, workflowId)">h</!-->
       </div>
     </div>
   </div>
   <!-- StepManagement Card -->
-  <Teleport
-    v-if="stepCard.show"
-    :to="`#step_teleport_anker_${stepCard.teleportTo}`"
-  >
+  <Teleport v-if="stepCard.show" :to="`#step_teleport_anker_${stepCard.teleportTo}`">
     <WorkflowStepManagementCard
       v-on-click-outside.bubble="onCloseStepCard"
       :key="stepCard.teleportTo"
@@ -310,16 +255,14 @@
       @refresh="refresh"
       @close="onCloseStepCard"
       @show-settings="() => (sideBarOpen = true)"
+      @prev-steps-updated="(obj) => onPrevStepsUpdated(obj)"
     />
   </Teleport>
   <!-- CellCard -->
   <!--
   v-on-click-outside.bubble="onCloseCellCard"
   -->
-  <Teleport
-    v-if="cellCard.show"
-    :to="`#cellcard_teleport_anker_x${cellCard.teleportTo.x}_y${cellCard.teleportTo.y}`"
-  >
+  <Teleport v-if="cellCard.show" :to="`#cellcard_teleport_anker_x${cellCard.teleportTo.x}_y${cellCard.teleportTo.y}`">
     <WorkflowCellCard
       :key="`x${cellCard.teleportTo.x}_y${cellCard.teleportTo.y}`"
       :item-id="cellCard.contentId"
@@ -353,7 +296,7 @@
   }
 
   .cell {
-    @apply relative h-8 min-w-40 border-b border-l p-2;
+    @apply relative h-8 w-40 border-b border-l p-2;
   }
 
   .cell-content {
