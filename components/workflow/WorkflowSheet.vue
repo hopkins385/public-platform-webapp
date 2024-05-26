@@ -29,7 +29,7 @@
   });
 
   const { resizeRowListener, resizeColumnListener, initSheetDimensions } = useResizeSheet();
-  const { createWorkflowStep, updatePrevSteps } = useManageWorkflowSteps();
+  const { createWorkflowStep, updateInputSteps } = useManageWorkflowSteps();
   const { createManyDocumentItems } = useManageDocumentItems();
 
   const { getFullWorkflow } = useManageWorkflows();
@@ -123,8 +123,8 @@
     cellCard.content = '';
   }
 
-  async function onPrevStepsUpdated(payload: { prevSteps: string[]; stepId: string }) {
-    await updatePrevSteps(payload.stepId, payload.prevSteps);
+  async function onInputStepsUpdated(payload: { inputSteps: string[]; stepId: string }) {
+    await updateInputSteps(payload.stepId, payload.inputSteps);
     await refresh();
   }
 
@@ -256,7 +256,7 @@
       @refresh="refresh"
       @close="onCloseStepCard"
       @show-settings="() => (sideBarOpen = true)"
-      @prev-steps-updated="(obj) => onPrevStepsUpdated(obj)"
+      @prev-steps-updated="(obj) => onInputStepsUpdated(obj)"
     />
   </Teleport>
   <!-- CellCard -->

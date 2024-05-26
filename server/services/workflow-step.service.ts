@@ -50,8 +50,8 @@ export class WorkflowStepService {
     }
 
     const docPayload = CreateDocumentDto.fromInput({
-      name: 'New Document',
-      description: 'New Document Description',
+      name: 'Untitled Document',
+      description: '',
       projectId: payload.projectId,
       status: 'draft',
     });
@@ -72,13 +72,13 @@ export class WorkflowStepService {
 
     await this.documentItemService.createMany(documentItemPayloads);
 
-    const prevStepIds = workflow.steps.map((step) => step.id);
+    const inputStepIds = workflow.steps.map((step) => step.id);
 
     const step = await this.prisma.workflowStep.create({
       data: {
         id: ULID(),
         workflowId: payload.workflowId,
-        prevSteps: prevStepIds,
+        inputSteps: inputStepIds,
         documentId: document.id,
         assistantId: payload.assistantId,
         name: payload.name,
@@ -146,6 +146,20 @@ export class WorkflowStepService {
       },
       data: {
         orderColumn: order,
+        updatedAt: new Date(),
+      },
+    });
+  }
+
+  updateInputSteps(workflowStepId: string, inputStepIds: string[]) {
+    return this.prisma.workflowStep.update({
+      where: {
+        id: workflowStepId.toLowerCase(),
+      },
+      data: {
+        inputSteps: {
+          set: inputStepIds.map((id) => id.toLowerCase()),
+        },
         updatedAt: new Date(),
       },
     });

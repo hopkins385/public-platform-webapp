@@ -491,7 +491,7 @@ model WorkflowStep {
   description       String
   orderColumn       Int                @map("order_column") @db.SmallInt
   workflowId        String             @map("workflow_id")
-  prevSteps         String[]           @map("prev_steps")
+  inputSteps        String[]           @map("input_steps")
   documentId        String?            @map("document_id")
   assistantId       String?            @map("assistant_id")
   createdAt         DateTime           @default(now()) @map("created_at")

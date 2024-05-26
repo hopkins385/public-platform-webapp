@@ -204,7 +204,7 @@ async function main() {
       const workflowStep = await prisma.workflowStep.create({
         data: {
           id: ulid().toLowerCase(),
-          prevSteps: { set: prevStepIds },
+          inputSteps: { set: prevStepIds },
           name: `Step ${i}`,
           description: 'This is a workflow step',
           orderColumn: i,

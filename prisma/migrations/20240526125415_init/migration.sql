@@ -380,7 +380,7 @@ CREATE TABLE "workflow_steps" (
     "description" TEXT NOT NULL,
     "order_column" SMALLINT NOT NULL,
     "workflow_id" TEXT NOT NULL,
-    "prev_steps" TEXT[],
+    "input_steps" TEXT[],
     "document_id" TEXT,
     "assistant_id" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

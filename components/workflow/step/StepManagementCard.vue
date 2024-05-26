@@ -14,13 +14,13 @@
     refresh: [void];
     close: [void];
     'show-settings': [void];
-    'prev-steps-updated': [{ prevSteps: string[]; stepId: string }];
+    'prev-steps-updated': [{ inputSteps: string[]; stepId: string }];
   }>();
 
   const stepCardRef = ref<HTMLElement | null>(null);
   const inputRef = ref<HTMLInputElement | null>(null);
   const workflowStepName = ref<string>(props.workflowStep.name);
-  const selectedSteps = ref(props.workflowStep.prevSteps);
+  const selectedSteps = ref(props.workflowStep.inputSteps);
 
   const availableSteps = computed(() => {
     return props.allWorkflowSteps.filter((step) => step.orderColumn < props.workflowStep.orderColumn);
@@ -55,7 +55,7 @@
 
   // watch selectedSteps
   watch(selectedSteps, (newValue) => {
-    emits('prev-steps-updated', { prevSteps: newValue, stepId: props.workflowStep.id });
+    emits('prev-steps-updated', { inputSteps: newValue, stepId: props.workflowStep.id });
   });
 
   useEventListener('keydown', (event) => {

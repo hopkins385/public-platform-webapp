@@ -109,7 +109,7 @@ export class WorkflowService {
         name: true,
         description: true,
         orderColumn: true,
-        prevSteps: true,
+        inputSteps: true,
         createdAt: true,
         updatedAt: true,
         document: {
