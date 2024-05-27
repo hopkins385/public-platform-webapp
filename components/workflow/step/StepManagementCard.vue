@@ -18,7 +18,6 @@
   }>();
 
   const stepCardRef = ref<HTMLElement | null>(null);
-  const inputRef = ref<HTMLInputElement | null>(null);
   const workflowStepName = ref<string>(props.workflowStep.name);
   const selectedSteps = ref(props.workflowStep.inputSteps);
 
@@ -47,9 +46,11 @@
   }
 
   function setFocus() {
-    if (inputRef.value) {
-      inputRef.value.select();
-      inputRef.value.focus();
+    // find the input element by id
+    const firstInput = stepCardRef.value?.querySelector('input');
+    if (firstInput) {
+      firstInput.select();
+      firstInput.focus();
     }
   }
 
@@ -77,7 +78,12 @@
   >
     <div class="flex flex-col">
       <form @submit.prevent="submitForm">
-        <input ref="inputRef" type="text" v-model="workflowStepName" class="w-full border-0 py-2 text-xs outline-0" />
+        <Input
+          id="stepNameInput"
+          type="text"
+          v-model="workflowStepName"
+          class="text-xs focus-visible:ring-transparent"
+        />
       </form>
       <hr class="-mx-4 mb-3 mt-1" />
       <div class="space-y-2 py-1">

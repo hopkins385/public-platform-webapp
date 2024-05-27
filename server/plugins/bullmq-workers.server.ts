@@ -15,43 +15,40 @@ const chatService = new ChatService(prisma);
 export default defineNitroPlugin((nitroApp) => {
   const { createWorker } = useBullmq();
 
-  const createChatTitle = createWorker(
-    QueueEnum.CREATE_CHAT_TITLE,
-    async (job) => {
-      const payload = job.data as FirstUserMessageEventDto;
+  const createChatTitle = createWorker(QueueEnum.CREATE_CHAT_TITLE, async (job) => {
+    const payload = job.data as FirstUserMessageEventDto;
 
-      // limit to max 1000 characters
-      const firstMessage = payload.messageContent.slice(0, 1000);
+    // limit to max 1000 characters
+    const firstMessage = payload.messageContent.slice(0, 1000);
 
-      const messages = [
-        {
-          role: 'system',
-          content: `Your task is to create a very short chat title for this conversation based on the user message.\n
+    const messages = [
+      {
+        role: 'system',
+        content: `Your task is to create a very short chat title for this conversation based on the user message.\n
            You only respond with the chat title.\n
            You will be provided with the user message encapsulated in three hyphens.\n
            You always respond in the exact same language as the user message.\n`,
-        },
-        {
-          role: 'user',
-          content: `"""${firstMessage}"""`,
-        },
-      ];
-      // 1. make a request to
-      const completion = new CompletionFactoryStatic('openai', 'gpt-3.5-turbo');
-      const response = await completion.create({
-        messages,
-        maxTokens: 20,
-        temperature: 0.5,
-        stream: false,
-      });
-      const message = response.choices[0].message.content;
+      },
+      {
+        role: 'user',
+        content: `"""${firstMessage}"""`,
+      },
+    ];
+    // 1. make a request to
+    const completion = new CompletionFactoryStatic('openai', 'gpt-3.5-turbo');
+    const response = await completion.create({
+      messages,
+      maxTokens: 20,
+      temperature: 0.5,
+      stream: false,
+    });
+    const message = response.choices[0].message.content;
 
-      // remove " from the beginning and end of the message
-      const chatTitle = message.replace(/^"|"$/g, '');
+    // remove " from the beginning and end of the message
+    const chatTitle = message.replace(/^"|"$/g, '');
 
-      await chatService.updateChatTitle(payload.chatId, chatTitle);
-    },
-  );
+    await chatService.updateChatTitle(payload.chatId, chatTitle);
+  });
 
   const tokenUsageQueue = createWorker(QueueEnum.TOKENUSAGE, async (job) => {
     switch (job.name) {
@@ -59,31 +56,20 @@ export default defineNitroPlugin((nitroApp) => {
         await trackTokensEvent(job.data);
         break;
       default:
-        throw new Error(
-          `Invalid Job for Queue 'TokenUsage'. Job ${job.name} not found`,
-        );
+        throw new Error(`Invalid Job for Queue 'TokenUsage'. Job ${job.name} not found`);
     }
   });
 
-  const workflowRowCompletion = createWorker(
-    QueueEnum.WORKFLOW_ROW_COMLETED,
-    async (job) => {
-      const { event } = useEvents();
-      const { data } = job;
-      console.log(
-        `Worker 'RowCompletion' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
-      );
-      event(WorkflowEvent.ROWCOMPLETED, data);
-    },
-  );
+  const workflowRowCompletion = createWorker(QueueEnum.WORKFLOW_ROW_COMLETED, async (job) => {
+    const { event } = useEvents();
+    const { data } = job;
+    event(WorkflowEvent.ROWCOMPLETED, data);
+  });
 
   const groq_llama3_8b = createWorker(
     'groq-llama3-8b-8192',
     async (job) => {
       const { data } = job;
-      console.log(
-        `Worker 'groq-llama3-8b-8192' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
-      );
       await assistantJobService.processJob(data);
     },
     {
@@ -99,9 +85,6 @@ export default defineNitroPlugin((nitroApp) => {
     'groq-llama3-70b-8192',
     async (job) => {
       const { data } = job;
-      console.log(
-        `Worker 'groq-llama3-70b-8192' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
-      );
       await assistantJobService.processJob(data);
     },
     {
@@ -117,9 +100,6 @@ export default defineNitroPlugin((nitroApp) => {
     'groq-mixtral-8x7b-32768',
     async (job) => {
       const { data } = job;
-      console.log(
-        `Worker 'groq-mixtral-8x7b-32768' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
-      );
       await assistantJobService.processJob(data);
     },
     {
@@ -135,9 +115,6 @@ export default defineNitroPlugin((nitroApp) => {
     'mistral-small-latest',
     async (job) => {
       const { data } = job;
-      console.log(
-        `Worker 'mistral-small-latest' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
-      );
       await assistantJobService.processJob(data);
     },
     {
@@ -153,9 +130,6 @@ export default defineNitroPlugin((nitroApp) => {
     'mistral-large-latest',
     async (job) => {
       const { data } = job;
-      console.log(
-        `Worker 'mistral-large-latest' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
-      );
       await assistantJobService.processJob(data);
     },
     {
@@ -171,9 +145,6 @@ export default defineNitroPlugin((nitroApp) => {
     'openai-gpt-3.5-turbo',
     async (job) => {
       const { data } = job;
-      console.log(
-        `Worker 'openai-gpt-3.5-turbo' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
-      );
       await assistantJobService.processJob(data);
     },
     {
@@ -189,9 +160,6 @@ export default defineNitroPlugin((nitroApp) => {
     'openai-gpt-4',
     async (job) => {
       const { data } = job;
-      console.log(
-        `Worker 'openai-gpt-4' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
-      );
       await assistantJobService.processJob(data);
     },
     {
@@ -207,9 +175,6 @@ export default defineNitroPlugin((nitroApp) => {
     'openai-gpt-4o',
     async (job) => {
       const { data } = job;
-      console.log(
-        `Worker 'openai-gpt-4o' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
-      );
       await assistantJobService.processJob(data);
     },
     {
@@ -225,9 +190,6 @@ export default defineNitroPlugin((nitroApp) => {
     'anthropic-claude-3-haiku-20240307',
     async (job) => {
       const { data } = job;
-      console.log(
-        `Worker 'anthropic-claude-3-haiku-20240307' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
-      );
       await assistantJobService.processJob(data);
     },
     {
@@ -243,9 +205,6 @@ export default defineNitroPlugin((nitroApp) => {
     'anthropic-claude-3-sonnet-20240229',
     async (job) => {
       const { data } = job;
-      console.log(
-        `Worker 'anthropic-claude-3-sonnet-20240229' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
-      );
       await assistantJobService.processJob(data);
     },
     {
@@ -261,9 +220,6 @@ export default defineNitroPlugin((nitroApp) => {
     'anthropic-claude-3-opus-20240229',
     async (job) => {
       const { data } = job;
-      console.log(
-        `Worker 'anthropic-claude-3-opus-20240229' is executing job of name: ${job.name}, data: ${JSON.stringify(data)} at ${new Date().toISOString()}`,
-      );
       await assistantJobService.processJob(data);
     },
     {

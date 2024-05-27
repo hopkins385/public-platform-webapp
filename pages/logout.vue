@@ -5,7 +5,7 @@
     callbackUrl: '/login',
   });
 
-  const socket = useWebsocket();
+  const socket = useWebsocketGlobal();
   socket.emit('leave', `user:${auth.value?.user.id}`);
 </script>
 

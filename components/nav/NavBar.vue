@@ -198,15 +198,8 @@
                 :label="item.label"
                 :label-visible="navBar.isOpen"
               />
-              <ul
-                v-if="item.children.length > 0 && true === false"
-                :class="navBar.isOpen ? 'block' : 'hidden'"
-              >
-                <li
-                  class="nav-item-child"
-                  v-for="(child, index) in item.children"
-                  :key="index"
-                >
+              <ul v-if="item.children.length > 0 && true === false" :class="navBar.isOpen ? 'block' : 'hidden'">
+                <li class="nav-item-child" v-for="(child, index) in item.children" :key="index">
                   <NavLink
                     :active="$route.path === child.to"
                     :to="child.to"
@@ -224,10 +217,7 @@
         class="absolute bottom-2 right-2 z-10 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-white/0 opacity-80 hover:border"
         @click="() => navBar.toggleOpen()"
       >
-        <ChevronRightIcon
-          class="size-4 text-muted-foreground/50"
-          :class="{ 'rotate-180 transform': navBar.isOpen }"
-        />
+        <ChevronRightIcon class="size-4 text-muted-foreground/50" :class="{ 'rotate-180 transform': navBar.isOpen }" />
       </div>
     </div>
     <div

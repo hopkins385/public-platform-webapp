@@ -1,12 +1,11 @@
 export class AssistantJobDto {
-  readonly index: number;
-  readonly row: number;
-  readonly prevStepName: string;
+  readonly stepIndex: number;
+  readonly rowIndex: number;
   readonly stepName: string;
   readonly llmProvider: string;
   readonly llmNameApi: string;
   readonly assistantId: string;
-  readonly prevDocumentItemIds: string[];
+  readonly inputDocumentItemIds: string[];
   readonly documentItemId: string;
   readonly systemPrompt: string;
   readonly temperature: number;
@@ -14,28 +13,26 @@ export class AssistantJobDto {
   readonly userId: string;
 
   constructor(
-    index: number,
-    row: number,
-    prevStepName: string,
+    stepIndex: number,
+    rowIndex: number,
     stepName: string,
     assistantId: string,
     llmProvider: string,
     llmNameApi: string,
-    prevDocumentItemIds: string[],
+    inputDocumentItemIds: string[],
     documentItemId: string,
     systemPrompt: string,
     temperature: number,
     maxTokens: number,
     userId: string,
   ) {
-    this.index = Number(index);
-    this.row = Number(row);
-    this.prevStepName = prevStepName;
+    this.stepIndex = Number(stepIndex);
+    this.rowIndex = Number(rowIndex);
     this.stepName = stepName;
     this.assistantId = assistantId.toLowerCase();
     this.llmProvider = llmProvider;
     this.llmNameApi = llmNameApi;
-    this.prevDocumentItemIds = prevDocumentItemIds;
+    this.inputDocumentItemIds = inputDocumentItemIds;
     this.documentItemId = documentItemId.toLowerCase();
     this.systemPrompt = systemPrompt;
     this.temperature = Number(temperature);
@@ -44,14 +41,13 @@ export class AssistantJobDto {
   }
 
   static fromInput(input: {
-    index: number;
-    row: number;
-    prevStepName: string;
+    stepIndex: number;
+    rowIndex: number;
     stepName: string;
     assistantId: string;
     llmProvider: string;
     llmNameApi: string;
-    prevDocumentItemIds: string[];
+    inputDocumentItemIds: string[];
     documentItemId: string;
     systemPrompt: string;
     temperature: number;
@@ -59,14 +55,13 @@ export class AssistantJobDto {
     userId: string;
   }): AssistantJobDto {
     return new AssistantJobDto(
-      input.index,
-      input.row,
-      input.prevStepName,
+      input.stepIndex,
+      input.rowIndex,
       input.stepName,
       input.assistantId,
       input.llmProvider,
       input.llmNameApi,
-      input.prevDocumentItemIds,
+      input.inputDocumentItemIds,
       input.documentItemId,
       input.systemPrompt,
       input.temperature,

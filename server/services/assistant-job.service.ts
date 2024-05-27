@@ -5,8 +5,11 @@ import { DocumentItemService } from './document-item.service';
 import { AssistantJobDto } from './dto/job.dto';
 import { TrackTokensDto } from './dto/track-tokens.dto';
 import { useEvents } from '../events/useEvents';
+import consola from 'consola';
 
 const { event } = useEvents();
+
+const logger = consola.create({}).withTag('AssistantJobService');
 
 export class AssistantJobService {
   private readonly prisma: ExtendedPrismaClient;
@@ -24,7 +27,6 @@ export class AssistantJobService {
 
   async processJob(payload: AssistantJobDto) {
     const {
-      prevStepName,
       stepName,
       userId,
       llmProvider,
@@ -32,30 +34,41 @@ export class AssistantJobService {
       temperature,
       maxTokens,
       assistantId,
-      prevDocumentItemIds,
+      inputDocumentItemIds,
       documentItemId,
       systemPrompt,
     } = payload;
 
     const completionFactory = new CompletionFactoryStatic(llmProvider, llmNameApi);
 
-    console.log(`Processing job for document item: ${documentItemId}`);
-    console.log(`Previous document item ids: ${prevDocumentItemIds}`);
+    // logger.info(`Processing job for document item: ${documentItemId}`);
+    // logger.info(`Input document item ids: ${inputDocumentItemIds}`);
 
-    // this.event(WorkflowEvent.ROWCOMPLETED, payload);
+    // this.event(WorkflowEvent.ROWCOMPLETED, payload); ?
 
     const documentItem = await this.documentItemService.findFirst(documentItemId);
     if (!documentItem) return;
     // if (documentItem.status === 'completed') return;
     // if (documentItem.content === '') return;
 
-    // previous document item
-    if (!prevDocumentItemIds || prevDocumentItemIds.length < 1) return;
-    const prevDocumentItems = await this.documentItemService.findManyItems(prevDocumentItemIds);
+    // input document items
+    if (!inputDocumentItemIds || inputDocumentItemIds.length < 1) return;
+    const inputDocumentItems = await this.documentItemService.findManyItems(inputDocumentItemIds);
 
-    const content = prevDocumentItems
+    if (!inputDocumentItems || inputDocumentItems.length < 1) {
+      logger.error(`Input document items not found: ${inputDocumentItemIds}`);
+      return;
+    }
+
+    const content = inputDocumentItems
+      // Sort by orderColumn
+      .sort((a, b) => {
+        const orderA = a.document.workflowSteps[0].orderColumn;
+        const orderB = b.document.workflowSteps[0].orderColumn;
+        return orderA - orderB;
+      })
       .map((item) => {
-        return `# ${item.document.name}\n${item.content}`;
+        return `# ${item.document.workflowSteps[0].name}\n${item.content}`;
       })
       .join('\n');
 
@@ -70,8 +83,8 @@ export class AssistantJobService {
       },
     ];
 
-    console.log(`{messages} ${JSON.stringify(messages)}`);
-    throw new Error('stop');
+    // console.log(`{messages} ${JSON.stringify(messages, null, 2)}`);
+    // return true;
 
     const response = (await completionFactory.create({
       messages,

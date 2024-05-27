@@ -2,7 +2,7 @@
   import { useDebounceFn } from '@vueuse/core';
   import { SquareArrowOutUpRightIcon } from 'lucide-vue-next';
 
-  const socket = useWebsocket();
+  const socket = useWebsocketGlobal();
 
   const { getMe } = useManageMyUserProfile();
   const { data: user, refresh } = await getMe({ immediate: false });
@@ -31,9 +31,7 @@
           <NuxtLinkLocale to="/user/profile" class="hover:underline">
             <span>{{ user?.name }}</span>
             <span>
-              <SquareArrowOutUpRightIcon
-                class="ml-2 inline-block size-3 stroke-1.5 opacity-60"
-              />
+              <SquareArrowOutUpRightIcon class="ml-2 inline-block size-3 stroke-1.5 opacity-60" />
             </span>
           </NuxtLinkLocale>
         </div>
@@ -44,11 +42,7 @@
       </div>
     </div>
     <div>
-      <button
-        class="w-full rounded-full bg-stone-200/60 px-4 py-2 font-semibold"
-      >
-        Upgrade to Pro
-      </button>
+      <button class="w-full rounded-full bg-stone-200/60 px-4 py-2 font-semibold">Upgrade to Pro</button>
     </div>
   </div>
 </template>

@@ -6,8 +6,4 @@ export default defineNuxtRouteMiddleware((to, from) => {
     return;
   }
   $socket.connect();
-  console.log('socket connected');
-  //
-  console.log('joining user channel');
-  $socket.emit('join', `user:${auth.value.user.id}`);
 });

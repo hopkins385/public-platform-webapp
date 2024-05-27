@@ -70,6 +70,13 @@ export class DocumentItemService {
           select: {
             id: true,
             name: true,
+            workflowSteps: {
+              select: {
+                id: true,
+                name: true,
+                orderColumn: true,
+              },
+            },
           },
         },
       },

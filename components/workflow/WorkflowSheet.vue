@@ -10,7 +10,7 @@
   const sideBarOpen = ref(false);
   const sheetRef = ref<HTMLElement | null>(null);
 
-  const socket = useWebsocket();
+  const socket = useWebsocketGlobal();
 
   const stepCard = reactive({
     show: false,

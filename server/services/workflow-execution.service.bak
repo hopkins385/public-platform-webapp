@@ -1,0 +1,363 @@
+import { AssistantJobDto } from './dto/job.dto';
+import { WorkflowService } from './workflow.service';
+import { QueueEnum } from '../utils/enums/queue.enum';
+import type { ExtendedPrismaClient } from '../utils/prisma/usePrisma';
+
+export class WorkflowExecutionService {
+  private readonly prisma: ExtendedPrismaClient;
+  private readonly workflowService: WorkflowService;
+
+  constructor(prisma: ExtendedPrismaClient) {
+    if (!prisma) {
+      throw new Error('Prisma client not found');
+    }
+    this.prisma = prisma;
+    this.workflowService = new WorkflowService(prisma);
+  }
+
+  /**
+   * Workflow[] -> WorkflowStep -> Document -> DocumentItem[]
+   * Workflow[] -> Assistant
+   *
+   */
+
+  async executeWorkflow(userId: string, workflowId: string) {
+    if (!workflowId) {
+      throw new Error(`Workflow ID missing`);
+    }
+
+    const workflow = await this.workflowService.findFirstWithSteps(workflowId);
+    if (!workflow) {
+      throw new Error(`Workflow not found: ${workflowId}`);
+    }
+    const { steps, id } = workflow;
+
+    const stepsCount = steps.length;
+    const stepStartIndex = stepsCount - 1;
+    const rowCount = steps[0].document?.documentItems.length || 0;
+    const rowStartIndex = rowCount ? rowCount - 1 : 0;
+
+
+
+    console.log(`Workflow: ${JSON.stringify(rows, null, 2)}`);
+    throw new Error('Not implemented');
+
+    const bullmq = useBullmq();
+    const flowProducer = bullmq.getFlowProducer();
+
+    /*const rows = this.getFlowRows({
+      userId,
+      workflowSteps,
+      rowCount,
+      stepsMaxIndex: workflowStepsMaxIndex,
+      workflowId: id,
+    });*/
+
+    // console.log(`Rows: ${JSON.stringify(rows, null, 2)}`);
+
+    const chain = await flowProducer.addBulk(rows);
+
+    return chain;
+  }
+
+ createFlowRows(userId: string, steps: any[], rowCount: number, stepsCount: number, workflowId: string) {
+
+}
+
+/* example queue
+
+const rows =
+  [
+    {
+      name: 'Step 0, Row 0',
+      data: jobData,
+      queueName,
+      children: [
+        {
+          name: 'Step 1, Row 0',
+          data: jobData,
+          queueName,
+          children: [
+            {
+              name: 'Step 2, Row 0',
+              data: jobData,
+              queueName,
+              children: []
+          }
+        ]
+        }
+      ],
+    },
+    {
+      name: 'Step 0, Row 1',
+      data: jobData,
+      queueName,
+      children: [
+        {
+          name: 'Step 1, Row 2',
+          data: jobData,
+          queueName,
+          children: [
+            {
+              name: 'Step 2, Row 3',
+              data: jobData,
+              queueName,
+              children: []
+          }
+        ]
+        }
+      ],
+    },
+  ],
+});
+
+*/
+
+
+/* example full workflow data:
+Workflow: {
+  "id": "01hytfyqcyp8eas78nmt7p05v7",
+  "name": "Requirements",
+  "project": {
+    "id": "01hytfek1qzqgvm9dq1bjt00hk",
+    "name": "Demo Project ",
+    "team": {
+      "id": "01hytfek0y7jkkt56eww53sc64",
+      "name": "Demo Team"
+    }
+  },
+  "steps": [
+    {
+      "id": "01hytfyqdvpw009vvknb52hddt",
+      "name": "Requirement",
+      "description": "First Step of the Workflow",
+      "orderColumn": 0,
+      "inputSteps": [],
+      "createdAt": "2024-05-26T13:03:05.659Z",
+      "updatedAt": "2024-05-26T13:05:32.779Z",
+      "document": {
+        "id": "01hytfyqdg1bde0vshtwadrrm5",
+        "name": "New Document",
+        "description": "New Document Description",
+        "documentItems": [
+          {
+            "id": "01hytfyqdp8zeymbgsxdjfgq2a",
+            "orderColumn": 0,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg4da49fpxe1sty3znezvs",
+            "orderColumn": 1,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg4e4bexwwzq8vys5ccgqq",
+            "orderColumn": 2,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg4ewqav7q29hkrs8wagqt",
+            "orderColumn": 3,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg4fsd5krvjcw7t3wnyb3r",
+            "orderColumn": 4,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg856cgrt1gshm5kt9y71m",
+            "orderColumn": 5,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg860y2v4c8ta53aag56fa",
+            "orderColumn": 6,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg86tfpsmdvg497fme7y6e",
+            "orderColumn": 7,
+            "content": "",
+            "type": "text"
+          }
+        ]
+      },
+      "assistant": {
+        "id": "01hytfek1z0apjm4qr4tpb5bry",
+        "title": "Groq Llama 3 8B",
+        "description": "This is an assistant description",
+        "systemPrompt": "You are a friendly and helpful assistant. Your goal is to help the user.",
+        "llm": {
+          "displayName": "Groq Llama 3 8B",
+          "provider": "groq",
+          "apiName": "llama3-8b-8192"
+        }
+      }
+    },
+    {
+      "id": "01hytg20xnh5cj05nhmfy665cc",
+      "name": "Acceptance Criterias",
+      "description": "New Step Description",
+      "orderColumn": 1,
+      "inputSteps": [
+        "01hytfyqdvpw009vvknb52hddt"
+      ],
+      "createdAt": "2024-05-26T13:04:53.685Z",
+      "updatedAt": "2024-05-26T13:05:40.876Z",
+      "document": {
+        "id": "01hytg20wzrrggb67tj4vdwjws",
+        "name": "New Document",
+        "description": "New Document Description",
+        "documentItems": [
+          {
+            "id": "01hytg20x9ggm5fx2111x7yg1k",
+            "orderColumn": 0,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg4da40yj12kd9rg75m3pb",
+            "orderColumn": 1,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg4e4bzw5vxa7xhn1x20bv",
+            "orderColumn": 2,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg4ewr52z5rxrtznmjtds2",
+            "orderColumn": 3,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg4fsdb2v2794k7nthbdd4",
+            "orderColumn": 4,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg856d54wsa3n324bbgmw9",
+            "orderColumn": 5,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg860zdcvmkss5vzkp7es6",
+            "orderColumn": 6,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg86tfwscd418wqjjzxs6k",
+            "orderColumn": 7,
+            "content": "",
+            "type": "text"
+          }
+        ]
+      },
+      "assistant": {
+        "id": "01hytfek1z0apjm4qr4tpb5bry",
+        "title": "Groq Llama 3 8B",
+        "description": "This is an assistant description",
+        "systemPrompt": "You are a friendly and helpful assistant. Your goal is to help the user.",
+        "llm": {
+          "displayName": "Groq Llama 3 8B",
+          "provider": "groq",
+          "apiName": "llama3-8b-8192"
+        }
+      }
+    },
+    {
+      "id": "01hytg21ta9vq105f5x2cc0s3a",
+      "name": "Review",
+      "description": "New Step Description",
+      "orderColumn": 2,
+      "inputSteps": [
+        "01hytfyqdvpw009vvknb52hddt",
+        "01hytg20xnh5cj05nhmfy665cc"
+      ],
+      "createdAt": "2024-05-26T13:04:54.602Z",
+      "updatedAt": "2024-05-26T13:05:45.916Z",
+      "document": {
+        "id": "01hytg21szy8y6cmrf15gh68qw",
+        "name": "New Document",
+        "description": "New Document Description",
+        "documentItems": [
+          {
+            "id": "01hytg21t4ar8zb22t6jaw1g2d",
+            "orderColumn": 0,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg4da5byzj3fshxnkd1pz1",
+            "orderColumn": 1,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg4e4bcbcd46hq34s8dkkm",
+            "orderColumn": 2,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg4ewrxcdrec57rp4p4ry9",
+            "orderColumn": 3,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg4fsdedv55exhy20yqwt3",
+            "orderColumn": 4,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg856d1d66mm4yt6c365j5",
+            "orderColumn": 5,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg860znjmcnny0r1pf4gar",
+            "orderColumn": 6,
+            "content": "",
+            "type": "text"
+          },
+          {
+            "id": "01hytg86tff02s5bd9vpgwms6v",
+            "orderColumn": 7,
+            "content": "",
+            "type": "text"
+          }
+        ]
+      },
+      "assistant": {
+        "id": "01hytfek1z0apjm4qr4tpb5bry",
+        "title": "Groq Llama 3 8B",
+        "description": "This is an assistant description",
+        "systemPrompt": "You are a friendly and helpful assistant. Your goal is to help the user.",
+        "llm": {
+          "displayName": "Groq Llama 3 8B",
+          "provider": "groq",
+          "apiName": "llama3-8b-8192"
+        }
+      }
+    },
+  ]
+}
+
+*/

@@ -1,11 +1,5 @@
 <script setup lang="ts">
-  import {
-    GitPullRequestArrowIcon,
-    Loader2Icon,
-    PanelLeftIcon,
-    PlusIcon,
-    Table2Icon,
-  } from 'lucide-vue-next';
+  import { GitPullRequestArrowIcon, Loader2Icon, PanelLeftIcon, PlusIcon, Table2Icon } from 'lucide-vue-next';
 
   const props = defineProps<{
     projectWorkflows: { id: string; name: string }[];
@@ -27,12 +21,11 @@
   }
 
   const exportIsLoading = ref(false);
-
-  const { exportWorkflow } = useManageWorkflows();
   const { executeWorkflow } = useExecuteWorkflow();
+  const { exportWorkflow } = useManageWorkflows();
 
   async function onPlayClick() {
-    const { error } = await executeWorkflow(props.workflowId);
+    const res = await executeWorkflow(props.workflowId);
   }
 
   async function onReloadDataClick() {
@@ -74,9 +67,7 @@
         <div class="mr-3 opacity-75">
           <PanelLeftIcon class="size-4 stroke-1.5" />
         </div>
-        <NuxtLinkLocale to="/projects" class="opacity-50">
-          All Projects
-        </NuxtLinkLocale>
+        <NuxtLinkLocale to="/projects" class="opacity-50"> All Projects </NuxtLinkLocale>
       </div>
       <div class="space-x-2">
         <!-- Button
@@ -91,13 +82,7 @@
           </span>
           Import Data
         </!-->
-        <Button
-          variant="outline"
-          size="sm"
-          class="text-xs"
-          @click="onExportData"
-          :disabled="exportIsLoading"
-        >
+        <Button variant="outline" size="sm" class="text-xs" @click="onExportData" :disabled="exportIsLoading">
           <span v-if="exportIsLoading" class="mr-1">
             <Loader2Icon class="size-3 animate-spin stroke-1.5" />
           </span>

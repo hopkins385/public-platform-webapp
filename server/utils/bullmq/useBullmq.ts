@@ -9,6 +9,8 @@ import type {
   Processor,
   RepeatOptions,
   FlowChildJob,
+  JobsOptions,
+  QueueBaseOptions,
 } from 'bullmq';
 import { useRuntimeConfig } from '#imports';
 
@@ -42,10 +44,7 @@ export function useBullmq() {
     port: Number(port),
   };
 
-  const createQueue = (
-    name: string,
-    opts?: Omit<QueueOptions, 'connection'>,
-  ) => {
+  const createQueue = (name: string, opts?: Omit<QueueOptions, 'connection'>) => {
     // check if queue already exists
     const existingQueue = queues.find((queue) => queue.name === name);
     if (existingQueue) {
@@ -66,22 +65,24 @@ export function useBullmq() {
     return queue;
   };
 
-  const defaultAttemptsOptions = {
+  const defaultJobOptions = {
     attempts: 3,
     backoff: {
       type: 'exponential',
       delay: 1000,
     },
-  };
+    removeOnComplete: {
+      age: 3600, // keep up to 1 hour
+      count: 1000, // keep up to 1000 jobs
+    },
+    removeOnFail: {
+      age: 24 * 3600, // keep up to 24 hours
+    },
+  } as Partial<JobsOptions>;
 
-  function queueAdd<T>(
-    queueName: string,
-    jobName: string,
-    data: T,
-    opts?: { delay?: number },
-  ) {
+  function queueAddJob<T>(queueName: string, jobName: string, data: T, opts?: { delay?: number }) {
     const queue = getOrCreateQueue(queueName);
-    return queue.add(jobName, data, { ...opts, ...defaultAttemptsOptions });
+    return queue.add(jobName, data, { ...opts, ...defaultJobOptions });
   }
 
   const createWorker = (
@@ -106,11 +107,7 @@ export function useBullmq() {
     return worker;
   };
 
-  const addCronJob = (
-    name: string,
-    processor: () => Promise<void>,
-    schedule: RepeatOptions,
-  ) => {
+  const addCronJob = (name: string, processor: () => Promise<void>, schedule: RepeatOptions) => {
     cronJobs.push({
       name,
       processor,
@@ -144,11 +141,7 @@ export function useBullmq() {
   /**
    * Flow
    */
-  async function createFlow(
-    parentName: string,
-    parentQueueName: string,
-    flowChildJobs: FlowChildJob[],
-  ) {
+  async function createFlow(parentName: string, parentQueueName: string, flowChildJobs: FlowChildJob[]) {
     const flowProducer = new FlowProducer({
       connection: connectionOptions,
     });
@@ -173,7 +166,7 @@ export function useBullmq() {
     connectionOptions,
     getOrCreateQueue,
     createQueue,
-    queueAdd,
+    queueAddJob,
     createWorker,
     getQueue,
     addCronJob,
