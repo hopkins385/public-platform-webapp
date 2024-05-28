@@ -10,13 +10,13 @@ export class CreateDocumentItemDto {
     orderColumn: number,
     status: string,
     type: string,
-    content: string,
+    content: string | number | undefined,
   ) {
     this.documentId = documentId.toLowerCase();
     this.orderColumn = orderColumn;
     this.status = status;
     this.type = type;
-    this.content = content;
+    this.content = content?.toString() || '';
   }
 
   static fromInput(input: {
@@ -24,15 +24,9 @@ export class CreateDocumentItemDto {
     orderColumn: number;
     status: string;
     type: string;
-    content: string;
+    content: string | number | undefined;
   }): CreateDocumentItemDto {
-    return new CreateDocumentItemDto(
-      input.documentId,
-      input.orderColumn,
-      input.status,
-      input.type,
-      input.content,
-    );
+    return new CreateDocumentItemDto(input.documentId, input.orderColumn, input.status, input.type, input.content);
   }
 }
 
@@ -45,7 +39,7 @@ export class UpdateDocumentItemDto {
 
   constructor(
     documentItemId: string,
-    content: string,
+    content: string | number | undefined,
     orderColumn?: number,
     status?: string,
     type?: string,
@@ -54,22 +48,16 @@ export class UpdateDocumentItemDto {
     this.orderColumn = orderColumn;
     this.status = status;
     this.type = type;
-    this.content = content;
+    this.content = content?.toString() || '';
   }
 
   static fromInput(input: {
     documentItemId: string;
-    content: string;
+    content: string | number | undefined;
     orderColumn?: number;
     status?: string;
     type?: string;
   }): UpdateDocumentItemDto {
-    return new UpdateDocumentItemDto(
-      input.documentItemId,
-      input.content,
-      input.orderColumn,
-      input.status,
-      input.type,
-    );
+    return new UpdateDocumentItemDto(input.documentItemId, input.content, input.orderColumn, input.status, input.type);
   }
 }

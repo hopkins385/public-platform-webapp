@@ -23,11 +23,13 @@ export class FileParserFactory {
   getParser() {
     switch (this.type) {
       case 'xlsx':
+      case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
         return new XLSXParser();
       case 'csv':
+      case 'text/csv':
         return new CSVParser();
       default:
-        throw new Error(`Unsupported file type: ${this.type}`);
+        throw new Error(`Unsupported file (mime)type: ${this.type}`);
     }
   }
 }

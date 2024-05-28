@@ -7,6 +7,11 @@ interface ICreateWorkflow {
   description: string;
 }
 
+interface IReCreateWorkflowFromMedia {
+  workflowId: string;
+  mediaId: string;
+}
+
 interface IUpdateWorkflow {
   workflowId: string;
   name: string;
@@ -36,6 +41,15 @@ export default function useManageWorkflows() {
 
   function createWorkflow(payload: ICreateWorkflow) {
     return $client.workflow.create.mutate(
+      { ...payload },
+      {
+        signal: ac.signal,
+      },
+    );
+  }
+
+  function reCreateWorkflowFromMedia(payload: IReCreateWorkflowFromMedia) {
+    return $client.workflow.reCreateFromMedia.mutate(
       { ...payload },
       {
         signal: ac.signal,
@@ -156,6 +170,7 @@ export default function useManageWorkflows() {
     setPage,
     setWorkflowId,
     createWorkflow,
+    reCreateWorkflowFromMedia,
     getProjectWorkflows,
     getAllWorkflowsForUser,
     getFullWorkflow,

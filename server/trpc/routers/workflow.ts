@@ -24,6 +24,20 @@ export const workflowRouter = router({
       const pass = await workflowService.canCreateWorkflowPolicy(payload, ctx.user);
       return await workflowService.create(payload);
     }),
+
+  // re-create workflow from media
+  reCreateFromMedia: protectedProcedure
+    .input(
+      z.object({
+        workflowId: ulidRule(),
+        mediaId: ulidRule(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      // const pass = await workflowService.canReCreateFromMediaPolicy(input.workflowId, ctx.user);
+      return await workflowService.reCreateFromMedia(input);
+    }),
+
   // find workflow including steps
   full: protectedProcedure
     .input(

@@ -86,7 +86,7 @@
     },
   });
 
-  const { createWorkflow } = useManageWorkflows();
+  const { createWorkflow, reCreateWorkflowFromMedia } = useManageWorkflows();
   const { uploadManyFiles, attachMediaTo } = useManageMedia();
 
   const onSubmit = handleSubmit(async (values, { resetForm }) => {
@@ -106,11 +106,15 @@
         if (!mediaId) {
           throw new Error('Workflow created but unable to upload file');
         }
-        const model = {
+        const mediaAbleModel = {
           id: workflow.id,
           type: 'workflow',
         };
-        await attachMediaTo(mediaId, model);
+        const mediaAble = await attachMediaTo(mediaId, mediaAbleModel);
+        const updatedWorkflow = await reCreateWorkflowFromMedia({
+          workflowId: workflow.id,
+          mediaId: mediaId,
+        });
       }
 
       toast.success({

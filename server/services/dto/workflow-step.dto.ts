@@ -6,33 +6,37 @@ export class CreateWorkflowStepDto {
   readonly description: string;
   readonly orderColumn: number;
   readonly rowCount: number;
+  readonly rowContents?: string[];
 
   constructor(
     workflowId: string,
     projectId: string,
     assistantId: string,
-    name: string,
+    name: string | number | undefined,
     description: string,
     orderColumn: number,
     rowCount: number,
+    rowContents?: string[],
   ) {
     this.workflowId = workflowId.toLowerCase();
     this.projectId = projectId.toLowerCase();
     this.assistantId = assistantId.toLowerCase();
-    this.name = name;
+    this.name = name?.toString() || '';
     this.description = description;
     this.orderColumn = orderColumn;
     this.rowCount = rowCount;
+    this.rowContents = rowContents;
   }
 
   static fromInput(input: {
     workflowId: string;
     projectId: string;
     assistantId: string;
-    name: string;
+    name: string | number | undefined;
     description: string;
     orderColumn: number;
     rowCount: number;
+    rowContents?: string[];
   }): CreateWorkflowStepDto {
     return new CreateWorkflowStepDto(
       input.workflowId,
@@ -42,6 +46,7 @@ export class CreateWorkflowStepDto {
       input.description,
       input.orderColumn,
       input.rowCount,
+      input.rowContents,
     );
   }
 }
@@ -52,30 +57,20 @@ export class UpdateWorkflowStepDto {
   readonly description: string;
   readonly orderColumn: number;
 
-  constructor(
-    workflowStepId: string,
-    name: string,
-    description: string,
-    orderColumn: number,
-  ) {
+  constructor(workflowStepId: string, name: string | number | undefined, description: string, orderColumn: number) {
     this.workflowStepId = workflowStepId.toLowerCase();
-    this.name = name;
+    this.name = name?.toString() || '';
     this.description = description;
     this.orderColumn = orderColumn;
   }
 
   static fromInput(input: {
     workflowStepId: string;
-    name: string;
+    name: string | number | undefined;
     description: string;
     orderColumn: number;
   }): UpdateWorkflowStepDto {
-    return new UpdateWorkflowStepDto(
-      input.workflowStepId,
-      input.name,
-      input.description,
-      input.orderColumn,
-    );
+    return new UpdateWorkflowStepDto(input.workflowStepId, input.name, input.description, input.orderColumn);
   }
 }
 
@@ -83,15 +78,12 @@ export class UpdateWorkflowStepNameDto {
   readonly workflowStepId: string;
   readonly name: string;
 
-  constructor(workflowStepId: string, name: string) {
+  constructor(workflowStepId: string, name: string | number | undefined) {
     this.workflowStepId = workflowStepId.toLowerCase();
-    this.name = name;
+    this.name = name?.toString() || '';
   }
 
-  static fromInput(input: {
-    workflowStepId: string;
-    name: string;
-  }): UpdateWorkflowStepNameDto {
+  static fromInput(input: { workflowStepId: string; name: string | number | undefined }): UpdateWorkflowStepNameDto {
     return new UpdateWorkflowStepNameDto(input.workflowStepId, input.name);
   }
 }
@@ -105,14 +97,8 @@ export class UpdateWorkflowStepAssistantDto {
     this.assistantId = assistantId.toLowerCase();
   }
 
-  static fromInput(input: {
-    workflowStepId: string;
-    assistantId: string;
-  }): UpdateWorkflowStepAssistantDto {
-    return new UpdateWorkflowStepAssistantDto(
-      input.workflowStepId,
-      input.assistantId,
-    );
+  static fromInput(input: { workflowStepId: string; assistantId: string }): UpdateWorkflowStepAssistantDto {
+    return new UpdateWorkflowStepAssistantDto(input.workflowStepId, input.assistantId);
   }
 }
 

@@ -58,7 +58,6 @@ export class WorkflowStepService {
 
     const document = await this.documentService.create(docPayload);
     const documentItemPayloads = [];
-    // create 10 document item payloads
     for (let i = 0; i < payload.rowCount; i++) {
       const docItemPayload = CreateDocumentItemDto.fromInput({
         documentId: document.id,
@@ -90,6 +89,46 @@ export class WorkflowStepService {
     });
 
     return step;
+  }
+
+  async createMany(payloads: CreateWorkflowStepDto[]) {
+    const inputStepIds = [] as string[];
+    for (const payload of payloads) {
+      const docPayload = CreateDocumentDto.fromInput({
+        name: 'Untitled Document',
+        description: '',
+        projectId: payload.projectId,
+        status: 'draft',
+      });
+      const document = await this.documentService.create(docPayload);
+      const documentItemPayloads = [];
+      for (let i = 0; i < payload.rowCount; i++) {
+        const docItemPayload = CreateDocumentItemDto.fromInput({
+          documentId: document.id,
+          orderColumn: i,
+          status: 'draft',
+          type: 'text',
+          content: payload.rowContents ? payload.rowContents[i] : '',
+        });
+        documentItemPayloads.push(docItemPayload);
+      }
+      await this.documentItemService.createMany(documentItemPayloads);
+      const step = await this.prisma.workflowStep.create({
+        data: {
+          id: ULID(),
+          workflowId: payload.workflowId,
+          assistantId: payload.assistantId,
+          documentId: document.id,
+          inputSteps: inputStepIds,
+          name: payload.name,
+          description: payload.description,
+          orderColumn: payload.orderColumn,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      });
+      inputStepIds.push(step.id);
+    }
   }
 
   findFirst(workflowStepId: string) {
@@ -169,6 +208,14 @@ export class WorkflowStepService {
     return this.prisma.workflowStep.delete({
       where: {
         id: workflowStepId.toLowerCase(),
+      },
+    });
+  }
+
+  deleteAllSteps(workflowId: string) {
+    return this.prisma.workflowStep.deleteMany({
+      where: {
+        workflowId: workflowId.toLowerCase(),
       },
     });
   }

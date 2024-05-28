@@ -1,3 +1,5 @@
+import { MediaAbleService } from './media-able.service';
+import { FileParserFactory } from './../factories/fileParserFactory';
 import { WorkflowStepService } from '~/server/services/workflow-step.service';
 import { CreateWorkflowDto } from './dto/workflow.dto';
 import type { FindAllWorkflowsDto, UpdateWorkflowDto } from './dto/workflow.dto';
@@ -5,10 +7,16 @@ import { CreateWorkflowStepDto } from './dto/workflow-step.dto';
 
 import xlsx from 'node-xlsx';
 import { TRPCError } from '@trpc/server';
+import consola from 'consola';
+import { MediaAbleDto } from './dto/media-able.dto';
+import { MediaAblesResponseDto } from './mediaAble/dtos/MediaAbleResponseDto';
+
+const logger = consola.create({}).withTag('WorkflowService');
 
 export class WorkflowService {
   private readonly prisma: ExtendedPrismaClient;
   private readonly workflowStepService: WorkflowStepService;
+  private readonly mediaAbleService: MediaAbleService;
 
   constructor(prisma: ExtendedPrismaClient) {
     if (!prisma) {
@@ -16,6 +24,7 @@ export class WorkflowService {
     }
     this.prisma = prisma;
     this.workflowStepService = new WorkflowStepService(prisma);
+    this.mediaAbleService = new MediaAbleService(prisma);
   }
 
   async create(payload: CreateWorkflowDto) {
@@ -43,8 +52,126 @@ export class WorkflowService {
     return workflow;
   }
 
-  findFirst(workflowId: string) {
-    return this.prisma.workflow.findFirst({
+  async reCreateFromMedia(payload: { workflowId: string; mediaId: string }) {
+    const workflow = await this.prisma.workflow.findFirst({
+      where: {
+        id: payload.workflowId.toLowerCase(),
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        projectId: true,
+        project: {
+          select: {
+            id: true,
+            teamId: true,
+          },
+        },
+      },
+    });
+
+    if (!workflow) {
+      throw new Error('Workflow not found');
+    }
+
+    const media = await this.prisma.media.findFirst({
+      where: {
+        id: payload.mediaId.toLowerCase(),
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        name: true,
+        filePath: true,
+        fileMime: true,
+      },
+    });
+
+    if (!media) {
+      throw new Error('Media not found');
+    }
+
+    // get the first assistant of the team
+    const assistant = await this.prisma.assistant.findFirst({
+      where: {
+        teamId: workflow.project.teamId,
+        deletedAt: null,
+      },
+    });
+
+    if (!assistant) {
+      throw new Error('Team has no assistants');
+    }
+
+    // read file
+    const fileParser = new FileParserFactory(media.fileMime, media.filePath);
+    const fileData = await fileParser.loadData();
+    const firstSheet = fileData?.[0];
+
+    if (!firstSheet) {
+      throw new Error('No data found in the file');
+    }
+
+    let newStepsCount = firstSheet.data?.[0].length - 1;
+
+    if (!newStepsCount || newStepsCount < 1) {
+      throw new Error('No columns found in the file');
+    }
+
+    const newStepsCountLimit = 5;
+    if (newStepsCount > newStepsCountLimit) {
+      logger.warn(`The file has more than ${newStepsCountLimit} columns`);
+      newStepsCount = newStepsCountLimit;
+    }
+
+    // transform the data into steps
+    // the data in the table look like this
+    // [ [ 'Step 1', 'Step 2', 'Step 3' ], [ 'Step_1_row_1', 'Step_1_row_2', 'Step_1_row_3' ], [ 'Step_2_row_1', 'Step_2_row_2', 'Step_2_row_3' ] ]
+    // but we need to transpose it to look like this
+    // [ [ 'Step 1', 'Step 2', 'Step 3' ], [ 'Step_1_row_1', 'Step_2_row_1', 'Step_3_row_1' ], [ 'Step_1_row_2', 'Step_2_row_2', 'Step_3_row_2' ] ]
+    const newData = [] as any;
+    firstSheet.data.slice(1).forEach((row: any[], rowIndex: number) => {
+      row.forEach((cell: any, cellIndex: number) => {
+        if (!newData[cellIndex]) {
+          newData[cellIndex] = [];
+        }
+        newData[cellIndex].push(cell);
+      });
+    });
+
+    let newRowsCount = newData?.[0].length - 1;
+
+    const newRowsCountLimit = 20;
+    if (newRowsCount > newRowsCountLimit) {
+      logger.warn(`The file has more than ${newRowsCountLimit} rows`);
+      newRowsCount = newRowsCountLimit;
+    }
+
+    const manyStepsPayload = [] as CreateWorkflowStepDto[];
+    for (let i = 0; i < newStepsCount; i++) {
+      const stepPayload = CreateWorkflowStepDto.fromInput({
+        workflowId: workflow.id,
+        projectId: workflow.projectId,
+        assistantId: assistant.id,
+        name: firstSheet.data[0][i],
+        description: '',
+        orderColumn: i,
+        rowCount: newRowsCount,
+        rowContents: newData[i],
+      });
+      manyStepsPayload.push(stepPayload);
+    }
+
+    // delete all the steps for the workflow including the document and document items
+    await this.workflowStepService.deleteAllSteps(workflow.id);
+
+    const workflowSteps = await this.workflowStepService.createMany(manyStepsPayload);
+    return workflow;
+  }
+
+  async findFirst(workflowId: string) {
+    const workflow = await this.prisma.workflow.findFirst({
+      relationLoadStrategy: 'join',
       select: {
         id: true,
         name: true,
@@ -67,11 +194,29 @@ export class WorkflowService {
         deletedAt: null,
       },
     });
+
+    if (!workflow) {
+      return null;
+    }
+
+    // find the mediaAbles for the workflow
+    const mediaAbleModel = MediaAbleDto.fromInput({
+      id: workflow.id,
+      type: 'workflow',
+    });
+
+    const mediaAblesResult = await this.mediaAbleService.getMediaAbles(mediaAbleModel);
+    const mediaAbles = MediaAblesResponseDto.fromMediaAbles(mediaAblesResult);
+
+    return {
+      ...workflow,
+      ...mediaAbles,
+    };
   }
 
   async findFirstWithSteps(workflowId: string) {
     const workflow = await this.prisma.workflow.findFirst({
-      relationLoadStrategy: 'join', // or 'query'
+      relationLoadStrategy: 'join',
       where: {
         id: workflowId.toLowerCase(),
         deletedAt: null,
@@ -99,7 +244,7 @@ export class WorkflowService {
     }
 
     const workflowSteps = await this.prisma.workflowStep.findMany({
-      relationLoadStrategy: 'join', // or "query"
+      relationLoadStrategy: 'join',
       where: {
         workflowId: workflow.id,
         deletedAt: null,
@@ -248,6 +393,7 @@ export class WorkflowService {
 
   async export(workflowId: string, type: 'json' | 'xml' | 'csv' | 'xlsx' | 'pdf') {
     const workflow = await this.prisma.workflow.findFirst({
+      relationLoadStrategy: 'join',
       where: {
         id: workflowId.toLowerCase(),
         deletedAt: null,

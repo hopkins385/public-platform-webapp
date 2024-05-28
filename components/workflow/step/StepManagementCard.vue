@@ -126,6 +126,7 @@
                 placeholder="Please set an assistant"
                 class="resize-none bg-stone-50 text-xs"
                 v-bind="componentField"
+                :disabled="true"
               />
             </FormControl>
             <FormMessage />
