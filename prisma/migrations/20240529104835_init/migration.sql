@@ -426,13 +426,76 @@ CREATE TABLE "provider_auths" (
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
+CREATE INDEX "users_email_idx" ON "users"("email");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "users_device_id_email_key" ON "users"("device_id", "email");
+
+-- CreateIndex
+CREATE INDEX "user_roles_user_id_role_id_index" ON "user_roles"("user_id", "role_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "sessions_session_token_key" ON "sessions"("session_token");
 
 -- CreateIndex
+CREATE INDEX "teams_organisation_id_name_index" ON "teams"("organisation_id", "name");
+
+-- CreateIndex
+CREATE INDEX "team_users_team_id_user_id_index" ON "team_users"("team_id", "user_id");
+
+-- CreateIndex
+CREATE INDEX "chats_user_id_assistant_id_index" ON "chats"("user_id", "assistant_id");
+
+-- CreateIndex
+CREATE INDEX "chat_messages_chat_id_created_at_index" ON "chat_messages"("chat_id", "created_at");
+
+-- CreateIndex
+CREATE INDEX "assistants_team_id_llm_id_index" ON "assistants"("team_id", "llm_id");
+
+-- CreateIndex
+CREATE INDEX "llms_api_name_idx" ON "llms"("api_name");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "credits_user_id_key" ON "credits"("user_id");
+
+-- CreateIndex
+CREATE INDEX "credits_user_id_idx" ON "credits"("user_id");
+
+-- CreateIndex
+CREATE INDEX "token_usages_user_id_llm_provider_llm_model_index" ON "token_usages"("user_id", "llm_provider", "llm_model");
+
+-- CreateIndex
+CREATE INDEX "medias_team_id_name_index" ON "medias"("team_id", "name");
+
+-- CreateIndex
+CREATE INDEX "media_ables_media_id_mediaable_type_mediaable_id_index" ON "media_ables"("media_id", "mediaable_type", "mediaable_id");
+
+-- CreateIndex
+CREATE INDEX "collections_team_id_name_index" ON "collections"("team_id", "name");
+
+-- CreateIndex
+CREATE INDEX "collection_ables_index" ON "collection_ables"("collection_id", "collectionable_type", "collectionable_id");
+
+-- CreateIndex
+CREATE INDEX "records_collection_id_media_id_index" ON "records"("collection_id", "media_id");
+
+-- CreateIndex
+CREATE INDEX "projects_team_id_name_index" ON "projects"("team_id", "name");
+
+-- CreateIndex
+CREATE INDEX "documents_project_id_name_index" ON "documents"("project_id", "name");
+
+-- CreateIndex
+CREATE INDEX "document_items_document_id_order_column_index" ON "document_items"("document_id", "order_column");
+
+-- CreateIndex
+CREATE INDEX "document_item_ables_index" ON "document_item_ables"("document_item_id", "model_type", "model_id");
+
+-- CreateIndex
+CREATE INDEX "workflows_project_id_name_index" ON "workflows"("project_id", "name");
+
+-- CreateIndex
+CREATE INDEX "workflow_steps_order_column_index" ON "workflow_steps"("workflow_id", "order_column");
 
 -- AddForeignKey
 ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

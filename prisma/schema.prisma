@@ -35,6 +35,7 @@ model User {
   providerAuths   ProviderAuth[]
 
   @@unique([deviceId, email])
+  @@index([email])
   @@map("users")
 }
 
@@ -60,6 +61,7 @@ model UserRole {
   user User @relation(fields: [userId], references: [id])
   role Role @relation(fields: [roleId], references: [id])
 
+  @@index([userId, roleId], name: "user_roles_user_id_role_id_index")
   @@map("user_roles")
 }
 
@@ -135,6 +137,7 @@ model Team {
 
   organisation Organisation @relation(fields: [organisationId], references: [id])
 
+  @@index([organisationId, name], name: "teams_organisation_id_name_index")
   @@map("teams")
 }
 
@@ -149,6 +152,7 @@ model TeamUser {
   team Team @relation(fields: [teamId], references: [id])
   user User @relation(fields: [userId], references: [id])
 
+  @@index([teamId, userId], name: "team_users_team_id_user_id_index")
   @@map("team_users")
 }
 
@@ -165,6 +169,7 @@ model Chat {
   user      User      @relation(fields: [userId], references: [id])
   assistant Assistant @relation(fields: [assistantId], references: [id])
 
+  @@index([userId, assistantId], name: "chats_user_id_assistant_id_index")
   @@map("chats")
 }
 
@@ -182,6 +187,7 @@ model ChatMessage {
 
   chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
 
+  @@index([chatId, createdAt], name: "chat_messages_chat_id_created_at_index")
   @@map("chat_messages")
 }
 
@@ -203,6 +209,7 @@ model Assistant {
   team Team           @relation(fields: [teamId], references: [id])
   llm  LargeLangModel @relation(fields: [llmId], references: [id])
 
+  @@index([teamId, llmId], name: "assistants_team_id_llm_id_index")
   @@map("assistants")
 }
 
@@ -223,6 +230,7 @@ model LargeLangModel {
   assistants  Assistant[]
   Collection  Collection[]
 
+  @@index([apiName])
   @@map("llms")
 }
 
@@ -236,6 +244,7 @@ model Credit {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@map("credits")
 }
 
@@ -254,6 +263,7 @@ model TokenUsage {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId, llmProvider, llmModel], name: "token_usages_user_id_llm_provider_llm_model_index")
   @@map("token_usages")
 }
 
@@ -296,6 +306,7 @@ model Media {
 
   team Team @relation(fields: [teamId], references: [id])
 
+  @@index([teamId, name], name: "medias_team_id_name_index")
   @@map("medias")
 }
 
@@ -315,6 +326,7 @@ model MediaAbles {
 
   media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
 
+  @@index([mediaId, mediaAbleType, mediaAbleId], name: "media_ables_media_id_mediaable_type_mediaable_id_index")
   @@map("media_ables")
 }
 
@@ -334,6 +346,7 @@ model Collection {
   team Team            @relation(fields: [teamId], references: [id])
   llm  LargeLangModel? @relation(fields: [llmId], references: [id])
 
+  @@index([teamId, name], name: "collections_team_id_name_index")
   @@map("collections")
 }
 
@@ -353,6 +366,7 @@ model CollectionAble {
 
   collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
 
+  @@index([collectionId, collectionAbleType, collectionAbleId], name: "collection_ables_index")
   @@map("collection_ables")
 }
 
@@ -368,6 +382,7 @@ model Record {
   collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
   media      Media?     @relation(fields: [mediaId], references: [id])
 
+  @@index([collectionId, mediaId], name: "records_collection_id_media_id_index")
   @@map("records")
 }
 
@@ -399,6 +414,7 @@ model Project {
 
   team Team @relation(fields: [teamId], references: [id])
 
+  @@index([teamId, name], name: "projects_team_id_name_index")
   @@map("projects")
 }
 
@@ -415,6 +431,7 @@ model Document {
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
+  @@index([projectId, name], name: "documents_project_id_name_index")
   @@map("documents")
 }
 
@@ -432,6 +449,7 @@ model DocumentItem {
 
   document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
+  @@index([documentId, orderColumn], name: "document_items_document_id_order_column_index")
   @@map("document_items")
 }
 
@@ -449,6 +467,7 @@ model DocumentItemAble {
 
   documentItem DocumentItem @relation(fields: [documentItemId], references: [id], onDelete: Cascade)
 
+  @@index([documentItemId, modelType, modelId], name: "document_item_ables_index")
   @@map("document_item_ables")
 }
 
@@ -465,6 +484,7 @@ model Workflow {
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
+  @@index([projectId, name], name: "workflows_project_id_name_index")
   @@map("workflows")
 }
 
@@ -503,6 +523,7 @@ model WorkflowStep {
   document  Document?  @relation(fields: [documentId], references: [id])
   assistant Assistant? @relation(fields: [assistantId], references: [id])
 
+  @@index([workflowId, orderColumn], name: "workflow_steps_order_column_index")
   @@map("workflow_steps")
 }
 
