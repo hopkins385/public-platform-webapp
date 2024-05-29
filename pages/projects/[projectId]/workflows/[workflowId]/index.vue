@@ -37,13 +37,8 @@
       v-model:show-table-view="showTable"
     />
     <div class="min-h-full overflow-x-scroll bg-white">
-      <!-- size-full -->
       <Suspense>
-        <WorkflowSheet
-          v-if="showTable"
-          :workflow-id="workflowId as string"
-          :project-id="projectId as string"
-        />
+        <WorkflowSheet v-if="showTable" :workflow-id="workflowId as string" :project-id="projectId as string" />
         <WorkflowFlowView v-else :workflow-id="workflowId as string" />
       </Suspense>
     </div>

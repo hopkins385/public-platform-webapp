@@ -10,7 +10,7 @@
       <div class="opacity-100">
         <IconRagna class="size-7 drop-shadow-sm" />
       </div>
-      <div v-if="textVisible" class="text-sm opacity-95">
+      <div v-if="textVisible" class="whitespace-nowrap text-sm opacity-95">
         <span class="font-semibold tracking-wide">RAGNA</span> Cloud
       </div>
     </div>

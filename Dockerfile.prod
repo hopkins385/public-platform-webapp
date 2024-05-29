@@ -29,12 +29,10 @@ FROM node:21-alpine as prod
 WORKDIR /app
 
 # Copy only the necessary files
-# TODO: Optimze me
-COPY --chown=node:node --from=build /app/node_modules ./node_modules
-# COPY --chown=node:node --from=build /app/assets ./assets
-COPY --chown=node:node --from=build /app/.output ./.output
 COPY --chown=node:node --from=build /app/package.json ./package.json
+COPY --chown=node:node --from=build /app/node_modules ./node_modules
 COPY --chown=node:node --from=build /app/prisma ./prisma
+COPY --chown=node:node --from=build /app/.output ./.output
 
 # temp folder
 RUN mkdir -p /app/temp
@@ -42,9 +40,6 @@ RUN chown -R node:node /app/temp
 # uploads folder
 RUN mkdir -p /app/uploads
 RUN chown -R node:node /app/uploads
-
-# ts-node
-RUN npm i ts-node
 
 # Set Docker as non-root user
 USER node

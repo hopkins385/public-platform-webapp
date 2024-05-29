@@ -8,14 +8,8 @@ import { getConversationBody } from '~/server/utils/request/chatConversationBody
 import { ChatEvent } from '~/server/utils/enums/chat-event.enum';
 import { UsageEvent } from '~/server/utils/enums/usage-event.enum';
 import { TrackTokensDto } from '~/server/services/dto/track-tokens.dto';
-import type {
-  ChatMessage,
-  VisionImageUrlContent,
-} from '~/interfaces/chat.interfaces';
-import {
-  StreamFinishedEventDto,
-  FirstUserMessageEventDto,
-} from '~/server/services/dto/event.dto';
+import type { ChatMessage, VisionImageUrlContent } from '~/interfaces/chat.interfaces';
+import { StreamFinishedEventDto, FirstUserMessageEventDto } from '~/server/services/dto/event.dto';
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import { useEvents } from '~/server/events/useEvents';
 import { CompletionFactoryStatic } from '~/server/factories/completionFactoryStatic';
@@ -129,8 +123,7 @@ export default defineEventHandler(async (_event) => {
     ...bodyMessages,
   ];
 
-  // console.log('messages', JSON.stringify(messages, null, 2));
-  // return;
+  // dd(messages);
 
   try {
     const completion = new CompletionFactoryStatic(body.provider, body.model);
@@ -176,9 +169,7 @@ export default defineEventHandler(async (_event) => {
     _event.node.res.on('close', () => {
       stream.destroy();
 
-      const inputTokens = tokenizerService.getTokens(
-        body.messages[body.messages.length - 1].content,
-      );
+      const inputTokens = tokenizerService.getTokens(body.messages[body.messages.length - 1].content);
       const outputTokens = tokenizerService.getTokens(llmResponseMessage);
       const { event } = useEvents();
 

@@ -4,6 +4,7 @@ function minMax(value: number) {
 
 export const useNavBarStore = defineStore('nav-bar.store', {
   state: () => ({
+    isFullClosed: false,
     isOpen: true,
     width: 15.4,
     openWidth: 15.4,
@@ -16,6 +17,10 @@ export const useNavBarStore = defineStore('nav-bar.store', {
     setOpen(value: boolean) {
       this.isOpen = value;
       this.resetWidth();
+    },
+    toggleFullClosed() {
+      if (this.isOpen) this.setOpen(false);
+      this.isFullClosed = !this.isFullClosed;
     },
     toggleOpen() {
       this.isOpen = !this.isOpen;

@@ -160,28 +160,26 @@
 <template>
   <div
     ref="navBarRef"
-    class="relative flex h-full shrink-0 flex-col justify-between border-r bg-stone-50"
-    :style="{ width: `${navBar.width}rem` }"
+    class="relative flex h-full shrink-0 flex-col justify-between border-r bg-stone-50 transition-all duration-300 ease-out"
+    :style="{ width: navBar.isFullClosed ? 0 : `${navBar.width}rem` }"
   >
     <div
       ref="navBarResizerRef"
       class="absolute right-0 top-0 z-10 h-full"
       :class="{
         'bg-blue-600': pressed && navBar.isOpen,
-        ' cursor-ew-resize hover:bg-blue-600': navBar.isOpen,
+        'cursor-ew-resize hover:bg-blue-600': navBar.isOpen,
       }"
       style="width: 0.25rem"
     ></div>
-    <div class="relative h-full">
-      <div class="flex justify-between border-0 pl-8 pt-4">
-        <BrandLogo :text-visible="navBar.isOpen" />
-        <!-- div v-show="navBar.isOpen" class="pr-4">
-          <button class="group rounded-full p-2" @click="onFullScreenClick">
-            <ExpandIcon
-              class="size-4 stroke-1 opacity-50 group-hover:opacity-100"
-            />
-          </button>
-        </!-->
+    <div
+      class="relative h-full overflow-y-hidden transition-opacity duration-200 ease-in-out"
+      :class="{
+        'opacity-0': navBar.isFullClosed,
+      }"
+    >
+      <div class="flex justify-between pt-4">
+        <BrandLogo class="ml-[1.855rem]" :text-visible="navBar.isOpen" />
       </div>
       <div class="h-4" id="spacer"></div>
       <!-- div class="px-4 pb-4">

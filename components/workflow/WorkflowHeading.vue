@@ -12,6 +12,14 @@
     'update:showTableView': [boolean];
   }>();
 
+  const exportIsLoading = ref(false);
+  const navBar = useNavBarStore();
+  const { executeWorkflow } = useExecuteWorkflow();
+  const { exportWorkflow } = useManageWorkflows();
+
+  // const cacheKey = computed(() => `workflow:${props.workflowId}`);
+  const { data: workflow } = useNuxtData(`workflow:${props.workflowId}`);
+
   function onTableViewClick() {
     emit('update:showTableView', true);
   }
@@ -19,10 +27,6 @@
   function onFlowViewClick() {
     emit('update:showTableView', false);
   }
-
-  const exportIsLoading = ref(false);
-  const { executeWorkflow } = useExecuteWorkflow();
-  const { exportWorkflow } = useManageWorkflows();
 
   async function onPlayClick() {
     const res = await executeWorkflow(props.workflowId);
@@ -64,10 +68,14 @@
     <!-- Breadcrumbs -->
     <div class="flex h-14 items-center justify-between border-b px-4 text-sm">
       <div class="flex items-center">
-        <div class="mr-3 opacity-75">
+        <button class="mr-3 opacity-75" @click="() => navBar.toggleFullClosed()">
           <PanelLeftIcon class="size-4 stroke-1.5" />
-        </div>
+        </button>
         <NuxtLinkLocale to="/projects" class="opacity-50"> All Projects </NuxtLinkLocale>
+        <span class="mx-2 opacity-50">/</span>
+        <NuxtLinkLocale :to="`/projects/${projectId}`" class="opacity-70">
+          {{ workflow?.project.name }}
+        </NuxtLinkLocale>
       </div>
       <div class="space-x-2">
         <!-- Button
