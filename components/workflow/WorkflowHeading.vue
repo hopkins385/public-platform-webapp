@@ -128,14 +128,14 @@
         <div class="flex items-center space-x-1 rounded-lg bg-stone-200/60 p-1">
           <button
             class="flex h-6 w-7 items-center justify-center rounded-lg"
-            :class="{ 'icon-active': showTableView }"
+            :class="{ 'border bg-white shadow-sm': showTableView }"
             @click="() => onTableViewClick()"
           >
             <Table2Icon class="size-3 stroke-1" />
           </button>
           <button
             class="flex h-6 w-7 items-center justify-center rounded-lg"
-            :class="{ 'icon-active': !showTableView }"
+            :class="{ 'border bg-white shadow-sm': !showTableView }"
             @click="() => onFlowViewClick()"
           >
             <GitPullRequestArrowIcon class="size-3 stroke-1.5 opacity-60" />
@@ -145,9 +145,3 @@
     </div>
   </div>
 </template>
-
-<style scoped>
-  .icon-active {
-    @apply border bg-white shadow-sm;
-  }
-</style>

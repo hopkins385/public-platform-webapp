@@ -7,10 +7,19 @@ import { CompletionFactoryStatic } from '../factories/completionFactoryStatic';
 import { ChatService } from '../services/chat.service';
 import type { FirstUserMessageEventDto } from '../services/dto/event.dto';
 import { useEvents } from '../events/useEvents';
+import type { WorkerOptions } from 'bullmq';
+import consola from 'consola';
+
+interface WorkflowWorker {
+  name: string;
+  options: WorkerOptions;
+}
 
 const prisma = getPrismaClient();
 const assistantJobService = new AssistantJobService(prisma);
 const chatService = new ChatService(prisma);
+
+const logger = consola.create({}).withTag('bullmq-workers');
 
 export default defineNitroPlugin((nitroApp) => {
   const { createWorker } = useBullmq();
@@ -66,168 +75,97 @@ export default defineNitroPlugin((nitroApp) => {
     event(WorkflowEvent.ROWCOMPLETED, data);
   });
 
-  const groq_llama3_8b = createWorker(
-    'groq-llama3-8b-8192',
-    async (job) => {
-      const { data } = job;
-      await assistantJobService.processJob(data);
-    },
-    {
-      concurrency: 10,
-      limiter: {
-        max: 30,
-        duration: 1000,
-      },
-    },
-  );
+  const rateLimitDuration = 60 * 1000; // 1 minute
+  const workerConcurrency = 10;
+  const groqReqPerMin = 30;
+  const mistralReqPerMin = 5 * 60;
+  const openaiReqPerMin = 5 * 1000;
+  const claudeReqPerMin = 4 * 1000;
 
-  const groq_llama3_70b = createWorker(
-    'groq-llama3-70b-8192',
-    async (job) => {
-      const { data } = job;
-      await assistantJobService.processJob(data);
+  const workflowWorkers = [
+    {
+      name: 'groq-llama3-8b-8192',
+      options: { concurrency: workerConcurrency, limiter: { max: groqReqPerMin, duration: rateLimitDuration } },
     },
     {
-      concurrency: 10,
-      limiter: {
-        max: 30,
-        duration: 1000,
-      },
+      name: 'groq-llama3-70b-8192',
+      options: { concurrency: workerConcurrency, limiter: { max: groqReqPerMin, duration: rateLimitDuration } },
     },
-  );
+    {
+      name: 'groq-mixtral-8x7b-32768',
+      options: { concurrency: workerConcurrency, limiter: { max: groqReqPerMin, duration: rateLimitDuration } },
+    },
+    {
+      name: 'mistral-small-latest',
+      options: { concurrency: workerConcurrency, limiter: { max: mistralReqPerMin, duration: rateLimitDuration } },
+    },
+    {
+      name: 'mistral-large-latest',
+      options: { concurrency: workerConcurrency, limiter: { max: mistralReqPerMin, duration: rateLimitDuration } },
+    },
+    {
+      name: 'openai-gpt-3.5-turbo',
+      options: { concurrency: workerConcurrency, limiter: { max: openaiReqPerMin, duration: rateLimitDuration } },
+    },
+    {
+      name: 'openai-gpt-4',
+      options: { concurrency: workerConcurrency, limiter: { max: openaiReqPerMin, duration: rateLimitDuration } },
+    },
+    {
+      name: 'openai-gpt-4o',
+      options: { concurrency: workerConcurrency, limiter: { max: openaiReqPerMin, duration: rateLimitDuration } },
+    },
+    {
+      name: 'anthropic-claude-3-haiku-20240307',
+      options: { concurrency: workerConcurrency, limiter: { max: claudeReqPerMin, duration: rateLimitDuration } },
+    },
+    {
+      name: 'anthropic-claude-3-sonnet-20240229',
+      options: { concurrency: workerConcurrency, limiter: { max: claudeReqPerMin, duration: rateLimitDuration } },
+    },
+    {
+      name: 'anthropic-claude-3-opus-20240229',
+      options: { concurrency: workerConcurrency, limiter: { max: claudeReqPerMin, duration: rateLimitDuration } },
+    },
+  ] as WorkflowWorker[];
 
-  const groq_mixtral_8x7b = createWorker(
-    'groq-mixtral-8x7b-32768',
-    async (job) => {
-      const { data } = job;
-      await assistantJobService.processJob(data);
-    },
-    {
-      concurrency: 10,
-      limiter: {
-        max: 30,
-        duration: 1000,
+  workflowWorkers.forEach((worker) => {
+    createWorker(
+      worker.name,
+      async (job) => {
+        const { data } = job;
+        await assistantJobService.processJob(data);
       },
-    },
-  );
+      worker.options,
+    )
+      .on('ready', () => {
+        logger.info(`Workflow worker ${worker.name} ready`);
+      })
+      .on('error', (err) => {
+        logger.error(`Workflow worker ${worker.name} errored with error: ${err.message}`);
+      })
+      .on('failed', (job, err) => {
+        logger.error(`Workflow worker ${worker.name} failed with error: ${err.message}`);
+      })
+      .on('stalled', () => {
+        logger.warn(`Workflow worker ${worker.name} stalled`);
+      })
+      .on('paused', () => {
+        logger.info(`Workflow worker ${worker.name} paused`);
+      })
+      .on('resumed', () => {
+        logger.info(`Workflow worker ${worker.name} resumed`);
+      });
+    /*.on('active', () => {
+        logger.info(`Workflow worker ${worker.name} active`);
+      })
+      .on('progress', (job, progress) => {
+        logger.info(`Workflow worker ${worker.name} progress: ${progress}`);
+      })
+      .on('completed', () => {
+        logger.info(`Workflow worker ${worker.name} completed`);
+      });*/
+  });
 
-  const mistral_small = createWorker(
-    'mistral-small-latest',
-    async (job) => {
-      const { data } = job;
-      await assistantJobService.processJob(data);
-    },
-    {
-      concurrency: 10,
-      limiter: {
-        max: 30,
-        duration: 1000,
-      },
-    },
-  );
-
-  const mistral_large = createWorker(
-    'mistral-large-latest',
-    async (job) => {
-      const { data } = job;
-      await assistantJobService.processJob(data);
-    },
-    {
-      concurrency: 10,
-      limiter: {
-        max: 30,
-        duration: 1000,
-      },
-    },
-  );
-
-  const openai_gpt_3_5_turbo = createWorker(
-    'openai-gpt-3.5-turbo',
-    async (job) => {
-      const { data } = job;
-      await assistantJobService.processJob(data);
-    },
-    {
-      concurrency: 10,
-      limiter: {
-        max: 5000,
-        duration: 1000,
-      },
-    },
-  );
-
-  const openai_gpt_4 = createWorker(
-    'openai-gpt-4',
-    async (job) => {
-      const { data } = job;
-      await assistantJobService.processJob(data);
-    },
-    {
-      concurrency: 10,
-      limiter: {
-        max: 5000,
-        duration: 1000,
-      },
-    },
-  );
-
-  const openai_gpt_4o = createWorker(
-    'openai-gpt-4o',
-    async (job) => {
-      const { data } = job;
-      await assistantJobService.processJob(data);
-    },
-    {
-      concurrency: 10,
-      limiter: {
-        max: 5000,
-        duration: 1000,
-      },
-    },
-  );
-
-  const anthropic_claude_3_haiku = createWorker(
-    'anthropic-claude-3-haiku-20240307',
-    async (job) => {
-      const { data } = job;
-      await assistantJobService.processJob(data);
-    },
-    {
-      concurrency: 10,
-      limiter: {
-        max: 50,
-        duration: 1000,
-      },
-    },
-  );
-
-  const anthropic_claude_3_sonnet = createWorker(
-    'anthropic-claude-3-sonnet-20240229',
-    async (job) => {
-      const { data } = job;
-      await assistantJobService.processJob(data);
-    },
-    {
-      concurrency: 10,
-      limiter: {
-        max: 50,
-        duration: 1000,
-      },
-    },
-  );
-
-  const anthropic_claude_3_opus = createWorker(
-    'anthropic-claude-3-opus-20240229',
-    async (job) => {
-      const { data } = job;
-      await assistantJobService.processJob(data);
-    },
-    {
-      concurrency: 10,
-      limiter: {
-        max: 50,
-        duration: 1000,
-      },
-    },
-  );
+  logger.info('Bullmq workers loaded');
 });

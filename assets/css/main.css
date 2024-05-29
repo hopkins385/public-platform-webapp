@@ -18,3 +18,7 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+.resizing-active {
+  @apply select-none;
+}

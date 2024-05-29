@@ -148,7 +148,7 @@
   <div class="p-4 text-sm" v-if="error || !workflowData">
     Ups something went wrong.<br />The Data you are looking for is not available.
   </div>
-  <div ref="sheetRef" class="no-scrollbar flex overflow-visible bg-white pb-10 text-xs" id="grid_list">
+  <div id="workflowSheet" ref="sheetRef" class="no-scrollbar flex overflow-visible bg-white pb-10 text-xs">
     <!-- Row Index -->
     <div class="column" id="column_0">
       <div class="index relative flex items-center justify-center" id="row_0_cell_x0_y1">--</div>

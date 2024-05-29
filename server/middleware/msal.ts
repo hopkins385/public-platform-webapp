@@ -1,8 +1,5 @@
-import {
-  ConfidentialClientApplication,
-  type Configuration,
-  LogLevel,
-} from '@azure/msal-node';
+import { ConfidentialClientApplication, type Configuration, LogLevel } from '@azure/msal-node';
+import consola from 'consola';
 // import { NativeBrokerPlugin } from '@azure/msal-node-extensions';
 
 declare module 'h3' {
@@ -13,6 +10,8 @@ declare module 'h3' {
 
 const config = useRuntimeConfig().azure;
 let client: ConfidentialClientApplication | null = null;
+
+const logger = consola.create({}).withTag('server.msal-client-middleware');
 
 export default eventHandler((event) => {
   const msalConfig: Configuration = {
@@ -53,7 +52,7 @@ export default eventHandler((event) => {
     try {
       client = new ConfidentialClientApplication(msalConfig);
     } catch (err) {
-      console.error('[msal] [client]', err);
+      logger.error('Failed to create MSAL client %s', JSON.stringify(err));
       throw createError({
         statusCode: 500,
         statusMessage: 'Internal server error',

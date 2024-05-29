@@ -66,7 +66,7 @@ export function useBullmq() {
   };
 
   const defaultJobOptions = {
-    attempts: 3,
+    attempts: 0,
     backoff: {
       type: 'exponential',
       delay: 1000,

@@ -23,12 +23,16 @@ export function useResizeSheet() {
   }
 
   function resizeRowListener(ev: MouseEvent, rowIndex: number, workflowId: string) {
+    const sheet = document.getElementById('workflowSheet') as HTMLElement;
+    if (!sheet) return;
+    sheet.classList.add('resizing-active');
     const mouseMoveEventListener = useEventListener('mousemove', (e) => {
       const newHeight = setRowHeight(e, rowIndex);
-      sheetStore.updateOrCreateHeight(workflowId, rowIndex, newHeight);
+      sheetStore.updateOrCreateHeight(workflowId, rowIndex, newHeight ?? 0);
     });
 
     addEventListener('mouseup', () => {
+      sheet.classList.remove('resizing-active');
       mouseMoveEventListener(); // remove mousemove event listener
     });
   }
@@ -54,12 +58,16 @@ export function useResizeSheet() {
   }
 
   function resizeColumnListener(ev: MouseEvent, columnIndex: number, workflowId: string) {
+    const sheet = document.getElementById('workflowSheet') as HTMLElement;
+    if (!sheet) return;
+    sheet.classList.add('resizing-active');
     const mouseMoveEventListener = useEventListener('mousemove', (e) => {
       const newWidth = setColumWidth(e, columnIndex);
-      sheetStore.updateOrCreateWidth(workflowId, columnIndex, newWidth);
+      sheetStore.updateOrCreateWidth(workflowId, columnIndex, newWidth ?? 0);
     });
 
     addEventListener('mouseup', () => {
+      sheet.classList.remove('resizing-active');
       mouseMoveEventListener(); // remove mousemove event listener
     });
   }
