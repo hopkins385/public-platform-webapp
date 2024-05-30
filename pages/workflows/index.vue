@@ -8,17 +8,14 @@
     },
   });
 
-  const filterProjectId = ref<string | undefined>(undefined);
+  const { getAllWorkflowsForUser, setProjectId, projectId: selectedProjectId } = useManageWorkflows();
 
-  const { getAllWorkflowsForUser } = useManageWorkflows();
-  // attention, in this case we want to pass the ref directly and not the value
-  const { data } = await getAllWorkflowsForUser(filterProjectId, {
-    watch: [filterProjectId],
-  });
+  const projectStore = useProjectStore();
+  setProjectId(projectStore.activeProjectId);
 
-  const workflows = computed(
-    () => data.value?.allWorkflows.flatMap((w: any) => w.workflows) || [],
-  );
+  const { data } = await getAllWorkflowsForUser();
+
+  const workflows = computed(() => data.value?.allWorkflows.flatMap((w: any) => w.workflows) || []);
   const meta = computed(() => {
     return {
       totalCount: data.value?.meta?.totalCount || 0,
@@ -27,20 +24,17 @@
   });
 
   function onClearProjectFilter() {
-    filterProjectId.value = undefined;
+    setProjectId(null);
   }
 
   async function onUpdateProjectFilter(value: string) {
-    filterProjectId.value = value;
+    setProjectId(value);
   }
 </script>
 
 <template>
   <SectionContainer>
-    <SectionHeading
-      title="Workflows"
-      subtitle="Create, edit, and manage workflows"
-    />
+    <SectionHeading title="Workflows" subtitle="Create, edit, and manage workflows" />
     <Heading>
       <template #top> </template>
       <template #bottom>
@@ -49,16 +43,11 @@
             <div class="mb-1 p-1 text-xs font-semibold">Filter</div>
             <div class="flex space-x-2">
               <ProjectSelect
-                :projectId="filterProjectId"
+                :key="selectedProjectId"
+                :projectId="selectedProjectId"
                 @update:projectId="onUpdateProjectFilter"
               />
-              <Button
-                class="whitespace-nowrap"
-                variant="ghost"
-                @click="onClearProjectFilter"
-              >
-                Clear Filter
-              </Button>
+              <Button class="whitespace-nowrap" variant="ghost" @click="onClearProjectFilter"> Clear Filter </Button>
             </div>
           </div>
           <!-- LinkButton class="self-end" to="/workflow/create">

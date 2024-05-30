@@ -7,42 +7,32 @@
     'update:projectId': [string];
   }>();
 
-  const key = ref(getKey());
+  // make projectId reactive
+  const sprojectId = ref(props.projectId);
 
-  // get cached data
-  const { data: projects } = useNuxtData('allProjects');
+  const { getAllProjects } = useManageProjects();
+  const { data: projects } = await getAllProjects({ lazy: true });
 
-  function getKey() {
-    return +new Date();
-  }
-
-  function onUpdate(value: string) {
+  function update(value: string) {
     emits('update:projectId', value);
   }
 
   watch(
-    () => props.projectId,
-    (value) => {
-      // if modelValue is undefined, then we clear the filter
-      if (value === undefined) {
-        key.value = getKey();
-      }
+    () => sprojectId.value,
+    (id) => {
+      update(id || '');
     },
   );
 </script>
 
 <template>
-  <Select :value="projectId" @update:model-value="onUpdate" :key="key">
+  <Select v-model="sprojectId">
     <SelectTrigger class="w-[180px]">
       <SelectValue placeholder="All Projects" />
     </SelectTrigger>
-    <SelectContent class="">
+    <SelectContent>
       <SelectGroup>
-        <SelectItem
-          v-for="project in projects"
-          :key="project.id"
-          :value="project.id"
-        >
+        <SelectItem v-for="project in projects" :key="project.id" :value="project.id">
           {{ project.name }}
         </SelectItem>
       </SelectGroup>

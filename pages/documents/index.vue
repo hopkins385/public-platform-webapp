@@ -25,10 +25,7 @@
 
 <template>
   <SectionContainer>
-    <SectionHeading
-      title="Documents"
-      subtitle="Create, edit, and manage documents"
-    />
+    <SectionHeading title="Documents" subtitle="Create, edit, and manage documents" />
     <Heading>
       <template #top> </template>
       <template #bottom>

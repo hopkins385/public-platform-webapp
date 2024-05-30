@@ -20,15 +20,17 @@
   const navBarResizerRef = ref(null);
 
   const navBar = useNavBarStore();
-
   const { data: auth } = useAuth();
 
-  const { getAllProjects } = useManageProjects();
-  const { data: projects } = await getAllProjects({
-    lazy: true,
-  });
-
   const adminRoutes = [
+    {
+      name: 'spacer',
+      icon: null,
+      to: null,
+      label: null,
+      hidden: false,
+      children: [],
+    },
     {
       name: 'admin',
       icon: SettingsIcon,
@@ -39,35 +41,15 @@
     },
   ];
 
-  const projectChildren = computed(() => {
-    return projects.value?.map((project: any) => {
-      return {
-        name: 'project-child',
-        icon: FolderIcon,
-        to: `/projects/${project.id}`,
-        label: project.name,
-        hidden: false,
-      };
-    });
-  });
-
   const navItems = computed(() => {
     const publicRoutes = [
       {
         name: 'home',
         icon: HomeIcon,
-        to: '/projects',
+        to: '/',
         label: 'Home',
         hidden: false,
         children: [],
-      },
-      {
-        name: 'projects',
-        icon: LayersIcon,
-        to: '/projects',
-        label: 'Projects',
-        hidden: false,
-        children: projectChildren.value || [],
       },
       {
         name: 'workflows',
@@ -84,29 +66,14 @@
         label: 'Documents',
         children: [],
       },
-      {
-        name: 'collections',
-        icon: DatabaseIcon,
-        to: `/collections`,
-        label: 'Collections',
-        children: [],
-      },
-      {
+      /*{
         name: 'editor',
         icon: PenLineIcon,
         to: '/editor',
         label: 'Editor',
         hidden: true,
         children: [],
-      },
-      {
-        name: 'assistants',
-        icon: BotIcon,
-        to: '/assistants',
-        label: 'Assistants',
-        hidden: false,
-        children: [],
-      },
+      },*/
       {
         name: 'chats',
         icon: MessagesSquareIcon,
@@ -121,6 +88,29 @@
         to: '/chats/history',
         label: 'Chat History',
         hidden: false,
+        children: [],
+      },
+      {
+        name: 'spacer',
+        icon: null,
+        to: null,
+        label: null,
+        hidden: false,
+        children: [],
+      },
+      {
+        name: 'assistants',
+        icon: BotIcon,
+        to: '/assistants',
+        label: 'Assistants',
+        hidden: false,
+        children: [],
+      },
+      {
+        name: 'collections',
+        icon: DatabaseIcon,
+        to: `/collections`,
+        label: 'Collections',
         children: [],
       },
       {
@@ -182,31 +172,35 @@
         <BrandLogo class="ml-[1.855rem]" :text-visible="navBar.isOpen" />
       </div>
       <div class="h-4" id="spacer"></div>
-      <!-- div class="px-4 pb-4">
+      <!-- div class="px-4 pb-4" v-if="navBar.isOpen">
         <ProjectSelectGlobal select-trigger-class="bg-neutral-50" />
       </!-->
       <div class="flex h-full flex-col">
         <ul class="space-y-2">
           <template v-for="(item, index) in navItems" :key="index">
-            <li class="nav-item" v-if="!item.hidden">
+            <li v-if="item.to" class="nav-item">
               <NavLink
+                v-if="item.to"
                 :active="$route.path === item.to"
                 :to="item.to"
                 :icon="item.icon"
                 :label="item.label"
                 :label-visible="navBar.isOpen"
               />
-              <ul v-if="item.children.length > 0 && true === false" :class="navBar.isOpen ? 'block' : 'hidden'">
+              <!-- ul v-if="item.children.length > 0 && true === false" :class="navBar.isOpen ? 'block' : 'hidden'">
                 <li class="nav-item-child" v-for="(child, index) in item.children" :key="index">
                   <NavLink
-                    :active="$route.path === child.to"
-                    :to="child.to"
-                    :icon="child.icon"
-                    :label="child.label"
+                    :active="$route.path === child?.to"
+                    :to="child?.to"
+                    :icon="child?.icon"
+                    :label="child?.label"
                     :label-visible="navBar.isOpen"
                   />
                 </li>
-              </ul>
+              </!-->
+            </li>
+            <li v-else class="px-5">
+              <Separator class="bg-stone-200" />
             </li>
           </template>
         </ul>

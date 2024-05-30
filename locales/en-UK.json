@@ -1,5 +1,8 @@
 {
   "auth": {
+    "meta": {
+      "title": "Login"
+    },
     "login": "Login",
     "logout": "Logout",
     "register": "Register",
@@ -7,6 +10,117 @@
     "signup_with": "Register with %{provider}",
     "error": {
       "login": "Username or password is invalid"
+    }
+  },
+  "admin": {
+    "meta": {
+      "index": {
+        "title": "Space Manager"
+      },
+      "users": {
+        "index": {
+          "title": "Manage Users"
+        },
+        "create": {
+          "title": "Create User"
+        },
+        "edit": {
+          "title": "Edit User"
+        }
+      },
+      "teams": {
+        "index": {
+          "title": "Manage Teams"
+        },
+        "create": {
+          "title": "Create Team"
+        },
+        "edit": {
+          "title": "Edit Team"
+        }
+      }
+    }
+  },
+  "user": {
+    "meta": {
+      "title": "Account",
+      "description": "Account"
+    }
+  },
+  "project": {
+    "meta": {
+      "title": "Manage Projects",
+      "index": {
+        "title": "Projects"
+      },
+      "create": {
+        "title": "Create Project"
+      },
+      "update": {
+        "title": "Update Project"
+      }
+    }
+  },
+  "workflow": {
+    "meta": {
+      "title": "Manage Workflows",
+      "index": {
+        "title": "Workflows"
+      },
+      "create": {
+        "title": "Create Workflow"
+      },
+      "full": {
+        "title": "Workflow"
+      },
+      "settings": {
+        "title": "Workflow Settings"
+      }
+    }
+  },
+  "document": {
+    "meta": {
+      "index": {
+        "title": "Documents"
+      },
+      "create": {
+        "title": "Create Document"
+      },
+      "update": {
+        "title": "Update Document"
+      }
+    }
+  },
+  "collection": {
+    "meta": {
+      "index": {
+        "title": "Collections"
+      },
+      "create": {
+        "title": "Create Collection"
+      },
+      "update": {
+        "title": "Update Collection"
+      }
+    }
+  },
+  "assistant": {
+    "meta": {
+      "index": {
+        "title": "Assistants"
+      },
+      "create": {
+        "title": "Create Assistant"
+      },
+      "edit": {
+        "title": "Update Assistant"
+      }
+    },
+    "form": {
+      "systemPrompt": {
+        "label": "System Prompt",
+        "description": "Describe how the assistant should behave."
+      }
     }
   },
   "register": {
@@ -26,17 +140,36 @@
     },
     "email": "Email Confirmation"
   },
+  "media": {
+    "meta": {
+      "index": {
+        "title": "Media"
+      },
+      "uploads": {
+        "title": "Uploads"
+      }
+    }
+  },
   "chat": {
     "meta": {
-      "title": "Chat",
-      "description": "Chat"
+      "index": {
+        "title": "Chat",
+        "description": "Chat"
+      },
+      "history": {
+        "title": "Chat History",
+        "description": "Chat History"
+      }
     },
-    "notification": "Unterhaltung mit künstlicher Intelligenz. Ausgaben können Fehler enthalten. Überprüfe wichtige Informationen.",
+    "user": {
+      "placeholder": "Me"
+    },
+    "notification": "Conversation with artificial intelligence. Response may contain errors. Please verify important information.",
     "title": "Chat",
-    "send": "Senden",
-    "placeholder": "Schreibe eine Nachricht...",
+    "send": "Send",
+    "placeholder": "Write a message...",
     "settings": {
-      "title": "Einstellungen",
+      "title": "Settings",
       "temperature": {
         "title": "Temperature",
         "description": "The temperature regulates the randomness, or creativity, of the AI's responses. A higher temperature value typically makes the output more diverse and creative but might also increase its likelihood of straying from the context (e.g. system prompt). If you need the model to stay very focused, use zero as a starting point."
@@ -48,6 +181,10 @@
       "maxTokens": {
         "title": "Max Tokens",
         "description": "The maximum number of tokens (words) to generate in the response. A higher value will make the model generate longer responses."
+      },
+      "onEnterSubmit": {
+        "title": "On Enter Send",
+        "description": "Send the message when the enter key is pressed."
       }
     }
   }

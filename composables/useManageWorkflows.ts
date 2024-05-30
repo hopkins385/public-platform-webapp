@@ -23,6 +23,7 @@ export default function useManageWorkflows() {
   const ac = new AbortController();
 
   const page = ref<number>(1);
+  const projectId = ref<string | undefined>(undefined);
   let workflowId: string = '';
 
   onScopeDispose(() => {
@@ -37,6 +38,15 @@ export default function useManageWorkflows() {
     if (!id) return;
     if (Array.isArray(id)) return;
     workflowId = id;
+  }
+
+  function setProjectId(id: string | string[] | undefined | null) {
+    if (!id) {
+      projectId.value = undefined;
+      return;
+    }
+    if (Array.isArray(id)) return;
+    projectId.value = id;
   }
 
   function createWorkflow(payload: ICreateWorkflow) {
@@ -79,7 +89,7 @@ export default function useManageWorkflows() {
     );
   }
 
-  function getAllWorkflowsForUser(projectId: Ref<string | undefined>, options: AsyncDataOptions<any> = {}) {
+  function getAllWorkflowsForUser(options: AsyncDataOptions<any> = {}) {
     return useAsyncData(
       `allWorkflowsForUser:${projectId.value}`,
       async () => {
@@ -95,7 +105,7 @@ export default function useManageWorkflows() {
         return { allWorkflows, meta };
       },
       {
-        watch: [page],
+        watch: [page, projectId],
         ...options,
       },
     );
@@ -167,7 +177,10 @@ export default function useManageWorkflows() {
   }
 
   return {
+    page,
+    projectId,
     setPage,
+    setProjectId,
     setWorkflowId,
     createWorkflow,
     reCreateWorkflowFromMedia,

@@ -356,7 +356,7 @@
         :type="message.type"
         :content="message.content"
         :vision-contents="message.visionContent"
-        :display-name="message.role === 'user' ? $t('user.placeholder') : assistant?.title"
+        :display-name="message.role === 'user' ? $t('chat.user.placeholder') : assistant?.title"
       />
       <!-- pending message -->
       <ChatMessageBox v-if="isPending" type="text" :display-name="assistant?.title" content="..." />

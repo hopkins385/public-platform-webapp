@@ -8,7 +8,7 @@
   import * as z from 'zod';
 
   definePageMeta({
-    title: 'collections.meta.update.title',
+    title: 'collection.meta.update.title',
     breadcrumb: {
       icon: 'database',
       ariaLabel: 'Update Collection',
@@ -20,8 +20,7 @@
     },
   });
   const { collectionId } = useRoute().params;
-  const { findFirst, updateCollection, setCollectionId } =
-    useManageCollections();
+  const { findFirst, updateCollection, setCollectionId } = useManageCollections();
 
   const createCollectionSchema = toTypedSchema(
     z.object({
@@ -82,8 +81,7 @@
               <Textarea v-bind="componentField" />
             </FormControl>
             <FormDescription>
-              The description is used by the AI to understand the high level
-              purpose of the project.
+              The description is used by the AI to understand the high level purpose of the project.
             </FormDescription>
             <FormMessage />
           </FormItem>

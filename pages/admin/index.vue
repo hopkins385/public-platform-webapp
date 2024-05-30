@@ -16,10 +16,7 @@
 
 <template>
   <SectionContainer>
-    <SectionHeading
-      title="Space Manager"
-      subtitle="Manage your teams, users, and settings"
-    />
+    <SectionHeading title="Space Manager" subtitle="Manage your teams, users, and settings" />
     <div class="flex space-x-4">
       <NuxtLinkLocale to="/admin/users">
         <BoxContainer class="hover:shadow-md">
@@ -29,6 +26,11 @@
       <NuxtLinkLocale to="/admin/teams">
         <BoxContainer class="hover:shadow-md">
           <div class="h-20 w-60 rounded-lg border-0">Manage Teams</div>
+        </BoxContainer>
+      </NuxtLinkLocale>
+      <NuxtLinkLocale to="/projects">
+        <BoxContainer class="hover:shadow-md">
+          <div class="h-20 w-60 rounded-lg border-0">Manage Projects</div>
         </BoxContainer>
       </NuxtLinkLocale>
     </div>

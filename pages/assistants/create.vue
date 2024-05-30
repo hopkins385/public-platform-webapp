@@ -61,11 +61,7 @@
               {{ $t('Title') }}
             </FormLabel>
             <FormControl>
-              <Input
-                type="text"
-                placeholder="Title (max 3 words)"
-                v-bind="componentField"
-              />
+              <Input type="text" placeholder="Title (max 3 words)" v-bind="componentField" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -77,11 +73,7 @@
               {{ $t('Description') }}
             </FormLabel>
             <FormControl>
-              <Input
-                type="text"
-                placeholder="Short description"
-                v-bind="componentField"
-              />
+              <Input type="text" placeholder="Short description" v-bind="componentField" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -94,11 +86,7 @@
             </FormLabel>
 
             <FormControl>
-              <LlmSelectModal
-                initial-display-name="Select AI Model"
-                :id="value"
-                @update:id="handleChange"
-              />
+              <LlmSelectModal initial-display-name="Select AI Model" :id="value" @update:id="handleChange" />
             </FormControl>
 
             <FormMessage />
@@ -123,19 +111,14 @@
         <div class="hidden text-sm">Capababilities<br />tbd</div>
         <div class="hidden text-sm">Knowledge Base<br />tbd</div>
 
-        <FormField
-          v-slot="{ handleChange, value }"
-          type="checkbox"
-          name="isShared"
-        >
+        <FormField v-slot="{ handleChange, value }" type="checkbox" name="isShared">
           <FormItem>
             <FormLabel>Shared</FormLabel>
             <FormControl>
               <Switch :checked="value" @update:checked="handleChange" />
             </FormControl>
             <FormDescription>
-              If the assistant is shared it will be available to your whole
-              organization.
+              If the assistant is shared it will be available to your whole organization.
             </FormDescription>
             <FormMessage />
           </FormItem>

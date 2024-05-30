@@ -2,7 +2,7 @@
   import { PlusIcon } from 'lucide-vue-next';
 
   definePageMeta({
-    title: 'collections.meta.index.title',
+    title: 'collection.meta.index.title',
     breadcrumb: {
       icon: 'database',
       ariaLabel: 'Collections',
@@ -13,10 +13,7 @@
 
 <template>
   <SectionContainer>
-    <SectionHeading
-      title="Collections"
-      subtitle="Create, edit, and manage collections"
-    />
+    <SectionHeading title="Collections" subtitle="Create, edit, and manage collections" />
     <Heading>
       <template #top> </template>
       <template #bottom>

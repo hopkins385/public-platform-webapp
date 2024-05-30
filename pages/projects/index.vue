@@ -7,6 +7,7 @@
 
   definePageMeta({
     title: 'project.meta.index.title',
+    middleware: 'is-admin',
     breadcrumb: {
       icon: 'folders',
       ariaLabel: 'Projects',

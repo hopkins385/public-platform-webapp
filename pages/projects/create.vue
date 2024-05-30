@@ -9,6 +9,7 @@
 
   definePageMeta({
     title: 'project.meta.create.title',
+    middleware: 'is-admin',
     breadcrumb: {
       icon: 'robot',
       ariaLabel: 'Create Project',
@@ -73,8 +74,7 @@
               <Textarea v-bind="componentField" />
             </FormControl>
             <FormDescription>
-              The description is used by the AI to understand the high level
-              purpose of the project.
+              The description is used by the AI to understand the high level purpose of the project.
             </FormDescription>
             <FormMessage />
           </FormItem>

@@ -29,10 +29,7 @@
   const { data: assistant, refresh } = await getOneAssistant(assistantId);
 
   const { findAllFor } = useManageCollections();
-  const { data: collections, refresh: refreshCollections } = await findAllFor(
-    assistantModel.value,
-    { lazy: false },
-  );
+  const { data: collections, refresh: refreshCollections } = await findAllFor(assistantModel.value, { lazy: false });
 
   async function updateCollection(collectionId: string) {
     const { replaceCollectionTo } = useManageCollectionAbles();
@@ -54,8 +51,7 @@
   }
 
   const route = useRoute();
-  route.meta.breadcrumb.label =
-    'Update - ' + assistant.value?.title || 'Assistant';
+  route.meta.breadcrumb.label = 'Update - ' + assistant.value?.title || 'Assistant';
 
   const systemPrompt = ref(assistant.value?.systemPrompt);
 
@@ -104,13 +100,9 @@
     }
   });
 
-  const initialAssistantName = computed(
-    () => assistant.value?.llm.displayName ?? 'Select AI Model',
-  );
+  const initialAssistantName = computed(() => assistant.value?.llm.displayName ?? 'Select AI Model');
 
-  const initialCollectionName = computed(
-    () => collections.value[0]?.name ?? 'Select Knowledge Collection',
-  );
+  const initialCollectionName = computed(() => collections.value[0]?.name ?? 'Select Knowledge Collection');
 </script>
 
 <template>
@@ -126,16 +118,9 @@
             <FormLabel>
               {{ $t('Title') }}
             </FormLabel>
-            <FormDescription>
-              This is the title of the assistant that will be displayed to the
-              user.
-            </FormDescription>
+            <FormDescription> This is the title of the assistant that will be displayed to the user. </FormDescription>
             <FormControl>
-              <Input
-                type="text"
-                placeholder="A very short Title (max 3 words)"
-                v-bind="componentField"
-              />
+              <Input type="text" placeholder="A very short Title (max 3 words)" v-bind="componentField" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -147,15 +132,10 @@
               {{ $t('Description') }}
             </FormLabel>
             <FormDescription>
-              This is the description of the assistant that will be displayed to
-              the user.
+              This is the description of the assistant that will be displayed to the user.
             </FormDescription>
             <FormControl>
-              <Input
-                type="text"
-                placeholder="A very short description"
-                v-bind="componentField"
-              />
+              <Input type="text" placeholder="A very short description" v-bind="componentField" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -181,11 +161,7 @@
           </FormItem>
         </FormField>
 
-        <FormField
-          v-slot="{ componentField }"
-          v-model="systemPrompt"
-          name="systemPrompt"
-        >
+        <FormField v-slot="{ componentField }" v-model="systemPrompt" name="systemPrompt">
           <FormItem>
             <FormLabel>
               {{ $t('assistant.form.systemPrompt.label') }}
@@ -203,10 +179,7 @@
         <FormField v-slot="{ handleChange, value }" name="collectionId">
           <FormItem>
             <FormLabel>Knowledge Collections (optional)</FormLabel>
-            <FormDescription>
-              These are the knowledge collections that can be used by the
-              assistant.
-            </FormDescription>
+            <FormDescription> These are the knowledge collections that can be used by the assistant. </FormDescription>
             <FormControl>
               <CollectionSelectModal
                 :id="value"
@@ -223,16 +196,11 @@
           </FormItem>
         </FormField>
 
-        <FormField
-          v-slot="{ handleChange, value }"
-          type="checkbox"
-          name="isShared"
-        >
+        <FormField v-slot="{ handleChange, value }" type="checkbox" name="isShared">
           <FormItem>
             <FormLabel>Shared</FormLabel>
             <FormDescription>
-              If the assistant is shared, it will be available to your whole
-              organization.
+              If the assistant is shared, it will be available to your whole organization.
             </FormDescription>
             <FormControl>
               <Switch :checked="value" @update:checked="handleChange" />

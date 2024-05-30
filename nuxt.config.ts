@@ -182,12 +182,12 @@ export default defineNuxtConfig({
         name: 'English',
         file: 'en-UK.json',
       },
-      {
+      /*{
         code: 'de',
         iso: 'de-DE',
         name: 'Deutsch',
         file: 'de-DE.json',
-      },
+      },*/
     ],
     lazy: true,
     langDir: './locales',
@@ -201,7 +201,7 @@ export default defineNuxtConfig({
   zodI18n: {
     localeCodesMapping: {
       'en-GB': 'en',
-      'de-DE': 'de',
+      // 'de-DE': 'de',
     },
   },
   macros: {

@@ -13,10 +13,7 @@
 
 <template>
   <SectionContainer>
-    <SectionHeading
-      title="Assistants"
-      subtitle="Start a new chat, change behavior, or delete an assistant"
-    />
+    <SectionHeading title="Assistants" subtitle="Start a new chat, change behavior, or delete an assistant" />
     <Heading>
       <template #top> </template>
       <template #bottom>

@@ -8,7 +8,7 @@
   import * as z from 'zod';
 
   definePageMeta({
-    title: 'collections.meta.create.title',
+    title: 'collection.meta.create.title',
     breadcrumb: {
       icon: 'database',
       ariaLabel: 'Create Collection',
@@ -72,9 +72,7 @@
             <FormControl>
               <Textarea v-bind="componentField" />
             </FormControl>
-            <FormDescription>
-              Describe the collection in a few words.
-            </FormDescription>
+            <FormDescription> Describe the collection in a few words. </FormDescription>
             <FormMessage />
           </FormItem>
         </FormField>

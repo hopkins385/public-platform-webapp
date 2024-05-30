@@ -71,11 +71,11 @@
         <button class="mr-3 opacity-75" @click="() => navBar.toggleFullClosed()">
           <PanelLeftIcon class="size-4 stroke-1.5" />
         </button>
-        <NuxtLinkLocale to="/projects" class="opacity-50"> All Projects </NuxtLinkLocale>
+        <NuxtLinkLocale to="/workflows" class="opacity-50"> All Projects </NuxtLinkLocale>
         <span class="mx-2 opacity-50">/</span>
-        <NuxtLinkLocale :to="`/projects/${projectId}`" class="opacity-70">
+        <span class="opacity-70">
           {{ workflow?.project.name }}
-        </NuxtLinkLocale>
+        </span>
       </div>
       <div class="space-x-2">
         <!-- Button
