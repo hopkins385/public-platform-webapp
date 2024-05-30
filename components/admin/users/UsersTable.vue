@@ -7,8 +7,7 @@
   const showConfirmDialog = ref(false);
   const deleteUserId = ref('');
 
-  const { deleteUser, getUsersAllPaginated, setPage } =
-    useAdminUsersSharedComp();
+  const { deleteUser, getUsersAllPaginated, setPage } = useAdminUsersSharedComp();
   const { data, refresh } = await getUsersAllPaginated();
 
   const users = computed(() => data.value?.users || []);
@@ -46,11 +45,7 @@
         Showing from
         {{ meta.totalCount > 10 ? meta.currentPage * 10 - 10 + 1 : 1 }}
         to
-        {{
-          meta.totalCount > 10
-            ? meta.currentPage * 10 - 10 + users.length
-            : meta.totalCount
-        }}
+        {{ meta.totalCount > 10 ? meta.currentPage * 10 - 10 + users.length : meta.totalCount }}
         of total
         {{ meta.totalCount }}
       </TableCaption>
@@ -73,14 +68,8 @@
           </TableCell>
           <TableCell class="whitespace-nowrap"> ... </TableCell>
           <TableCell class="whitespace-nowrap"> ... </TableCell>
-          <TableCell
-            class="flex justify-end space-x-2 whitespace-nowrap text-right"
-          >
-            <LinkButton
-              :to="`/admin/users/${user.id}/edit`"
-              variant="outline"
-              size="icon"
-            >
+          <TableCell class="flex justify-end space-x-2 whitespace-nowrap text-right">
+            <LinkButton :to="`/admin/users/${user.id}/edit`" variant="outline" size="icon">
               <SettingsIcon class="size-4 stroke-1.5 text-primary" />
             </LinkButton>
             <Button variant="outline" size="icon" @click="onDelete(user.id)">
@@ -106,16 +95,8 @@
         <PaginationPrev />
 
         <template v-for="(item, index) in items">
-          <PaginationListItem
-            v-if="item.type === 'page'"
-            :key="index"
-            :value="item.value"
-            as-child
-          >
-            <Button
-              class="size-10 p-0"
-              :variant="item.value === page ? 'default' : 'outline'"
-            >
+          <PaginationListItem v-if="item.type === 'page'" :key="index" :value="item.value" as-child>
+            <Button class="size-10 p-0" :variant="item.value === page ? 'default' : 'outline'">
               {{ item.value }}
             </Button>
           </PaginationListItem>

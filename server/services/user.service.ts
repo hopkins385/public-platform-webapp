@@ -8,6 +8,8 @@ import { useRuntimeConfig } from '#imports';
 import type { RuntimeConfig } from 'nuxt/schema';
 import jwt from 'jsonwebtoken';
 import consola from 'consola';
+import type { createUserByAdminDto, updateUserByAdminDto } from './dto/admin-user.dto';
+import type { User } from '@prisma/client';
 
 interface RegisterNewUser {
   email: string;
@@ -81,6 +83,70 @@ export class UserService {
     return newUser;
   }
 
+  async createNewUserByAdmin(data: createUserByAdminDto) {
+    const user = await this.getUserByEmail(data.email);
+    if (user) {
+      throw new Error('User already exists');
+    }
+    const hashedPassword = await hashPassword(data.password);
+
+    const newUser = await this.prisma.user.create({
+      data: {
+        id: ULID(),
+        email: data.email,
+        password: hashedPassword,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        name: `${data.firstName} ${data.lastName}`,
+        emailVerifiedAt: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        credit: {
+          create: {
+            id: ULID(),
+            amount: 1000,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        },
+        teams: {
+          create: {
+            id: ULID(),
+            teamId: data.teamId,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        },
+      },
+    });
+
+    if (!data.isAdmin) {
+      return newUser;
+    }
+
+    // add to admin role if isAdmin is true
+    const role = await this.prisma.role.findFirst({
+      where: { name: 'admin' },
+    });
+
+    if (!role) {
+      logger.error('Admin role not found');
+      throw new Error('Admin role not found');
+    }
+
+    await this.prisma.userRole.create({
+      data: {
+        id: ULID(),
+        userId: newUser.id,
+        roleId: role.id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    });
+
+    return newUser;
+  }
+
   async getAuthUser(payload: LoginDto) {
     const user = await this.getUserByEmail(payload.email);
     if (!user) {
@@ -96,7 +162,7 @@ export class UserService {
   async getUserById(id: string) {
     return this.prisma.user.findFirst({
       relationLoadStrategy: 'join', // or 'query'
-      where: { id },
+      where: { id: id.toLowerCase() },
       select: {
         id: true,
         name: true,
@@ -181,12 +247,7 @@ export class UserService {
     });
   }
 
-  async getAllUsersByOrgId(payload: {
-    orgId: string;
-    page: number;
-    limit: number;
-    search?: string;
-  }) {
+  async getAllUsersByOrgId(payload: { orgId: string; page: number; limit: number; search?: string }) {
     return this.prisma.user
       .paginate({
         select: {
@@ -220,11 +281,7 @@ export class UserService {
       });
   }
 
-  async updatePassword(
-    userId: string,
-    currentPassword: string,
-    newPassword: string,
-  ) {
+  async updatePassword(userId: string, currentPassword: string, newPassword: string) {
     const user = await this.prisma.user.findFirst({
       where: { id: userId },
     });
@@ -276,6 +333,53 @@ export class UserService {
     return this.prisma.user.update({
       where: { id: user.id },
       data: { emailVerifiedAt: new Date() },
+    });
+  }
+
+  async updateByAdmin(payload: updateUserByAdminDto) {
+    const role = await this.prisma.role.findFirst({
+      where: { name: 'admin' },
+    });
+    if (!role) {
+      throw new Error('Admin role not found');
+    }
+    // remove or add admin role
+    if (payload.isAdmin) {
+      const userRole = await this.prisma.userRole.findFirst({
+        where: {
+          userId: payload.userId,
+          roleId: role.id,
+        },
+      });
+      if (!userRole) {
+        await this.prisma.userRole.create({
+          data: {
+            id: ULID(),
+            userId: payload.userId,
+            roleId: role.id,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        });
+      }
+    } else {
+      await this.prisma.userRole.deleteMany({
+        where: {
+          userId: payload.userId,
+          roleId: role.id,
+        },
+      });
+    }
+
+    return this.prisma.user.update({
+      where: { id: payload.userId },
+      data: {
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        email: payload.email,
+        name: `${payload.firstName} ${payload.lastName}`,
+        updatedAt: new Date(),
+      },
     });
   }
 

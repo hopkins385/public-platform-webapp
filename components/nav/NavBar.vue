@@ -91,14 +91,6 @@
         children: [],
       },
       {
-        name: 'spacer',
-        icon: null,
-        to: null,
-        label: null,
-        hidden: false,
-        children: [],
-      },
-      {
         name: 'assistants',
         icon: BotIcon,
         to: '/assistants',

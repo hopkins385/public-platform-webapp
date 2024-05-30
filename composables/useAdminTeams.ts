@@ -10,7 +10,7 @@ export default function useAdminTeams() {
   });
 
   const page = ref(1);
-  const limit = ref(20);
+  const limit = ref(10);
   const search = ref('');
 
   function setPage(newPage: number) {
@@ -21,10 +21,7 @@ export default function useAdminTeams() {
     limit.value = Number(newLimit);
   }
 
-  const setSearch = useDebounceFn(
-    (newSearch: string | number) => (search.value = newSearch.toString()),
-    300,
-  );
+  const setSearch = useDebounceFn((newSearch: string | number) => (search.value = newSearch.toString()), 300);
 
   function getTeamsAllPaginated(options: AsyncDataOptions<any> = {}) {
     return useAsyncData(
