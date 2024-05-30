@@ -103,10 +103,16 @@ export class WorkflowService {
       throw new Error('Team has no assistants');
     }
 
+    let firstSheet: any;
+
     // read file
     const fileParser = new FileParserFactory(media.fileMime, media.filePath);
     const fileData = await fileParser.loadData();
-    const firstSheet = fileData?.[0];
+    if (media.fileMime.includes('spreadsheet')) {
+      firstSheet = fileData?.[0];
+    } else {
+      firstSheet = fileData;
+    }
 
     if (!firstSheet) {
       throw new Error('No data found in the file');

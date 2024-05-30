@@ -41,27 +41,27 @@ export class AssistantJobService {
 
     const completionFactory = new CompletionFactoryStatic(llmProvider, llmNameApi);
 
-    // logger.info(`Processing job for document item: ${documentItemId}`);
-    // logger.info(`Input document item ids: ${inputDocumentItemIds}`);
-
-    // this.event(WorkflowEvent.ROWCOMPLETED, payload); ?
-
     const documentItem = await this.documentItemService.findFirst(documentItemId);
-    if (!documentItem) return;
-    // if (documentItem.status === 'completed') return;
-    // if (documentItem.content === '') return;
+    if (!documentItem) {
+      logger.error(`Document item not found: ${documentItemId}`);
+      throw new Error(`Document item not found: ${documentItemId}`);
+    }
 
-    // input document items
-    if (!inputDocumentItemIds || inputDocumentItemIds.length < 1) return;
+    // skip if no input document items
+    if (!inputDocumentItemIds || inputDocumentItemIds.length < 1) {
+      return true;
+    }
+
+    // get input document items
     const inputDocumentItems = await this.documentItemService.findManyItems(inputDocumentItemIds);
 
     if (!inputDocumentItems || inputDocumentItems.length < 1) {
       logger.error(`Input document items not found: ${inputDocumentItemIds}`);
-      return;
+      throw new Error(`Input document items not found: ${inputDocumentItemIds}`);
     }
 
+    // Sort by orderColumn and join content
     const content = inputDocumentItems
-      // Sort by orderColumn
       .sort((a, b) => {
         const orderA = a.document.workflowSteps[0].orderColumn;
         const orderB = b.document.workflowSteps[0].orderColumn;
@@ -82,9 +82,6 @@ export class AssistantJobService {
         content: content,
       },
     ];
-
-    // console.log(`{messages} ${JSON.stringify(messages, null, 2)}`);
-    // return true;
 
     const response = (await completionFactory.create({
       messages,

@@ -19,9 +19,11 @@ import { recordRouter } from './record';
 import { collectionAbleRouter } from './collection-able';
 import { providerAuthRouter } from './provider-auth';
 import { adminRouter } from './admin';
+import { usageRouter } from './usage';
 
 export const appRouter = router({
   admin: adminRouter,
+  usage: usageRouter,
   register: registerRouter,
   llms: llmsRouter,
   chat: chatRouter,

@@ -5,16 +5,13 @@ export class CSVParser {
   async loadData(filePath: string) {
     const fileBuffer = await fs.readFile(filePath);
 
-    try {
-      const records = parse(fileBuffer, {
-        delimiter: ';',
-        columns: false,
-        skip_empty_lines: true,
-      });
-      return records;
-    } catch (error) {
-      console.error('Error parsing CSV file, Error is: ', error);
-      throw error;
-    }
+    const records = parse(fileBuffer, {
+      bom: true,
+      delimiter: ',',
+      columns: false,
+      skipEmptyLines: true,
+    });
+
+    return { data: records };
   }
 }
