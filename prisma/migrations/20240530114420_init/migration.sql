@@ -325,6 +325,7 @@ CREATE TABLE "document_items" (
     "document_id" TEXT NOT NULL,
     "order_column" SMALLINT NOT NULL,
     "status" JSONB,
+    "processing_status" TEXT,
     "type" TEXT NOT NULL,
     "content" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -1,3 +1,4 @@
+import { DocumentItemService } from './../services/document-item.service';
 import { AssistantJobService } from './../services/assistant-job.service';
 import { WorkflowEvent } from '../utils/enums/workflow-event.enum';
 import { QueueEnum } from '../utils/enums/queue.enum';
@@ -9,6 +10,7 @@ import type { FirstUserMessageEventDto } from '../services/dto/event.dto';
 import { useEvents } from '../events/useEvents';
 import type { WorkerOptions } from 'bullmq';
 import consola from 'consola';
+import type { AssistantJobDto } from '../services/dto/job.dto';
 
 interface WorkflowWorker {
   name: string;
@@ -17,6 +19,7 @@ interface WorkflowWorker {
 
 const prisma = getPrismaClient();
 const assistantJobService = new AssistantJobService(prisma);
+const documentItemService = new DocumentItemService(prisma);
 const chatService = new ChatService(prisma);
 
 const logger = consola.create({}).withTag('bullmq-workers');
@@ -133,7 +136,7 @@ export default defineNitroPlugin((nitroApp) => {
     createWorker(
       worker.name,
       async (job) => {
-        const { data } = job;
+        const data = job.data as AssistantJobDto;
         await assistantJobService.processJob(data);
       },
       worker.options,
@@ -141,30 +144,35 @@ export default defineNitroPlugin((nitroApp) => {
       .on('ready', () => {
         logger.info(`Workflow worker ${worker.name} ready`);
       })
-      .on('error', (err) => {
-        logger.error(`Workflow worker ${worker.name} errored with error: ${err.message}`);
-      })
-      .on('failed', (job, err) => {
-        logger.error(`Workflow worker ${worker.name} failed with error: ${err.message}`);
-      })
-      .on('stalled', () => {
-        logger.warn(`Workflow worker ${worker.name} stalled`);
-      })
-      .on('paused', () => {
-        logger.info(`Workflow worker ${worker.name} paused`);
-      })
-      .on('resumed', () => {
-        logger.info(`Workflow worker ${worker.name} resumed`);
-      });
-    /*.on('active', () => {
-        logger.info(`Workflow worker ${worker.name} active`);
+      .on('active', async (job, prev) => {
+        const data = job.data as AssistantJobDto;
+        const { documentItemId } = data;
+        await documentItemService.updateProcessingStatus(documentItemId, 'pending');
       })
       .on('progress', (job, progress) => {
         logger.info(`Workflow worker ${worker.name} progress: ${progress}`);
       })
-      .on('completed', () => {
-        logger.info(`Workflow worker ${worker.name} completed`);
-      });*/
+      .on('stalled', () => {
+        logger.warn(`Workflow worker ${worker.name} stalled`);
+      })
+      .on('completed', async (job, result, prev) => {
+        const data = job.data as AssistantJobDto;
+        const { documentItemId } = data;
+        await documentItemService.updateProcessingStatus(documentItemId, 'completed');
+      })
+      .on('failed', async (job, err) => {
+        const data = job?.data as AssistantJobDto;
+        if (data) {
+          const { documentItemId } = data;
+          await documentItemService.updateProcessingStatus(documentItemId, 'failed');
+        } else {
+          logger.error('Failed to update document item status', data);
+        }
+        logger.error(`Workflow worker ${worker.name} failed with error: ${err.message}`);
+      })
+      .on('error', (err) => {
+        logger.error(`Workflow worker ${worker.name} errored with error: ${err.message}`);
+      });
   });
 
   logger.info('Bullmq workers loaded');

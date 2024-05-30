@@ -268,6 +268,7 @@ export class WorkflowService {
                 orderColumn: true,
                 content: true,
                 type: true,
+                processingStatus: true,
               },
               orderBy: {
                 orderColumn: 'asc',

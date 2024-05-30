@@ -98,6 +98,18 @@ export class DocumentItemService {
     });
   }
 
+  updateProcessingStatus(documentItemId: string, processingStatus: 'pending' | 'completed' | 'failed') {
+    return this.prisma.documentItem.update({
+      where: {
+        id: documentItemId.toLowerCase(),
+      },
+      data: {
+        processingStatus: processingStatus.toLowerCase(),
+        updatedAt: new Date(),
+      },
+    });
+  }
+
   updateMany(payload: UpdateDocumentItemDto[]) {
     return this.prisma.documentItem.updateMany({
       where: {

@@ -440,6 +440,7 @@ model DocumentItem {
   documentId        String             @map("document_id")
   orderColumn       Int                @map("order_column") @db.SmallInt
   status            Json?
+  processingStatus  String?            @map("processing_status") // e.g. "pending", "failed", "completed"
   type              String
   content           String             @db.Text
   createdAt         DateTime           @default(now()) @map("created_at")

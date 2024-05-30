@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { vOnClickOutside } from '@vueuse/components';
-  import { AlignLeftIcon, PlusIcon, LayoutDashboard } from 'lucide-vue-next';
+  import { AlignLeftIcon, PlusIcon, LayoutDashboard, LoaderIcon, TriangleAlertIcon } from 'lucide-vue-next';
 
   const props = defineProps<{
     workflowId: string;
@@ -178,7 +178,7 @@
     <!-- WorkflowSteps as Columns -->
     <div v-for="(step, columnIndex) in steps" :key="columnIndex" :id="`column_${columnIndex}`" class="column relative">
       <!-- Teleport Anker -->
-      <div class="absolute left-0 top-8 z-10 overflow-visible" :id="`step_teleport_anker_${columnIndex}`"></div>
+      <div class="absolute left-0 top-8 z-20 overflow-visible" :id="`step_teleport_anker_${columnIndex}`"></div>
       <!-- Heading Column -->
       <div
         :id="`row_0_cell_${columnIndex}`"
@@ -208,6 +208,18 @@
         @click="() => toggleCellCard(columnIndex, rowIndex + 1, docItem.content, docItem.id)"
         class="cell group relative"
       >
+        <!-- Cell State -->
+        <div
+          v-if="docItem.processingStatus && docItem.processingStatus !== 'completed'"
+          class="absolute right-1 top-0 z-10 rounded-lg border shadow-sm"
+        >
+          <div v-if="docItem.processingStatus === 'failed'" class="rounded-lg bg-red-50 p-2 font-bold text-destructive">
+            <TriangleAlertIcon class="size-3 stroke-1.5" />
+          </div>
+          <div v-if="docItem.processingStatus === 'pending'" class="rounded-lg bg-white p-2">
+            <LoaderIcon class="size-3 animate-spin stroke-1.5" />
+          </div>
+        </div>
         <!-- Cell content -->
         <div :id="`cell_content_${docItem.id}`" class="cell-content">
           {{ docItem.content }}
@@ -226,7 +238,7 @@
           </NuxtLinkLocale>
         </div>
         <!-- Cellcard teleport anker -->
-        <div class="absolute left-0 top-0 z-10" :id="`cellcard_teleport_anker_x${columnIndex}_y${rowIndex + 1}`"></div>
+        <div class="absolute left-0 top-0 z-20" :id="`cellcard_teleport_anker_x${columnIndex}_y${rowIndex + 1}`"></div>
       </div>
       <!-- Last Cells -->
       <div class="cell cell-last"></div>
