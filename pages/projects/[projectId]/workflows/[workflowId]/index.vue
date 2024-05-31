@@ -19,8 +19,10 @@
   const showTable = ref(true);
 
   const { projectId, workflowId } = useRoute().params;
+
   const { getProjectWorkflows } = useManageWorkflows();
   const { data } = await getProjectWorkflows(projectId as string);
+
   const projectWorkflows = computed(() =>
     data.value.workflows.map((w: any) => {
       return { id: w.id, name: w.name };

@@ -20,6 +20,7 @@
   const navBarResizerRef = ref(null);
 
   const navBar = useNavBarStore();
+  const projectStore = useProjectStore();
   const { data: auth } = useAuth();
 
   const adminRoutes = [
@@ -54,7 +55,7 @@
       {
         name: 'workflows',
         icon: WorkflowIcon,
-        to: '/workflows',
+        to: `/projects/${projectStore.activeProjectId}`,
         label: 'Workflows',
         hidden: false,
         children: [],
@@ -164,9 +165,9 @@
         <BrandLogo class="ml-[1.855rem]" :text-visible="navBar.isOpen" />
       </div>
       <div class="h-4" id="spacer"></div>
-      <!-- div class="px-4 pb-4" v-if="navBar.isOpen">
+      <div class="px-4 pb-4" v-if="navBar.isOpen">
         <ProjectSelectGlobal select-trigger-class="bg-neutral-50" />
-      </!-->
+      </div>
       <div class="flex h-full flex-col">
         <ul class="space-y-2">
           <template v-for="(item, index) in navItems" :key="index">
@@ -198,20 +199,17 @@
         </ul>
       </div>
       <div
-        class="absolute bottom-2 right-2 z-10 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-white/0 opacity-80 hover:border"
+        class="absolute bottom-4 right-2 z-10 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-white/0 opacity-80 hover:border"
         @click="() => navBar.toggleOpen()"
       >
         <ChevronRightIcon class="size-4 text-muted-foreground/50" :class="{ 'rotate-180 transform': navBar.isOpen }" />
       </div>
     </div>
-    <div
-      class="nav-text border-t border-gray-200 p-5 transition-opacity duration-300 ease-out"
-      :class="{
-        'opacity-0': !navBar.isOpen,
-        'opacity-100': navBar.isOpen,
-      }"
-    >
-      <UserNavBox v-if="navBar.isOpen" />
+    <div class="px-5">
+      <Separator class="bg-stone-200" />
+    </div>
+    <div class="nav-text p-5">
+      <UserNavBox :icon-only="!navBar.isOpen" />
     </div>
   </div>
 </template>

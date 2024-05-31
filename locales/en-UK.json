@@ -12,6 +12,13 @@
       "login": "Username or password is invalid"
     }
   },
+  "home": {
+    "meta": {
+      "index": {
+        "title": "Home"
+      }
+    }
+  },
   "admin": {
     "meta": {
       "index": {

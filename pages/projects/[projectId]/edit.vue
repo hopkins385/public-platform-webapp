@@ -9,7 +9,6 @@
 
   definePageMeta({
     title: 'project.meta.update.title',
-    middleware: 'is-admin',
     breadcrumb: {
       icon: 'folder',
       ariaLabel: 'Update Project',

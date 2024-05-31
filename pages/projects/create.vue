@@ -9,7 +9,6 @@
 
   definePageMeta({
     title: 'project.meta.create.title',
-    middleware: 'is-admin',
     breadcrumb: {
       icon: 'robot',
       ariaLabel: 'Create Project',

@@ -14,6 +14,7 @@
 
   const exportIsLoading = ref(false);
   const navBar = useNavBarStore();
+  const projectStore = useProjectStore();
   const { executeWorkflow } = useExecuteWorkflow();
   const { exportWorkflow } = useManageWorkflows();
 
@@ -71,7 +72,9 @@
         <button class="mr-3 opacity-75" @click="() => navBar.toggleFullClosed()">
           <PanelLeftIcon class="size-4 stroke-1.5" />
         </button>
-        <NuxtLinkLocale to="/workflows" class="opacity-50"> All Projects </NuxtLinkLocale>
+        <NuxtLinkLocale :to="`/projects/${projectStore.activeProjectId}`" class="opacity-50">
+          Workflows
+        </NuxtLinkLocale>
         <span class="mx-2 opacity-50">/</span>
         <span class="opacity-70">
           {{ workflow?.project.name }}

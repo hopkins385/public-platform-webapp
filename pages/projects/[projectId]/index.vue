@@ -1,15 +1,9 @@
 <script setup lang="ts">
-  import {
-    FileTextIcon,
-    PlusIcon,
-    TextIcon,
-    WorkflowIcon,
-  } from 'lucide-vue-next';
-
   /**
    * Project Workflows Index - List all workflows of this project
    * Route: /projects/${projectId}
    */
+  import { FileTextIcon, PlusIcon, WorkflowIcon } from 'lucide-vue-next';
 
   definePageMeta({
     title: 'workflow.meta.index.title',
@@ -25,11 +19,6 @@
   });
 
   const { projectId } = useRoute().params;
-  const { getProject } = useManageProjects();
-  const { data: projectData } = await getProject(projectId);
-
-  const route = useRoute();
-  route.meta.breadcrumb.label = projectData.value?.name;
 </script>
 
 <template>
@@ -53,9 +42,7 @@
               <span>
                 <WorkflowIcon class="default-icon size-4" />
               </span>
-              <NuxtLinkLocale :to="`/projects/${projectId}`" class="border-b-2">
-                Workflows
-              </NuxtLinkLocale>
+              <NuxtLinkLocale :to="`/projects/${projectId}`" class="border-b-2"> Workflows </NuxtLinkLocale>
             </div>
           </li>
           <li>|</li>
@@ -64,9 +51,7 @@
               <span>
                 <FileTextIcon class="default-icon size-4" />
               </span>
-              <NuxtLinkLocale :to="`/projects/${projectId}/documents`">
-                Documents
-              </NuxtLinkLocale>
+              <NuxtLinkLocale :to="`/projects/${projectId}/documents`"> Documents </NuxtLinkLocale>
             </div>
           </li>
         </ul>

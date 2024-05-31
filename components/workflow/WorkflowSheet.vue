@@ -190,9 +190,9 @@
           class="index group flex flex-col items-center justify-between"
           :id="`row_${rowIndex + 1}_cell_x0_y${rowIndex + 1}`"
         >
-          <div class="flex h-full items-center pt-2 opacity-60">
+          <div class="flex h-full items-center justify-center opacity-60">
             <div
-              class="group-hover:hidden"
+              class="pt-2 group-hover:hidden"
               :class="{
                 hidden: selectedRows.includes(rowIndex),
               }"
@@ -209,7 +209,7 @@
               <Checkbox
                 :checked="selectedRows.includes(rowIndex)"
                 @update:checked="() => onRowSelected(rowIndex)"
-                class="size-3.5"
+                class="mt-2 size-3.5"
               />
             </div>
           </div>
