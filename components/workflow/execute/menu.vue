@@ -32,7 +32,12 @@
     <DropdownMenuContent align="end" :avoid-collisions="true" :loop="true" class="w-48 p-2">
       <DropdownMenuLabel class="text-xs">Workflow</DropdownMenuLabel>
       <DropdownMenuSeparator />
-      <DropdownMenuItem class="w-full cursor-pointer text-xs" @click="$emit('reload-sheet')" as="button">
+      <DropdownMenuItem
+        class="w-full cursor-pointer text-xs"
+        :disabled="true"
+        @click="$emit('reload-sheet')"
+        as="button"
+      >
         <RotateCcwIcon class="mr-1 size-3 stroke-1.5" />
         Reload data
       </DropdownMenuItem>
