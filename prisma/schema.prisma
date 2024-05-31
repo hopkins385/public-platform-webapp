@@ -508,13 +508,14 @@ model WorkflowAble {
 
 model WorkflowStep {
   id                String             @id
-  name              String
-  description       String
-  orderColumn       Int                @map("order_column") @db.SmallInt
   workflowId        String             @map("workflow_id")
-  inputSteps        String[]           @map("input_steps")
   documentId        String?            @map("document_id")
   assistantId       String?            @map("assistant_id")
+  inputSteps        String[]           @map("input_steps")
+  name              String
+  description       String
+  type              String
+  orderColumn       Int                @map("order_column") @db.SmallInt
   createdAt         DateTime           @default(now()) @map("created_at")
   updatedAt         DateTime           @updatedAt @map("updated_at")
   deletedAt         DateTime?          @map("deleted_at")

@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { vOnClickOutside } from '@vueuse/components';
-  import { AlignLeftIcon, PlusIcon, LayoutDashboard, LoaderIcon, TriangleAlertIcon } from 'lucide-vue-next';
+  import { AlignLeftIcon, PlusIcon, LayoutDashboard, LoaderIcon, TriangleAlertIcon, Trash2Icon } from 'lucide-vue-next';
 
   const props = defineProps<{
     workflowId: string;
@@ -133,6 +133,33 @@
     refresh();
   }
 
+  const selectedRows = ref<number[]>([]);
+  const hasSelectedRows = computed(() => selectedRows.value.length > 0);
+  function onRowSelected(rowIndex: number) {
+    if (selectedRows.value.includes(rowIndex)) {
+      selectedRows.value = selectedRows.value.filter((row) => row !== rowIndex);
+    } else {
+      // push and sort
+      selectedRows.value = [...selectedRows.value, rowIndex].sort((a, b) => a - b);
+    }
+  }
+
+  function onAllRowsSelected() {
+    selectedRows.value = Array.from({ length: rowCount.value }, (_, i) => i);
+  }
+
+  function onNoRowsSelected() {
+    selectedRows.value = [];
+  }
+
+  function toggleAllRowsSelected() {
+    if (hasSelectedRows.value) {
+      onNoRowsSelected();
+    } else {
+      onAllRowsSelected();
+    }
+  }
+
   onMounted(() => {
     initSheetDimensions(props.workflowId);
     socket.on(`workflow-${props.workflowId}-update`, workflowUpdateListener);
@@ -151,19 +178,44 @@
   <div id="workflowSheet" ref="sheetRef" class="no-scrollbar flex overflow-visible bg-white pb-10 text-xs">
     <!-- Row Index -->
     <div class="column" id="column_0">
-      <div class="index relative flex items-center justify-center" id="row_0_cell_x0_y1">--</div>
+      <div class="index relative flex items-center justify-center" id="row_0_cell_x0_y1">
+        <Checkbox
+          :checked="hasSelectedRows"
+          @update:checked="toggleAllRowsSelected"
+          class="size-3.5 border-stone-500"
+        />
+      </div>
       <div v-for="(count, rowIndex) in rowCount" :key="rowIndex" :id="`row_${rowIndex + 1}`" class="relative">
         <div
           class="index group flex flex-col items-center justify-between"
           :id="`row_${rowIndex + 1}_cell_x0_y${rowIndex + 1}`"
         >
           <div class="flex h-full items-center pt-2 opacity-60">
-            {{ rowIndex + 1 }}
+            <div
+              class="group-hover:hidden"
+              :class="{
+                hidden: selectedRows.includes(rowIndex),
+              }"
+            >
+              {{ rowIndex + 1 }}
+            </div>
+            <div
+              class="group-hover:block"
+              :class="{
+                block: selectedRows.includes(rowIndex),
+                hidden: !selectedRows.includes(rowIndex),
+              }"
+            >
+              <Checkbox
+                :checked="selectedRows.includes(rowIndex)"
+                @update:checked="() => onRowSelected(rowIndex)"
+                class="size-3.5"
+              />
+            </div>
           </div>
           <!-- Resize Row -->
           <div
             class="group/icon flex h-3 w-full cursor-ns-resize items-center px-2"
-            style="padding-bottom: 0.1rem"
             @mousedown="(event) => resizeRowListener(event, rowIndex + 1, workflowId)"
           >
             <div class="h-1 w-full shrink-0 rounded-lg group-hover/icon:bg-slate-400 group-hover:bg-slate-200"></div>
@@ -293,6 +345,17 @@
       </SheetHeader>
     </SheetContent>
   </!-->
+
+  <Teleport to="body" v-if="hasSelectedRows">
+    <div class="absolute bottom-5 left-1/2 -translate-x-1/2">
+      <div class="rounded-lg bg-neutral-50 px-3 py-0 text-xs shadow-md">
+        <span class="pl-2 font-semibold">{{ selectedRows.length }}</span>
+        <Button variant="ghost" size="icon" class="bg-parent ml-3 hover:scale-110 hover:bg-transparent">
+          <Trash2Icon class="size-3 stroke-2 text-destructive" />
+        </Button>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <style>

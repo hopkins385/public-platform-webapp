@@ -208,6 +208,7 @@ async function main() {
           name: `Step ${i}`,
           description: 'This is a workflow step',
           orderColumn: i,
+          type: 'text',
           workflow: { connect: { id: workflow.id } },
           document: { connect: { id: document.id } },
           assistant: { connect: { id: assistant.id } },

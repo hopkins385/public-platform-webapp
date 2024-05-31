@@ -26,13 +26,7 @@
         :href="link.href"
         :hreflang="link.hreflang"
       />
-      <Meta
-        v-for="meta in head.meta"
-        :id="meta.id"
-        :key="meta.id"
-        :property="meta.property"
-        :content="meta.content"
-      />
+      <Meta v-for="meta in head.meta" :id="meta.id" :key="meta.id" :property="meta.property" :content="meta.content" />
     </Head>
     <!--
     bg-gradient-to-b from-slate-100 via-slate-100 to-slate-50
@@ -48,7 +42,7 @@
         <!-- NavBar -->
         <NavBar />
         <!-- Main -->
-        <div class="grow overflow-scroll text-slate-800">
+        <div id="main" class="relative grow overflow-scroll text-slate-800">
           <!--div class="h-16 bg-white shadow-sm">
             <TopBar />
           </div-->

@@ -377,13 +377,14 @@ CREATE TABLE "workflow_ables" (
 -- CreateTable
 CREATE TABLE "workflow_steps" (
     "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "order_column" SMALLINT NOT NULL,
     "workflow_id" TEXT NOT NULL,
-    "input_steps" TEXT[],
     "document_id" TEXT,
     "assistant_id" TEXT,
+    "input_steps" TEXT[],
+    "name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "order_column" SMALLINT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "deleted_at" TIMESTAMP(3),

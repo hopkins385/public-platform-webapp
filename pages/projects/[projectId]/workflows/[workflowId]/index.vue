@@ -29,7 +29,7 @@
 </script>
 
 <template>
-  <div class="h-full">
+  <div id="workflowContainer" class="h-full">
     <WorkflowHeading
       :project-workflows="projectWorkflows"
       :workflow-id="workflowId as string"

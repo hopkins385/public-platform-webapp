@@ -28,11 +28,11 @@
     emit('update:showTableView', false);
   }
 
-  async function onPlayClick() {
+  async function onRunAll() {
     const res = await executeWorkflow(props.workflowId);
   }
 
-  async function onReloadDataClick() {
+  async function onReloadSheet() {
     const toast = useToast();
     // await refresh();
     // toast.success({ description: 'Data reloaded' });
@@ -78,18 +78,6 @@
         </span>
       </div>
       <div class="space-x-2">
-        <!-- Button
-          variant="outline"
-          size="sm"
-          class="text-xs"
-          @click="onExportData"
-          :disabled="exportIsLoading"
-        >
-          <span v-if="exportIsLoading" class="mr-1">
-            <Loader2Icon class="size-3 animate-spin stroke-1.5" />
-          </span>
-          Import Data
-        </!-->
         <Button variant="outline" size="sm" class="text-xs" @click="onExportData" :disabled="exportIsLoading">
           <span v-if="exportIsLoading" class="mr-1">
             <Loader2Icon class="size-3 animate-spin stroke-1.5" />
@@ -125,24 +113,24 @@
       </div>
       <!-- Control Section -->
       <div class="flex px-4">
-        <div class="mr-2 flex rounded-lg p-1">
+        <div class="mr-2 flex rounded-lg">
           <WorkflowExecuteMenu
             :projectId="projectId"
             :workflowId="workflowId"
-            @play="onPlayClick"
-            @reload="onReloadDataClick"
+            @run-all="onRunAll"
+            @reload-sheet="onReloadSheet"
           />
         </div>
-        <div class="flex items-center space-x-1 rounded-lg bg-stone-200/60 p-1">
+        <div class="flex items-center space-x-1 rounded-lg bg-stone-200/60" style="padding: 0.2rem">
           <button
-            class="flex h-6 w-7 items-center justify-center rounded-lg"
+            class="flex size-7 items-center justify-center rounded-lg"
             :class="{ 'border bg-white shadow-sm': showTableView }"
             @click="() => onTableViewClick()"
           >
             <Table2Icon class="size-3 stroke-1" />
           </button>
           <button
-            class="flex h-6 w-7 items-center justify-center rounded-lg"
+            class="flex size-7 items-center justify-center rounded-lg"
             :class="{ 'border bg-white shadow-sm': !showTableView }"
             @click="() => onFlowViewClick()"
           >
