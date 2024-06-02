@@ -73,12 +73,12 @@
           <PanelLeftIcon class="size-4 stroke-1.5" />
         </button>
         <NuxtLinkLocale :to="`/projects/${projectStore.activeProjectId}`" class="opacity-50">
-          Workflows
+          All Workflows
         </NuxtLinkLocale>
-        <span class="mx-2 opacity-50">/</span>
-        <span class="opacity-70">
+        <!-- span class="mx-2 opacity-50">/</!-->
+        <!-- span class="opacity-70">
           {{ workflow?.project.name }}
-        </span>
+        </!-->
       </div>
       <div class="space-x-2">
         <Button variant="outline" size="sm" class="text-xs" @click="onExportData" :disabled="exportIsLoading">

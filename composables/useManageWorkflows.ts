@@ -24,7 +24,7 @@ export default function useManageWorkflows() {
 
   const page = ref<number>(1);
   const projectId = ref<string | undefined>(undefined);
-  let workflowId: string = '';
+  const workflowId = ref<string>('');
 
   onScopeDispose(() => {
     ac.abort();
@@ -37,7 +37,7 @@ export default function useManageWorkflows() {
   function setWorkflowId(id: string | string[] | undefined | null) {
     if (!id) return;
     if (Array.isArray(id)) return;
-    workflowId = id;
+    workflowId.value = id;
   }
 
   function setProjectId(id: string | string[] | undefined | null) {
@@ -119,7 +119,7 @@ export default function useManageWorkflows() {
       async () => {
         if (!workflowId) return;
         const workflow = await $client.workflow.full.query(
-          { workflowId },
+          { workflowId: workflowId.value },
           {
             signal: ac.signal,
           },
@@ -137,7 +137,7 @@ export default function useManageWorkflows() {
       async () => {
         if (!workflowId) return;
         const workflow = await $client.workflow.settings.query(
-          { workflowId },
+          { workflowId: workflowId.value },
           {
             signal: ac.signal,
           },
@@ -160,7 +160,17 @@ export default function useManageWorkflows() {
   function deleteWorkflow(id: string | string[] | undefined | null) {
     setWorkflowId(id);
     return $client.workflow.delete.mutate(
-      { workflowId },
+      { workflowId: workflowId.value },
+      {
+        signal: ac.signal,
+      },
+    );
+  }
+
+  async function deleteWorkflowRows(id: string | string[] | undefined | null, orderColumns: number[]) {
+    setWorkflowId(id);
+    return $client.workflow.deleteRows.mutate(
+      { workflowId: workflowId.value, orderColumns },
       {
         signal: ac.signal,
       },
@@ -191,5 +201,6 @@ export default function useManageWorkflows() {
     updateWorkflow,
     deleteWorkflow,
     exportWorkflow,
+    deleteWorkflowRows,
   };
 }

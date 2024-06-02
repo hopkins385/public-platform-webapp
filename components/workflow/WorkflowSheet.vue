@@ -32,22 +32,12 @@
   const { createWorkflowStep, updateInputSteps } = useManageWorkflowSteps();
   const { createManyDocumentItems } = useManageDocumentItems();
 
-  const { getFullWorkflow } = useManageWorkflows();
+  const { getFullWorkflow, deleteWorkflowRows } = useManageWorkflows();
   const { data: workflowData, refresh, error } = await getFullWorkflow(props.workflowId);
 
   const steps = computed(() => workflowData.value?.steps || []);
   const rowCount = computed(() => steps.value[0]?.document.documentItems.length || 0);
   const columnCount = computed(() => steps.value.length);
-
-  // TODO: optimize this
-  const { getAllAssistants } = useManageAssistants();
-  const { data } = await getAllAssistants({ lazy: true });
-  const allAssistants = computed(
-    () =>
-      data.value?.assistants.map((a: any) => {
-        return { id: a.id, title: a.title };
-      }) || [],
-  );
 
   const workflowStepCardActive = computed(() => {
     return steps.value.find((step: any) => step.id === stepCard.workflowStepId);
@@ -148,8 +138,19 @@
     selectedRows.value = Array.from({ length: rowCount.value }, (_, i) => i);
   }
 
-  function onNoRowsSelected() {
+  async function onDeleteSelectedRows() {
+    console.log('delete selected rows', selectedRows.value);
+    await deleteWorkflowRows(props.workflowId, selectedRows.value);
+    deselectAllRows();
+    await refresh();
+  }
+
+  function deselectAllRows() {
     selectedRows.value = [];
+  }
+
+  function onNoRowsSelected() {
+    deselectAllRows();
   }
 
   function toggleAllRowsSelected() {
@@ -314,7 +315,6 @@
       :key="stepCard.teleportTo"
       :project-id="workflowData.project.id"
       :workflow-id="workflowData.id"
-      :all-assistants="allAssistants"
       :all-workflow-steps="steps"
       :workflow-step="workflowStepCardActive"
       @refresh="refresh"
@@ -350,7 +350,12 @@
     <div class="absolute bottom-5 left-1/2 -translate-x-1/2">
       <div class="rounded-lg bg-neutral-50 px-3 py-0 text-xs shadow-md">
         <span class="pl-2 font-semibold">{{ selectedRows.length }}</span>
-        <Button variant="ghost" size="icon" class="bg-parent ml-3 hover:scale-110 hover:bg-transparent">
+        <Button
+          variant="ghost"
+          size="icon"
+          class="bg-parent ml-3 hover:scale-110 hover:bg-transparent"
+          @click="onDeleteSelectedRows"
+        >
           <Trash2Icon class="size-3 stroke-2 text-destructive" />
         </Button>
       </div>

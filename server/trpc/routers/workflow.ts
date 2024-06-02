@@ -147,4 +147,20 @@ export const workflowRouter = router({
 
       return await workflowService.delete(input.workflowId);
     }),
+
+  deleteRows: protectedProcedure
+    .input(
+      z.object({
+        workflowId: ulidRule(),
+        orderColumns: z.array(z.number()),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      // const pass = await workflowService.canDeleteRowsPolicy(input.workflowId, ctx.user);
+
+      return await workflowService.deleteRows({
+        workflowId: input.workflowId,
+        orderColumns: input.orderColumns,
+      });
+    }),
 });

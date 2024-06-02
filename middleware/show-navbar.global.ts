@@ -6,11 +6,11 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const navBar = useNavBarStore();
 
   if (to.name === 'projects-projectId-workflows-workflowId') {
-    if (!navBar.isFullClosed) {
-      nextTick(() => {
-        navBar.toggleFullClosed();
-      });
-    }
+    // if (!navBar.isFullClosed) {
+    //   nextTick(() => {
+    //     navBar.toggleFullClosed();
+    //   });
+    // }
   } else if (navBar.isFullClosed) {
     navBar.toggleFullClosed();
   }

@@ -6,7 +6,6 @@
     projectId: string;
     workflowId: string;
     workflowStep: any;
-    allAssistants: any[];
     allWorkflowSteps: any[];
   }>();
 
@@ -27,6 +26,15 @@
   const hasActiveSteps = computed(() => availableSteps.value.length > 0);
 
   const { deleteWorkflowStep, updateWorkflowStepName } = useManageWorkflowSteps();
+  const { getAllAssistants } = useManageAssistants();
+
+  const { data } = await getAllAssistants({ lazy: true });
+  const allAssistants = computed(
+    () =>
+      data.value?.assistants.map((a: any) => {
+        return { id: a.id, title: a.title };
+      }) || [],
+  );
 
   function onSettingsClick() {
     emits('show-settings');

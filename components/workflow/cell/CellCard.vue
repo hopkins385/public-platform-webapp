@@ -1,9 +1,5 @@
 <script setup lang="ts">
-  import {
-    onClickOutside,
-    useDebounceFn,
-    useEventListener,
-  } from '@vueuse/core';
+  import { onClickOutside, useDebounceFn, useEventListener } from '@vueuse/core';
   import { XIcon } from 'lucide-vue-next';
 
   const props = defineProps<{
@@ -16,8 +12,6 @@
     refresh: [void];
   }>();
 
-  const ac = new AbortController();
-
   const text = ref(props.content || '');
   const pending = ref(false);
   const cellCardRef = ref<HTMLDivElement | null>(null);
@@ -26,7 +20,7 @@
 
   async function updateItem(value: string) {
     await updateDocumentItem({
-      documentItemId: props?.itemId,
+      documentItemId: props?.itemId || '',
       content: value,
     });
     emits('refresh');
@@ -51,7 +45,7 @@
   const onUpdate = useDebounceFn(async (value) => {
     // await updateItem(value);
     setPending(false);
-  }, 1500);
+  }, 250);
 
   watch(
     () => text.value,
@@ -61,7 +55,7 @@
     },
   );
 
-  onClickOutside(cellCardRef, () => {
+  onClickOutside(cellCardRef, async () => {
     emits('close');
   });
 
@@ -81,10 +75,7 @@
 </script>
 
 <template>
-  <div
-    ref="cellCardRef"
-    class="relative w-96 overflow-hidden rounded-2xl border bg-white shadow-md"
-  >
+  <div ref="cellCardRef" class="relative w-96 overflow-hidden rounded-2xl border bg-white shadow-md">
     <button
       class="absolute right-0 top-0 p-2 text-muted-foreground opacity-60 hover:opacity-100"
       @click.stop="$emit('close')"

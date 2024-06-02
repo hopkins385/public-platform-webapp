@@ -379,6 +379,98 @@ export class WorkflowService {
     });
   }
 
+  async deleteRows(payload: { workflowId: string; orderColumns: number[] }) {
+    const workflowId = payload.workflowId.toLowerCase();
+    const orderColumnsSet = new Set(payload.orderColumns);
+    if (!payload.orderColumns || payload.orderColumns.length === 0) {
+      throw new Error('No order columns provided');
+    }
+    // consola.info('Deleting rows', { workflowId, payload.orderColumns });
+    // delete all document items of all workflow steps having the orderColumn in the orderColumns array
+    const workflow = await this.prisma.workflow.findFirst({
+      where: {
+        id: workflowId,
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        steps: {
+          where: {
+            deletedAt: null,
+          },
+          select: {
+            id: true,
+            document: {
+              where: {
+                deletedAt: null,
+              },
+              select: {
+                id: true,
+                documentItems: {
+                  where: {
+                    deletedAt: null,
+                  },
+                  select: {
+                    id: true,
+                    orderColumn: true,
+                  },
+                  orderBy: {
+                    orderColumn: 'asc',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!workflow || !workflow.steps || workflow.steps.length === 0) {
+      throw new Error('Workflow or WorkflowSteps not found');
+    }
+
+    const documentItemsToBeDeleted = workflow.steps
+      .map((step) => step.document?.documentItems)
+      .flat()
+      .filter((item) => orderColumnsSet.has(item!.orderColumn));
+
+    if (!documentItemsToBeDeleted || documentItemsToBeDeleted.length === 0) {
+      throw new Error('No document items found');
+    }
+
+    await this.prisma.documentItem.deleteMany({
+      where: {
+        id: {
+          in: documentItemsToBeDeleted.map((item) => item!.id),
+        },
+      },
+    });
+
+    // reset the orderColumn of the document items foreach of the workflow step
+    // so just to make sure that the orderColumn is in sequence
+    const updatePromises = workflow.steps.map((step) => {
+      // documentItems that are not deleted
+      const documentItems = step.document?.documentItems.filter((item) => !orderColumnsSet.has(item.orderColumn));
+
+      const itemUpdatePromises = documentItems?.map((item, index) => {
+        return this.prisma.documentItem.update({
+          where: {
+            id: item.id,
+          },
+          data: {
+            orderColumn: index,
+          },
+        });
+      });
+
+      return Promise.all(itemUpdatePromises || []);
+    });
+
+    await Promise.all(updatePromises);
+
+    return true;
+  }
+
   delete(workflowId: string) {
     return this.prisma.workflow.delete({
       where: {
