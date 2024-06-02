@@ -8,8 +8,7 @@ import { useRuntimeConfig } from '#imports';
 import type { RuntimeConfig } from 'nuxt/schema';
 import jwt from 'jsonwebtoken';
 import consola from 'consola';
-import type { createUserByAdminDto, updateUserByAdminDto } from './dto/admin-user.dto';
-import type { User } from '@prisma/client';
+import type { CreateUserByAdminDto, UpdateUserByAdminDto } from './dto/admin-user.dto';
 
 interface RegisterNewUser {
   email: string;
@@ -83,7 +82,7 @@ export class UserService {
     return newUser;
   }
 
-  async createNewUserByAdmin(data: createUserByAdminDto) {
+  async createNewUserByAdmin(data: CreateUserByAdminDto) {
     const user = await this.getUserByEmail(data.email);
     if (user) {
       throw new Error('User already exists');
@@ -326,7 +325,7 @@ export class UserService {
     if (user.emailVerifiedAt) {
       return user;
     }
-    const tokenPayload = jwt.verify(payload.token, this.config.jwtSecret);
+    const tokenPayload = jwt.verify(payload.token, this.config.jwtSecret) as any;
     if (tokenPayload?.email !== user.email) {
       throw new Error('Invalid token');
     }
@@ -336,7 +335,7 @@ export class UserService {
     });
   }
 
-  async updateByAdmin(payload: updateUserByAdminDto) {
+  async updateByAdmin(payload: UpdateUserByAdminDto) {
     const role = await this.prisma.role.findFirst({
       where: { name: 'admin' },
     });

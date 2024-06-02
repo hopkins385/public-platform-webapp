@@ -137,7 +137,7 @@ export default defineNitroPlugin((nitroApp) => {
       worker.name,
       async (job) => {
         const data = job.data as AssistantJobDto;
-        await assistantJobService.processJob(data);
+        return await assistantJobService.processJob(data);
       },
       worker.options,
     )

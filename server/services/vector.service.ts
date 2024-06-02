@@ -4,8 +4,6 @@ import type { QdrantVectorStore } from 'llamaindex';
 import { VectorStoreIndex } from 'llamaindex';
 import OpenAI from 'openai';
 import { FileReaderFactory } from '~/server/factories/fileReaderFactory';
-import path from 'path';
-import fs from 'fs/promises';
 
 const logger = consola.create({}).withTag('VectorService');
 
@@ -19,12 +17,7 @@ export class VectorService {
     this.storageService = new StorageService();
   }
 
-  async createIndex(payload: {
-    mediaId: string;
-    recordId: string;
-    mimeType: string;
-    path: string;
-  }) {
+  async createIndex(payload: { mediaId: string; recordId: string; mimeType: string; path: string }) {
     try {
       const reader = new FileReaderFactory(payload.mimeType); // throws error if unsupported file type
       const documents = await reader.loadData(payload.path);
@@ -70,9 +63,7 @@ export class VectorService {
     }
 
     if (!res?.data || !res?.data[0]?.embedding) {
-      logger.error(
-        `Embedding response invalid. Response is: ${JSON.stringify(res)}`,
-      );
+      logger.error(`Embedding response invalid. Response is: ${JSON.stringify(res)}`);
       throw new Error('Invalid embedding response');
     }
 
@@ -102,6 +93,7 @@ export class VectorService {
   }
 
   async deleteIndex(payload: { mediaId: string; recordId: string }) {
+    throw new Error('Not implemented');
     try {
       //
     } catch (e) {

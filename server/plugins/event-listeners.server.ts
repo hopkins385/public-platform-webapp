@@ -5,7 +5,7 @@ import { AuthEvent } from '~/server/utils/enums/auth-event.enum';
 import { WorkflowEvent } from '~/server/utils/enums/workflow-event.enum';
 import { updateLastLogin } from '~/server/events/login.events';
 import { firstUserMessageEvent, chatStreamFinishedEvent } from '~/server/events/chat.events';
-import { rowCompleted } from '~/server/events/workflow.events';
+import { rowCompletedEvent } from '~/server/events/workflow.events';
 import { UsageEvent } from '../utils/enums/usage-event.enum';
 import { TrackTokensDto } from '../services/dto/track-tokens.dto';
 import { trackTokensEvent } from '../events/track-tokens.event';
@@ -15,21 +15,17 @@ const logger = consola.create({}).withTag('event-listener');
 export default defineNitroPlugin((nitroApp) => {
   // Listen to events
   // Auth
-  eventEmitter.on(AuthEvent.LOGIN, updateLastLogin);
+  eventEmitter.on(AuthEvent.LOGIN, async (data) => await updateLastLogin(data));
 
   // Chat
-  eventEmitter.on(ChatEvent.FIRST_USERMESSAGE, firstUserMessageEvent);
-  eventEmitter.on(ChatEvent.STREAMFINISHED, chatStreamFinishedEvent);
+  eventEmitter.on(ChatEvent.FIRST_USERMESSAGE, async (data) => await firstUserMessageEvent(data));
+  eventEmitter.on(ChatEvent.STREAMFINISHED, async (data) => await chatStreamFinishedEvent(data));
 
   // Workflow
-  eventEmitter.on(WorkflowEvent.ROWCOMPLETED, rowCompleted);
+  eventEmitter.on(WorkflowEvent.ROWCOMPLETED, async (data) => await rowCompletedEvent(data));
 
   // Usage
-  eventEmitter.on(UsageEvent.TRACKTOKENS, async (payload: TrackTokensDto) => {
-    // const queue = getOrCreateQueue(QueueEnum.TOKENUSAGE);
-    // await queue.add(JobEnum.TRACKTOKENS, payload);
-    await trackTokensEvent(payload);
-  });
+  eventEmitter.on(UsageEvent.TRACKTOKENS, async (data: TrackTokensDto) => await trackTokensEvent(data));
 
   logger.info('Event listeners loaded');
 });
