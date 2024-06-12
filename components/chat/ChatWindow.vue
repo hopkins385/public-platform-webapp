@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { useDropZone, useMutationObserver } from '@vueuse/core';
+  import { useDropZone, useEventListener, useMutationObserver, useScroll } from '@vueuse/core';
   import {
     ChevronLeftIcon,
     MessageSquareTextIcon,
@@ -258,18 +258,35 @@
     dataTypes: allowedFileMimeTypes,
   });
 
+  const autoScrollLocked = ref(false);
+  const { arrivedState } = useScroll(chatMessagesContainerRef);
+
   // observer
   useMutationObserver(
     chatMessagesContainerRef,
     (mutations) => {
-      mutations.forEach(() => {
-        scrollToBottom();
-      });
+      if (!autoScrollLocked.value && mutations.length > 0) scrollToBottom();
     },
     {
       childList: true,
       subtree: true,
       characterData: true,
+    },
+  );
+
+  useEventListener(
+    chatMessagesContainerRef,
+    'wheel',
+    () => {
+      // Disable auto-scroll when the user scrolls up and re-enable it when back at the bottom
+      if (arrivedState.bottom) {
+        autoScrollLocked.value = false;
+        return;
+      }
+      autoScrollLocked.value = true;
+    },
+    {
+      passive: true,
     },
   );
 
@@ -424,11 +441,12 @@
             />
           </div>
           <Button
+            v-if="!isStreaming"
             class="absolute bottom-1 right-2 z-10"
             type="submit"
             size="icon"
             variant="ghost"
-            :disabled="!inputMessage || isPending || isStreaming"
+            :disabled="!inputMessage || isPending"
           >
             <SendIcon class="size-5 stroke-1.5" />
           </Button>
@@ -436,7 +454,7 @@
             v-if="isStreaming"
             variant="outline"
             size="icon"
-            class="group absolute right-2 top-1 z-20 mr-1 size-8 rounded-full bg-slate-100"
+            class="group absolute bottom-2 right-2 z-20 mr-1 size-8 rounded-full bg-slate-100"
             @click="() => onAbort()"
           >
             <SquareIcon class="size-3 text-slate-500 group-hover:text-slate-900" />
