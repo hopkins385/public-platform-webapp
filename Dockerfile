@@ -1,7 +1,7 @@
 #
 # 🧑‍💻 Development
 #
-FROM node:21-alpine as dev
+FROM node:20-alpine as dev
 # Create app folder
 WORKDIR /app
 

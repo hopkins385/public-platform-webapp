@@ -1,7 +1,7 @@
 #
 # 🏡 Production Build
 #
-FROM node:21-alpine as build
+FROM node:20-alpine as build
 
 WORKDIR /app
 
@@ -24,7 +24,7 @@ USER node
 #
 # 🚀 Production Server
 #
-FROM node:21-alpine as prod
+FROM node:20-alpine as prod
 
 WORKDIR /app
 
