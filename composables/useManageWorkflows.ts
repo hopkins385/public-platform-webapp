@@ -181,7 +181,7 @@ export default function useManageWorkflows() {
     setWorkflowId(id);
     return $fetch.raw('/api/export/workflow', {
       method: 'POST',
-      body: { workflowId },
+      body: { workflowId: workflowId.value },
       responseType: 'blob',
     });
   }
