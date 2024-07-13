@@ -101,6 +101,9 @@ export default defineNuxtConfig({
       port: process.env.REDIS_PORT,
       password: process.env.REDIS_PASSWORD,
     },
+    scrapeServer: {
+      url: process.env.SCRAPE_SERVER_URL,
+    },
     openai: {
       baseUrl: process.env.OPENAI_BASE_URL,
       apiKey: process.env.OPENAI_API_KEY,

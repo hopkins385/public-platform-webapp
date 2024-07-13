@@ -11,6 +11,9 @@ const { event } = useEvents();
 
 const logger = consola.create({}).withTag('AssistantJobService');
 
+const config = useRuntimeConfig();
+
+// scrape website
 async function scrapeWebsite(url: string) {
   // check if its a valid url
   const isValidUrl = url.match(/https?:\/\/[^\s]+/);
@@ -19,7 +22,7 @@ async function scrapeWebsite(url: string) {
   }
   // scraping website via scrape server
   // url of scrapeserver is http://localhost:3010/scrape?url=${url}
-  const scrapeUrl = `http://localhost:3010/scrape?url=${url}`;
+  const scrapeUrl = `${config.scrapeServer.url}/scrape?url=${url}`;
   const response = await fetch(scrapeUrl);
   const data = await response.json();
   return data;
