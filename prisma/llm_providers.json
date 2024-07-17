@@ -110,6 +110,17 @@
     "free": false
   },
   {
+    "apiName": "claude-3-5-sonnet-20240620",
+    "displayName": "Claude 3.5 Sonnet",
+    "provider": "anthropic",
+    "description": "",
+    "contextSize": 200,
+    "maxTokens": 4,
+    "multiModal": false,
+    "hidden": false,
+    "free": false
+  },
+  {
     "apiName": "claude-3-opus-20240229",
     "displayName": "Claude 3 Opus",
     "provider": "anthropic",

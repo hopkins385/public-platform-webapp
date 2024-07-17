@@ -75,6 +75,7 @@
     });
     await createManyDocumentItems(documentItems);
     await refresh();
+    initSheetDimensions(props.workflowId);
   }
 
   function toggleStepCard(id: number, stepId: string) {

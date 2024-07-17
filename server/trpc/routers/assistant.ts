@@ -54,6 +54,8 @@ export const assistantRouter = router({
         });
       }
 
+      // console.log(assistant);
+
       // policy check
       assistantService.canAccessAssistantPolicy(assistant, ctx.user);
 
@@ -67,10 +69,7 @@ export const assistantRouter = router({
       }),
     )
     .query(({ ctx, input }) => {
-      const payload = FindAllAssistantsDto.fromInput(
-        ctx.user.teamId,
-        input.page,
-      );
+      const payload = FindAllAssistantsDto.fromInput(ctx.user.teamId, input.page);
 
       return assistantService.findAll(payload);
     }),

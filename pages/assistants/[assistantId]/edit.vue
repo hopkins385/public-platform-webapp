@@ -20,6 +20,8 @@
   const { data: auth } = useAuth();
   const toast = useToast();
 
+  console.log('assistantId', assistantId);
+
   const assistantModel = ref({
     type: 'assistant',
     id: assistantId as string,
@@ -71,7 +73,7 @@
     validationSchema: assistantFormSchema,
     initialValues: {
       teamId: auth.value?.user.teamId,
-      llmId: assistant.value?.llm.id,
+      llmId: assistant.value?.llm.id || '',
       title: assistant.value?.title,
       description: assistant.value?.description,
       systemPrompt: assistant.value?.systemPrompt,

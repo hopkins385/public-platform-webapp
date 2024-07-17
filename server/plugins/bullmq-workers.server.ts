@@ -78,7 +78,7 @@ export default defineNitroPlugin((nitroApp) => {
     event(WorkflowEvent.ROWCOMPLETED, data);
   });
 
-  const rateLimitDuration = 60 * 1000; // 1 minute
+  const rateLimitDuration = 60 * 1000; // 1 minute // Time in milliseconds. During this time, a maximum of max jobs will be processed.
   const workerConcurrency = 10;
   const groqReqPerMin = 30;
   const mistralReqPerMin = 5 * 60;
@@ -124,6 +124,10 @@ export default defineNitroPlugin((nitroApp) => {
     },
     {
       name: 'anthropic-claude-3-sonnet-20240229',
+      options: { concurrency: workerConcurrency, limiter: { max: claudeReqPerMin, duration: rateLimitDuration } },
+    },
+    {
+      name: 'claude-3-5-sonnet-20240620',
       options: { concurrency: workerConcurrency, limiter: { max: claudeReqPerMin, duration: rateLimitDuration } },
     },
     {

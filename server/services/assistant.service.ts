@@ -197,6 +197,12 @@ export class AssistantService {
 
   canAccessAssistantPolicy(assistant: any, user: any) {
     if (assistant.isShared !== true) {
+      if (!assistant.team) {
+        throw new Error('Assistant does not have a team, team is:', assistant.team);
+      }
+      if (!assistant.team.id) {
+        throw new Error('Assistant does not have a team id, team id is:', assistant.team.id);
+      }
       if (assistant.team.id !== user.teamId) {
         throw new TRPCError({
           code: 'FORBIDDEN',
@@ -204,7 +210,10 @@ export class AssistantService {
         });
       }
     } else {
-      if (assistant.team.organistation.id !== user.orgId) {
+      if (!assistant.team.organisation) {
+        throw new Error('Assistant does not have an organisation, organisation is:', assistant.team.organisation);
+      }
+      if (assistant.team.organisation.id !== user.orgId) {
         throw new TRPCError({
           code: 'FORBIDDEN',
           message: 'You do not have access to this assistant',
