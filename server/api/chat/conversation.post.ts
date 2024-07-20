@@ -1,3 +1,4 @@
+import type { ChatMessage, VisionImageUrlContent } from '~/interfaces/chat.interfaces';
 import { TokenizerService } from '~/server/services/tokenizer.service';
 import { getServerSession } from '#auth';
 import { Readable, Transform } from 'stream';
@@ -8,7 +9,6 @@ import { getConversationBody } from '~/server/utils/request/chatConversationBody
 import { ChatEvent } from '~/server/utils/enums/chat-event.enum';
 import { UsageEvent } from '~/server/utils/enums/usage-event.enum';
 import { TrackTokensDto } from '~/server/services/dto/track-tokens.dto';
-import type { ChatMessage, VisionImageUrlContent } from '~/interfaces/chat.interfaces';
 import { StreamFinishedEventDto, FirstUserMessageEventDto } from '~/server/services/dto/event.dto';
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import { useEvents } from '~/server/events/useEvents';

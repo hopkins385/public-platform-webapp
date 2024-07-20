@@ -143,6 +143,7 @@ export default defineNuxtConfig({
       },
       crossOriginEmbedderPolicy: false,
     },
+    rateLimiter: false, // TODO: Enable rate limiter
   },
   routeRules: {
     '/api/file/upload': {
@@ -153,6 +154,11 @@ export default defineNuxtConfig({
     '/api/chat/*': {
       security: {
         xssValidator: false,
+      },
+    },
+    'api/trpc/workflow.full': {
+      security: {
+        rateLimiter: false,
       },
     },
   },

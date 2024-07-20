@@ -14,6 +14,43 @@ interface CompletionParams {
   apiKey: string;
 }
 
+const openAITools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
+  {
+    type: 'function',
+    function: {
+      name: 'get_website_content',
+      description: 'Get the content of a website',
+      parameters: {
+        type: 'object',
+        properties: {
+          url: {
+            type: 'string',
+            description: 'The URL of the website to scrape',
+          },
+        },
+        required: ['url'],
+      },
+    },
+  },
+];
+
+const anthropicTools: Anthropic.Messages.Tool[] = [
+  {
+    name: 'get_website_content',
+    description: 'Get the content of a website',
+    input_schema: {
+      type: 'object',
+      properties: {
+        url: {
+          type: 'string',
+          description: 'The URL of the website to scrape',
+        },
+      },
+      required: ['url'],
+    },
+  },
+];
+
 export class CompletionFactoryStatic {
   private readonly model: string;
   private readonly config: RuntimeConfig;
@@ -47,6 +84,7 @@ export class CompletionFactoryStatic {
       max_tokens: payload.maxTokens,
       temperature: payload.temperature,
       stream: payload.stream,
+      // tools: openAITools,
     });
   }
 
@@ -63,6 +101,7 @@ export class CompletionFactoryStatic {
       model: this.model,
       temperature: payload.temperature,
       stream: payload.stream,
+      // tools: anthropicTools,
     });
   }
 

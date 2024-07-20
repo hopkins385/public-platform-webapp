@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { vOnClickOutside } from '@vueuse/components';
+  import { useDebounceFn } from '@vueuse/core';
   import { AlignLeftIcon, PlusIcon, LayoutDashboard, LoaderIcon, TriangleAlertIcon, Trash2Icon } from 'lucide-vue-next';
 
   const props = defineProps<{
@@ -119,10 +120,9 @@
     await refresh();
   }
 
-  function workflowUpdateListener(message: any) {
-    console.log('workflow channel message', message);
+  const debouncedRefresh = useDebounceFn(() => {
     refresh();
-  }
+  }, 250);
 
   const selectedRows = ref<number[]>([]);
   const hasSelectedRows = computed(() => selectedRows.value.length > 0);
@@ -164,11 +164,11 @@
 
   onMounted(() => {
     initSheetDimensions(props.workflowId);
-    socket.on(`workflow-${props.workflowId}-update`, workflowUpdateListener);
+    socket.on(`workflow-${props.workflowId}-update`, debouncedRefresh);
   });
 
   onBeforeUnmount(() => {
-    socket.off(`workflow-${props.workflowId}-update`, workflowUpdateListener);
+    socket.off(`workflow-${props.workflowId}-update`, debouncedRefresh);
   });
 </script>
 
@@ -270,7 +270,7 @@
           <div v-if="docItem.processingStatus === 'failed'" class="rounded-lg bg-red-50 p-2 font-bold text-destructive">
             <TriangleAlertIcon class="size-3 stroke-1.5" />
           </div>
-          <div v-if="docItem.processingStatus === 'pending'" class="rounded-lg bg-white p-2">
+          <div v-if="docItem.processingStatus === 'pending'" class="rounded-lg bg-green-100 p-2">
             <LoaderIcon class="size-3 animate-spin stroke-1.5" />
           </div>
         </div>

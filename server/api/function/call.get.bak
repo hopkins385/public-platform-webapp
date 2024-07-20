@@ -1,0 +1,170 @@
+import OpenAI from 'openai';
+
+const config = useRuntimeConfig();
+
+const openai = new OpenAI({
+  apiKey: config.openai.apiKey,
+});
+
+async function getWebsiteContent(url: string) {
+  console.log('Getting website content for URL: ', url);
+  const response = await fetch(`${config.scrapeServer.url}/scrape?url=${url}`);
+  const content = await response.text();
+  console.log('Website content: ', content);
+  return content;
+}
+
+async function call(paylaod: { model: string; messages: any[]; temp: number; maxTokens: number; tools: any[] }) {
+  console.log('Calling OpenAI API with payload: ', paylaod);
+
+  const messages = [];
+  // Loop through the messages and add them to the messages array
+  for (let i = 0; i < paylaod.messages.length; i++) {
+    const message = paylaod.messages[i];
+    messages.push({
+      role: message.role,
+      content: message.content,
+    });
+  }
+
+  // API call to return the chat_messages
+  const response = await openai.chat.completions.create({
+    model: paylaod.model,
+    messages,
+    temperature: paylaod.temp,
+    max_tokens: paylaod.maxTokens,
+    stream: false,
+    tools: paylaod.tools,
+  });
+
+  const { message: responseMessage } = response.choices[0];
+  const { content } = responseMessage;
+  const { tool_calls } = responseMessage;
+
+  console.log('Response from OpenAI API: ', responseMessage, content, tool_calls);
+
+  messages.push(responseMessage);
+
+  // check if the response has tool_calls
+  if (tool_calls && tool_calls.length > 0) {
+    // loop through the tool_calls
+    for (let i = 0; i < tool_calls.length; i++) {
+      const tool_call = tool_calls[i];
+      const { function: func, id } = tool_call;
+      const { name, arguments: args } = func;
+
+      console.log('Tool call: ', name, args);
+
+      // check if the function name is getWebsiteContent
+      if (name === 'getWebsiteContent') {
+        // call the function with the arguments
+        const pargs = JSON.parse(args);
+        if (!pargs?.url) {
+          console.error('No URL provided for getWebsiteContent');
+          return;
+        }
+        const result = await getWebsiteContent(pargs.url);
+
+        const added_message = {
+          role: 'tool',
+          tool_call_id: id,
+          name: func.name,
+          content: result,
+        };
+
+        // add the message to the messages array
+        messages.push(added_message);
+      }
+    }
+
+    // call the OpenAI API again with the updated messages
+    const response = await openai.chat.completions.create({
+      model: paylaod.model,
+      messages: messages,
+      temperature: paylaod.temp,
+      max_tokens: paylaod.maxTokens,
+      stream: false,
+      tools: paylaod.tools,
+    });
+
+    // return the completion
+    const r_message = response.choices[0].message;
+    messages.push(r_message);
+    return messages;
+  }
+
+  // return the completion
+
+  /*let toolCalls: any[] = [];
+  let currentCall = { name: '', arguments: '' };
+
+  for await (const part of response) {
+    const { choices } = part;
+    const { finish_reason, delta } = choices[0];
+
+    if (delta?.tool_calls) {
+      const toolCall = delta.tool_calls[0];
+      if (toolCall.function?.name) {
+        currentCall.name = toolCall.function.name;
+      }
+      if (toolCall.function?.arguments) {
+        currentCall.arguments += toolCall.function.arguments;
+      }
+    }
+
+    if (finish_reason === 'tool_calls') {
+      toolCalls.push({ ...currentCall });
+      currentCall = { name: '', arguments: '' }; // Reset currentCall after pushing
+      console.log('Tool calls: ', toolCalls);
+    }
+  }*/
+}
+
+const tools = [
+  {
+    type: 'function',
+    function: {
+      name: 'getWebsiteContent',
+      description: 'Get the content of a website',
+      parameters: {
+        type: 'object',
+        properties: {
+          url: {
+            type: 'string',
+            description: 'The URL of the website to scrape',
+          },
+        },
+      },
+    },
+  },
+];
+
+export default defineEventHandler(async (event) => {
+  const myURL = 'https://blog.svenson.ai/toys-r-us-embraces-generative-ai-a-leap-into-the-future-of-brand-storytelling';
+  const messages = [
+    {
+      role: 'system',
+      content: 'You are a friendly and helpful assistant.',
+    },
+    {
+      role: 'assistant',
+      content: 'Hello! How can I help you today?',
+    },
+    {
+      role: 'user',
+      content: `summarize the article on ${myURL}`,
+    },
+  ];
+
+  const completion = await call({
+    model: 'gpt-3.5-turbo',
+    messages,
+    temp: 0.7,
+    maxTokens: 1000,
+    tools,
+  });
+
+  return {
+    completion,
+  };
+});

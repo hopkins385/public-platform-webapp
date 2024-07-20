@@ -62,6 +62,7 @@ export class WorkflowExecutionService {
         temperature: 0.5,
         maxTokens: 100,
         userId: payload.userId,
+        workflowId: payload.workflowId,
       });
 
       const job = {

@@ -11,6 +11,7 @@ export class AssistantJobDto {
   readonly temperature: number;
   readonly maxTokens: number;
   readonly userId: string;
+  readonly workflowId: string;
 
   constructor(
     stepIndex: number,
@@ -25,6 +26,7 @@ export class AssistantJobDto {
     temperature: number,
     maxTokens: number,
     userId: string,
+    workflowId: string,
   ) {
     this.stepIndex = Number(stepIndex);
     this.rowIndex = Number(rowIndex);
@@ -38,6 +40,7 @@ export class AssistantJobDto {
     this.temperature = Number(temperature);
     this.maxTokens = Number(maxTokens);
     this.userId = userId.toLowerCase();
+    this.workflowId = workflowId.toLowerCase();
   }
 
   static fromInput(input: {
@@ -53,6 +56,7 @@ export class AssistantJobDto {
     temperature: number;
     maxTokens: number;
     userId: string;
+    workflowId: string;
   }): AssistantJobDto {
     return new AssistantJobDto(
       input.stepIndex,
@@ -67,6 +71,7 @@ export class AssistantJobDto {
       input.temperature,
       input.maxTokens,
       input.userId,
+      input.workflowId,
     );
   }
 }

@@ -33,12 +33,6 @@
     const res = await executeWorkflow(props.workflowId);
   }
 
-  async function onReloadSheet() {
-    const toast = useToast();
-    // await refresh();
-    // toast.success({ description: 'Data reloaded' });
-  }
-
   async function onExportData() {
     exportIsLoading.value = true;
     try {
@@ -121,7 +115,11 @@
             :projectId="projectId"
             :workflowId="workflowId"
             @run-all="onRunAll"
-            @reload-sheet="onReloadSheet"
+            @reload-sheet="
+              () => {
+                console.error('not implemented');
+              }
+            "
           />
         </div>
         <div class="flex items-center space-x-1 rounded-lg bg-stone-200/60" style="padding: 0.2rem">

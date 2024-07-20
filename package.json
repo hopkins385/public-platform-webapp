@@ -80,7 +80,7 @@
     "vue-tsc": "^2.0.16"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.20.9",
+    "@anthropic-ai/sdk": "^0.24.3",
     "@aws-sdk/client-s3": "^3.577.0",
     "@azure/msal-node": "^2.8.0",
     "@devmehq/email-validator-js": "^1.0.19",
@@ -125,7 +125,7 @@
     "next-auth": "4.21.1",
     "node-xlsx": "^0.24.0",
     "nodemailer": "^6.9.13",
-    "openai": "^4.43.0",
+    "openai": "^4.52.7",
     "prisma-extension-pagination": "^0.7.3",
     "radix-vue": "^1.7.4",
     "remove": "^0.1.5",

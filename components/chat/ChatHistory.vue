@@ -1,8 +1,17 @@
 <script setup lang="ts">
-  import { FileEditIcon, MessageCircleMoreIcon, Trash2Icon } from 'lucide-vue-next';
+  import { MessageCircleMoreIcon, Trash2Icon } from 'lucide-vue-next';
+
+  const props = defineProps<{
+    page: number;
+  }>();
+
+  const emit = defineEmits<{
+    'update:page': [number];
+  }>();
 
   const { getDateTimeForHumans } = useForHumans();
   const { getAllChatsForUser, deleteChat, setPage } = useChat();
+  setPage(props.page || 1);
   const { data, refresh } = await getAllChatsForUser();
 
   const chats = computed(() => data.value?.chats || []);
@@ -35,6 +44,11 @@
     }
     chatIdToDelete.value = '';
     await refresh();
+  }
+
+  function updatePage(value: number) {
+    emit('update:page', value);
+    setPage(value);
   }
 </script>
 
@@ -88,9 +102,9 @@
       :total="meta.totalCount"
       :sibling-count="1"
       show-edges
-      :default-page="1"
+      :default-page="page"
       :items-per-page="10"
-      @update:page="(value) => setPage(value)"
+      @update:page="(value) => updatePage(value)"
     >
       <PaginationList v-slot="{ items }" class="flex items-center gap-1">
         <PaginationFirst />

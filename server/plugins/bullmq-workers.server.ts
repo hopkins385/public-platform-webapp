@@ -75,7 +75,7 @@ export default defineNitroPlugin((nitroApp) => {
   const workflowRowCompletion = createWorker(QueueEnum.WORKFLOW_ROW_COMLETED, async (job) => {
     const { event } = useEvents();
     const { data } = job;
-    event(WorkflowEvent.ROWCOMPLETED, data);
+    event(WorkflowEvent.ROW_COMPLETED, data);
   });
 
   const rateLimitDuration = 60 * 1000; // 1 minute // Time in milliseconds. During this time, a maximum of max jobs will be processed.
@@ -152,6 +152,9 @@ export default defineNitroPlugin((nitroApp) => {
         const data = job.data as AssistantJobDto;
         const { documentItemId } = data;
         await documentItemService.updateProcessingStatus(documentItemId, 'pending');
+        // event worker active
+        const { event } = useEvents();
+        event(WorkflowEvent.CELL_ACTIVE, { userId: data.userId, workflowId: data.workflowId });
       })
       .on('progress', (job, progress) => {
         logger.info(`Workflow worker ${worker.name} progress: ${progress}`);
@@ -161,8 +164,11 @@ export default defineNitroPlugin((nitroApp) => {
       })
       .on('completed', async (job, result, prev) => {
         const data = job.data as AssistantJobDto;
-        const { documentItemId } = data;
+        const { documentItemId, workflowId } = data;
         await documentItemService.updateProcessingStatus(documentItemId, 'completed');
+        // event worker completed
+        const { event } = useEvents();
+        event(WorkflowEvent.CELL_COMPLETED, { userId: data.userId, workflowId });
       })
       .on('failed', async (job, err) => {
         const data = job?.data as AssistantJobDto;

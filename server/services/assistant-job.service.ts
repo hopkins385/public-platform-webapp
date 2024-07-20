@@ -5,28 +5,12 @@ import { DocumentItemService } from './document-item.service';
 import { AssistantJobDto } from './dto/job.dto';
 import { TrackTokensDto } from './dto/track-tokens.dto';
 import { useEvents } from '../events/useEvents';
+import { scrapeWebsite } from '~/utils/scrapeWebsite';
 import consola from 'consola';
 
 const { event } = useEvents();
 
 const logger = consola.create({}).withTag('AssistantJobService');
-
-const config = useRuntimeConfig();
-
-// scrape website
-async function scrapeWebsite(url: string) {
-  // check if its a valid url
-  const isValidUrl = url.match(/https?:\/\/[^\s]+/);
-  if (!isValidUrl) {
-    throw new Error('Invalid URL');
-  }
-  // scraping website via scrape server
-  // url of scrapeserver is http://localhost:3010/scrape?url=${url}
-  const scrapeUrl = `${config.scrapeServer.url}/scrape?url=${url}`;
-  const response = await fetch(scrapeUrl);
-  const data = await response.json();
-  return data;
-}
 
 export class AssistantJobService {
   private readonly prisma: ExtendedPrismaClient;
@@ -86,8 +70,8 @@ export class AssistantJobService {
         const response = await scrapeWebsite(url);
         if (response) {
           // replace the content with scraped content
-          inputDocumentItems[0].content = response?.result ? JSON.stringify(response.result, null, 0) : '';
-          // console.log('updated content', inputDocumentItems[0].content);
+          inputDocumentItems[0].content = response ? JSON.stringify(response, null, 0) : '';
+          console.log('updated content', inputDocumentItems[0].content);
           // throw new Error('scraped');
           // json stringify the content without escaping
           // inputDocumentItems[0].content = JSON.stringify(response.result, null, 2);

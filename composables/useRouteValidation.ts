@@ -70,6 +70,18 @@ export default function useRouteValidation() {
     return res.success;
   }
 
+  function hasValidPage(params: any) {
+    const idSchema = z.object({
+      page: z
+        .string()
+        .regex(/^[1-9]+$/)
+        .optional()
+        .default('1'),
+    });
+    const res = idSchema.safeParse(params);
+    return res.success;
+  }
+
   return {
     isValidRouteUlid,
     hasValidChatId,
@@ -79,5 +91,6 @@ export default function useRouteValidation() {
     hasValidProjectWorkflowId,
     hasValidProjectDocumentId,
     hasValidCollectionId,
+    hasValidPage,
   };
 }
