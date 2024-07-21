@@ -1,5 +1,4 @@
-import type { ChatCompletion } from 'openai/resources/index.mjs';
-import { CompletionFactoryStatic } from '../factories/completionFactoryStatic';
+import { SystemMessage, HumanMessage } from '@langchain/core/messages';
 import { UsageEvent } from '../utils/enums/usage-event.enum';
 import { DocumentItemService } from './document-item.service';
 import { AssistantJobDto } from './dto/job.dto';
@@ -7,6 +6,7 @@ import { TrackTokensDto } from './dto/track-tokens.dto';
 import { useEvents } from '../events/useEvents';
 import { scrapeWebsite } from '~/utils/scrapeWebsite';
 import consola from 'consola';
+import { CompletionFactory } from '../factories/completionFactory';
 
 const { event } = useEvents();
 
@@ -39,8 +39,6 @@ export class AssistantJobService {
       documentItemId,
       systemPrompt,
     } = payload;
-
-    const completionFactory = new CompletionFactoryStatic(llmProvider, llmNameApi);
 
     const documentItem = await this.documentItemService.findFirst(documentItemId);
     if (!documentItem) {
@@ -96,29 +94,21 @@ export class AssistantJobService {
     // console.log('content', JSON.stringify(content));
     // throw new Error('content');
 
-    const messages = [
-      {
-        role: 'system',
-        content: systemPrompt,
-      },
-      {
-        role: 'user',
-        content: content,
-      },
-    ];
+    const messages = [new SystemMessage({ content: systemPrompt }), new HumanMessage({ content: content })];
 
-    const response = (await completionFactory.create({
-      messages,
-      temperature,
+    const config = useRuntimeConfig();
+    const completion = new CompletionFactory(llmProvider, llmNameApi, config);
+    const model = await completion.create({
       maxTokens: 1000,
+      temperature,
       stream: false,
-    })) as ChatCompletion;
-
-    const message = response?.choices[0]?.message.content || 'something went wrong';
+    });
+    const response = await model.invoke(messages);
+    const { content: messageContent } = response;
 
     const update = await this.documentItemService.update({
       documentItemId,
-      content: message,
+      content: messageContent || '',
       status: 'completed',
     });
 
@@ -131,9 +121,9 @@ export class AssistantJobService {
           model: llmNameApi,
         },
         usage: {
-          promptTokens: response?.usage?.prompt_tokens || 0,
-          completionTokens: response?.usage?.completion_tokens || 0,
-          totalTokens: response?.usage?.total_tokens || 0,
+          promptTokens: response?.usage_metadata?.input_tokens || -1,
+          completionTokens: response?.usage_metadata?.output_tokens || -1,
+          totalTokens: response?.usage_metadata?.total_tokens || -1,
         },
       }),
     );

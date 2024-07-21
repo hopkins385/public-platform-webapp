@@ -105,19 +105,19 @@ export default defineNuxtConfig({
       url: process.env.SCRAPE_SERVER_URL,
     },
     openai: {
-      baseUrl: process.env.OPENAI_BASE_URL,
+      // baseUrl: process.env.OPENAI_BASE_URL,
       apiKey: process.env.OPENAI_API_KEY,
     },
     mistral: {
-      baseUrl: process.env.MISTRAL_BASE_URL,
+      // baseUrl: process.env.MISTRAL_BASE_URL,
       apiKey: process.env.MISTRAL_API_KEY,
     },
     groq: {
-      baseUrl: process.env.GROQ_BASE_URL,
+      // baseUrl: process.env.GROQ_BASE_URL,
       apiKey: process.env.GROQ_API_KEY,
     },
     anthropic: {
-      baseUrl: process.env.ANTHROPIC_BASE_URL,
+      // baseUrl: process.env.ANTHROPIC_BASE_URL,
       apiKey: process.env.ANTHROPIC_API_KEY,
     },
   },

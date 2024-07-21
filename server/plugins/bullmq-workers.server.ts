@@ -4,13 +4,13 @@ import { WorkflowEvent } from '../utils/enums/workflow-event.enum';
 import { QueueEnum } from '../utils/enums/queue.enum';
 import { JobEnum } from '../utils/enums/job.enum';
 import { trackTokensEvent } from '../events/track-tokens.event';
-import { CompletionFactoryStatic } from '../factories/completionFactoryStatic';
 import { ChatService } from '../services/chat.service';
 import type { FirstUserMessageEventDto } from '../services/dto/event.dto';
 import { useEvents } from '../events/useEvents';
 import type { WorkerOptions } from 'bullmq';
 import consola from 'consola';
 import type { AssistantJobDto } from '../services/dto/job.dto';
+import { CompletionFactory } from '../factories/completionFactory';
 
 interface WorkflowWorker {
   name: string;
@@ -46,8 +46,10 @@ export default defineNitroPlugin((nitroApp) => {
         content: `"""${firstMessage}"""`,
       },
     ];
+    // TODO: Fix this
+
     // 1. make a request to
-    const completion = new CompletionFactoryStatic('openai', 'gpt-3.5-turbo');
+    /*const completion = new CompletionFactory('openai', 'gpt-3.5-turbo');
     const response = await completion.create({
       messages,
       maxTokens: 20,
@@ -59,7 +61,7 @@ export default defineNitroPlugin((nitroApp) => {
     // remove " from the beginning and end of the message
     const chatTitle = message.replace(/^"|"$/g, '');
 
-    await chatService.updateChatTitle(payload.chatId, chatTitle);
+    await chatService.updateChatTitle(payload.chatId, chatTitle);*/
   });
 
   const tokenUsageQueue = createWorker(QueueEnum.TOKENUSAGE, async (job) => {
@@ -127,7 +129,7 @@ export default defineNitroPlugin((nitroApp) => {
       options: { concurrency: workerConcurrency, limiter: { max: claudeReqPerMin, duration: rateLimitDuration } },
     },
     {
-      name: 'claude-3-5-sonnet-20240620',
+      name: 'anthropic-claude-3-5-sonnet-20240620',
       options: { concurrency: workerConcurrency, limiter: { max: claudeReqPerMin, duration: rateLimitDuration } },
     },
     {

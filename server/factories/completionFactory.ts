@@ -1,111 +1,100 @@
-import { LLMService } from './../services/llm.service';
 import type { RuntimeConfig } from 'nuxt/schema';
-import { OpenAI } from 'openai';
-import { Anthropic } from '@anthropic-ai/sdk';
+import type Anthropic from '@anthropic-ai/sdk';
+import { ChatOpenAI } from '@langchain/openai';
+import { ChatAnthropic } from '@langchain/anthropic';
+import { ChatGroq } from '@langchain/groq';
+import { ChatMistralAI } from '@langchain/mistralai';
 
 interface CreatePayload {
-  messages: any[];
   temperature: number;
   maxTokens: number;
+  stream?: boolean;
 }
 
-interface CompletionParams {
-  baseURL: string;
-  apiKey: string;
-  model: string;
-  provider: string;
-}
+const openAiTools = [
+  {
+    type: 'function',
+    function: {
+      name: 'get_website_content',
+      description: 'Get the content of a website',
+      parameters: {
+        type: 'object',
+        properties: {
+          url: {
+            type: 'string',
+            description: 'The URL of the website to scrape',
+          },
+        },
+        required: ['url'],
+      },
+    },
+  },
+];
+
+const anthropicTools: Anthropic.Messages.Tool[] = [
+  {
+    name: 'get_website_content',
+    description: 'Get the content of a website',
+    input_schema: {
+      type: 'object',
+      properties: {
+        url: {
+          type: 'string',
+          description: 'The URL of the website to scrape',
+        },
+      },
+      required: ['url'],
+    },
+  },
+];
 
 export class CompletionFactory {
-  model: string;
-  config: RuntimeConfig;
-  params: CompletionParams;
-  llmService: LLMService;
+  private readonly model: string;
+  private readonly config: RuntimeConfig;
+  private readonly provider: string;
 
-  constructor(model: string, config: RuntimeConfig) {
+  constructor(provider: string, model: string, config: RuntimeConfig) {
+    this.provider = provider;
     this.model = model;
     this.config = config;
-    this.llmService = new LLMService();
-    this.params = {
-      baseURL: '',
-      apiKey: '',
-      model: '',
-      provider: '',
-    };
   }
 
   async create(payload: CreatePayload) {
-    this.params = await this.getChatCompletionParams();
-    switch (this.params.provider) {
-      case 'anthropic':
-        return this.createAnthropic(payload);
-      default:
-        return this.createOpenAI(payload);
-    }
-  }
-
-  createOpenAI(payload: CreatePayload) {
-    const openai = new OpenAI({
-      baseURL: this.params.baseURL,
-      apiKey: this.params.apiKey,
-    });
-    return openai.chat.completions.create({
-      model: this.params.model,
-      messages: payload.messages,
-      max_tokens: payload.maxTokens,
-      temperature: payload.temperature,
-      stream: true,
-    });
-  }
-
-  createAnthropic(payload: CreatePayload) {
-    const anthropic = new Anthropic({
-      apiKey: this.params.apiKey,
-    });
-    const systemPrompt = payload.messages[0].content;
-    const messages = payload.messages.slice(1);
-    return anthropic.messages.create({
-      system: systemPrompt,
-      max_tokens: payload.maxTokens,
-      messages,
-      model: this.params.model,
-      temperature: payload.temperature,
-      stream: true,
-    });
-  }
-
-  async getChatCompletionParams() {
-    let baseURL: string;
-    let apiKey: string;
-    let model: string;
-
-    const dbModels = await this.llmService.getCachedModels();
-    const provider = dbModels.find((m) => m?.apiName === this.model)?.provider;
-
-    switch (provider) {
+    switch (this.provider) {
       case 'openai':
-        baseURL = this.config.openai.baseUrl;
-        apiKey = this.config.openai.apiKey;
-        model = this.model;
+        return new ChatOpenAI({
+          apiKey: this.config.openai.apiKey,
+          temperature: payload.temperature,
+          model: this.model,
+          streaming: payload.stream,
+        }); // .bindTools(openAiTools);
         break;
       case 'anthropic':
-        baseURL = this.config.anthropic.baseUrl;
-        apiKey = this.config.anthropic.apiKey;
-        model = this.model;
+        return new ChatAnthropic({
+          apiKey: this.config.anthropic.apiKey,
+          temperature: payload.temperature,
+          model: this.model,
+          streaming: payload.stream,
+        });
         break;
       case 'groq':
-        baseURL = this.config.groq.baseUrl;
-        apiKey = this.config.groq.apiKey;
-        model = this.model;
+        return new ChatGroq({
+          apiKey: this.config.groq.apiKey,
+          temperature: payload.temperature,
+          model: this.model,
+          streaming: payload.stream,
+        });
         break;
       case 'mistral':
-        baseURL = this.config.mistral.baseUrl;
-        apiKey = this.config.mistral.apiKey;
-        model = this.model;
+        return new ChatMistralAI({
+          apiKey: this.config.mistral.apiKey,
+          temperature: payload.temperature,
+          model: this.model,
+          streaming: payload.stream,
+        });
         break;
       default:
-        throw new Error('Provider not found');
+        throw new Error('Provider not supported');
     }
-    return { baseURL, apiKey, model, provider } as CompletionParams;
   }
 }

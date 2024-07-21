@@ -3,5 +3,4 @@ export enum ChatModelProviderEnum {
   GROQ = 'groq',
   ANTHROPIC = 'anthropic',
   MISTRAL = 'mistral',
-  CLAUDE = 'claude',
 }
