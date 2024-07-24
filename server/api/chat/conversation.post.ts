@@ -93,6 +93,7 @@ export default defineEventHandler(async (_event) => {
       maxTokens: body.maxTokens,
       temperature: body.temperature,
     });
+
     const completionStream = await model.stream(messages, { signal: controller.signal });
 
     let gathered: AIMessageChunk | undefined = undefined;
@@ -118,7 +119,7 @@ export default defineEventHandler(async (_event) => {
     });
 
     stream.on('end', async () => {
-      console.log('END gathered', gathered);
+      // console.log('END gathered', gathered);
     });
 
     _event.node.res.on('close', () => {
@@ -126,7 +127,7 @@ export default defineEventHandler(async (_event) => {
       stream.destroy();
 
       const inputTokens = tokenizerService.getTokens(body.messages[body.messages.length - 1].content);
-      const outputTokens = tokenizerService.getTokens(gathered?.content as string);
+      const outputTokens = tokenizerService.getTokens(gathered?.content?.toString() || '');
       const { event } = useEvents();
 
       event(
@@ -135,7 +136,7 @@ export default defineEventHandler(async (_event) => {
           chatId: chat.id,
           userId: user.id,
           assistantId: chat.assistant.id,
-          messageContent: (gathered?.content as string) || '',
+          messageContent: gathered?.content?.toString() || '',
         }),
       );
 

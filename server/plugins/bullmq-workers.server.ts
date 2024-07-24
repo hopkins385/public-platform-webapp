@@ -1,3 +1,4 @@
+import { SystemMessage, HumanMessage } from '@langchain/core/messages';
 import { DocumentItemService } from './../services/document-item.service';
 import { AssistantJobService } from './../services/assistant-job.service';
 import { WorkflowEvent } from '../utils/enums/workflow-event.enum';
@@ -25,6 +26,7 @@ const chatService = new ChatService(prisma);
 const logger = consola.create({}).withTag('bullmq-workers');
 
 export default defineNitroPlugin((nitroApp) => {
+  const config = useRuntimeConfig();
   const { createWorker } = useBullmq();
 
   const createChatTitle = createWorker(QueueEnum.CREATE_CHAT_TITLE, async (job) => {
@@ -34,34 +36,36 @@ export default defineNitroPlugin((nitroApp) => {
     const firstMessage = payload.messageContent.slice(0, 1000);
 
     const messages = [
-      {
-        role: 'system',
+      new SystemMessage({
         content: `Your task is to create a very short chat title for this conversation based on the user message.\n
            You only respond with the chat title.\n
            You will be provided with the user message encapsulated in three hyphens.\n
            You always respond in the exact same language as the user message.\n`,
-      },
-      {
-        role: 'user',
+      }),
+      new HumanMessage({
         content: `"""${firstMessage}"""`,
-      },
+      }),
     ];
-    // TODO: Fix this
 
-    // 1. make a request to
-    /*const completion = new CompletionFactory('openai', 'gpt-3.5-turbo');
-    const response = await completion.create({
-      messages,
+    const params = {
       maxTokens: 20,
       temperature: 0.5,
       stream: false,
+    };
+
+    const completion = new CompletionFactory('openai', 'gpt-4o-mini', config);
+    const model = await completion.create({
+      maxTokens: params.maxTokens,
+      temperature: params.temperature,
+      stream: params.stream,
     });
-    const message = response.choices[0].message.content;
+    const response = await model.invoke(messages);
+    const message = response?.content?.toString() || '';
 
     // remove " from the beginning and end of the message
     const chatTitle = message.replace(/^"|"$/g, '');
 
-    await chatService.updateChatTitle(payload.chatId, chatTitle);*/
+    await chatService.updateChatTitle(payload.chatId, chatTitle);
   });
 
   const tokenUsageQueue = createWorker(QueueEnum.TOKENUSAGE, async (job) => {
