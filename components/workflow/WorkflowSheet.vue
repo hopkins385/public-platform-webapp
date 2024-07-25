@@ -1,7 +1,17 @@
 <script setup lang="ts">
   import { vOnClickOutside } from '@vueuse/components';
-  import { useDebounceFn } from '@vueuse/core';
+  import { useDebounceFn, useEventListener } from '@vueuse/core';
   import { AlignLeftIcon, PlusIcon, LayoutDashboard, LoaderIcon, TriangleAlertIcon, Trash2Icon } from 'lucide-vue-next';
+  import { set } from 'zod';
+
+  interface ICellCard {
+    show: boolean;
+    teleportTo: { x: number; y: number };
+    contentId: string;
+    content: string;
+    width?: string;
+    heigth?: string;
+  }
 
   const props = defineProps<{
     workflowId: string;
@@ -19,7 +29,7 @@
     workflowStepId: '',
   });
 
-  const cellCard = reactive({
+  const cellCard = reactive<ICellCard>({
     show: false,
     teleportTo: {
       x: 0,
@@ -27,7 +37,11 @@
     },
     contentId: '',
     content: '',
+    width: undefined,
+    heigth: undefined,
   });
+
+  const cellActive = ref<{ x: number; y: number }>({ x: 0, y: 0 });
 
   const { resizeRowListener, resizeColumnListener, initSheetDimensions } = useResizeSheet();
   const { createWorkflowStep, updateInputSteps } = useManageWorkflowSteps();
@@ -96,7 +110,7 @@
     stepCard.workflowStepId = '';
   }
 
-  function toggleCellCard(x: number, y: number, content: string, id: string) {
+  function toggleCellCard(x: number, y: number, content: string, id: string, width?: string, height?: string) {
     // if click again on the same item, ignore
     if (cellCard.show && cellCard.teleportTo.x === x && cellCard.teleportTo.y === y) {
       return;
@@ -106,6 +120,8 @@
     cellCard.content = content;
     cellCard.contentId = id;
     cellCard.show = true;
+    cellCard.width = width;
+    cellCard.heigth = height;
   }
 
   function onCloseCellCard() {
@@ -162,6 +178,19 @@
     }
   }
 
+  function setCellActive(columnIndex: number, rowIndex: number) {
+    console.log('set cell active', columnIndex, rowIndex);
+    cellActive.value = { x: columnIndex, y: rowIndex };
+  }
+
+  useEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      onCloseCellCard();
+      onCloseStepCard();
+      setCellActive(0, 0);
+    }
+  });
+
   onMounted(() => {
     initSheetDimensions(props.workflowId);
     socket.on(`workflow-${props.workflowId}-update`, debouncedRefresh);
@@ -177,7 +206,12 @@
   <div class="p-4 text-sm" v-if="error || !workflowData">
     Ups something went wrong.<br />The Data you are looking for is not available.
   </div>
-  <div id="workflowSheet" ref="sheetRef" class="no-scrollbar flex overflow-visible bg-white pb-10 text-xs">
+  <div
+    id="workflowSheet"
+    ref="sheetRef"
+    class="no-scrollbar flex overflow-visible bg-white pb-10 text-xs"
+    v-on-click-outside="() => setCellActive(0, 0)"
+  >
     <!-- Row Index -->
     <div class="column" id="column_0">
       <div class="index relative flex items-center justify-center" id="row_0_cell_x0_y1">
@@ -259,8 +293,12 @@
         v-for="(docItem, rowIndex) in step.document.documentItems"
         :id="`row_${rowIndex + 1}_cell_${columnIndex}`"
         :key="rowIndex"
-        @click="() => toggleCellCard(columnIndex, rowIndex + 1, docItem.content, docItem.id)"
+        @click="() => setCellActive(columnIndex, rowIndex + 1)"
+        @dblclick="() => toggleCellCard(columnIndex, rowIndex + 1, docItem.content, docItem.id)"
         class="cell group relative"
+        :class="{
+          'border border-black': cellActive.x === columnIndex && cellActive.y === rowIndex + 1,
+        }"
       >
         <!-- Cell State -->
         <div
@@ -333,6 +371,7 @@
       :key="`x${cellCard.teleportTo.x}_y${cellCard.teleportTo.y}`"
       :item-id="cellCard.contentId"
       :content="cellCard.content"
+      :width="cellCard.width"
       @close="() => onCloseCellCard()"
       @refresh="refresh"
     />

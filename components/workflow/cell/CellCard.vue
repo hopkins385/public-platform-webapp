@@ -5,6 +5,7 @@
   const props = defineProps<{
     itemId: string | null | undefined;
     content: string | null | undefined;
+    width?: string;
   }>();
 
   const emits = defineEmits<{
@@ -59,23 +60,30 @@
     emits('close');
   });
 
-  useEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      emits('close');
-    }
-  });
+  // useEventListener('keydown', (event) => {
+  //   if (event.key === 'Escape') {
+  //     emits('close');
+  //   }
+  // });
 
   onMounted(() => {
     // set focus
     const textarea = document.getElementById('item-card-textarea');
     if (textarea) {
-      textarea.focus();
+      textarea.focus({
+        preventScroll: true,
+      });
     }
   });
 </script>
 
 <template>
-  <div ref="cellCardRef" class="relative w-96 overflow-hidden rounded-2xl border bg-white shadow-md">
+  <div
+    ref="cellCardRef"
+    class="relative overflow-hidden rounded-2xl border bg-white shadow-md"
+    :class="{ 'min-w-96': !width }"
+    :style="{ width }"
+  >
     <button
       class="absolute right-0 top-0 p-2 text-muted-foreground opacity-60 hover:opacity-100"
       @click.stop="$emit('close')"
@@ -87,7 +95,7 @@
         id="item-card-textarea"
         v-model="text"
         class="text-xs"
-        style="resize: none; height: 21rem; width: 100%; border: 0; outline: 0"
+        style="resize: both; min-height: 12rem; width: 100%; border: 0; outline: 0"
         @keydown.enter="updateAndClose"
       />
     </div>

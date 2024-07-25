@@ -67,11 +67,11 @@
     emits('prev-steps-updated', { inputSteps: newValue, stepId: props.workflowStep.id });
   });
 
-  useEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      emits('close');
-    }
-  });
+  // useEventListener('keydown', (event) => {
+  //   if (event.key === 'Escape') {
+  //     emits('close');
+  //   }
+  // });
 
   onMounted(() => {
     setFocus();
