@@ -1,9 +1,10 @@
 import { StorageService } from '~/server/services/storage.service';
 import consola from 'consola';
-import type { NodeWithScore, QdrantVectorStore, MetadataFilters } from 'llamaindex';
-import { MetadataMode, VectorStoreIndex, VectorStoreQueryMode, Settings, OpenAIEmbedding } from 'llamaindex';
+import type { QdrantVectorStore } from 'llamaindex';
+import { VectorStoreIndex } from 'llamaindex';
 import OpenAI from 'openai';
 import { FileReaderFactory } from '~/server/factories/fileReaderFactory';
+import type { RuntimeConfig } from 'nuxt/schema';
 
 const logger = consola.create({}).withTag('VectorService');
 
@@ -11,8 +12,8 @@ export class VectorService {
   private readonly vectorStore: QdrantVectorStore;
   private readonly storageService: StorageService;
 
-  constructor() {
-    const { getVectorStore } = useQdrant();
+  constructor(config: RuntimeConfig) {
+    const { getVectorStore } = useQdrant(config);
     this.vectorStore = getVectorStore({ collectionName: 'media' });
     this.storageService = new StorageService();
   }

@@ -101,6 +101,9 @@ export default defineNuxtConfig({
       port: process.env.REDIS_PORT,
       password: process.env.REDIS_PASSWORD,
     },
+    qdrant: {
+      url: process.env.QDRANT_URL,
+    },
     scrapeServer: {
       url: process.env.SCRAPE_SERVER_URL,
     },

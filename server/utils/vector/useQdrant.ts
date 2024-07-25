@@ -1,4 +1,5 @@
 import { QdrantVectorStore } from 'llamaindex';
+import type { RuntimeConfig } from 'nuxt/schema';
 
 let vectorStore: QdrantVectorStore | null = null;
 
@@ -7,13 +8,11 @@ interface ICollectionOptons {
   batchSize?: number;
 }
 
-export default function useQdrant() {
-  function getVectorStore(
-    options: ICollectionOptons = { collectionName: 'default' },
-  ) {
+export default function useQdrant(config: RuntimeConfig) {
+  function getVectorStore(options: ICollectionOptons = { collectionName: 'default' }) {
     if (!vectorStore) {
       vectorStore = new QdrantVectorStore({
-        url: 'http://localhost:6333',
+        url: config.qdrant.url,
         collectionName: options.collectionName,
         batchSize: options.batchSize,
       });
@@ -21,9 +20,7 @@ export default function useQdrant() {
     return vectorStore;
   }
 
-  function getClient(
-    options: ICollectionOptons = { collectionName: 'default' },
-  ) {
+  function getClient(options: ICollectionOptons = { collectionName: 'default' }) {
     return getVectorStore(options).client();
   }
 
