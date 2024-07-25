@@ -297,6 +297,13 @@
       scrollToBottom({ instant: true });
     }
   });
+
+  onBeforeUnmount(() => {
+    // abort ongoing request
+    if (ac) {
+      ac.abort();
+    }
+  });
 </script>
 
 <template>

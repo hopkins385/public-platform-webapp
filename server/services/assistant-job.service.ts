@@ -1,12 +1,12 @@
-import { SystemMessage, HumanMessage } from '@langchain/core/messages';
 import { UsageEvent } from '../utils/enums/usage-event.enum';
 import { DocumentItemService } from './document-item.service';
 import { AssistantJobDto } from './dto/job.dto';
 import { TrackTokensDto } from './dto/track-tokens.dto';
 import { useEvents } from '../events/useEvents';
 import { scrapeWebsite } from '~/utils/scrapeWebsite';
+import { VercelCompletionFactory } from '../factories/vercelCompletionFactory';
+import { generateText, type CoreMessage } from 'ai';
 import consola from 'consola';
-import { CompletionFactory } from '../factories/completionFactory';
 
 const { event } = useEvents();
 
@@ -94,21 +94,29 @@ export class AssistantJobService {
     // console.log('content', JSON.stringify(content));
     // throw new Error('content');
 
-    const messages = [new SystemMessage({ content: systemPrompt }), new HumanMessage({ content: content })];
+    const messages = [
+      {
+        role: 'system',
+        content: systemPrompt,
+      },
+      {
+        role: 'user',
+        content: content,
+      },
+    ] satisfies CoreMessage[];
 
     const config = useRuntimeConfig();
-    const completion = new CompletionFactory(llmProvider, llmNameApi, config);
-    const model = await completion.create({
+    const model = VercelCompletionFactory.fromInput(llmProvider, llmNameApi, config);
+    const { text, usage } = await generateText({
+      model,
       maxTokens: 1000,
       temperature,
-      stream: false,
+      messages,
     });
-    const response = await model.invoke(messages);
-    const { content: messageContent } = response;
 
     const update = await this.documentItemService.update({
       documentItemId,
-      content: messageContent || '',
+      content: text || '',
       status: 'completed',
     });
 
@@ -121,9 +129,9 @@ export class AssistantJobService {
           model: llmNameApi,
         },
         usage: {
-          promptTokens: response?.usage_metadata?.input_tokens || -1,
-          completionTokens: response?.usage_metadata?.output_tokens || -1,
-          totalTokens: response?.usage_metadata?.total_tokens || -1,
+          promptTokens: usage.promptTokens || -1,
+          completionTokens: usage.completionTokens || -1,
+          totalTokens: usage.totalTokens || -1,
         },
       }),
     );

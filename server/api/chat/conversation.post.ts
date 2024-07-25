@@ -1,8 +1,5 @@
-import type { AIMessageChunk } from '@langchain/core/messages';
 import { TokenizerService } from '~/server/services/tokenizer.service';
 import { getServerSession } from '#auth';
-import { Readable, Transform } from 'stream';
-import { sendStream } from 'h3';
 import { ChatService } from '~/server/services/chat.service';
 import { getConversationBody } from '~/server/utils/request/chatConversationBody';
 import { ChatEvent } from '~/server/utils/enums/chat-event.enum';
@@ -12,10 +9,9 @@ import { StreamFinishedEventDto, FirstUserMessageEventDto } from '~/server/servi
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import { useEvents } from '~/server/events/useEvents';
 import consola from 'consola';
-import { SystemMessage } from '@langchain/core/messages';
-import { CompletionFactory } from '~/server/factories/completionFactory';
-import { toLangchainMessages } from '~/server/utils/chat/toLangchainMessages';
-import { concat } from '@langchain/core/utils/stream';
+import { streamText } from 'ai';
+import { VercelCompletionFactory } from '~/server/factories/vercelCompletionFactory';
+import { getTools } from '../../chatTools/vercelChatTools';
 
 const prisma = getPrismaClient();
 const chatService = new ChatService(prisma);
@@ -80,54 +76,53 @@ export default defineEventHandler(async (_event) => {
     );
   }
 
-  const bodyMessages = toLangchainMessages(body.messages);
-
-  // TODO: handle context size of llm and reduce messages
-  const messages = [new SystemMessage({ content: chat.assistant.systemPrompt }), ...bodyMessages];
-
   // dd(messages);
 
-  try {
-    const completion = new CompletionFactory(body.provider, body.model, config);
-    const model = await completion.create({
-      maxTokens: body.maxTokens,
-      temperature: body.temperature,
-    });
+  let gathered: string | undefined = undefined;
 
-    const completionStream = await model.stream(messages, { signal: controller.signal });
+  const createLoggingTransformStream = () => {
+    return new TransformStream({
+      transform(chunk: any, controller: TransformStreamDefaultController) {
+        // Log the chunk
+        // console.log('Received chunk:', chunk);
+        if (!gathered) {
+          gathered = chunk;
+        } else {
+          gathered += chunk;
+        }
 
-    let gathered: AIMessageChunk | undefined = undefined;
-
-    const stream = Readable.from(completionStream);
-    const bufferStream = new Transform({
-      objectMode: true,
-      transform(chunk, _, callback) {
-        const { content } = chunk as AIMessageChunk;
-        gathered = gathered !== undefined ? concat(gathered, chunk) : chunk;
-        callback(null, content);
+        // Pass the chunk along unchanged
+        controller.enqueue(chunk);
       },
     });
-    stream.pipe(bufferStream);
+  };
 
-    stream.on('error', (error) => {
-      logger.error(`Stream failed: ${error}`);
-      throw createError({
-        statusCode: 500,
-        statusMessage: 'Internal Server Error',
-        message: 'Stream error',
-      });
+  // const tools = getTools(() => console.log('Executing tool'));
+
+  try {
+    const model = VercelCompletionFactory.fromInput(body.provider, body.model, config);
+
+    const result = await streamText({
+      abortSignal: controller.signal,
+      model: model,
+      system: chat.assistant.systemPrompt.toString(),
+      messages: body.messages,
+      // onFinish(result) {
+      //   console.log('onFinish tool results: ', result.toolResults);
+      // },
     });
 
-    stream.on('end', async () => {
-      // console.log('END gathered', gathered);
-    });
+    const stream = result.textStream.pipeThrough(createLoggingTransformStream());
 
     _event.node.res.on('close', () => {
       controller.abort();
-      stream.destroy();
+
+      if (!gathered || gathered.length === 0) {
+        logger.error('completion finished but gathered text empty. This is causing errors on token calc!');
+      }
 
       const inputTokens = tokenizerService.getTokens(body.messages[body.messages.length - 1].content);
-      const outputTokens = tokenizerService.getTokens(gathered?.content?.toString() || '');
+      const outputTokens = tokenizerService.getTokens(gathered || '');
       const { event } = useEvents();
 
       event(
@@ -136,7 +131,7 @@ export default defineEventHandler(async (_event) => {
           chatId: chat.id,
           userId: user.id,
           assistantId: chat.assistant.id,
-          messageContent: gathered?.content?.toString() || '',
+          messageContent: gathered || '',
         }),
       );
 
@@ -157,7 +152,7 @@ export default defineEventHandler(async (_event) => {
       );
     });
 
-    return sendStream(_event, bufferStream);
+    return stream;
     //
   } catch (error) {
     logger.error(`Chat completion failed: ${error}`);
@@ -168,12 +163,3 @@ export default defineEventHandler(async (_event) => {
     });
   }
 });
-
-// Function to call the tool with the extracted arguments
-async function callTool(name: string, args: any): Promise<string> {
-  // Implement the logic to call the tool and return the result
-  // For example:
-  // const result = await someToolService.call(args);
-  // return result;
-  return 'Tool result'; // Placeholder
-}

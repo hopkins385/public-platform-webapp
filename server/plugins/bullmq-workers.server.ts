@@ -1,4 +1,6 @@
-import { SystemMessage, HumanMessage } from '@langchain/core/messages';
+import type { FirstUserMessageEventDto } from '../services/dto/event.dto';
+import type { WorkerOptions } from 'bullmq';
+import type { AssistantJobDto } from '../services/dto/job.dto';
 import { DocumentItemService } from './../services/document-item.service';
 import { AssistantJobService } from './../services/assistant-job.service';
 import { WorkflowEvent } from '../utils/enums/workflow-event.enum';
@@ -6,12 +8,10 @@ import { QueueEnum } from '../utils/enums/queue.enum';
 import { JobEnum } from '../utils/enums/job.enum';
 import { trackTokensEvent } from '../events/track-tokens.event';
 import { ChatService } from '../services/chat.service';
-import type { FirstUserMessageEventDto } from '../services/dto/event.dto';
 import { useEvents } from '../events/useEvents';
-import type { WorkerOptions } from 'bullmq';
 import consola from 'consola';
-import type { AssistantJobDto } from '../services/dto/job.dto';
-import { CompletionFactory } from '../factories/completionFactory';
+import { VercelCompletionFactory } from '../factories/vercelCompletionFactory';
+import { generateText, type CoreMessage } from 'ai';
 
 interface WorkflowWorker {
   name: string;
@@ -36,16 +36,18 @@ export default defineNitroPlugin((nitroApp) => {
     const firstMessage = payload.messageContent.slice(0, 1000);
 
     const messages = [
-      new SystemMessage({
+      {
+        role: 'system',
         content: `Your task is to create a very short chat title for this conversation based on the user message.\n
            You only respond with the chat title.\n
            You will be provided with the user message encapsulated in three hyphens.\n
            You always respond in the exact same language as the user message.\n`,
-      }),
-      new HumanMessage({
+      },
+      {
+        role: 'user',
         content: `"""${firstMessage}"""`,
-      }),
-    ];
+      },
+    ] satisfies CoreMessage[];
 
     const params = {
       maxTokens: 20,
@@ -53,19 +55,24 @@ export default defineNitroPlugin((nitroApp) => {
       stream: false,
     };
 
-    const completion = new CompletionFactory('openai', 'gpt-4o-mini', config);
-    const model = await completion.create({
-      maxTokens: params.maxTokens,
-      temperature: params.temperature,
-      stream: params.stream,
-    });
-    const response = await model.invoke(messages);
-    const message = response?.content?.toString() || '';
+    try {
+      const model = VercelCompletionFactory.fromInput('openai', 'gpt-4o-mini', config);
+      const { text } = await generateText({
+        model: model,
+        messages: messages,
+        maxTokens: params.maxTokens,
+        temperature: params.temperature,
+      });
 
-    // remove " from the beginning and end of the message
-    const chatTitle = message.replace(/^"|"$/g, '');
+      // remove " from the beginning and end of the message
+      const chatTitle = text.replace(/^"|"$/g, '');
 
-    await chatService.updateChatTitle(payload.chatId, chatTitle);
+      await chatService.updateChatTitle(payload.chatId, chatTitle);
+      //
+    } catch (error) {
+      logger.error('Error creating chat title', error);
+      throw error;
+    }
   });
 
   const tokenUsageQueue = createWorker(QueueEnum.TOKENUSAGE, async (job) => {

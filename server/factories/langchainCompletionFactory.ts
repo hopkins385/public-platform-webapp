@@ -4,11 +4,14 @@ import { ChatOpenAI } from '@langchain/openai';
 import { ChatAnthropic } from '@langchain/anthropic';
 import { ChatGroq } from '@langchain/groq';
 import { ChatMistralAI } from '@langchain/mistralai';
+import { convertToOpenAITool } from '@langchain/core/utils/function_calling';
 
 interface CreatePayload {
   temperature: number;
   maxTokens: number;
   stream?: boolean;
+  signal?: AbortSignal;
+  tools?: any[];
 }
 
 const openAiTools = [
@@ -48,7 +51,7 @@ const anthropicTools: Anthropic.Messages.Tool[] = [
   },
 ];
 
-export class CompletionFactory {
+export class LangchainCompletionFactory {
   private readonly model: string;
   private readonly config: RuntimeConfig;
   private readonly provider: string;
@@ -59,7 +62,16 @@ export class CompletionFactory {
     this.config = config;
   }
 
-  async create(payload: CreatePayload) {
+  convertOpenAITools(tools: any[] | undefined): any[] | undefined {
+    if (!tools) {
+      return undefined;
+    }
+    return tools.map((tool) => {
+      return convertToOpenAITool(tool);
+    });
+  }
+
+  create(payload: CreatePayload) {
     switch (this.provider) {
       case 'openai':
         return new ChatOpenAI({
@@ -67,7 +79,7 @@ export class CompletionFactory {
           temperature: payload.temperature,
           model: this.model,
           streaming: payload.stream,
-        }); // .bindTools(openAiTools);
+        }).bind({ signal: payload.signal, tools: this.convertOpenAITools(payload.tools) });
         break;
       case 'anthropic':
         return new ChatAnthropic({
@@ -75,7 +87,7 @@ export class CompletionFactory {
           temperature: payload.temperature,
           model: this.model,
           streaming: payload.stream,
-        });
+        }).bind({ signal: payload.signal });
         break;
       case 'groq':
         return new ChatGroq({
@@ -83,7 +95,7 @@ export class CompletionFactory {
           temperature: payload.temperature,
           model: this.model,
           streaming: payload.stream,
-        });
+        }).bind({ signal: payload.signal });
         break;
       case 'mistral':
         return new ChatMistralAI({
@@ -91,7 +103,7 @@ export class CompletionFactory {
           temperature: payload.temperature,
           model: this.model,
           streaming: payload.stream,
-        });
+        }).bind({ signal: payload.signal });
         break;
       default:
         throw new Error('Provider not supported');
