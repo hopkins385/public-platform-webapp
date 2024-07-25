@@ -214,21 +214,20 @@ model Assistant {
 }
 
 model LargeLangModel {
-  id          String       @id
-  apiName     String       @map("api_name")
-  displayName String       @map("display_name")
+  id          String      @id
+  apiName     String      @map("api_name")
+  displayName String      @map("display_name")
   description String
   provider    String
-  contextSize Int          @map("context_size")
-  maxTokens   Int          @map("max_tokens")
-  multiModal  Boolean      @default(false) @map("multi_modal")
-  hidden      Boolean      @default(false)
-  free        Boolean      @default(false)
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
-  deletedAt   DateTime?    @map("deleted_at")
+  contextSize Int         @map("context_size")
+  maxTokens   Int         @map("max_tokens")
+  multiModal  Boolean     @default(false) @map("multi_modal")
+  hidden      Boolean     @default(false)
+  free        Boolean     @default(false)
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  deletedAt   DateTime?   @map("deleted_at")
   assistants  Assistant[]
-  Collection  Collection[]
 
   @@index([apiName])
   @@map("llms")
@@ -343,8 +342,8 @@ model Collection {
   records         Record[]
   collectionAbles CollectionAble[]
 
-  team Team            @relation(fields: [teamId], references: [id])
-  llm  LargeLangModel? @relation(fields: [llmId], references: [id])
+  team Team @relation(fields: [teamId], references: [id])
+  // llm  LargeLangModel? @relation(fields: [llmId], references: [id])
 
   @@index([teamId, name], name: "collections_team_id_name_index")
   @@map("collections")

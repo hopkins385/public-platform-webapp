@@ -1,7 +1,7 @@
 import { StorageService } from '~/server/services/storage.service';
 import consola from 'consola';
-import type { QdrantVectorStore } from 'llamaindex';
-import { VectorStoreIndex } from 'llamaindex';
+import type { NodeWithScore, QdrantVectorStore, MetadataFilters } from 'llamaindex';
+import { MetadataMode, VectorStoreIndex, VectorStoreQueryMode, Settings, OpenAIEmbedding } from 'llamaindex';
 import OpenAI from 'openai';
 import { FileReaderFactory } from '~/server/factories/fileReaderFactory';
 
@@ -45,6 +45,7 @@ export class VectorService {
   async searchIndex(payload: { query: string; recordIds: string[] }) {
     // get the embedding vectors for the query
     const config = useRuntimeConfig().openai;
+
     const openai = new OpenAI({
       apiKey: config.apiKey,
     });
@@ -69,7 +70,10 @@ export class VectorService {
 
     try {
       const client = this.vectorStore.client();
-      const vectorSearchResult = await client.search('media', {
+      const result = await client.search('media', {
+        with_payload: {
+          include: ['mediaId', 'recordId', '_node_content'],
+        },
         vector: res.data[0].embedding,
         filter: {
           must: [
@@ -81,10 +85,19 @@ export class VectorService {
             },
           ],
         },
-        limit: 2,
+        limit: 3,
       });
 
-      return vectorSearchResult;
+      const resp = result.map((node) => {
+        const content = node.payload?._node_content ? JSON.parse(node.payload?._node_content) : {};
+        return {
+          mediaId: node.payload?.mediaId,
+          recordId: node.payload?.recordId,
+          content: content?.text,
+        };
+      });
+
+      return resp;
       //
     } catch (e) {
       logger.error(e);

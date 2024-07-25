@@ -33,19 +33,13 @@ export class ChatService {
     this.prisma = prisma;
   }
 
-  getHistory(
-    chat: any,
-    totalAvailableTokens: number,
-    requestedCompletionTokens: number,
-  ) {
+  getHistory(chat: any, totalAvailableTokens: number, requestedCompletionTokens: number) {
     if (!chat || !chat.messages) {
       throw new Error('Chat not found or has no messages');
     }
     const chatMessages = chat.messages;
     const messagesCount = chatMessages.length;
-    const availableHistoryTokens = notLowerZero(
-      totalAvailableTokens - requestedCompletionTokens,
-    );
+    const availableHistoryTokens = notLowerZero(totalAvailableTokens - requestedCompletionTokens);
     let tokenCount = 0;
     let i = messagesCount - 1; // start from the end of the array
     let messages = [];
@@ -388,11 +382,7 @@ export class ChatService {
     return true;
   }
 
-  async canCreateChatPolicy(
-    assistantId: string,
-    teamId: string,
-    userId: string,
-  ) {
+  async canCreateChatPolicy(assistantId: string, teamId: string, userId: string) {
     // find the assistant by id
     const assistant = await this.prisma.assistant.findFirst({
       where: {

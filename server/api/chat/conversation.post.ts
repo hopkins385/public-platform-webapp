@@ -1,3 +1,5 @@
+import { VectorService } from './../../services/vector.service';
+import { CollectionService } from '~/server/services/collection.service';
 import { TokenizerService } from '~/server/services/tokenizer.service';
 import { getServerSession } from '#auth';
 import { ChatService } from '~/server/services/chat.service';
@@ -12,10 +14,14 @@ import consola from 'consola';
 import { streamText } from 'ai';
 import { VercelCompletionFactory } from '~/server/factories/vercelCompletionFactory';
 import { getTools } from '../../chatTools/vercelChatTools';
+import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
 
 const prisma = getPrismaClient();
 const chatService = new ChatService(prisma);
 const tokenizerService = new TokenizerService();
+
+const collectionService = new CollectionService(prisma);
+const vectorService = new VectorService();
 
 const logger = consola.create({}).withTag('conversation.post');
 
@@ -76,6 +82,29 @@ export default defineEventHandler(async (_event) => {
     );
   }
 
+  let systemPrompt = undefined;
+
+  // assistant has knowledge
+  const dto = CollectionAbleDto.fromInput({
+    id: chat.assistant.id,
+    type: 'assistant',
+  });
+  const collections = await collectionService.findAllWithRecordsFor(dto);
+
+  if (collections.length > 0) {
+    const recordIds = collections.map((c) => c.records.map((r) => r.id)).flat();
+    const res = await vectorService.searchIndex({
+      query: lastMessage.content,
+      recordIds,
+    });
+
+    const context = res.map((r) => r?.content || '').join('\n\n');
+
+    systemPrompt = chat.assistant.systemPrompt + '\n\n<context>' + context + '</context>';
+  } else {
+    systemPrompt = chat.assistant.systemPrompt.toString();
+  }
+
   // dd(messages);
 
   let gathered: string | undefined = undefined;
@@ -97,16 +126,18 @@ export default defineEventHandler(async (_event) => {
     });
   };
 
-  // const tools = getTools(() => console.log('Executing tool'));
+  const tools = getTools(() => console.log('Executing tool'));
 
   try {
     const model = VercelCompletionFactory.fromInput(body.provider, body.model, config);
 
     const result = await streamText({
       abortSignal: controller.signal,
-      model: model,
-      system: chat.assistant.systemPrompt.toString(),
+      model,
+      system: systemPrompt,
       messages: body.messages,
+      maxTokens: body.maxTokens,
+      // tools,
       // onFinish(result) {
       //   console.log('onFinish tool results: ', result.toolResults);
       // },
@@ -125,6 +156,7 @@ export default defineEventHandler(async (_event) => {
       const outputTokens = tokenizerService.getTokens(gathered || '');
       const { event } = useEvents();
 
+      // creates the response message in the database
       event(
         ChatEvent.STREAMFINISHED,
         StreamFinishedEventDto.fromInput({
@@ -135,6 +167,7 @@ export default defineEventHandler(async (_event) => {
         }),
       );
 
+      // tracks the tokens used by the user
       event(
         UsageEvent.TRACKTOKENS,
         TrackTokensDto.fromInput({
@@ -152,7 +185,7 @@ export default defineEventHandler(async (_event) => {
       );
     });
 
-    return stream;
+    return sendStream(_event, stream);
     //
   } catch (error) {
     logger.error(`Chat completion failed: ${error}`);
