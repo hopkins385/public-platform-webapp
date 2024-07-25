@@ -4,7 +4,8 @@ import { RecordService } from '~/server/services/record.service';
 import { CreateRecordDto, FindRecordsDto } from '~/server/services/dto/record.dto';
 
 const prisma = getPrismaClient();
-const recordService = new RecordService(prisma);
+const config = useRuntimeConfig();
+const recordService = new RecordService(prisma, config);
 
 export const recordRouter = router({
   create: protectedProcedure

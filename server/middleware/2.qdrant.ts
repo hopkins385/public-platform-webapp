@@ -10,6 +10,7 @@ declare module 'h3' {
 const logger = consola.create({}).withTag('server.vector-store-middleware');
 
 export default eventHandler((event) => {
+  const config = useRuntimeConfig();
   const { getVectorStore } = useQdrant();
-  event.context.vectorStore = getVectorStore();
+  event.context.vectorStore = getVectorStore({ collectionName: 'media', serverUrl: config.qdrant.url });
 });

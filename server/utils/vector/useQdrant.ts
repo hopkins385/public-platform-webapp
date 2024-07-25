@@ -1,18 +1,26 @@
 import { QdrantVectorStore } from 'llamaindex';
-import type { RuntimeConfig } from 'nuxt/schema';
 
 let vectorStore: QdrantVectorStore | null = null;
 
 interface ICollectionOptons {
   collectionName: string;
+  serverUrl: string;
   batchSize?: number;
 }
 
-export default function useQdrant(config: RuntimeConfig) {
-  function getVectorStore(options: ICollectionOptons = { collectionName: 'default' }) {
+const optionsDefaults: ICollectionOptons = {
+  collectionName: 'default',
+  serverUrl: 'http://localhost:6333',
+};
+
+export default function useQdrant() {
+  /**
+   * Get vector store instance
+   */
+  function getVectorStore(options: ICollectionOptons = optionsDefaults) {
     if (!vectorStore) {
       vectorStore = new QdrantVectorStore({
-        url: config.qdrant.url,
+        url: options.serverUrl,
         collectionName: options.collectionName,
         batchSize: options.batchSize,
       });
@@ -20,7 +28,10 @@ export default function useQdrant(config: RuntimeConfig) {
     return vectorStore;
   }
 
-  function getClient(options: ICollectionOptons = { collectionName: 'default' }) {
+  /**
+   * Get vector store client
+   */
+  function getClient(options: ICollectionOptons = optionsDefaults) {
     return getVectorStore(options).client();
   }
 

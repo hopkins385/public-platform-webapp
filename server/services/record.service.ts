@@ -10,9 +10,8 @@ export class RecordService {
   private readonly vectorService: VectorService;
 
   constructor(prisma: ExtendedPrismaClient, config: RuntimeConfig) {
-    if (!prisma) {
-      throw new Error('Prisma client not found');
-    }
+    if (!prisma) throw new Error('Prisma client not found');
+    if (!config) throw new Error('Runtime config not found');
     this.prisma = prisma;
     this.mediaService = new MediaService(prisma);
     this.vectorService = new VectorService(config);

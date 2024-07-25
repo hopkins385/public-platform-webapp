@@ -13,8 +13,9 @@ export class VectorService {
   private readonly storageService: StorageService;
 
   constructor(config: RuntimeConfig) {
-    const { getVectorStore } = useQdrant(config);
-    this.vectorStore = getVectorStore({ collectionName: 'media' });
+    if (!config) throw new Error('Runtime config not found');
+    const { getVectorStore } = useQdrant();
+    this.vectorStore = getVectorStore({ collectionName: 'media', serverUrl: config.qdrant.url });
     this.storageService = new StorageService();
   }
 
