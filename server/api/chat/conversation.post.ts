@@ -16,17 +16,18 @@ import { VercelCompletionFactory } from '~/server/factories/vercelCompletionFact
 import { getTools } from '../../chatTools/vercelChatTools';
 import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
 
-const config = useRuntimeConfig();
 const prisma = getPrismaClient();
 const chatService = new ChatService(prisma);
 const tokenizerService = new TokenizerService();
-const vectorService = new VectorService(config);
 const collectionService = new CollectionService(prisma);
 
 const logger = consola.create({}).withTag('conversation.post');
 
 export default defineEventHandler(async (_event) => {
   const controller = new AbortController();
+
+  const config = useRuntimeConfig();
+  const vectorService = new VectorService(config);
 
   // Auth
   const session = await getServerSession(_event);
