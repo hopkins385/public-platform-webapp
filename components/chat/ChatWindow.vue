@@ -34,7 +34,7 @@
     useChatMessages();
 
   const chatMessagesContainerRef = ref<HTMLElement | null>(null);
-  const chatBoxContainerRef = ref<HTMLElement | null>(null);
+  const chatBoxContainerRef = ref<HTMLDivElement | null>(null);
 
   const inputImages = ref<ChatImage[]>([]);
 
@@ -312,6 +312,7 @@
     id="chatWrapper"
     class="relative flex size-full flex-col border-0 px-10 pb-10 pt-20 md:px-20 2xl:px-40"
   >
+    <ContextBox />
     <!-- toggle sidebar -->
     <!--div class="absolute left-0 top-1/2 -translate-y-1/2">
       <Button size="icon" variant="ghost" @click="() => settings.toggleSideBarOpen()">

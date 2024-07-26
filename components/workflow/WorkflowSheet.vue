@@ -2,7 +2,6 @@
   import { vOnClickOutside } from '@vueuse/components';
   import { useDebounceFn, useEventListener } from '@vueuse/core';
   import { AlignLeftIcon, PlusIcon, LayoutDashboard, LoaderIcon, TriangleAlertIcon, Trash2Icon } from 'lucide-vue-next';
-  import { set } from 'zod';
 
   interface ICellCard {
     show: boolean;

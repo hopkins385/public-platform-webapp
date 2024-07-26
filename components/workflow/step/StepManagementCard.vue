@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  import { onClickOutside, useEventListener } from '@vueuse/core';
   import { SettingsIcon, Trash2Icon } from 'lucide-vue-next';
 
   const props = defineProps<{
@@ -66,12 +65,6 @@
   watch(selectedSteps, (newValue) => {
     emits('prev-steps-updated', { inputSteps: newValue, stepId: props.workflowStep.id });
   });
-
-  // useEventListener('keydown', (event) => {
-  //   if (event.key === 'Escape') {
-  //     emits('close');
-  //   }
-  // });
 
   onMounted(() => {
     setFocus();
