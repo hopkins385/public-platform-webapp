@@ -54,13 +54,13 @@
     :style="{ top: `${position.y}px`, left: `${position.x}px` }"
   >
     <button>
-      <div class="flex items-center rounded-lg border-0 px-3 py-2 hover:bg-neutral-100">
+      <div class="flex items-center rounded-lg border-0 px-3 py-1 hover:bg-neutral-100">
         <div><PlusIcon class="size-4 stroke-1.5" /></div>
         <div class="block-inline ml-2">Add</div>
       </div>
     </button>
     <button @click="onCopyClick" :disabled="!isSupported">
-      <div class="flex items-center rounded-lg border-0 px-3 py-2 hover:bg-neutral-100">
+      <div class="flex items-center rounded-lg border-0 px-3 py-1 hover:bg-neutral-100">
         <div>
           <CheckIcon v-if="copied" class="size-4 stroke-1.5" />
           <CopyIcon v-else class="size-4 stroke-1.5" />

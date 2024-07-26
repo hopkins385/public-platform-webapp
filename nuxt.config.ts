@@ -1,6 +1,7 @@
 import { isDevelopment } from 'std-env';
 
 export default defineNuxtConfig({
+  compatibilityDate: '2024-07-26',
   experimental: {
     typedPages: false,
     defaults: {

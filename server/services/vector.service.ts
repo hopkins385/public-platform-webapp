@@ -1,25 +1,26 @@
-import { StorageService } from '~/server/services/storage.service';
-import consola from 'consola';
 import type { QdrantVectorStore } from 'llamaindex';
-import { VectorStoreIndex } from 'llamaindex';
-import OpenAI from 'openai';
-import { FileReaderFactory } from '~/server/factories/fileReaderFactory';
 import type { RuntimeConfig } from 'nuxt/schema';
+import { OpenAIEmbedding, Settings, VectorStoreIndex } from 'llamaindex';
+import { FileReaderFactory } from '~/server/factories/fileReaderFactory';
+import OpenAI from 'openai';
+import consola from 'consola';
 
 const logger = consola.create({}).withTag('VectorService');
 
 export class VectorService {
   private readonly vectorStore: QdrantVectorStore;
-  private readonly storageService: StorageService;
 
   constructor(config: RuntimeConfig) {
     if (!config) throw new Error('Runtime config not found');
     const { getVectorStore } = useQdrant();
     this.vectorStore = getVectorStore({ collectionName: 'media', serverUrl: config.qdrant.url });
-    this.storageService = new StorageService();
   }
 
   async createIndex(payload: { mediaId: string; recordId: string; mimeType: string; path: string }) {
+    Settings.embedModel = new OpenAIEmbedding({
+      model: 'text-embedding-3-small',
+    });
+
     try {
       const reader = new FileReaderFactory(payload.mimeType); // throws error if unsupported file type
       const documents = await reader.loadData(payload.path);
@@ -56,7 +57,7 @@ export class VectorService {
 
     try {
       res = await openai.embeddings.create({
-        model: 'text-embedding-ada-002',
+        model: 'text-embedding-3-small',
         input: payload.query,
         encoding_format: 'float',
       });

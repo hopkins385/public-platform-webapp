@@ -1,7 +1,6 @@
-import fs from 'fs/promises';
-import { existsSync } from 'fs';
+import fs from 'fs-extra';
 import path from 'path';
-import type { File as FormidableFile } from 'formidable';
+import { existsSync } from 'fs';
 import { CreateMediaDto } from './dto/media.dto';
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import type { UploadFiletDto } from './dto/file.dto';

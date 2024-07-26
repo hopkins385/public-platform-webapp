@@ -178,7 +178,6 @@
   }
 
   function setCellActive(columnIndex: number, rowIndex: number) {
-    console.log('set cell active', columnIndex, rowIndex);
     cellActive.value = { x: columnIndex, y: rowIndex };
   }
 
