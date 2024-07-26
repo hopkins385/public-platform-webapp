@@ -1,21 +1,10 @@
 <script setup lang="ts">
-  import { ChevronsDownUpIcon, CheckIcon, LockIcon } from 'lucide-vue-next';
+  import { ChevronsDownUpIcon, CheckIcon } from 'lucide-vue-next';
 
   import { cn } from '@/lib/utils';
   import { Button } from '@/components/ui/button';
-  import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-  } from '@/components/ui/command';
-  import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-  } from '@/components/ui/popover';
+  import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+  import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
   const { getAllModels } = useLLMs();
   const { data: models } = await getAllModels();
@@ -25,8 +14,7 @@
 
   const selectedModel = computed(() =>
     chatStore.model
-      ? models.value?.find((model: any) => model?.apiName === chatStore.model)
-          ?.displayName
+      ? models.value?.find((model: any) => model?.apiName === chatStore.model)?.displayName
       : 'Select Model...',
   );
 
@@ -62,12 +50,7 @@
 <template>
   <Popover v-model:open="open">
     <PopoverTrigger as-child>
-      <Button
-        variant="outline"
-        role="combobox"
-        :aria-expanded="open"
-        class="w-[210px] justify-between"
-      >
+      <Button variant="outline" role="combobox" :aria-expanded="open" class="w-[210px] justify-between">
         {{ selectedModel }}
         <ChevronsDownUpIcon class="ml-2 size-4 shrink-0 opacity-50" />
       </Button>
@@ -87,14 +70,7 @@
               <!-- LockIcon v-if="!model?.free" class="mr-2 size-3" /-->
               {{ model?.displayName }}
               <CheckIcon
-                :class="
-                  cn(
-                    'ml-auto h-4 w-4',
-                    chatStore.model === model?.apiName
-                      ? 'opacity-100'
-                      : 'opacity-0',
-                  )
-                "
+                :class="cn('ml-auto h-4 w-4', chatStore.model === model?.apiName ? 'opacity-100' : 'opacity-0')"
               />
             </CommandItem>
           </CommandGroup>

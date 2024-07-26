@@ -1,13 +1,6 @@
 <script setup lang="ts">
   import { useDropZone, useEventListener, useMutationObserver, useScroll } from '@vueuse/core';
-  import {
-    ChevronLeftIcon,
-    MessageSquareTextIcon,
-    MessageSquareXIcon,
-    PaperclipIcon,
-    SendIcon,
-    SquareIcon,
-  } from 'lucide-vue-next';
+  import { MessageSquareTextIcon, MessageSquareXIcon, PaperclipIcon, SendIcon, SquareIcon } from 'lucide-vue-next';
   import ChatSettings from './ChatSettings.vue';
   import type { ChatMessage, ChatImage } from '~/interfaces/chat.interfaces';
 
@@ -308,13 +301,14 @@
 
 <template>
   <BoxContainer
-    ref="chatBoxContainerRef"
     id="chatWrapper"
+    ref="chatBoxContainerRef"
     class="relative flex size-full flex-col border-0 px-10 pb-10 pt-20 md:px-20 2xl:px-40"
   >
     <ContextBox />
     <!-- toggle sidebar -->
-    <!--div class="absolute left-0 top-1/2 -translate-y-1/2">
+    <!--
+    <div class="absolute left-0 top-1/2 -translate-y-1/2">
       <Button size="icon" variant="ghost" @click="() => settings.toggleSideBarOpen()">
         <ChevronLeftIcon
           class="size-4 stroke-1.5"
@@ -323,15 +317,13 @@
           }"
         />
       </Button>
-    </!--div>
+    </div>
+    -->
     <!-- chat header -->
     <div id="chatHeader" class="pointer-events-none absolute left-0 top-0 z-10 flex w-full justify-between px-8 py-5">
       <!-- chat model selector -->
       <div class="pointer-events-auto flex items-center space-x-4 text-muted-foreground">
-        <Suspense>
-          <ChatModelSelector />
-          <template #fallback> Loading... </template>
-        </Suspense>
+        <ChatModelSelector />
       </div>
       <!-- active assistant -->
       <div class="flex shrink items-center 2xl:pr-8">

@@ -11,7 +11,7 @@
   const { x: mouseX, y: mouseY } = useMouse();
   const { copy, copied, isSupported } = useClipboard({ source: selectedText });
 
-  function onMouseUp(evt: MouseEvent) {
+  function onMouseUp() {
     setTimeout(() => {
       const selection = document.getSelection();
       const docSelectedText = selection?.toString();
@@ -42,6 +42,10 @@
   });
 
   function onCopyClick() {
+    if (!isSupported.value) {
+      console.error('Copy is not supported');
+      return;
+    }
     copy();
   }
 </script>
@@ -59,13 +63,13 @@
         <div class="block-inline ml-2">Add</div>
       </div>
     </button>
-    <button @click="onCopyClick" :disabled="!isSupported">
+    <button :disabled="!isSupported" @click="onCopyClick">
       <div class="flex items-center rounded-lg border-0 px-3 py-1 hover:bg-neutral-100">
         <div>
           <CheckIcon v-if="copied" class="size-4 stroke-1.5" />
           <CopyIcon v-else class="size-4 stroke-1.5" />
         </div>
-        <div class="block-inline ml-2">Copy</div>
+        <div class="block-inline ml-2" :class="{ 'opacity-50': !isSupported }">Copy</div>
       </div>
     </button>
   </div>

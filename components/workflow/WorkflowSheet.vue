@@ -201,28 +201,28 @@
 
 <template>
   <!-- Sheet-->
-  <div class="p-4 text-sm" v-if="error || !workflowData">
+  <div v-if="error || !workflowData" class="p-4 text-sm">
     Ups something went wrong.<br />The Data you are looking for is not available.
   </div>
   <div
     id="workflowSheet"
     ref="sheetRef"
-    class="no-scrollbar flex overflow-visible bg-white pb-10 text-xs"
     v-on-click-outside="() => setCellActive(0, 0)"
+    class="no-scrollbar flex overflow-visible bg-white pb-10 text-xs"
   >
     <!-- Row Index -->
-    <div class="column" id="column_0">
-      <div class="index relative flex items-center justify-center" id="row_0_cell_x0_y1">
+    <div id="column_0" class="column">
+      <div id="row_0_cell_x0_y1" class="index relative flex items-center justify-center">
         <Checkbox
           :checked="hasSelectedRows"
-          @update:checked="toggleAllRowsSelected"
           class="size-3.5 border-stone-500"
+          @update:checked="toggleAllRowsSelected"
         />
       </div>
-      <div v-for="(count, rowIndex) in rowCount" :key="rowIndex" :id="`row_${rowIndex + 1}`" class="relative">
+      <div v-for="(count, rowIndex) in rowCount" :id="`row_${rowIndex + 1}`" :key="rowIndex" class="relative">
         <div
-          class="index group flex flex-col items-center justify-between"
           :id="`row_${rowIndex + 1}_cell_x0_y${rowIndex + 1}`"
+          class="index group flex flex-col items-center justify-between"
         >
           <div class="flex h-full items-center justify-center opacity-60">
             <div
@@ -242,8 +242,8 @@
             >
               <Checkbox
                 :checked="selectedRows.includes(rowIndex)"
-                @update:checked="() => onRowSelected(rowIndex)"
                 class="mt-2 size-3.5"
+                @update:checked="() => onRowSelected(rowIndex)"
               />
             </div>
           </div>
@@ -257,14 +257,14 @@
         </div>
       </div>
       <!-- Add new Row -->
-      <div class="index index-last plus-button" id="" @click="onAddWorkflowRow">
+      <div id="" class="index index-last plus-button" @click="onAddWorkflowRow">
         <PlusIcon class="size-3 stroke-1.5" />
       </div>
     </div>
     <!-- WorkflowSteps as Columns -->
-    <div v-for="(step, columnIndex) in steps" :key="columnIndex" :id="`column_${columnIndex}`" class="column relative">
+    <div v-for="(step, columnIndex) in steps" :id="`column_${columnIndex}`" :key="columnIndex" class="column relative">
       <!-- Teleport Anker -->
-      <div class="absolute left-0 top-8 z-20 overflow-visible" :id="`step_teleport_anker_${columnIndex}`"></div>
+      <div :id="`step_teleport_anker_${columnIndex}`" class="absolute left-0 top-8 z-20 overflow-visible"></div>
       <!-- Heading Column -->
       <div
         :id="`row_0_cell_${columnIndex}`"
@@ -291,12 +291,12 @@
         v-for="(docItem, rowIndex) in step.document.documentItems"
         :id="`row_${rowIndex + 1}_cell_${columnIndex}`"
         :key="rowIndex"
-        @click="() => setCellActive(columnIndex, rowIndex + 1)"
-        @dblclick="() => toggleCellCard(columnIndex, rowIndex + 1, docItem.content, docItem.id)"
         class="cell group relative"
         :class="{
           'border border-black': cellActive.x === columnIndex && cellActive.y === rowIndex + 1,
         }"
+        @click="() => setCellActive(columnIndex, rowIndex + 1)"
+        @dblclick="() => toggleCellCard(columnIndex, rowIndex + 1, docItem.content, docItem.id)"
       >
         <!-- Cell State -->
         <div
@@ -328,18 +328,18 @@
           </NuxtLinkLocale>
         </div>
         <!-- Cellcard teleport anker -->
-        <div class="absolute left-0 top-0 z-20" :id="`cellcard_teleport_anker_x${columnIndex}_y${rowIndex + 1}`"></div>
+        <div :id="`cellcard_teleport_anker_x${columnIndex}_y${rowIndex + 1}`" class="absolute left-0 top-0 z-20"></div>
       </div>
       <!-- Last Cells -->
       <div class="cell cell-last"></div>
     </div>
     <!-- Last Column -->
-    <div class="column" id="column_last">
+    <div id="column_last" class="column">
       <!-- Add Column -->
       <div class="index plus-button" @click="onAddWorkflowStep">
         <PlusIcon class="size-3 stroke-1.5" />
       </div>
-      <div v-for="(count, index) in rowCount" :key="index" :id="`row_${index + 1}_cell_last`" class="index"></div>
+      <div v-for="(count, index) in rowCount" :id="`row_${index + 1}_cell_last`" :key="index" class="index"></div>
       <div class="index index-last">
         <!-- div @mousedown="(e) => resizeAllListener(e, workflowId)">h</!-->
       </div>
@@ -348,8 +348,8 @@
   <!-- StepManagement Card -->
   <Teleport v-if="stepCard.show" :to="`#step_teleport_anker_${stepCard.teleportTo}`">
     <WorkflowStepManagementCard
-      v-on-click-outside.bubble="onCloseStepCard"
       :key="stepCard.teleportTo"
+      v-on-click-outside.bubble="onCloseStepCard"
       :project-id="workflowData.project.id"
       :workflow-id="workflowData.id"
       :all-workflow-steps="steps"
@@ -384,7 +384,7 @@
     </SheetContent>
   </!-->
 
-  <Teleport to="body" v-if="hasSelectedRows">
+  <Teleport v-if="hasSelectedRows" to="body">
     <div class="absolute bottom-5 left-1/2 -translate-x-1/2">
       <div class="rounded-lg bg-neutral-50 px-3 py-0 text-xs shadow-md">
         <span class="pl-2 font-semibold">{{ selectedRows.length }}</span>
