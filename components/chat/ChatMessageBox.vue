@@ -13,13 +13,9 @@
 </script>
 
 <template>
-  <ChatMessageBoxWrapper :displayName="displayName">
+  <ChatMessageBoxWrapper :display-name="displayName">
     <div v-if="visionContents?.length">
-      <div
-        v-for="(visionContent, index) in visionContents"
-        :key="index"
-        class="overflow-hidden rounded-lg"
-      >
+      <div v-for="(visionContent, index) in visionContents" :key="index" class="overflow-hidden rounded-lg">
         <img
           v-if="visionContent.type === 'image'"
           :src="visionContent.url"

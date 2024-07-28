@@ -33,10 +33,10 @@
 <template>
   <div id="workflowContainer" class="h-full">
     <WorkflowHeading
+      v-model:show-table-view="showTable"
       :project-workflows="projectWorkflows"
       :workflow-id="workflowId as string"
       :project-id="projectId as string"
-      v-model:show-table-view="showTable"
     />
     <div class="min-h-full overflow-x-scroll bg-white">
       <Suspense>

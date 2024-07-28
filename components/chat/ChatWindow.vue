@@ -18,6 +18,7 @@
   const isStreaming = ref(false);
   // const showShareDialog = ref(false);
 
+  const socket = useWebsocketGlobal();
   const chatStore = useChatStore();
   const settings = useChatSettingsStore();
   const { $client } = useNuxtApp();
@@ -60,6 +61,7 @@
     clearMessages();
     resetForm();
     clearError();
+    clearActiveTools();
   }
 
   function getVisionContent(images: ChatImage[]): any {
@@ -122,13 +124,15 @@
       }
 
       const reader = stream.getReader();
-      let done = false;
+      const decoder = new TextDecoder();
 
+      let done = false;
       isStreaming.value = true;
+
       while (!done) {
         const { value, done: _done } = await reader.read();
         done = _done;
-        messageChunk.value += new TextDecoder().decode(value, {
+        messageChunk.value += decoder.decode(value, {
           stream: true,
         });
       }
@@ -283,12 +287,30 @@
     },
   );
 
+  const activeTools = ref<string[]>([]);
+
+  function setActiveTool(toolName: string) {
+    console.log('Tool started:', toolName);
+    activeTools.value.push(toolName);
+  }
+
+  function unsetActiveTool(toolName: string) {
+    console.log('Tool ended:', toolName);
+    activeTools.value = activeTools.value.filter((tool) => tool !== toolName);
+  }
+
+  function clearActiveTools() {
+    activeTools.value = [];
+  }
+
   onMounted(() => {
     setModelFromAssistant();
     if (props.chatMessages && props.chatMessages.length > 0) {
       initMessages(props.chatMessages);
       scrollToBottom({ instant: true });
     }
+    socket.on(`chat-${props.chatId}-tool-start-event`, (toolName) => setActiveTool(toolName));
+    socket.on(`chat-${props.chatId}-tool-end-event`, (toolName) => unsetActiveTool(toolName));
   });
 
   onBeforeUnmount(() => {
@@ -296,6 +318,8 @@
     if (ac) {
       ac.abort();
     }
+    socket.off(`chat-${props.chatId}-tool-start-event`, (toolName) => setActiveTool(toolName));
+    socket.off(`chat-${props.chatId}-tool-end-event`, (toolName) => unsetActiveTool(toolName));
   });
 </script>
 
@@ -375,8 +399,14 @@
         :vision-contents="message.visionContent"
         :display-name="message.role === 'user' ? $t('chat.user.placeholder') : assistant?.title"
       />
+      <!-- tool call message -->
+      <ChatToolCallMessage
+        v-if="isPending && activeTools.length > 0"
+        :display-name="assistant?.title"
+        :active-tools="activeTools"
+      />
       <!-- pending message -->
-      <ChatMessageBox v-if="isPending" type="text" :display-name="assistant?.title" content="..." />
+      <ChatMessageBox v-else-if="isPending" type="text" :display-name="assistant?.title" content="..." />
       <!-- streaming message -->
       <ChatMessageChunk
         v-if="messageChunk.length > 0"

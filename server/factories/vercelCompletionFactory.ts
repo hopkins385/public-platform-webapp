@@ -16,29 +16,33 @@ export class VercelCompletionFactory {
 
   getModel() {
     switch (this.provider) {
-      case 'openai':
+      case 'openai': {
         const openai = createOpenAI({
           compatibility: 'strict', // strict mode, enable when using the OpenAI API
           apiKey: this.config.openai.apiKey,
         });
         return openai(this.model);
-      case 'anthropic':
+      }
+      case 'anthropic': {
         const anthropic = createAnthropic({
           apiKey: this.config.anthropic.apiKey,
         });
         return anthropic(this.model);
-      case 'groq':
+      }
+      case 'groq': {
         const groq = createOpenAI({
           compatibility: 'compatible',
           baseURL: 'https://api.groq.com/openai/v1',
           apiKey: this.config.groq.apiKey,
         });
         return groq(this.model);
-      case 'mistral':
+      }
+      case 'mistral': {
         const mistral = createMistral({
           apiKey: this.config.mistral.apiKey,
         });
         return mistral(this.model);
+      }
       default:
         throw new Error('Provider not supported');
     }

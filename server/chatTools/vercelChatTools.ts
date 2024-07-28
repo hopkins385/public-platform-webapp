@@ -1,21 +1,48 @@
 import { z } from 'zod';
 import { tool } from 'ai';
+import { scrapeWebsite } from '~/utils/scrapeWebsite';
 
-export function getTools(callback: (isExecuting: boolean) => void) {
+// const stringRegex = new RegExp('^[a-zA-Z0-9, ]+$');
+
+export function getTools(emitToolName: (toolName: string) => void) {
   const tools = {
-    weather: tool({
-      description: 'Get the weather in a location',
+    website: tool({
+      description: 'Get information about a website',
       parameters: z.object({
-        location: z.string().describe('The location to get the weather for'),
+        url: z
+          .string()
+          .url()
+          .refine((url) => url.startsWith('https://'), {
+            message: 'URL must start with https://',
+          })
+          .describe('The URL of the website to get information about'),
       }),
-      execute: async ({ location }) => {
-        callback(true);
+      execute: async function ({ url }) {
+        emitToolName('website');
+        console.log('url', url);
+        const response = await scrapeWebsite(url);
         return {
-          location,
-          temperature: 72 + Math.floor(Math.random() * 21) - 10,
+          response,
         };
       },
     }),
+    /*weather: tool({
+      description: 'Get the weather in a location',
+      parameters: z.object({
+        location: z.string().min(2).max(20).describe('The location to get the weather for'),
+        unit: z.enum(['C', 'F']).describe('The unit to display the temperature in'),
+      }),
+      execute: async function ({ location, unit }) {
+        callback('weather');
+        // wait for 2 seconds
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        return {
+          location: location,
+          temperature: 20 + Math.floor(Math.random() * 21) - 10,
+          unit: unit,
+        };
+      },
+    }),*/
   };
 
   return tools;
