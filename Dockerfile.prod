@@ -35,7 +35,7 @@ COPY --chown=node:node --from=build /app/prisma ./prisma
 COPY --chown=node:node --from=build /app/.output ./.output
 
 # Create the uploads directory and set permissions
-RUN mkdir -p /app/uploads && chown -R node:node /app/uploads
+# RUN mkdir -p /app/uploads && chown -R node:node /app/uploads
 
 # Set Docker as non-root user
 USER node
