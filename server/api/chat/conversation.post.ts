@@ -337,7 +337,7 @@ async function* generateStream(payload: {
     if (error.name === 'AbortError') {
       return;
     }
-    console.error('Stream processing error:', error);
+    logger.error('Stream processing error:', error);
     throw error;
   }
 }

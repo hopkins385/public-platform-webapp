@@ -69,12 +69,12 @@ export class AssistantJobService {
         if (response) {
           // replace the content with scraped content
           inputDocumentItems[0].content = response ? JSON.stringify(response, null, 0) : '';
-          console.log('updated content', inputDocumentItems[0].content);
+          // console.log('updated content', inputDocumentItems[0].content);
           // throw new Error('scraped');
           // json stringify the content without escaping
           // inputDocumentItems[0].content = JSON.stringify(response.result, null, 2);
         } else {
-          throw new Error('Failed to scrape website');
+          throw new Error('Failed to get website content');
         }
       }
     }
