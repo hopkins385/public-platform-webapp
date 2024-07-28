@@ -108,6 +108,7 @@ export class VectorService {
     }
   }
 
+  // TODO: delete vector index on media deletion
   async deleteIndex(payload: { mediaId: string; recordId: string }) {
     throw new Error('Not implemented');
     try {

@@ -13,7 +13,7 @@ export type ChatMessageVisionContent = VisionImageUrlContent;
 
 export interface ChatMessage {
   type: 'text' | 'image' | 'video' | 'audio';
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system' | 'tool';
   content: string;
   visionContent?: ChatMessageVisionContent[] | null | undefined;
 }

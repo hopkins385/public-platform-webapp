@@ -12,11 +12,12 @@ import { StreamFinishedEventDto, FirstUserMessageEventDto } from '~/server/servi
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import { useEvents } from '~/server/events/useEvents';
 import consola from 'consola';
-import { convertToCoreMessages, streamText } from 'ai';
+import { convertToCoreMessages, streamText, type CoreMessage } from 'ai';
 import { VercelCompletionFactory } from '~/server/factories/vercelCompletionFactory';
 import { getTools } from '../../chatTools/vercelChatTools';
 import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
 import { Readable, Transform } from 'stream';
+import type { ChatMessage, VisionImageUrlContent } from '~/interfaces/chat.interfaces';
 
 const prisma = getPrismaClient();
 const chatService = new ChatService(prisma);
@@ -85,6 +86,44 @@ export default defineEventHandler(async (_event) => {
       }),
     );
   }
+
+  function getVisionMessages(vis: VisionImageUrlContent[] | null | undefined) {
+    if (!vis) {
+      return [];
+    }
+    return vis.map((v) => {
+      if (!v.url) throw new Error('VisionImageUrlContent url is required');
+      // this is vercel ai sdk specific!
+      return {
+        type: 'image',
+        image: new URL(v.url),
+      };
+    });
+  }
+
+  function normalizeBodyMessages(messages: ChatMessage[] | null | undefined) {
+    if (!messages) {
+      return [];
+    }
+    return messages.map((message) => {
+      if (message.type === 'image' && message.visionContent) {
+        const text = {
+          type: 'text',
+          text: message.content,
+        };
+        return {
+          role: message.role,
+          content: [text, ...getVisionMessages(message.visionContent)],
+        };
+      }
+      return {
+        role: message.role,
+        content: message.content,
+      };
+    }); // satisfies CoreMessage[];
+  }
+
+  const bodyMessages = normalizeBodyMessages(body.messages);
 
   let systemPrompt = undefined;
 
@@ -173,8 +212,11 @@ export default defineEventHandler(async (_event) => {
     signal: controller.signal,
     userId: user.id,
     chatId: chat.id,
-    body,
+    model: body.model,
+    provider: body.provider,
+    messages: bodyMessages,
     systemPrompt,
+    maxTokens: body.maxTokens,
     config,
   };
 
@@ -202,20 +244,24 @@ function onToolEndCall(payload: ChatToolCallEventDto) {
   event(ChatEvent.TOOL_END_CALL, payload);
 }
 
+// TODO: stream stop event: show continue button
 function onStreamStopLength() {
-  const { event } = useEvents();
-  event(ChatEvent.STREAM_STOP_LENGTH, {});
+  // const { event } = useEvents();
+  // event(ChatEvent.STREAM_STOP_LENGTH, {});
 }
 
 async function* generateStream(payload: {
   signal: AbortSignal;
   userId: string;
   chatId: string;
-  body: any;
+  model: string;
+  provider: string;
+  messages: any;
   systemPrompt: any;
+  maxTokens: number;
   config: any;
 }) {
-  const model = VercelCompletionFactory.fromInput(payload.body.provider, payload.body.model, payload.config);
+  const model = VercelCompletionFactory.fromInput(payload.provider, payload.model, payload.config);
   const tools = getTools((toolName) =>
     onToolStartCall(
       ChatToolCallEventDto.fromInput({
@@ -230,9 +276,9 @@ async function* generateStream(payload: {
       abortSignal: payload.signal,
       model,
       system: payload.systemPrompt,
-      messages: convertToCoreMessages(payload.body.messages),
-      maxTokens: payload.body.maxTokens,
-      tools: payload.body.provider === 'openai' ? tools : undefined,
+      messages: payload.messages,
+      maxTokens: payload.maxTokens,
+      tools: payload.provider === 'openai' ? tools : undefined,
     });
 
     for await (const chunk of initialResult.fullStream) {
@@ -247,7 +293,7 @@ async function* generateStream(payload: {
         // tool name
         const toolName = toolResults?.[0]?.toolName || '';
 
-        console.log('tool results: ', toolResults);
+        // console.log('tool results: ', toolResults);
 
         // TODO: Track token usage on tool calls
 
@@ -261,8 +307,8 @@ async function* generateStream(payload: {
           abortSignal: payload.signal,
           model,
           system: payload.systemPrompt,
-          messages: convertToCoreMessages([...payload.body.messages, toolCallMessage]),
-          maxTokens: payload.body.maxTokens,
+          messages: convertToCoreMessages([...payload.messages, toolCallMessage]),
+          maxTokens: payload.maxTokens,
         });
 
         onToolEndCall(

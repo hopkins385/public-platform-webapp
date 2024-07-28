@@ -31,7 +31,7 @@ This is a [sidebase merino](https://sidebase.io/) app created by running `npm cr
 - stripe
 - slack-notify
 - redis-client
-- vitest
+- vercel ai sdk
 
 Info: do not use @vueuse/nuxt, because it is not compatible with this project.
 
