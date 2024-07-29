@@ -1,3 +1,4 @@
+import type { ChatMessage, VisionImageUrlContent } from '~/interfaces/chat.interfaces';
 import { ChatToolCallEventDto } from './../../events/dto/chatToolCallEvent.dto';
 import { VectorService } from './../../services/vector.service';
 import { CollectionService } from '~/server/services/collection.service';
@@ -17,7 +18,6 @@ import { VercelCompletionFactory } from '~/server/factories/vercelCompletionFact
 import { getTools } from '../../chatTools/vercelChatTools';
 import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
 import { Readable, Transform } from 'stream';
-import type { ChatMessage, VisionImageUrlContent } from '~/interfaces/chat.interfaces';
 
 const prisma = getPrismaClient();
 const chatService = new ChatService(prisma);
@@ -246,6 +246,7 @@ function onToolEndCall(payload: ChatToolCallEventDto) {
 
 // TODO: stream stop event: show continue button
 function onStreamStopLength() {
+  logger.debug('Stream stop length event');
   // const { event } = useEvents();
   // event(ChatEvent.STREAM_STOP_LENGTH, {});
 }
@@ -277,11 +278,11 @@ async function* generateStream(payload: {
       model,
       system: payload.systemPrompt,
       messages: payload.messages,
-      // maxTokens: payload.maxTokens,
+      maxTokens: payload.maxTokens,
       tools: payload.provider === 'openai' ? tools : undefined,
     });
 
-    if (initialResult.warnings) {
+    if (initialResult.warnings && initialResult.warnings.length > 0) {
       logger.warn('Initial result warnings:', initialResult.warnings);
     }
 
@@ -290,7 +291,7 @@ async function* generateStream(payload: {
 
       if (chunk.type === 'error') {
         logger.error('Chunk error:', chunk.error);
-        throw chunk.error;
+        throw new Error(`Chunk error`);
         //
       } else if (chunk.type === 'finish' && chunk.finishReason === 'error') {
         const raw = initialResult.rawResponse;
