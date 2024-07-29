@@ -281,10 +281,23 @@ async function* generateStream(payload: {
       tools: payload.provider === 'openai' ? tools : undefined,
     });
 
+    if (initialResult.warnings) {
+      logger.warn('Initial result warnings:', initialResult.warnings);
+    }
+
     for await (const chunk of initialResult.fullStream) {
       if (payload.signal.aborted) return;
 
-      if (chunk.type === 'finish' && chunk.finishReason === 'length') {
+      if (chunk.type === 'error') {
+        logger.error('Chunk error:', chunk.error);
+        throw chunk.error;
+        //
+      } else if (chunk.type === 'finish' && chunk.finishReason === 'error') {
+        const raw = initialResult.rawResponse;
+        logger.error('Finish Error, raw response: ', raw);
+        throw new Error('Finish Error');
+        //
+      } else if (chunk.type === 'finish' && chunk.finishReason === 'length') {
         onStreamStopLength();
         //
       } else if (chunk.type === 'finish' && chunk.finishReason === 'tool-calls') {
