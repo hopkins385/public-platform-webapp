@@ -12,7 +12,7 @@ import { StreamFinishedEventDto, FirstUserMessageEventDto } from '~/server/servi
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import { useEvents } from '~/server/events/useEvents';
 import consola from 'consola';
-import { convertToCoreMessages, streamText, type CoreMessage } from 'ai';
+import { convertToCoreMessages, streamText } from 'ai';
 import { VercelCompletionFactory } from '~/server/factories/vercelCompletionFactory';
 import { getTools } from '../../chatTools/vercelChatTools';
 import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
@@ -176,7 +176,7 @@ export default defineEventHandler(async (_event) => {
     }
 
     const inputTokens = tokenizerService.getTokens(body.messages[body.messages.length - 1].content);
-    const outputTokens = tokenizerService.getTokens(gathered || '');
+    const outputTokens = tokenizerService.getTokens(gathered);
     const { event } = useEvents();
 
     // creates the response message in the database
@@ -186,7 +186,7 @@ export default defineEventHandler(async (_event) => {
         chatId: chat.id,
         userId: user.id,
         assistantId: chat.assistant.id,
-        messageContent: gathered || '',
+        messageContent: gathered,
       }),
     );
 
@@ -277,7 +277,7 @@ async function* generateStream(payload: {
       model,
       system: payload.systemPrompt,
       messages: payload.messages,
-      maxTokens: payload.maxTokens,
+      // maxTokens: payload.maxTokens,
       tools: payload.provider === 'openai' ? tools : undefined,
     });
 

@@ -3,13 +3,21 @@ import type { ChatToolCallEventDto } from './dto/chatToolCallEvent.dto';
 import { ChatService } from '~/server/services/chat.service';
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import { getIO } from '../socket/socketInstance';
+import consola from 'consola';
 
 const prisma = getPrismaClient();
 const chatService = new ChatService(prisma);
 const { queueAddJob } = useBullmq();
 
+const logger = consola.create({}).withTag('chat-events');
+
 export async function chatStreamFinishedEvent(data: StreamFinishedEventDto) {
   const { chatId, userId, messageContent } = data;
+
+  if (!messageContent || messageContent.trim() === '') {
+    logger.error('Stream finished but message content empty');
+    return;
+  }
 
   await chatService.createMessageAndReduceCredit(
     CreateChatMessageDto.fromInput({
