@@ -71,12 +71,9 @@ export default function useRouteValidation() {
   }
 
   function hasValidPage(params: any) {
+    const regexScheme = /^[1-9]\d*$/;
     const idSchema = z.object({
-      page: z
-        .string()
-        .regex(/^[1-9]+$/)
-        .optional()
-        .default('1'),
+      page: z.string().regex(regexScheme).optional().default('1'),
     });
     const res = idSchema.safeParse(params);
     return res.success;

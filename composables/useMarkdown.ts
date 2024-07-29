@@ -1,3 +1,4 @@
+import type { Options } from 'markdown-it';
 import type { Options as LinkifyOptions } from 'linkify-it';
 import MarkdownIt from 'markdown-it';
 import hljs from 'highlight.js';
@@ -14,18 +15,17 @@ export default function useMarkdown() {
         try {
           return (
             `<pre><code class="hljs language-${lang}">` +
-            hljs.highlight(str, { language: lang, ignoreIllegals: true })
-              .value +
+            hljs.highlight(str, { language: lang, ignoreIllegals: true }).value +
             '</code></pre>'
           );
-        } catch (__) {}
+        } catch (__) {
+          // silently ignore
+        }
       }
 
-      return (
-        '<pre><code class="hljs">' + md.utils.escapeHtml(str) + '</code></pre>'
-      );
+      return '<pre><code class="hljs">' + md.utils.escapeHtml(str) + '</code></pre>';
     },
-  } as MarkdownIt.Options;
+  } as Options;
 
   const linkifyOptions: LinkifyOptions = {
     fuzzyLink: false,
@@ -33,17 +33,12 @@ export default function useMarkdown() {
     fuzzyEmail: false,
   };
 
-  const disable = [
-    'reference',
-    'image',
-    'link',
-    'html_block',
-    'html_inline',
-    'autolink',
-  ];
+  const disable = ['reference', 'image', 'link', 'html_block', 'html_inline', 'autolink'];
 
-  const md = new MarkdownIt(mdOptions ?? {}).disable(disable);
-  md.linkify.set(linkifyOptions ?? {});
+  const md = new MarkdownIt(mdOptions).disable(disable);
+  md.linkify.set(linkifyOptions);
+
+  // TODO: MathpixMarkdownIt aklternative
 
   function parseMarkdown(text: string) {
     return md.render(text);
