@@ -132,6 +132,10 @@ export default defineNitroPlugin((nitroApp) => {
       options: { concurrency: workerConcurrency, limiter: { max: openaiReqPerMin, duration: rateLimitDuration } },
     },
     {
+      name: 'openai-gpt-4o-mini',
+      options: { concurrency: workerConcurrency, limiter: { max: openaiReqPerMin, duration: rateLimitDuration } },
+    },
+    {
       name: 'anthropic-claude-3-haiku-20240307',
       options: { concurrency: workerConcurrency, limiter: { max: claudeReqPerMin, duration: rateLimitDuration } },
     },
