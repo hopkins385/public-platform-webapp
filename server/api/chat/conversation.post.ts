@@ -93,7 +93,7 @@ export default defineEventHandler(async (_event) => {
     }
     return vis.map((v) => {
       if (!v.url) throw new Error('VisionImageUrlContent url is required');
-      // this is vercel ai sdk specific!
+      // this format is vercel ai sdk specific!
       return {
         type: 'image',
         image: new URL(v.url),
@@ -272,6 +272,9 @@ async function* generateStream(payload: {
       }),
     ),
   );
+
+  const availableTools = payload.provider === 'openai' || payload.provider === 'anthropic' ? tools : undefined;
+
   try {
     const initialResult = await streamText({
       abortSignal: payload.signal,
@@ -279,7 +282,7 @@ async function* generateStream(payload: {
       system: payload.systemPrompt,
       messages: payload.messages,
       maxTokens: payload.maxTokens,
-      tools: payload.provider === 'openai' ? tools : undefined,
+      tools: availableTools,
     });
 
     if (initialResult.warnings && initialResult.warnings.length > 0) {
@@ -302,29 +305,37 @@ async function* generateStream(payload: {
         onStreamStopLength();
         //
       } else if (chunk.type === 'finish' && chunk.finishReason === 'tool-calls') {
+        const toolCalls = await initialResult.toolCalls;
         const toolResults = await initialResult.toolResults;
 
-        // tool name
-        const toolName = toolResults?.[0]?.toolName || '';
+        // console.log('Tool calls:', toolCalls, 'Tool results:', toolResults);
 
-        // console.log('tool results: ', toolResults);
+        if (toolResults.length === 0) {
+          logger.error('No tool results found');
+          continue;
+        }
 
-        // TODO: Track token usage on tool calls
-
-        const toolCallMessage = {
-          role: 'assistant',
-          content: '',
-          toolInvocations: toolResults,
-        };
+        const toolMessages = [
+          {
+            role: 'assistant',
+            content: toolCalls,
+          },
+          {
+            role: 'tool',
+            content: toolResults,
+          },
+        ];
 
         const followUpResult = await streamText({
           abortSignal: payload.signal,
           model,
           system: payload.systemPrompt,
-          messages: convertToCoreMessages([...payload.messages, toolCallMessage]),
+          messages: [...payload.messages, ...toolMessages],
           maxTokens: payload.maxTokens,
+          tools: availableTools,
         });
 
+        const toolName = toolResults?.[0]?.toolName || '';
         onToolEndCall(
           ChatToolCallEventDto.fromInput({
             userId: payload.userId,
@@ -332,6 +343,8 @@ async function* generateStream(payload: {
             toolName,
           }),
         );
+
+        // TODO: Track token usage on tool calls
 
         for await (const followUpChunk of followUpResult.textStream) {
           if (payload.signal.aborted) return;

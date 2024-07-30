@@ -86,7 +86,7 @@
             </FormLabel>
 
             <FormControl>
-              <LlmSelectModal initial-display-name="Select AI Model" :id="value" @update:id="handleChange" />
+              <LlmSelectModal :id="value" initial-display-name="Select AI Model" @update:id="handleChange" />
             </FormControl>
 
             <FormMessage />

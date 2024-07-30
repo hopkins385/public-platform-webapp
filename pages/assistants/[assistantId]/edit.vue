@@ -66,6 +66,7 @@
       systemPrompt: z.string().min(3).max(6000),
       isShared: z.boolean().default(false),
       collectionId: z.string().optional(),
+      functions: z.array(z.string()).default([]),
     }),
   );
 
@@ -78,10 +79,11 @@
       description: assistant.value?.description,
       systemPrompt: assistant.value?.systemPrompt,
       isShared: assistant.value?.isShared,
+      functions: ['website'],
     },
   });
 
-  const onSubmit = handleSubmit(async (values, { resetForm }) => {
+  const onSubmit = handleSubmit(async (values) => {
     try {
       if (!assistant.value) {
         throw new Error('Assistant not found');
@@ -103,8 +105,15 @@
   });
 
   const initialAssistantName = computed(() => assistant.value?.llm.displayName ?? 'Select AI Model');
-
   const initialCollectionName = computed(() => collections.value[0]?.name ?? 'Select Knowledge Collection');
+
+  const availableFunctions = [
+    {
+      id: 'website',
+      label: 'Web Scraper',
+      disabled: true,
+    },
+  ] as const;
 </script>
 
 <template>
@@ -150,8 +159,8 @@
             </FormLabel>
             <FormControl>
               <LlmSelectModal
-                :initial-display-name="initialAssistantName"
                 :id="value"
+                :initial-display-name="initialAssistantName"
                 @update:id="
                   (id) => {
                     handleChange(id), onSubmit();
@@ -198,11 +207,48 @@
           </FormItem>
         </FormField>
 
+        <FormField name="functions">
+          <FormItem>
+            <div class="mb-4 space-y-2">
+              <FormLabel> Functions (optional)</FormLabel>
+              <FormDescription>
+                These are the functions the assistant can use. Function calling is only available for OpenAI or Claude
+                Models.
+              </FormDescription>
+            </div>
+
+            <FormField
+              v-for="item in availableFunctions"
+              v-slot="{ value, handleChange }"
+              :key="item.id"
+              type="checkbox"
+              :value="item.id"
+              :unchecked-value="false"
+              name="functions"
+            >
+              <FormItem class="flex flex-row items-start space-x-3 space-y-0">
+                <FormControl>
+                  <Checkbox
+                    :checked="value?.includes(item.id)"
+                    :disabled="item.disabled"
+                    @update:checked="handleChange"
+                  />
+                </FormControl>
+                <FormLabel class="font-normal">
+                  {{ item.label }}
+                </FormLabel>
+              </FormItem>
+            </FormField>
+            <FormMessage />
+          </FormItem>
+        </FormField>
+
         <FormField v-slot="{ handleChange, value }" type="checkbox" name="isShared">
           <FormItem>
             <FormLabel>Shared</FormLabel>
             <FormDescription>
-              If the assistant is shared, it will be available to your whole organization.
+              If the assistant is shared, it is available to your whole organization. If unshared then it is only
+              available to your team.
             </FormDescription>
             <FormControl>
               <Switch :checked="value" @update:checked="handleChange" />
