@@ -3,6 +3,7 @@
 
   const props = defineProps<{
     page: number;
+    search: string;
   }>();
 
   const emit = defineEmits<{
@@ -10,7 +11,7 @@
   }>();
 
   const { getDateTimeForHumans } = useForHumans();
-  const { getAllChatsForUser, deleteChat, setPage } = useChat();
+  const { getAllChatsForUser, deleteChat, setPage, setSearchQuery } = useChat();
   setPage(props.page || 1);
   const { data, refresh } = await getAllChatsForUser();
 
@@ -50,6 +51,13 @@
     emit('update:page', value);
     setPage(value);
   }
+
+  watch(
+    () => props.search,
+    (value) => {
+      setSearchQuery(value);
+    },
+  );
 </script>
 
 <template>

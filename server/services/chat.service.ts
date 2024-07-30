@@ -42,7 +42,7 @@ export class ChatService {
     const availableHistoryTokens = notLowerZero(totalAvailableTokens - requestedCompletionTokens);
     let tokenCount = 0;
     let i = messagesCount - 1; // start from the end of the array
-    let messages = [];
+    const messages = [];
 
     while (i > 0 && tokenCount <= availableHistoryTokens) {
       const message = chatMessages[i];
@@ -126,7 +126,7 @@ export class ChatService {
     return chat;
   }
 
-  getAllForUserPaginate(userId: string, page: number) {
+  getAllForUserPaginate(userId: string, page: number, searchQuery?: string) {
     return this.prisma.chat
       .paginate({
         select: {
@@ -147,6 +147,10 @@ export class ChatService {
         },
         where: {
           userId,
+          title: {
+            contains: searchQuery,
+            mode: 'insensitive',
+          },
           deletedAt: null,
         },
         orderBy: {

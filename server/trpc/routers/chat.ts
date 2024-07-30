@@ -60,11 +60,12 @@ export const chatRouter = router({
     .input(
       z.object({
         page: z.number().default(1),
+        searchQuery: z.string().max(255).optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { page } = input;
-      return await chatService.getAllForUserPaginate(ctx.user.id, page);
+      const { page, searchQuery } = input;
+      return await chatService.getAllForUserPaginate(ctx.user.id, page, searchQuery);
     }),
 
   clearMessages: protectedProcedure
@@ -86,10 +87,7 @@ export const chatRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      return await chatService.getChatForUser(
-        input.chatId.toLowerCase(),
-        ctx.user.id,
-      );
+      return await chatService.getChatForUser(input.chatId.toLowerCase(), ctx.user.id);
     }),
 
   delete: protectedProcedure
@@ -101,9 +99,6 @@ export const chatRouter = router({
     .query(async ({ ctx, input }) => {
       // policy check
       await chatService.canDeletePolicy(input.chatId, ctx.user.id);
-      return await chatService.softDelete(
-        ctx.user.id,
-        input.chatId.toLowerCase(),
-      );
+      return await chatService.softDelete(ctx.user.id, input.chatId.toLowerCase());
     }),
 });

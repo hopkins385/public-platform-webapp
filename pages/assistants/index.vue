@@ -21,7 +21,7 @@
       <template #bottom>
         <div class="flex w-full justify-between space-x-4 px-3 pb-2 pt-14">
           <div class="w-full">
-            <Input v-model="search" placeholder="Search assistants..." />
+            <Input v-model="search" placeholder="Search assistant title ..." />
           </div>
           <div class="whitespace-nowrap">
             <LinkButton to="/assistants/create">

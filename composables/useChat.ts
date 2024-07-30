@@ -1,14 +1,20 @@
 import type { AsyncDataOptions } from '#app';
+import { useDebounceFn } from '@vueuse/core';
 
 export default function useChat() {
   const ac = new AbortController();
   const { $client } = useNuxtApp();
 
   const page = ref<number>(1);
+  const searchQuery = ref<string>('');
 
   onScopeDispose(() => {
     ac.abort();
   });
+
+  const setSearchQuery = useDebounceFn((newSearchQuery: string) => {
+    searchQuery.value = newSearchQuery;
+  }, 300);
 
   function setPage(newPage: number) {
     page.value = newPage;
@@ -30,7 +36,10 @@ export default function useChat() {
       'allChats',
       async () => {
         const [chats, meta] = await $client.chat.allForUserPaginate.query(
-          { page: page.value },
+          {
+            page: page.value,
+            searchQuery: searchQuery.value,
+          },
           {
             signal: ac.signal,
           },
@@ -38,7 +47,7 @@ export default function useChat() {
         return { chats, meta };
       },
       {
-        watch: [page],
+        watch: [page, searchQuery],
         ...options,
       },
     );
@@ -83,11 +92,14 @@ export default function useChat() {
   }
 
   return {
+    page,
+    searchQuery,
+    setPage,
+    setSearchQuery,
     createChat,
     getChatForUser,
     getAllChatsForUser,
     getRecentChatForUser,
     deleteChat,
-    setPage,
   };
 }

@@ -15,6 +15,7 @@
   const router = useRouter();
   const route = useRoute();
   const page = ref(route.query.page ? parseInt(route.query.page as string) : 1);
+  const search = ref('');
 
   function setRoutePage(value: number) {
     page.value = value;
@@ -26,8 +27,11 @@
 <template>
   <SectionContainer>
     <SectionHeading title="Chat History" subtitle="Here you can see all your recent chats" />
+    <div class="pb-6">
+      <Input v-model="search" placeholder="Search chat title ..." />
+    </div>
     <Suspense>
-      <ChatHistory :page="page" @update:page="setRoutePage" />
+      <ChatHistory :search="search" :page="page" @update:page="setRoutePage" />
       <template #fallback>
         <BoxContainer>
           <TableSkeleton />
