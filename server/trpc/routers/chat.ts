@@ -4,6 +4,7 @@ import { ChatService } from '~/server/services/chat.service';
 import { ulidRule } from '~/server/utils/validation/ulid.rule';
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import { ChatMessageRule } from '~/server/utils/validation/chat-message.rule';
+import { GetAllChatsForUserDto } from '~/server/services/dto/chat.dto';
 
 const prisma = getPrismaClient();
 const chatService = new ChatService(prisma);
@@ -64,8 +65,12 @@ export const chatRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { page, searchQuery } = input;
-      return await chatService.getAllForUserPaginate(ctx.user.id, page, searchQuery);
+      const payload = GetAllChatsForUserDto.fromInput({
+        userId: ctx.user.id,
+        page: input.page,
+        searchQuery: input.searchQuery,
+      });
+      return await chatService.getAllForUserPaginate(payload);
     }),
 
   clearMessages: protectedProcedure

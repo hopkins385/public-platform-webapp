@@ -3,6 +3,7 @@ import { ULID } from '~/server/utils/ulid';
 import type { CreateChatMessageDto } from './dto/chat-message.dto';
 import { TRPCError } from '@trpc/server';
 import consola from 'consola';
+import type { GetAllChatsForUserDto } from './dto/chat.dto';
 
 interface UpsertMessage extends ChatMessage {
   id: string;
@@ -126,7 +127,7 @@ export class ChatService {
     return chat;
   }
 
-  getAllForUserPaginate(userId: string, page: number, searchQuery?: string) {
+  getAllForUserPaginate(payload: GetAllChatsForUserDto) {
     return this.prisma.chat
       .paginate({
         select: {
@@ -146,9 +147,9 @@ export class ChatService {
           },
         },
         where: {
-          userId,
+          userId: payload.userId,
           title: {
-            contains: searchQuery,
+            contains: payload.searchQuery,
             mode: 'insensitive',
           },
           deletedAt: null,
@@ -159,7 +160,7 @@ export class ChatService {
       })
       .withPages({
         limit: 10,
-        page,
+        page: payload.page,
         includePageCount: true,
       });
   }
