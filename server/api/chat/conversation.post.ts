@@ -128,11 +128,11 @@ export default defineEventHandler(async (_event) => {
   let systemPrompt = undefined;
 
   // assistant has knowledge
-  const dto = CollectionAbleDto.fromInput({
+  const assistantModelDto = CollectionAbleDto.fromInput({
     id: chat.assistant.id,
     type: 'assistant',
   });
-  const collections = await collectionService.findAllWithRecordsFor(dto);
+  const collections = await collectionService.findAllWithRecordsFor(assistantModelDto);
 
   if (collections.length > 0) {
     const recordIds = collections.map((c) => c.records.map((r) => r.id)).flat();
@@ -273,7 +273,7 @@ async function* generateStream(payload: {
     ),
   );
 
-  const availableTools = payload.provider === 'openai' || payload.provider === 'anthropic' ? tools : undefined;
+  const availableTools = tools; //payload.provider === 'openai' || payload.provider === 'anthropic' ? tools : undefined;
 
   try {
     const initialResult = await streamText({

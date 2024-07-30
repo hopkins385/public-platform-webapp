@@ -211,10 +211,7 @@
           <FormItem>
             <div class="mb-4 space-y-2">
               <FormLabel> Functions (optional)</FormLabel>
-              <FormDescription>
-                These are the functions the assistant can use. Function calling is only available for OpenAI or Claude
-                Models.
-              </FormDescription>
+              <FormDescription> These are the functions the assistant can use. </FormDescription>
             </div>
 
             <FormField
