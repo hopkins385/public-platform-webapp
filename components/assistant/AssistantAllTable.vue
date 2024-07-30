@@ -1,6 +1,10 @@
 <script setup lang="ts">
   import { SettingsIcon, Trash2Icon, MessageSquareIcon } from 'lucide-vue-next';
 
+  const props = defineProps<{
+    search: string;
+  }>();
+
   const emit = defineEmits<{
     newChat: [string];
   }>();
@@ -11,7 +15,7 @@
     message: '',
   });
   const deleteAssistantId = ref('');
-  const { getAllAssistants, deleteAssistant, setPage } = useManageAssistants();
+  const { getAllAssistants, deleteAssistant, setPage, setSearchQuery } = useManageAssistants();
   const { data, refresh } = await getAllAssistants();
   const { data: auth } = useAuth();
 
@@ -55,6 +59,13 @@
     deleteAssistantId.value = id;
     showConfirmDialog.value = true;
   }
+
+  watch(
+    () => props.search,
+    async (value) => {
+      setSearchQuery(value);
+    },
+  );
 </script>
 
 <template>

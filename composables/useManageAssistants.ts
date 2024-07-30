@@ -1,4 +1,5 @@
 import type { AsyncDataOptions } from '#app';
+import { useDebounceFn } from '@vueuse/core';
 
 class AssistantDto {
   teamId: string = '';
@@ -19,11 +20,14 @@ export default function useManageAssistants() {
   const ac = new AbortController();
 
   const page = ref<number>(1);
+  const searchQuery = ref<string>('');
   let assistantId: string = '';
 
   onScopeDispose(() => {
     ac.abort();
   });
+
+  const setSearchQuery = useDebounceFn((newSearch: string | number) => (searchQuery.value = newSearch.toString()), 300);
 
   function setPage(p: number) {
     page.value = p;
@@ -49,7 +53,10 @@ export default function useManageAssistants() {
       'allAssistants',
       async () => {
         const [assistants, meta] = await $client.assistant.all.query(
-          { page: page.value },
+          {
+            page: page.value,
+            searchQuery: searchQuery.value,
+          },
           {
             signal: ac.signal,
           },
@@ -57,7 +64,7 @@ export default function useManageAssistants() {
         return { assistants, meta };
       },
       {
-        watch: [page],
+        watch: [page, searchQuery],
         ...options,
       },
     );
@@ -96,7 +103,9 @@ export default function useManageAssistants() {
 
   return {
     page,
+    searchQuery,
     setPage,
+    setSearchQuery,
     createAssistant,
     updateAssistant,
     getAllAssistants,

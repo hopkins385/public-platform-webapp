@@ -13,14 +13,16 @@ export class FindAssistantDto {
 export class FindAllAssistantsDto {
   readonly teamId: string;
   readonly page: number;
+  readonly searchQuery: string | undefined;
 
-  constructor(teamId: string, page: number) {
+  constructor(teamId: string, page: number, searchQuery?: string) {
     this.teamId = teamId.toLowerCase();
     this.page = Number(page);
+    this.searchQuery = searchQuery?.toString();
   }
 
-  static fromInput(teamId: string, page: number): FindAllAssistantsDto {
-    return new FindAllAssistantsDto(teamId, page);
+  static fromInput(teamId: string, page: number, searchQuery?: string): FindAllAssistantsDto {
+    return new FindAllAssistantsDto(teamId, page, searchQuery);
   }
 }
 

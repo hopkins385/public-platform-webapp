@@ -20,21 +20,14 @@
 
 <template>
   <SectionContainer>
-    <SectionHeading
-      title="Manage Users"
-      subtitle="Add, edit, and remove users from your space"
-    />
+    <SectionHeading title="Manage Users" subtitle="Add, edit, and remove users from your space" />
     <Heading>
       <template #top> </template>
       <template #bottom>
         <div class="flex h-24 w-full items-end justify-between space-x-4 p-2">
           <!-- div> filter tbd </!-->
           <div class="w-full">
-            <Input
-              :model-value="search"
-              @update:model-value="(val) => setSearch(val)"
-              placeholder="Search users..."
-            />
+            <Input :model-value="search" placeholder="Search users..." @update:model-value="(val) => setSearch(val)" />
           </div>
           <div class="shrink-0">
             <LinkButton to="/admin/users/create">

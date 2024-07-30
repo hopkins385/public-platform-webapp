@@ -122,6 +122,10 @@ export class AssistantService {
       .paginate({
         where: {
           teamId: payload.teamId,
+          title: {
+            contains: payload.searchQuery,
+            mode: 'insensitive',
+          },
           deletedAt: null,
         },
         select: {

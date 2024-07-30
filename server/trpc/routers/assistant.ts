@@ -66,10 +66,11 @@ export const assistantRouter = router({
     .input(
       z.object({
         page: z.number().default(1),
+        searchQuery: z.string().max(255).optional(),
       }),
     )
     .query(({ ctx, input }) => {
-      const payload = FindAllAssistantsDto.fromInput(ctx.user.teamId, input.page);
+      const payload = FindAllAssistantsDto.fromInput(ctx.user.teamId, input.page, input.searchQuery);
 
       return assistantService.findAll(payload);
     }),
