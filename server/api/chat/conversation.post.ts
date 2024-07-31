@@ -13,7 +13,7 @@ import { StreamFinishedEventDto, FirstUserMessageEventDto } from '~/server/servi
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import { useEvents } from '~/server/events/useEvents';
 import consola from 'consola';
-import { streamText } from 'ai';
+import { streamText, type StreamTextResult } from 'ai';
 import { VercelCompletionFactory } from '~/server/factories/vercelCompletionFactory';
 import { getTools } from '../../chatTools/vercelChatTools';
 import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
@@ -221,11 +221,11 @@ export default defineEventHandler(async (_event) => {
   };
 
   try {
-    const stream = Readable.from(generateStream(generateStreamData)).pipe(gatherCunks());
+    const generator = generateStream(generateStreamData);
+    const stream = Readable.from(generator).pipe(gatherCunks());
     return stream;
-    //
   } catch (error) {
-    logger.error(`Chat completion failed: ${error}`);
+    logger.error('Stream error:', error);
     throw createError({
       statusCode: 500,
       statusMessage: 'Internal Server Error',
@@ -233,6 +233,18 @@ export default defineEventHandler(async (_event) => {
     });
   }
 });
+
+interface StreamPayload {
+  signal: AbortSignal;
+  userId: string;
+  chatId: string;
+  model: string;
+  provider: string;
+  messages: any[];
+  systemPrompt: string;
+  maxTokens: number;
+  config: any;
+}
 
 function onToolStartCall(payload: ChatToolCallEventDto) {
   const { event } = useEvents();
@@ -251,29 +263,32 @@ function onStreamStopLength() {
   // event(ChatEvent.STREAM_STOP_LENGTH, {});
 }
 
-async function* generateStream(payload: {
-  signal: AbortSignal;
-  userId: string;
-  chatId: string;
-  model: string;
-  provider: string;
-  messages: any;
-  systemPrompt: any;
-  maxTokens: number;
-  config: any;
-}) {
-  const model = VercelCompletionFactory.fromInput(payload.provider, payload.model, payload.config);
-  const tools = getTools((toolName) =>
+function createToolStartCallHandler(payload: StreamPayload) {
+  return (toolName: string) =>
     onToolStartCall(
       ChatToolCallEventDto.fromInput({
         userId: payload.userId,
         chatId: payload.chatId,
         toolName,
       }),
-    ),
-  );
+    );
+}
 
-  const availableTools = payload.provider !== 'groq' ? tools : undefined;
+function logWarnings(warnings: any[] | undefined) {
+  if (warnings?.length) {
+    logger.warn('Initial result warnings:', warnings);
+  }
+}
+
+function handleStreamError(error: any) {
+  if (error.name === 'AbortError') return;
+  logger.error('Stream generator error:', error);
+  throw error;
+}
+
+async function* generateStream(payload: StreamPayload) {
+  const model = VercelCompletionFactory.fromInput(payload.provider, payload.model, payload.config);
+  const availableTools = payload.provider !== 'groq' ? getTools(createToolStartCallHandler(payload)) : undefined;
 
   try {
     const initialResult = await streamText({
@@ -285,86 +300,77 @@ async function* generateStream(payload: {
       tools: availableTools,
     });
 
-    if (initialResult.warnings && initialResult.warnings.length > 0) {
-      logger.warn('Initial result warnings:', initialResult.warnings);
+    logWarnings(initialResult.warnings);
+
+    yield* handleStream(initialResult, payload, model, availableTools);
+  } catch (error: any) {
+    handleStreamError(error);
+  }
+}
+
+async function* handleStream(
+  initalResult: StreamTextResult<any>,
+  payload: StreamPayload,
+  model: any,
+  availableTools: any,
+) {
+  const stream = initalResult.fullStream;
+  for await (const chunk of stream) {
+    if (payload.signal.aborted) return;
+
+    if (chunk.type === 'error') {
+      throw new Error(`Chunk error: ${chunk.error}`);
     }
 
-    for await (const chunk of initialResult.fullStream) {
-      if (payload.signal.aborted) return;
-
-      if (chunk.type === 'error') {
-        logger.error('Chunk error:', chunk.error);
-        throw new Error(`Chunk error`);
-        //
-      } else if (chunk.type === 'finish' && chunk.finishReason === 'error') {
-        const raw = initialResult.rawResponse;
-        logger.error('Finish Error, raw response: ', raw);
-        throw new Error('Finish Error');
-        //
-      } else if (chunk.type === 'finish' && chunk.finishReason === 'length') {
-        onStreamStopLength();
-        //
-      } else if (chunk.type === 'finish' && chunk.finishReason === 'tool-calls') {
-        const toolCalls = await initialResult.toolCalls;
-        const toolResults = await initialResult.toolResults;
-
-        // console.log('Tool calls:', toolCalls, 'Tool results:', toolResults);
-
-        if (toolResults.length === 0) {
-          logger.error('No tool results found');
-          continue;
-        }
-
-        const toolMessages = [
-          {
-            role: 'assistant',
-            content: toolCalls,
-          },
-          {
-            role: 'tool',
-            content: toolResults,
-          },
-        ];
-
-        const followUpResult = await streamText({
-          abortSignal: payload.signal,
-          model,
-          system: payload.systemPrompt,
-          messages: [...payload.messages, ...toolMessages],
-          maxTokens: payload.maxTokens,
-          tools: availableTools,
-        });
-
-        const toolName = toolResults?.[0]?.toolName || '';
-        onToolEndCall(
-          ChatToolCallEventDto.fromInput({
-            userId: payload.userId,
-            chatId: payload.chatId,
-            toolName,
-          }),
-        );
-
-        // TODO: Track token usage on tool calls
-
-        for await (const followUpChunk of followUpResult.textStream) {
-          if (payload.signal.aborted) return;
-          yield followUpChunk;
-        }
-        //
-      } else {
-        const text = chunk?.textDelta;
-        if (!text || text === undefined) {
-          continue;
-        }
-        yield text;
+    if (chunk.type === 'finish') {
+      switch (chunk.finishReason) {
+        case 'error':
+          throw new Error(`Finish Error: ${JSON.stringify(initalResult.rawResponse)}`);
+        case 'length':
+          onStreamStopLength();
+          return;
+        case 'tool-calls':
+          yield* handleToolCalls(initalResult, payload, model, availableTools);
+          return;
       }
     }
-  } catch (error: any) {
-    // ignore abort errors
-    if (error.name === 'AbortError') {
-      return;
+
+    if (chunk.type === 'text-delta') {
+      yield chunk.textDelta;
     }
-    logger.error('Stream processing error:', error);
-    throw error;
   }
+}
+
+async function* handleToolCalls(
+  initalResult: StreamTextResult<any>,
+  payload: StreamPayload,
+  model: any,
+  availableTools: any,
+) {
+  const [toolCalls, toolResults] = await Promise.all([initalResult.toolCalls, initalResult.toolResults]);
+
+  const toolMessages = [
+    { role: 'assistant', content: toolCalls },
+    { role: 'tool', content: toolResults },
+  ];
+
+  const followUpResult = await streamText({
+    abortSignal: payload.signal,
+    model,
+    system: payload.systemPrompt,
+    messages: [...payload.messages, ...toolMessages],
+    maxTokens: payload.maxTokens,
+    tools: availableTools,
+  });
+
+  const toolName = toolResults[0]?.toolName || '';
+  onToolEndCall(
+    ChatToolCallEventDto.fromInput({
+      userId: payload.userId,
+      chatId: payload.chatId,
+      toolName,
+    }),
+  );
+
+  yield* followUpResult.textStream;
 }

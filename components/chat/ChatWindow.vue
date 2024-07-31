@@ -329,7 +329,6 @@
     ref="chatBoxContainerRef"
     class="relative flex size-full flex-col border-0 px-10 pb-10 pt-20 md:px-20 2xl:px-40"
   >
-    <ContextBox />
     <!-- toggle sidebar -->
     <!--
     <div class="absolute left-0 top-1/2 -translate-y-1/2">
@@ -399,14 +398,8 @@
         :vision-contents="message.visionContent"
         :display-name="message.role === 'user' ? $t('chat.user.placeholder') : assistant?.title"
       />
-      <!-- tool call message -->
-      <ChatToolCallMessage
-        v-if="isPending && activeTools.length > 0"
-        :display-name="assistant?.title"
-        :active-tools="activeTools"
-      />
       <!-- pending message -->
-      <ChatMessageBox v-else-if="isPending" type="text" :display-name="assistant?.title" content="..." />
+      <ChatMessageBox v-if="isPending" type="text" :display-name="assistant?.title" content="..." />
       <!-- streaming message -->
       <ChatMessageChunk
         v-if="messageChunk.length > 0"
@@ -414,6 +407,8 @@
         :chunk="messageChunk"
         :assistant-name="assistant?.title"
       />
+      <!-- tool call message -->
+      <ChatToolCallMessage v-if="activeTools.length > 0" :display-name="assistant?.title" :active-tools="activeTools" />
       <!-- error message -->
       <div v-if="hasError" class="px-20 text-sm text-destructive">
         <p class="pb-2 font-semibold">Ups, something went wrong:</p>

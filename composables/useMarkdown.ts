@@ -33,7 +33,7 @@ export default function useMarkdown() {
     fuzzyEmail: false,
   };
 
-  const disable = ['reference', 'image', 'link', 'html_block', 'html_inline', 'autolink'];
+  const disable = ['reference', 'image', 'html_block', 'html_inline', 'autolink']; // 'link',
 
   const md = new MarkdownIt(mdOptions).disable(disable);
   md.linkify.set(linkifyOptions);

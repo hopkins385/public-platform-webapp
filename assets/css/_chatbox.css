@@ -45,3 +45,11 @@
 .chatbox__text-box table tr:nth-child(odd) {
   @apply bg-gray-100;
 }
+
+.chatbox__text-box a {
+  @apply text-blue-700;
+}
+
+.chatbox__text-box a:hover {
+  @apply text-blue-500;
+}
