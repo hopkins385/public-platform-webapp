@@ -13,7 +13,7 @@ import { StreamFinishedEventDto, FirstUserMessageEventDto } from '~/server/servi
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import { useEvents } from '~/server/events/useEvents';
 import consola from 'consola';
-import { convertToCoreMessages, streamText } from 'ai';
+import { streamText } from 'ai';
 import { VercelCompletionFactory } from '~/server/factories/vercelCompletionFactory';
 import { getTools } from '../../chatTools/vercelChatTools';
 import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
@@ -273,7 +273,7 @@ async function* generateStream(payload: {
     ),
   );
 
-  const availableTools = tools; //payload.provider === 'openai' || payload.provider === 'anthropic' ? tools : undefined;
+  const availableTools = payload.provider !== 'groq' ? tools : undefined;
 
   try {
     const initialResult = await streamText({

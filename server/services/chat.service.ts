@@ -134,6 +134,7 @@ export class ChatService {
           id: true,
           title: true,
           createdAt: true,
+          updatedAt: true,
           assistant: {
             select: {
               id: true,
@@ -155,7 +156,7 @@ export class ChatService {
           deletedAt: null,
         },
         orderBy: {
-          createdAt: 'desc',
+          updatedAt: 'desc',
         },
       })
       .withPages({
@@ -309,6 +310,15 @@ export class ChatService {
             amount: {
               decrement: 1,
             },
+          },
+        }),
+        // update chat updated at
+        this.prisma.chat.update({
+          where: {
+            id: payload.chatId,
+          },
+          data: {
+            updatedAt: new Date(),
           },
         }),
       ]);

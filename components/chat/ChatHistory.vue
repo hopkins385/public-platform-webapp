@@ -79,7 +79,7 @@
             <TableHead> Title </TableHead>
             <TableHead> Assistant </TableHead>
             <TableHead> Ai Model </TableHead>
-            <TableHead> Created At </TableHead>
+            <TableHead> Updated At </TableHead>
             <TableHead class="text-right"> Actions </TableHead>
           </TableRow>
         </TableHeader>
@@ -89,7 +89,7 @@
             <TableCell>{{ chat.assistant.title }}</TableCell>
             <TableCell>{{ chat.assistant.llm.displayName }}</TableCell>
             <TableCell>
-              {{ getDateTimeForHumans(chat.createdAt) }}
+              {{ getDateTimeForHumans(chat.updatedAt) }}
             </TableCell>
             <TableCell class="space-x-2 whitespace-nowrap text-right">
               <LinkButton :to="`/chats/${chat.id}`" class="group" variant="outline" size="icon">
