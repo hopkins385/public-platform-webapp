@@ -186,7 +186,7 @@ export class ChatService {
             tokenCount: true,
           },
           orderBy: {
-            createdAt: 'asc',
+            updatedAt: 'asc',
           },
         },
         assistant: {
