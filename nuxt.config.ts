@@ -12,7 +12,7 @@ export default defineNuxtConfig({
     },
   },
   devtools: {
-    enabled: false,
+    enabled: true,
   },
   telemetry: false,
   debug: false,
@@ -26,6 +26,7 @@ export default defineNuxtConfig({
     },
   },
   modules: [
+    '@nuxt/test-utils/module',
     '@nuxtjs/tailwindcss',
     'shadcn-nuxt',
     '@vee-validate/nuxt',
@@ -40,7 +41,7 @@ export default defineNuxtConfig({
     ['unplugin-icons/nuxt', { autoInstall: true }],
     '@vue-macros/nuxt',
     '@nuxtjs/device',
-    "@nuxt/eslint"
+    '@nuxt/eslint',
   ],
   runtimeConfig: {
     public: {

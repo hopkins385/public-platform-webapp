@@ -1,6 +1,14 @@
 <script setup lang="ts">
   import { useDropZone, useEventListener, useMutationObserver, useScroll } from '@vueuse/core';
-  import { MessageSquareTextIcon, MessageSquareXIcon, PaperclipIcon, SendIcon, SquareIcon } from 'lucide-vue-next';
+  import {
+    MessageSquareTextIcon,
+    MessageSquareXIcon,
+    PaperclipIcon,
+    SendIcon,
+    SquareIcon,
+    SquareSplitHorizontalIcon,
+    SquareXIcon,
+  } from 'lucide-vue-next';
   import ChatSettings from './ChatSettings.vue';
   import type { ChatMessage, ChatImage } from '~/interfaces/chat.interfaces';
 
@@ -354,9 +362,18 @@
       </div>
 
       <div class="pointer-events-auto flex shrink-0 space-x-3">
-        <Button size="icon" variant="outline" @click="clearChatMessages">
-          <MessageSquareXIcon class="size-4 stroke-1.5 group-hover:stroke-2" />
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger :as-child="true">
+              <Button size="icon" variant="outline" class="group" @click="clearChatMessages">
+                <SquareXIcon class="size-4 stroke-1.5 group-hover:stroke-2 group-hover:text-destructive" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p class="text-sm">Clear messages</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <!--
         <ChatShareDialog v-model="showShareDialog" />
         <Button
@@ -368,12 +385,34 @@
           <ShareIcon class="size-4 stroke-1.5 group-hover:stroke-2" />
         </Button>
         -->
+
         <ChatSettings />
-        <div>
-          <Button variant="outline" size="icon" @click="settings.newChatModalOpen = true">
-            <MessageSquareTextIcon class="size-4 stroke-1.5 group-hover:stroke-2" />
-          </Button>
-        </div>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger :as-child="true">
+              <Button variant="outline" size="icon" class="group" @click="settings.newChatModalOpen = true">
+                <MessageSquareTextIcon class="size-4 stroke-1.5 group-hover:stroke-2" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p class="text-sm">Start new Chat</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger :as-child="true">
+              <Button variant="outline" size="icon" class="group">
+                <SquareSplitHorizontalIcon class="size-4 stroke-1.5 group-hover:stroke-2" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p class="text-sm">Split Screen</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </div>
     <!-- chat messages container -->

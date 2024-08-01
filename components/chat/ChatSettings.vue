@@ -10,8 +10,8 @@
 <template>
   <Popover v-model:open="show">
     <PopoverTrigger as-child>
-      <Button variant="outline" size="icon">
-        <SlidersHorizontalIcon class="size-4 text-primary/70" />
+      <Button variant="outline" size="icon" class="group">
+        <SlidersHorizontalIcon class="size-4 stroke-1.5 text-primary/70 group-hover:stroke-2" />
       </Button>
     </PopoverTrigger>
     <PopoverContent align="end" class="mt-1 w-60 text-sm">
@@ -33,13 +33,7 @@
           </div>
           <div>{{ settings.getTemperature }}</div>
         </div>
-        <Slider
-          v-model="settings.temperature"
-          :default-value="[20]"
-          :max="100"
-          :step="1"
-          class="slider"
-        />
+        <Slider v-model="settings.temperature" :default-value="[20]" :max="100" :step="1" class="slider" />
       </div>
       <div v-if="presencePenalty" class="mb-5 flex flex-col space-y-4">
         <div class="flex w-full justify-between">
@@ -73,13 +67,7 @@
           </div>
           <div>{{ settings.getMaxTokens }}</div>
         </div>
-        <Slider
-          v-model="settings.maxTokens"
-          :default-value="[500]"
-          :max="3500"
-          :step="1"
-          class="slider"
-        />
+        <Slider v-model="settings.maxTokens" :default-value="[500]" :max="3500" :step="1" class="slider" />
       </div>
       <div class="flex flex-col">
         <div>
