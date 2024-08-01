@@ -1,3 +1,4 @@
+import type { H3Event } from 'h3';
 import type { ChatMessage, VisionImageUrlContent } from '~/interfaces/chat.interfaces';
 import { ChatToolCallEventDto } from '../../events/dto/chatToolCallEvent.dto';
 import { VectorService } from '../../services/vector.service';
@@ -168,46 +169,6 @@ export default defineEventHandler(async (_event) => {
     return transform;
   };
 
-  _event.node.res.on('close', () => {
-    controller.abort();
-
-    if (!gathered || gathered.length === 0) {
-      logger.error('completion finished but gathered text empty. This is causing errors on token calc!');
-    }
-
-    const inputTokens = tokenizerService.getTokens(body.messages[body.messages.length - 1].content);
-    const outputTokens = tokenizerService.getTokens(gathered);
-    const { event } = useEvents();
-
-    // creates the response message in the database
-    event(
-      ChatEvent.STREAM_FINISHED,
-      StreamFinishedEventDto.fromInput({
-        chatId: chat.id,
-        userId: user.id,
-        assistantId: chat.assistant.id,
-        messageContent: gathered,
-      }),
-    );
-
-    // tracks the tokens used by the user
-    event(
-      UsageEvent.TRACKTOKENS,
-      TrackTokensDto.fromInput({
-        userId: user.id,
-        llm: {
-          provider: body.provider,
-          model: body.model,
-        },
-        usage: {
-          promptTokens: inputTokens.tokenCount,
-          completionTokens: outputTokens.tokenCount,
-          totalTokens: inputTokens.tokenCount + outputTokens.tokenCount,
-        },
-      }),
-    );
-  });
-
   const generateStreamData = {
     signal: controller.signal,
     userId: user.id,
@@ -219,6 +180,10 @@ export default defineEventHandler(async (_event) => {
     maxTokens: body.maxTokens,
     config,
   };
+
+  _event.node.res.on('close', () => onResponseClose(_event, controller, chat, user, body, gathered));
+  _event.node.res.on('error', (error) => onResponseError(_event, error));
+  _event.node.res.on('drain', () => logger.debug('Response drain'));
 
   try {
     const generator = generateStream(generateStreamData);
@@ -244,6 +209,60 @@ interface StreamPayload {
   systemPrompt: string;
   maxTokens: number;
   config: any;
+}
+
+function onResponseClose(
+  _event: H3Event,
+  controller: AbortController,
+  chat: any,
+  user: any,
+  body: any,
+  gathered: string | undefined,
+) {
+  controller.abort();
+
+  if (!gathered || gathered.length === 0) {
+    logger.error('completion finished but gathered text empty. This is causing errors on token calc!');
+  }
+
+  const inputTokens = tokenizerService.getTokens(body.messages[body.messages.length - 1].content);
+  const outputTokens = tokenizerService.getTokens(gathered);
+  const { event } = useEvents();
+
+  // creates the response message in the database
+  event(
+    ChatEvent.STREAM_FINISHED,
+    StreamFinishedEventDto.fromInput({
+      chatId: chat.id,
+      userId: user.id,
+      assistantId: chat.assistant.id,
+      messageContent: gathered,
+    }),
+  );
+
+  // tracks the tokens used by the user
+  event(
+    UsageEvent.TRACKTOKENS,
+    TrackTokensDto.fromInput({
+      userId: user.id,
+      llm: {
+        provider: body.provider,
+        model: body.model,
+      },
+      usage: {
+        promptTokens: inputTokens.tokenCount,
+        completionTokens: outputTokens.tokenCount,
+        totalTokens: inputTokens.tokenCount + outputTokens.tokenCount,
+      },
+    }),
+  );
+
+  _event.node.res.end();
+}
+
+function onResponseError(_event: H3Event, error: any) {
+  logger.error('Response error:', error);
+  _event.node.res.end();
 }
 
 function onToolStartCall(payload: ChatToolCallEventDto) {
@@ -280,7 +299,7 @@ function logWarnings(warnings: any[] | undefined) {
   }
 }
 
-function handleStreamError(error: any) {
+function handleStreamGeneratorError(error: any) {
   if (error.name === 'AbortError') return;
   logger.error('Stream generator error:', error);
   throw error;
@@ -304,7 +323,7 @@ async function* generateStream(payload: StreamPayload) {
 
     yield* handleStream(initialResult, payload, model, availableTools);
   } catch (error: any) {
-    handleStreamError(error);
+    handleStreamGeneratorError(error);
   }
 }
 
