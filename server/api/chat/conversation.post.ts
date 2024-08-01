@@ -1,6 +1,6 @@
 import type { ChatMessage, VisionImageUrlContent } from '~/interfaces/chat.interfaces';
-import { ChatToolCallEventDto } from './../../events/dto/chatToolCallEvent.dto';
-import { VectorService } from './../../services/vector.service';
+import { ChatToolCallEventDto } from '../../events/dto/chatToolCallEvent.dto';
+import { VectorService } from '../../services/vector.service';
 import { CollectionService } from '~/server/services/collection.service';
 import { TokenizerService } from '~/server/services/tokenizer.service';
 import { getServerSession } from '#auth';
