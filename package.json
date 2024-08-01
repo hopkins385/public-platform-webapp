@@ -92,6 +92,7 @@
     "@vee-validate/i18n": "^4.13.2",
     "@vee-validate/nuxt": "^4.13.2",
     "@vee-validate/zod": "^4.13.2",
+    "@vscode/markdown-it-katex": "^1.1.0",
     "@vueuse/components": "^10.11.0",
     "@vueuse/core": "^10.11.0",
     "ai": "^3.2.40",

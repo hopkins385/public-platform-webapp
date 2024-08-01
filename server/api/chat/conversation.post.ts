@@ -301,7 +301,7 @@ function logWarnings(warnings: any[] | undefined) {
 
 function handleStreamGeneratorError(error: any) {
   if (error.name === 'AbortError') return;
-  logger.error('Stream generator error:', error);
+  logger.error('Stream generator error:', JSON.stringify(error));
   throw error;
 }
 
