@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { ProviderAuthService } from '~/server/services/provider-auth.service';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const providerAuthService = new ProviderAuthService(prisma);
 
 export const providerAuthRouter = router({

@@ -3,8 +3,8 @@ import { google } from 'googleapis';
 import { z } from 'zod';
 import { getServerSession } from '#auth';
 import { ProviderAuthDto } from '~/server/services/dto/provider-auth.dto';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const providerAuthService = new ProviderAuthService(prisma);
 
 const codeSchema = z.object({
@@ -22,9 +22,7 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
-  const result = await getValidatedQuery(_event, (query) =>
-    codeSchema.safeParse(query),
-  );
+  const result = await getValidatedQuery(_event, (query) => codeSchema.safeParse(query));
 
   if (!result.success) {
     throw createError({
@@ -33,11 +31,7 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
-  const oauth2Client = new google.auth.OAuth2(
-    config.clientId,
-    config.clientSecret,
-    config.redirectUrl,
-  );
+  const oauth2Client = new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUrl);
 
   const { code } = result.data;
   const { tokens } = await oauth2Client.getToken(code);

@@ -8,8 +8,8 @@ import {
   UpdateWorkflowStepDto,
   UpdateWorkflowStepNameDto,
 } from '~/server/services/dto/workflow-step.dto';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const workflowStepService = new WorkflowStepService(prisma);
 
 export const workflowStepRouter = router({

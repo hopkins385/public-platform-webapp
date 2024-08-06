@@ -1,14 +1,9 @@
 import { DocumentService } from './../../services/document.service';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
-import { TRPCError } from '@trpc/server';
-import {
-  CreateDocumentDto,
-  FindAllDocumentsDto,
-  UpdateDocumentDto,
-} from '~/server/services/dto/document.dto';
+import { CreateDocumentDto, FindAllDocumentsDto, UpdateDocumentDto } from '~/server/services/dto/document.dto';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const documentService = new DocumentService(prisma);
 
 export const documentRouter = router({
@@ -35,10 +30,7 @@ export const documentRouter = router({
       }),
     )
     .query(async ({ input, ctx }) => {
-      return documentService.findFirst(
-        input.projectId.toLowerCase(),
-        input.documentId.toLowerCase(),
-      );
+      return documentService.findFirst(input.projectId.toLowerCase(), input.documentId.toLowerCase());
     }),
   // find all documents
   findAll: protectedProcedure

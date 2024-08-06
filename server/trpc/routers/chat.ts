@@ -5,8 +5,8 @@ import { ulidRule } from '~/server/utils/validation/ulid.rule';
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import { ChatMessageRule } from '~/server/utils/validation/chat-message.rule';
 import { GetAllChatsForUserDto } from '~/server/services/dto/chat.dto';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const chatService = new ChatService(prisma);
 
 export const chatRouter = router({

@@ -19,8 +19,8 @@ import { VercelCompletionFactory } from '~/server/factories/vercelCompletionFact
 import { getTools } from '../../chatTools/vercelChatTools';
 import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
 import { Readable, Transform } from 'stream';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const chatService = new ChatService(prisma);
 const tokenizerService = new TokenizerService();
 const collectionService = new CollectionService(prisma);

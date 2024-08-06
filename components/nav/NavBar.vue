@@ -3,24 +3,32 @@
   import {
     BotIcon,
     MessagesSquareIcon,
-    PenLineIcon,
     ArchiveIcon,
     HomeIcon,
     FileTextIcon,
-    FolderIcon,
     WorkflowIcon,
     DatabaseIcon,
     CloudUploadIcon,
-    LayersIcon,
     ChevronRightIcon,
     SettingsIcon,
+    Building2Icon,
+    UsersIcon,
+    FolderKanbanIcon,
+    BriefcaseBusinessIcon,
+    UserIcon,
   } from 'lucide-vue-next';
+
+  const props = defineProps<{
+    isSettings: boolean;
+  }>();
 
   const navBarRef = ref(null);
   const navBarResizerRef = ref(null);
 
+  const route = useRoute();
+
   const navBar = useNavBarStore();
-  const projectStore = useProjectStore();
+  const workspaceStore = useWorkspaceStore();
   const { data: auth } = useAuth();
 
   const adminRoutes = [
@@ -42,7 +50,7 @@
     },
   ];
 
-  const navItems = computed(() => {
+  const defaultNavItems = computed(() => {
     const publicRoutes = [
       {
         name: 'home',
@@ -55,7 +63,7 @@
       {
         name: 'workflows',
         icon: WorkflowIcon,
-        to: `/projects/${projectStore.activeProjectId}`,
+        to: `/projects/${workspaceStore.activeProjectId}`,
         label: 'Workflows',
         hidden: false,
         children: [],
@@ -120,6 +128,117 @@
     return publicRoutes;
   });
 
+  const settings = [
+    {
+      name: 'Profile',
+      icon: UserIcon,
+      to: '/settings/profile',
+      label: 'My Profile',
+      hidden: false,
+      children: [],
+    },
+    {
+      name: 'Organization',
+      icon: Building2Icon,
+      to: '/settings/organization',
+      label: 'Organization',
+      hidden: false,
+      children: [
+        {
+          name: 'Organization',
+          icon: Building2Icon,
+          to: '/settings/organization',
+          label: 'Overview',
+          hidden: false,
+        },
+        {
+          name: 'Members',
+          icon: UsersIcon,
+          to: '/settings/organization/members',
+          label: 'Members',
+          hidden: false,
+        },
+        {
+          name: 'Billing',
+          icon: SettingsIcon,
+          to: '/settings/organization/billing',
+          label: 'Billing',
+          hidden: false,
+        },
+        {
+          name: 'Models',
+          icon: SettingsIcon,
+          to: '/settings/organization/models',
+          label: 'Models',
+          hidden: false,
+        },
+        {
+          name: 'Statistics',
+          icon: SettingsIcon,
+          to: '/settings/organization/statistics',
+          label: 'Statistics',
+          hidden: false,
+        },
+        {
+          name: 'Privacy',
+          icon: SettingsIcon,
+          to: '/settings/organization/privacy',
+          label: 'Privacy',
+          hidden: false,
+        },
+      ],
+    },
+    {
+      name: 'Workspace',
+      icon: BriefcaseBusinessIcon,
+      to: '/settings/workspaces',
+      label: 'Workspaces',
+      hidden: false,
+      children: [
+        {
+          name: 'General',
+          icon: BriefcaseBusinessIcon,
+          to: '/settings/workspaces',
+          label: 'Overview',
+        },
+        {
+          name: 'Users',
+          icon: UsersIcon,
+          to: '/settings/workspace/users',
+          label: 'Users',
+        },
+      ],
+    },
+    {
+      name: 'Project',
+      icon: FolderKanbanIcon,
+      to: '/settings/projects',
+      label: 'Projects',
+      hidden: false,
+      children: [
+        {
+          name: 'General',
+          icon: FolderKanbanIcon,
+          to: '/settings/projects',
+          label: 'Overview',
+        },
+        {
+          name: 'Users',
+          icon: UsersIcon,
+          to: '/settings/project/users',
+          label: 'Users',
+        },
+      ],
+    },
+  ];
+
+  const navItems = computed(() => {
+    if (props.isSettings) {
+      return settings;
+    }
+    return defaultNavItems.value;
+  });
+
   const { pressed } = useMousePressed({ target: navBarResizerRef });
 
   function onFullScreenClick() {
@@ -164,9 +283,11 @@
       <div class="flex justify-between pt-4">
         <BrandLogo class="ml-[1.855rem]" :text-visible="navBar.isOpen" />
       </div>
-      <div class="h-4" id="spacer"></div>
-      <div class="px-4 pb-4" v-if="navBar.isOpen">
+      <div id="spacer" class="h-4"></div>
+      <div v-if="navBar.isOpen" class="px-4 pb-4">
+        <!-- 
         <ProjectSelectGlobal select-trigger-class="bg-neutral-50" />
+        -->
       </div>
       <div class="flex h-full flex-col">
         <ul class="space-y-2">
@@ -174,14 +295,21 @@
             <li v-if="item.to" class="nav-item">
               <NavLink
                 v-if="item.to"
-                :active="$route.path === item.to"
+                :active="route.path === item.to"
                 :to="item.to"
                 :icon="item.icon"
                 :label="item.label"
                 :label-visible="navBar.isOpen"
               />
-              <!-- ul v-if="item.children.length > 0 && true === false" :class="navBar.isOpen ? 'block' : 'hidden'">
-                <li class="nav-item-child" v-for="(child, index) in item.children" :key="index">
+              <ul
+                v-if="item.children.length > 0"
+                :class="navBar.isOpen ? 'block' : 'hidden'"
+              >
+                <li
+                  v-for="child in item.children"
+                  :key="child?.to"
+                  class="nav-item-child"
+                >
                   <NavLink
                     :active="$route.path === child?.to"
                     :to="child?.to"
@@ -190,7 +318,7 @@
                     :label-visible="navBar.isOpen"
                   />
                 </li>
-              </!-->
+              </ul>
             </li>
             <li v-else class="px-5">
               <Separator class="bg-stone-200" />
@@ -202,7 +330,10 @@
         class="absolute bottom-4 right-2 z-10 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-white/0 opacity-80 hover:border"
         @click="() => navBar.toggleOpen()"
       >
-        <ChevronRightIcon class="size-4 text-muted-foreground/50" :class="{ 'rotate-180 transform': navBar.isOpen }" />
+        <ChevronRightIcon
+          class="size-4 text-muted-foreground/50"
+          :class="{ 'rotate-180 transform': navBar.isOpen }"
+        />
       </div>
     </div>
     <div class="px-5">

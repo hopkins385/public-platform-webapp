@@ -12,13 +12,13 @@ import { useEvents } from '../events/useEvents';
 import consola from 'consola';
 import { VercelCompletionFactory } from '../factories/vercelCompletionFactory';
 import { generateText, type CoreMessage } from 'ai';
+import prisma from '../prisma';
 
 interface WorkflowWorker {
   name: string;
   options: WorkerOptions;
 }
 
-const prisma = getPrismaClient();
 const assistantJobService = new AssistantJobService(prisma);
 const documentItemService = new DocumentItemService(prisma);
 const chatService = new ChatService(prisma);

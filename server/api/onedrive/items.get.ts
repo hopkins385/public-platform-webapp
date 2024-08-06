@@ -1,16 +1,13 @@
 import { ProviderAuthService } from '~/server/services/provider-auth.service';
-import type {
-  ConfidentialClientApplication,
-  AccountInfo,
-} from '@azure/msal-node';
+import type { ConfidentialClientApplication } from '@azure/msal-node';
 import type { User } from '@prisma/client';
 import * as graph from '@microsoft/microsoft-graph-client';
 import { z } from 'zod';
 import { getServerSession } from '#auth';
 import 'isomorphic-fetch';
 import consola from 'consola';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const config = useRuntimeConfig().azure;
 const providerAuthService = new ProviderAuthService(prisma);
 
@@ -21,10 +18,7 @@ const querySchema = z.object({
 
 const logger = consola.create({}).withTag('api.onedrive.items.get');
 
-function getAuthenticatedClient(
-  msalClient: ConfidentialClientApplication,
-  homeAccountId: string,
-) {
+function getAuthenticatedClient(msalClient: ConfidentialClientApplication, homeAccountId: string) {
   // Initialize Graph client
   return graph.Client.init({
     // Implement an auth provider that gets a token
@@ -32,9 +26,7 @@ function getAuthenticatedClient(
     authProvider: async (done) => {
       try {
         // Get the user's account
-        const account = await msalClient
-          .getTokenCache()
-          .getAccountByHomeId(homeAccountId);
+        const account = await msalClient.getTokenCache().getAccountByHomeId(homeAccountId);
 
         if (account) {
           // Attempt to get the token silently
@@ -58,33 +50,20 @@ function getAuthenticatedClient(
   });
 }
 
-async function getUserDetails(
-  msalClient: ConfidentialClientApplication,
-  user: Partial<User>,
-  config: any,
-) {
+async function getUserDetails(msalClient: ConfidentialClientApplication, user: Partial<User>, config: any) {
   const client = getAuthenticatedClient(msalClient, config);
 
-  const azureUser = await client
-    .api('/me')
-    .select('displayName,mail,mailboxSettings,userPrincipalName')
-    .get();
+  const azureUser = await client.api('/me').select('displayName,mail,mailboxSettings,userPrincipalName').get();
 
   return azureUser;
 }
 
-async function getDriveItems(
-  msalClient: ConfidentialClientApplication,
-  homeAccountId: string,
-  query?: string,
-) {
+async function getDriveItems(msalClient: ConfidentialClientApplication, homeAccountId: string, query?: string) {
   const client = getAuthenticatedClient(msalClient, homeAccountId);
   const root = '/me/drive/root/children';
   const result = await client
     .api(query ?? root)
-    .select(
-      'id, name, size, file, folder, lastModifiedDateTime, content.downloadUrl',
-    )
+    .select('id, name, size, file, folder, lastModifiedDateTime, content.downloadUrl')
     .get();
 
   return result;
@@ -118,9 +97,7 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
-  const validatedQuery = await getValidatedQuery(_event, (query) =>
-    querySchema.safeParse(query),
-  );
+  const validatedQuery = await getValidatedQuery(_event, (query) => querySchema.safeParse(query));
 
   let query: string | undefined;
   if (validatedQuery.success) {

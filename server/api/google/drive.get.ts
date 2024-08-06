@@ -4,8 +4,8 @@ import { ProviderAuthDto } from '~/server/services/dto/provider-auth.dto';
 import { ProviderAuthService } from '~/server/services/provider-auth.service';
 import { google } from 'googleapis';
 import consola from 'consola';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const providerAuthService = new ProviderAuthService(prisma);
 
 const querySchema = z.object({
@@ -35,11 +35,7 @@ export default defineEventHandler(async (_event) => {
   }
 
   const config = useRuntimeConfig().google;
-  const oauth2Client = new google.auth.OAuth2(
-    config.clientId,
-    config.clientSecret,
-    config.redirectUrl,
-  );
+  const oauth2Client = new google.auth.OAuth2(config.clientId, config.clientSecret, config.redirectUrl);
 
   oauth2Client.on('tokens', async (tokens) => {
     if (tokens && tokens.access_token) {
@@ -65,9 +61,7 @@ export default defineEventHandler(async (_event) => {
   let searchFileName = '';
   let searchFolderId = '';
   let pageToken = '';
-  const validatedQuery = await getValidatedQuery(_event, (query) =>
-    querySchema.safeParse(query),
-  );
+  const validatedQuery = await getValidatedQuery(_event, (query) => querySchema.safeParse(query));
 
   if (!validatedQuery.success) {
     logger.error(`invalid query: ${validatedQuery.error}`);

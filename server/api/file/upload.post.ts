@@ -6,8 +6,8 @@ import { MediaService } from '~/server/services/media.service';
 import { StorageService } from '~/server/services/storage.service';
 import consola from 'consola';
 import { UploadFiletDto } from '~/server/services/dto/file.dto';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const storageService = new StorageService();
 const mediaService = new MediaService(prisma);
 

@@ -1,12 +1,9 @@
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { ProjectService } from '~/server/services/project.service';
-import {
-  CreateProjectDto,
-  UpdateProjectDto,
-} from '~/server/services/dto/project.dto';
+import { CreateProjectDto, UpdateProjectDto } from '~/server/services/dto/project.dto';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const projectService = new ProjectService(prisma);
 
 export const projectRouter = router({
@@ -57,10 +54,7 @@ export const projectRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      return await projectService.findManyPaginated(
-        ctx.user.teamId,
-        input.page,
-      );
+      return await projectService.findManyPaginated(ctx.user.teamId, input.page);
     }),
 
   // get all projects

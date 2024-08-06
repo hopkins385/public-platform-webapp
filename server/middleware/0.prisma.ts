@@ -1,6 +1,6 @@
 import consola from 'consola';
 import { eventHandler } from 'h3';
-import { getPrismaClient } from '~/server/utils/prisma/usePrisma';
+import prisma, { type ExtendedPrismaClient } from '../prisma';
 
 declare module 'h3' {
   interface H3EventContext {
@@ -11,5 +11,5 @@ declare module 'h3' {
 const logger = consola.create({}).withTag('server.prisma-middleware');
 
 export default eventHandler((event) => {
-  event.context.prisma = getPrismaClient();
+  event.context.prisma = prisma;
 });

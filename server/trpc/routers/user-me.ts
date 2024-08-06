@@ -1,14 +1,14 @@
 import { UserService } from '~/server/services/user.service';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const userService = new UserService(prisma);
 
 export const userMeRouter = router({
   // get me
-  user: protectedProcedure.query(async ({ ctx }) => {
-    return await userService.getUserById(ctx.user.id);
+  user: protectedProcedure.query(async ({ ctx: { user } }) => {
+    return await userService.getUserById(user.id);
   }),
   // update me
   update: protectedProcedure
@@ -20,7 +20,7 @@ export const userMeRouter = router({
         }),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       const { data } = input;
       const name = `${data.firstName} ${data.lastName}`;
       // wait for 500 ms to show the loading state
@@ -37,12 +37,8 @@ export const userMeRouter = router({
         newPassword: z.string().min(6).max(100),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
-      return userService.updatePassword(
-        ctx.user.id,
-        input.currentPassword,
-        input.newPassword,
-      );
+    .mutation(async ({ ctx: { user }, input }) => {
+      return userService.updatePassword(user.id, input.currentPassword, input.newPassword);
     }),
   delete: protectedProcedure
     .input(
@@ -51,10 +47,10 @@ export const userMeRouter = router({
         password: z.string().min(6).max(100),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
-      if (ctx.user.id !== input.userId.toLowerCase()) {
+    .mutation(async ({ ctx: { user }, input }) => {
+      if (user.id !== input.userId.toLowerCase()) {
         throw new Error('Invalid user');
       }
-      return userService.softDelete(ctx.user.id, input.password);
+      return userService.softDelete(user.id, input.password);
     }),
 });

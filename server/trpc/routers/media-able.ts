@@ -4,8 +4,8 @@ import { mediaAbleRule } from '~/server/utils/validation/media-able.rule';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { AttachMediaAbleDto, DetachMediaAbleDto } from '~/server/services/dto/media-able.dto';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const mediaAbleService = new MediaAbleService(prisma);
 
 export const mediaAbleRouter = router({

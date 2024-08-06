@@ -2,12 +2,9 @@ import { DocumentItemService } from './../../services/document-item.service';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { ulidRule } from '~/server/utils/validation/ulid.rule';
-import {
-  CreateDocumentItemDto,
-  UpdateDocumentItemDto,
-} from '~/server/services/dto/document-item.dto';
+import { CreateDocumentItemDto, UpdateDocumentItemDto } from '~/server/services/dto/document-item.dto';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const documentItemService = new DocumentItemService(prisma);
 
 export const documentItemRouter = router({
@@ -38,9 +35,7 @@ export const documentItemRouter = router({
       ),
     )
     .mutation(async ({ input }) => {
-      const payload = input.map((item) =>
-        CreateDocumentItemDto.fromInput(item),
-      );
+      const payload = input.map((item) => CreateDocumentItemDto.fromInput(item));
       return documentItemService.createMany(payload);
     }),
   find: protectedProcedure
@@ -88,9 +83,7 @@ export const documentItemRouter = router({
       ),
     )
     .mutation(async ({ input }) => {
-      const payload = input.map((item) =>
-        UpdateDocumentItemDto.fromInput(item),
-      );
+      const payload = input.map((item) => UpdateDocumentItemDto.fromInput(item));
       return documentItemService.updateMany(payload);
     }),
   delete: protectedProcedure

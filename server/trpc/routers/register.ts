@@ -2,8 +2,8 @@ import { UserService } from '~/server/services/user.service';
 import { publicProcedure, router } from '../trpc';
 import { z } from 'zod';
 import { verifyEmail } from '@devmehq/email-validator-js';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const userService = new UserService(prisma);
 
 export const registerRouter = router({
@@ -30,7 +30,7 @@ export const registerRouter = router({
         terms: z.boolean(),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ input }) => {
       // wait 500ms
       await new Promise((resolve) => setTimeout(resolve, 500));
       return await userService.createNewUser(input);
@@ -42,7 +42,7 @@ export const registerRouter = router({
         token: z.string(),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ input }) => {
       const user = await userService.confirmEmail(input);
       if (!user) {
         throw new Error('User not found');

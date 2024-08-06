@@ -4,8 +4,8 @@ import { ProviderAuthService } from '~/server/services/provider-auth.service';
 import { ProviderAuthDto } from '~/server/services/dto/provider-auth.dto';
 import consola from 'consola';
 import type * as msal from '@azure/msal-node';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const config = useRuntimeConfig().azure;
 const providerAuthService = new ProviderAuthService(prisma);
 
@@ -19,9 +19,7 @@ export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);
   const authUser = getAuthUser(session); // do not remove this line
 
-  const query = await getValidatedQuery(_event, (query) =>
-    querySchema.safeParse(query),
-  );
+  const query = await getValidatedQuery(_event, (query) => querySchema.safeParse(query));
 
   if (!query.success) {
     throw createError({

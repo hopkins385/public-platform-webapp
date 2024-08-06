@@ -4,8 +4,8 @@ import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { ulidRule } from '~/server/utils/validation/ulid.rule';
 import { TRPCError } from '@trpc/server';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const workflowService = new WorkflowService(prisma);
 
 export const workflowRouter = router({

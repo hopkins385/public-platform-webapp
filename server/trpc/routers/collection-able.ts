@@ -6,8 +6,8 @@ import {
   DetachCollectionAbleDto,
 } from '~/server/services/dto/collection-able.dto';
 import { CollectionAbleService } from '~/server/services/collection-able.service';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const collectionAbleService = new CollectionAbleService(prisma);
 
 export const collectionAbleRouter = router({

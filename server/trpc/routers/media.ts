@@ -3,8 +3,8 @@ import { MediaService } from '~/server/services/media.service';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { MediaAbleDto } from '~/server/services/dto/media-able.dto';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const mediaService = new MediaService(prisma);
 
 export const mediaRouter = router({

@@ -4,8 +4,8 @@ import { CreateCollectionDto } from '~/server/services/dto/collection.dto';
 import { CollectionService } from '~/server/services/collection.service';
 import { collectionAbleRule } from '~/server/utils/validation/collection-able.rule';
 import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const collectionService = new CollectionService(prisma);
 
 export const collectionRouter = router({

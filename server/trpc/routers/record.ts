@@ -2,8 +2,8 @@ import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { RecordService } from '~/server/services/record.service';
 import { CreateRecordDto, FindRecordsDto } from '~/server/services/dto/record.dto';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const config = useRuntimeConfig();
 const recordService = new RecordService(prisma, config);
 

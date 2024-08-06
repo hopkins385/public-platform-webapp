@@ -1,7 +1,7 @@
 import { LastLoginDto } from '~/server/services/dto/last-login.dto';
 import { UserService } from '~/server/services/user.service';
+import prisma from '../prisma';
 
-const prisma = getPrismaClient();
 const userService = new UserService(prisma);
 
 export async function updateLastLogin(user: any) {

@@ -4,8 +4,8 @@ import { ChatService } from '~/server/services/chat.service';
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import { getIO } from '../socket/socketInstance';
 import consola from 'consola';
+import prisma from '../prisma';
 
-const prisma = getPrismaClient();
 const chatService = new ChatService(prisma);
 const { queueAddJob } = useBullmq();
 

@@ -3,11 +3,11 @@ import { UserService } from '~/server/services/user.service';
 import { z } from 'zod';
 import { adminProcedure, router } from '../trpc';
 import { CreateUserByAdminDto, UpdateUserByAdminDto } from '~/server/services/dto/admin-user.dto';
+import prisma from '~/server/prisma';
 
 const pageRule = () => z.number().int().positive().default(1);
 const limitRule = () => z.number().int().positive().default(20);
 
-const prisma = getPrismaClient();
 const userService = new UserService(prisma);
 const teamService = new TeamService(prisma);
 

@@ -10,8 +10,8 @@ import {
   UpdateAssistantDto,
 } from '~/server/services/dto/assistant.dto';
 import { ulidRule } from '~/server/utils/validation/ulid.rule';
+import prisma from '~/server/prisma';
 
-const prisma = getPrismaClient();
 const assistantService = new AssistantService(prisma);
 
 export const assistantRouter = router({
