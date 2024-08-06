@@ -7,6 +7,7 @@ import type {
   DeleteAssistantDto,
 } from './dto/assistant.dto';
 import { ULID } from '~/server/utils/ulid';
+import type { ExtendedPrismaClient } from '../prisma';
 
 export class AssistantService {
   private readonly prisma: ExtendedPrismaClient;

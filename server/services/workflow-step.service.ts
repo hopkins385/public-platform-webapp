@@ -1,3 +1,4 @@
+import type { ExtendedPrismaClient } from '../prisma';
 import { DocumentItemService } from './document-item.service';
 import { DocumentService } from './document.service';
 import { CreateDocumentItemDto } from './dto/document-item.dto';

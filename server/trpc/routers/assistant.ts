@@ -28,11 +28,11 @@ export const assistantRouter = router({
         systemPromptTokenCount: z.number(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ ctx: { user }, input }) => {
       const payload = CreateAssistantDto.fromInput(input);
 
       // policy check
-      assistantService.canCreateAssistantPolicy(payload, ctx.user);
+      assistantService.canCreateAssistantPolicy(payload, user);
 
       return await assistantService.create(payload);
     }),
@@ -43,7 +43,7 @@ export const assistantRouter = router({
         id: ulidRule(),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx: { user }, input }) => {
       const payload = FindAssistantDto.fromInput(input);
       const assistant = await assistantService.findFirst(payload);
 
@@ -57,7 +57,7 @@ export const assistantRouter = router({
       // console.log(assistant);
 
       // policy check
-      assistantService.canAccessAssistantPolicy(assistant, ctx.user);
+      assistantService.canAccessAssistantPolicy(assistant, user);
 
       return assistant;
     }),
@@ -69,8 +69,8 @@ export const assistantRouter = router({
         searchQuery: z.string().max(255).optional(),
       }),
     )
-    .query(({ ctx, input }) => {
-      const payload = FindAllAssistantsDto.fromInput(ctx.user.teamId, input.page, input.searchQuery);
+    .query(({ ctx: { user }, input }) => {
+      const payload = FindAllAssistantsDto.fromInput(user.teamId, input.page, input.searchQuery);
 
       return assistantService.findAll(payload);
     }),
@@ -88,11 +88,11 @@ export const assistantRouter = router({
         systemPromptTokenCount: z.number(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ ctx: { user }, input }) => {
       const payload = UpdateAssistantDto.fromInput(input);
 
       // policy check
-      await assistantService.canUpdateAssistantPolicy(payload, ctx.user);
+      await assistantService.canUpdateAssistantPolicy(payload, user);
 
       return await assistantService.update(payload);
     }),
@@ -104,11 +104,11 @@ export const assistantRouter = router({
         id: ulidRule(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ ctx: { user }, input }) => {
       const deletePayload = DeleteAssistantDto.fromInput(input);
 
       // policy check
-      await assistantService.canDeleteAssistantPolicy(deletePayload, ctx.user);
+      await assistantService.canDeleteAssistantPolicy(deletePayload, user);
 
       return await assistantService.softDelete(deletePayload);
     }),

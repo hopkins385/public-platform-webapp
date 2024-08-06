@@ -20,9 +20,9 @@ const adminUsersRouter = router({
         search: z.string().optional(),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx: { user }, input }) => {
       return await userService.getAllUsersByOrgId({
-        orgId: ctx.user.orgId,
+        orgId: user.orgId,
         page: input.page,
         limit: input.limit,
         search: input.search,
@@ -44,7 +44,7 @@ const adminUsersRouter = router({
         isAdmin: z.boolean().default(false),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ ctx: { user }, input }) => {
       const randomString = Math.random().toString(36).substring(7);
       return await userService.createNewUserByAdmin(
         CreateUserByAdminDto.fromInput({
@@ -53,7 +53,7 @@ const adminUsersRouter = router({
           lastName: input.lastName,
           password: input.password ?? randomString,
           isAdmin: input.isAdmin,
-          teamId: ctx.user.teamId,
+          teamId: user.teamId,
         }),
       );
     }),
@@ -80,8 +80,8 @@ const adminUsersRouter = router({
       );
     }),
 
-  delete: adminProcedure.input(z.object({ id: ulidRule() })).mutation(async ({ ctx, input }) => {
-    return await userService.softDeleteUser(input.id, ctx.user.orgId);
+  delete: adminProcedure.input(z.object({ id: ulidRule() })).mutation(async ({ ctx: { user }, input }) => {
+    return await userService.softDeleteUser(input.id, user.orgId);
   }),
 });
 
@@ -94,17 +94,17 @@ const adminTeamsRouter = router({
         search: z.string().optional(),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx: { user }, input }) => {
       return await teamService.getAllTeamsByOrgId({
-        orgId: ctx.user.orgId,
+        orgId: user.orgId,
         page: input.page,
         limit: input.limit,
         search: input.search,
       });
     }),
 
-  deleteTeam: adminProcedure.input(z.object({ id: ulidRule() })).mutation(async ({ ctx, input }) => {
-    return await teamService.softDeleteTeam(input.id, ctx.user.orgId);
+  deleteTeam: adminProcedure.input(z.object({ id: ulidRule() })).mutation(async ({ ctx: { user }, input }) => {
+    return await teamService.softDeleteTeam(input.id, user.orgId);
   }),
 });
 

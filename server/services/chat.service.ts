@@ -4,6 +4,7 @@ import type { CreateChatMessageDto } from './dto/chat-message.dto';
 import { TRPCError } from '@trpc/server';
 import consola from 'consola';
 import type { GetAllChatsForUserDto } from './dto/chat.dto';
+import type { ExtendedPrismaClient } from '../prisma';
 
 interface UpsertMessage extends ChatMessage {
   id: string;

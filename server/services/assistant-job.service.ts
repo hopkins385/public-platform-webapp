@@ -7,6 +7,7 @@ import { scrapeWebsite } from '~/utils/scrapeWebsite';
 import { VercelCompletionFactory } from '../factories/vercelCompletionFactory';
 import { generateText, type CoreMessage } from 'ai';
 import consola from 'consola';
+import type { ExtendedPrismaClient } from '../prisma';
 
 const { event } = useEvents();
 

@@ -1,7 +1,5 @@
-import type {
-  CreateWorkflowStepAbleDto,
-  UpdateWorkflowStepAbleDto,
-} from './dto/workflow-step-able.dto';
+import type { ExtendedPrismaClient } from '../prisma';
+import type { CreateWorkflowStepAbleDto, UpdateWorkflowStepAbleDto } from './dto/workflow-step-able.dto';
 
 export class WorkflowStepAbleService {
   private readonly prisma: ExtendedPrismaClient;

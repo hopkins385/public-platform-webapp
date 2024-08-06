@@ -1,6 +1,7 @@
 import type { inferAsyncReturnType } from '@trpc/server';
 import type { H3Event } from 'h3';
 import { getServerSession } from '#auth';
+import type { SessionUser } from '../api/auth/[...]';
 
 /**
  * Creates context for an incoming request
@@ -8,11 +9,11 @@ import { getServerSession } from '#auth';
  */
 export async function createContext(_event: H3Event) {
   const session = await getServerSession(_event);
+  const user: SessionUser = session?.user;
 
   return {
-    // prisma: _event.context.prisma,
-    user: session?.user ?? null,
-    // vectorStore: _event.context.vectorStore,
+    prisma: _event.context.prisma,
+    user,
   };
 }
 

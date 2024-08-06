@@ -1,7 +1,6 @@
-import { PrismaClient } from '@prisma/client';
 import type Stripe from 'stripe';
 import type { SubscriptionDto } from './dto/subscription.dto';
-import type { ExtendedPrismaClient } from '../utils/prisma/usePrisma';
+import type { ExtendedPrismaClient } from '../prisma';
 
 export class SubscriptionService {
   private readonly prisma: ExtendedPrismaClient;
@@ -73,9 +72,7 @@ export class SubscriptionService {
       stripeCustomerId: event.customer as string,
       status: event.status,
       stripePriceId: event.items.data[0].price.id,
-      trialEndsAt: event.trial_end
-        ? new Date(event.trial_end * 1000)
-        : undefined,
+      trialEndsAt: event.trial_end ? new Date(event.trial_end * 1000) : undefined,
       endsAt: event.cancel_at ? new Date(event.cancel_at * 1000) : undefined,
     };
     return await this.prisma.subscription.upsert({

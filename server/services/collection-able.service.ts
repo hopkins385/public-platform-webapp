@@ -1,3 +1,4 @@
+import type { ExtendedPrismaClient } from '../prisma';
 import type {
   AttachCollectionAbleDto,
   DetachAllCollectionAbleDto,

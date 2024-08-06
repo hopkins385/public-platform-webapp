@@ -10,7 +10,7 @@ export const tokenizerRouter = router({
         content: z.string().min(1),
       }),
     )
-    .query(({ ctx, input }) => {
+    .query(({ input }) => {
       const enc = getEncoding('cl100k_base');
       const charCount = input.content.length;
       const tokens = enc.encode(input.content);

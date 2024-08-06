@@ -1,3 +1,4 @@
+import type { ExtendedPrismaClient } from '../prisma';
 import type { CollectionAbleDto } from './dto/collection-able.dto';
 import type { CreateCollectionDto } from './dto/collection.dto';
 
@@ -141,11 +142,7 @@ export class CollectionService {
     });
   }
 
-  async update(
-    teamId: string,
-    collectionId: string,
-    payload: CreateCollectionDto,
-  ) {
+  async update(teamId: string, collectionId: string, payload: CreateCollectionDto) {
     return this.prisma.collection.update({
       where: {
         id: collectionId.toLowerCase(),

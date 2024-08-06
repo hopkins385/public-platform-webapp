@@ -1,8 +1,5 @@
-import type {
-  AttachMediaAbleDto,
-  DetachMediaAbleDto,
-  MediaAbleDto,
-} from './dto/media-able.dto';
+import type { ExtendedPrismaClient } from '../prisma';
+import type { AttachMediaAbleDto, DetachMediaAbleDto, MediaAbleDto } from './dto/media-able.dto';
 
 export class MediaAbleService {
   private readonly prisma: ExtendedPrismaClient;

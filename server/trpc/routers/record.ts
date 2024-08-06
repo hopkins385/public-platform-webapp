@@ -15,11 +15,11 @@ export const recordRouter = router({
         mediaId: ulidRule(),
       }),
     )
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input, ctx: { user } }) => {
       const payload = CreateRecordDto.fromInput({
         collectionId: input.collectionId,
         mediaId: input.mediaId,
-        teamId: ctx.user.teamId,
+        teamId: user.teamId,
       });
       return recordService.create(payload);
     }),
@@ -32,10 +32,10 @@ export const recordRouter = router({
         limit: z.number().default(10).optional(),
       }),
     )
-    .query(async ({ input, ctx }) => {
+    .query(async ({ input, ctx: { user } }) => {
       const payload = FindRecordsDto.fromInput({
         collectionId: input.collectionId,
-        teamId: ctx.user.teamId,
+        teamId: user.teamId,
       });
       return recordService.findAllPaginated(payload, input.page, input.limit);
     }),

@@ -1,9 +1,6 @@
 import { FileParserFactory } from '../factories/fileParserFactory';
-import type {
-  CreateDocumentDto,
-  FindAllDocumentsDto,
-  UpdateDocumentDto,
-} from './dto/document.dto';
+import type { ExtendedPrismaClient } from '../prisma';
+import type { CreateDocumentDto, FindAllDocumentsDto, UpdateDocumentDto } from './dto/document.dto';
 
 export class DocumentService {
   private readonly prisma: ExtendedPrismaClient;
@@ -171,15 +168,8 @@ export class DocumentService {
   async parse(documentId: string) {
     // first get the document
     const document = await this.findFirst(documentId);
-    if (
-      !document ||
-      !document.filePath ||
-      !document.fileName ||
-      !document.fileExtension
-    ) {
-      throw new Error(
-        'Document not found or missing file path, name or extension',
-      );
+    if (!document || !document.filePath || !document.fileName || !document.fileExtension) {
+      throw new Error('Document not found or missing file path, name or extension');
     }
     const path = `${document.filePath}/${document.fileName}`;
     const parser = new FileParserFactory(document.fileExtension, path);

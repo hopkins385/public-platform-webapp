@@ -3,6 +3,7 @@ import type { CreateRecordDto, FindRecordsDto } from './dto/record.dto';
 import { MediaService } from './media.service';
 import { VectorService } from './vector.service';
 import type { RuntimeConfig } from 'nuxt/schema';
+import type { ExtendedPrismaClient } from '../prisma';
 
 export class RecordService {
   private readonly prisma: ExtendedPrismaClient;

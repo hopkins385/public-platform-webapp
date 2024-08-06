@@ -1,4 +1,5 @@
 import consola from 'consola';
+import type { ExtendedPrismaClient } from '../prisma';
 
 const logger = consola.create({}).withTag('UsageService');
 

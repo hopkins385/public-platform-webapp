@@ -1,8 +1,8 @@
 import { AssistantJobDto } from './dto/job.dto';
 import { WorkflowService } from './workflow.service';
 import { QueueEnum } from '../utils/enums/queue.enum';
-import type { ExtendedPrismaClient } from '../utils/prisma/usePrisma';
 import type { FlowJob, JobsOptions } from 'bullmq';
+import type { ExtendedPrismaClient } from '../prisma';
 
 export class WorkflowExecutionService {
   private readonly prisma: ExtendedPrismaClient;

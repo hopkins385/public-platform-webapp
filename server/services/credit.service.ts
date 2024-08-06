@@ -1,4 +1,5 @@
 import { ULID } from '~/server/utils/ulid';
+import type { ExtendedPrismaClient } from '../prisma';
 
 function idToLowerCase(id: string) {
   return id.toLowerCase();

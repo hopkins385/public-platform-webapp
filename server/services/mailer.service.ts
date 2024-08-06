@@ -2,8 +2,8 @@ import { createTransport } from 'nodemailer';
 import type { Transporter, TransportOptions } from 'nodemailer';
 import type { RuntimeConfig } from 'nuxt/schema';
 import handlebars from 'handlebars';
-import { SendMailDto } from './dto/send-mail.dto';
-import { ConfirmMailDto } from './dto/confirm-mail.dto';
+import type { SendMailDto } from './dto/send-mail.dto';
+import type { ConfirmMailDto } from './dto/confirm-mail.dto';
 import { useRuntimeConfig } from '#imports';
 import jwt from 'jsonwebtoken';
 
@@ -28,9 +28,7 @@ export class MailerService {
   }
 
   async sendMail(payload: SendMailDto) {
-    const source = await useStorage().getItem(
-      'root:assets:mail:transactional.hbs',
-    );
+    const source = await useStorage().getItem('root:assets:mail:transactional.hbs');
     const compileSource = handlebars.compile(source);
     try {
       return await this.transporter.sendMail({
@@ -46,9 +44,7 @@ export class MailerService {
   }
 
   async sendConfirmMail(payload: ConfirmMailDto) {
-    const mailTemplate = await useStorage().getItem(
-      'root:assets:mail:confirm.hbs',
-    );
+    const mailTemplate = await useStorage().getItem('root:assets:mail:confirm.hbs');
     if (!mailTemplate) throw new Error('mailTemplate not found');
 
     const tokenPayload = {

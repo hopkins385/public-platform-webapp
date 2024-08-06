@@ -13,7 +13,7 @@ export const workflowExecRouter = router({
         workflowId: ulidRule(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
-      return workflowExecService.executeWorkflow(ctx.user.id, input.workflowId.toLowerCase());
+    .mutation(async ({ ctx: { user }, input }) => {
+      return workflowExecService.executeWorkflow(user.id, input.workflowId.toLowerCase());
     }),
 });

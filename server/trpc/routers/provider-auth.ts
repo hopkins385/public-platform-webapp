@@ -13,9 +13,9 @@ export const providerAuthRouter = router({
         type: z.enum(['googledrive', 'onedrive']),
       }),
     )
-    .query(async ({ input, ctx }) => {
+    .query(async ({ input, ctx: { user } }) => {
       return await providerAuthService.findFirst({
-        userId: ctx.user.id,
+        userId: user.id,
         providerName: input.providerName,
         type: input.type,
       });

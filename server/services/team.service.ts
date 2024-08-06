@@ -1,3 +1,4 @@
+import type { ExtendedPrismaClient } from '../prisma';
 import type { CreateTeamUserDto, FindTeamUserDto } from './dto/team.dto';
 
 export class TeamService {
@@ -21,12 +22,7 @@ export class TeamService {
     return user;
   }
 
-  async getAllTeamsByOrgId(payload: {
-    orgId: string;
-    page: number;
-    limit: number;
-    search?: string;
-  }) {
+  async getAllTeamsByOrgId(payload: { orgId: string; page: number; limit: number; search?: string }) {
     return await this.prisma.team
       .paginate({
         select: {

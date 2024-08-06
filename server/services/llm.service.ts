@@ -1,4 +1,5 @@
 import type { LargeLangModel } from '@prisma/client';
+import type { ExtendedPrismaClient } from '../prisma';
 
 export class LLMService {
   private readonly prisma: ExtendedPrismaClient;

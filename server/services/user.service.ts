@@ -9,6 +9,7 @@ import type { RuntimeConfig } from 'nuxt/schema';
 import jwt from 'jsonwebtoken';
 import consola from 'consola';
 import type { CreateUserByAdminDto, UpdateUserByAdminDto } from './dto/admin-user.dto';
+import type { ExtendedPrismaClient } from '../prisma';
 
 interface RegisterNewUser {
   email: string;

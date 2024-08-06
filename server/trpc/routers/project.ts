@@ -15,9 +15,9 @@ export const projectRouter = router({
         description: z.string(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ ctx: { user }, input }) => {
       const payload = CreateProjectDto.fromInput({
-        teamId: ctx.user.teamId,
+        teamId: user.teamId,
         ...input,
       });
 
@@ -34,13 +34,13 @@ export const projectRouter = router({
         id: ulidRule(),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx: { user }, input }) => {
       const project = await projectService.findFirst(input.id);
 
       // policy check
       projectService.canAccessProjectPolicy({
         project,
-        user: ctx.user,
+        user: user,
       });
 
       return project;
@@ -53,13 +53,13 @@ export const projectRouter = router({
         page: z.number().default(1).optional(),
       }),
     )
-    .query(async ({ ctx, input }) => {
-      return await projectService.findManyPaginated(ctx.user.teamId, input.page);
+    .query(async ({ ctx: { user }, input }) => {
+      return await projectService.findManyPaginated(user.teamId, input.page);
     }),
 
   // get all projects
-  all: protectedProcedure.query(async ({ ctx, input }) => {
-    return await projectService.findMany(ctx.user.teamId);
+  all: protectedProcedure.query(async ({ ctx: { user } }) => {
+    return await projectService.findMany(user.teamId);
   }),
 
   // update project
@@ -71,7 +71,7 @@ export const projectRouter = router({
         description: z.string(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ ctx: { user }, input }) => {
       const payload = UpdateProjectDto.fromInput(input);
 
       const project = await projectService.findFirst(payload.projectId);
@@ -79,7 +79,7 @@ export const projectRouter = router({
       // policy check
       projectService.canAccessProjectPolicy({
         project,
-        user: ctx.user,
+        user: user,
       });
 
       return await projectService.update(payload);
@@ -92,13 +92,13 @@ export const projectRouter = router({
         projectId: ulidRule(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ ctx: { user }, input }) => {
       const project = await projectService.findFirst(input.projectId);
 
       // policy check
       projectService.canAccessProjectPolicy({
         project,
-        user: ctx.user,
+        user: user,
       });
 
       return await projectService.softDelete(input.projectId);

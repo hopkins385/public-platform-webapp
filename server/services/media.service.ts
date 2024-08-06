@@ -1,4 +1,6 @@
-import { CreateMediaAbleDto, MediaAbleDto } from './dto/media-able.dto';
+import type { ExtendedPrismaClient } from '../prisma';
+import type { MediaAbleDto } from './dto/media-able.dto';
+import { CreateMediaAbleDto } from './dto/media-able.dto';
 import type { CreateMediaDto } from './dto/media.dto';
 import { MediaAbleService } from './media-able.service';
 import { StorageService } from './storage.service';

@@ -1,5 +1,6 @@
 import { TRPCError } from '@trpc/server';
-import { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
+import type { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
+import type { ExtendedPrismaClient } from '../prisma';
 
 interface UserProjectPolicyPayload {
   project: any;

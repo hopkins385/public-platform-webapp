@@ -19,9 +19,9 @@ export const workflowRouter = router({
         description: z.string(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ ctx: { user }, input }) => {
       const payload = CreateWorkflowDto.fromInput(input);
-      const pass = await workflowService.canCreateWorkflowPolicy(payload, ctx.user);
+      const pass = await workflowService.canCreateWorkflowPolicy(payload, user);
       return await workflowService.create(payload);
     }),
 
@@ -33,8 +33,8 @@ export const workflowRouter = router({
         mediaId: ulidRule(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
-      // const pass = await workflowService.canReCreateFromMediaPolicy(input.workflowId, ctx.user);
+    .mutation(async ({ input }) => {
+      // const pass = await workflowService.canReCreateFromMediaPolicy(input.workflowId, user);
       return await workflowService.reCreateFromMedia(input);
     }),
 
@@ -45,7 +45,7 @@ export const workflowRouter = router({
         workflowId: ulidRule(),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx: { user }, input }) => {
       const workflow = await workflowService.findFirstWithSteps(input.workflowId);
 
       if (!workflow) {
@@ -56,7 +56,7 @@ export const workflowRouter = router({
       }
 
       // policy check
-      workflowService.canAccessWorkflowPolicy(workflow.project.team.id, ctx.user);
+      workflowService.canAccessWorkflowPolicy(workflow.project.team.id, user);
 
       return workflow;
     }),
@@ -68,7 +68,7 @@ export const workflowRouter = router({
         workflowId: ulidRule(),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ ctx: { user }, input }) => {
       const workflow = await workflowService.findFirst(input.workflowId);
 
       if (!workflow) {
@@ -79,7 +79,7 @@ export const workflowRouter = router({
       }
 
       // policy check
-      workflowService.canAccessWorkflowPolicy(workflow.project.team.id, ctx.user);
+      workflowService.canAccessWorkflowPolicy(workflow.project.team.id, user);
 
       return workflow;
     }),
@@ -91,7 +91,7 @@ export const workflowRouter = router({
         page: z.number().default(1),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ input }) => {
       const payload = FindAllWorkflowsDto.fromInput(input);
 
       const workflow = await workflowService.findAll(payload);
@@ -111,11 +111,8 @@ export const workflowRouter = router({
         page: z.number().default(1),
       }),
     )
-    .query(async ({ ctx, input }) => {
-      const {
-        user: { id },
-      } = ctx;
-      return workflowService.findAllForUser(id, input?.projectId, input.page);
+    .query(async ({ ctx: { user }, input }) => {
+      return workflowService.findAllForUser(user.id, input?.projectId, input.page);
     }),
 
   // update workflow
@@ -127,10 +124,10 @@ export const workflowRouter = router({
         description: z.string(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ ctx: { user }, input }) => {
       const payload = UpdateWorkflowDto.fromInput(input);
 
-      const pass = await workflowService.canUpdateWorkflowPolicy(payload, ctx.user);
+      const pass = await workflowService.canUpdateWorkflowPolicy(payload, user);
 
       return workflowService.update(payload);
     }),
@@ -142,8 +139,8 @@ export const workflowRouter = router({
         workflowId: ulidRule(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
-      const pass = await workflowService.canDeleteWorkflowPolicy(input.workflowId, ctx.user);
+    .mutation(async ({ ctx: { user }, input }) => {
+      const pass = await workflowService.canDeleteWorkflowPolicy(input.workflowId, user);
 
       return await workflowService.delete(input.workflowId);
     }),
@@ -155,7 +152,7 @@ export const workflowRouter = router({
         orderColumns: z.array(z.number()),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       // const pass = await workflowService.canDeleteRowsPolicy(input.workflowId, ctx.user);
 
       return await workflowService.deleteRows({

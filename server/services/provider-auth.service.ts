@@ -1,5 +1,6 @@
 import consola from 'consola';
 import type { ProviderAuthDto } from './dto/provider-auth.dto';
+import type { ExtendedPrismaClient } from '../prisma';
 
 const logger = consola.create({}).withTag('ProviderAuthService');
 
@@ -13,11 +14,7 @@ export class ProviderAuthService {
     this.prisma = prisma;
   }
 
-  async findFirst(payload: {
-    userId: string;
-    providerName: 'google' | 'microsoft';
-    type: 'googledrive' | 'onedrive';
-  }) {
+  async findFirst(payload: { userId: string; providerName: 'google' | 'microsoft'; type: 'googledrive' | 'onedrive' }) {
     return this.prisma.providerAuth.findFirst({
       where: {
         userId: payload.userId.toLowerCase().trim(),

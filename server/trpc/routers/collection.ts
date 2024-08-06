@@ -16,9 +16,9 @@ export const collectionRouter = router({
         description: z.string().optional().or(z.string().min(3).max(255)),
       }),
     )
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input, ctx: { user } }) => {
       const payload = CreateCollectionDto.fromInput({
-        teamId: ctx.user.teamId,
+        teamId: user.teamId,
         name: input.name,
         description: input.description,
       });
@@ -31,18 +31,18 @@ export const collectionRouter = router({
         id: ulidRule(),
       }),
     )
-    .query(async ({ input, ctx }) => {
-      return collectionService.findFirst(ctx.user.teamId, input.id);
+    .query(async ({ input, ctx: { user } }) => {
+      return collectionService.findFirst(user.teamId, input.id);
     }),
 
-  findAll: protectedProcedure.query(async ({ ctx }) => {
-    return collectionService.findAll(ctx.user.teamId);
+  findAll: protectedProcedure.query(async ({ ctx: { user } }) => {
+    return collectionService.findAll(user.teamId);
   }),
 
   findAllPaginated: protectedProcedure
     .input(z.object({ page: z.number().int().positive().default(1) }))
-    .query(async ({ input, ctx }) => {
-      return collectionService.findAllPaginated(ctx.user.teamId, input.page);
+    .query(async ({ input, ctx: { user } }) => {
+      return collectionService.findAllPaginated(user.teamId, input.page);
     }),
 
   findAllFor: protectedProcedure
@@ -64,13 +64,13 @@ export const collectionRouter = router({
         description: z.string().optional().or(z.string().min(3).max(255)),
       }),
     )
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input, ctx: { user } }) => {
       const payload = CreateCollectionDto.fromInput({
-        teamId: ctx.user.teamId,
+        teamId: user.teamId,
         name: input.name,
         description: input.description,
       });
-      return collectionService.update(ctx.user.teamId, input.id, payload);
+      return collectionService.update(user.teamId, input.id, payload);
     }),
 
   delete: protectedProcedure
@@ -79,7 +79,7 @@ export const collectionRouter = router({
         id: ulidRule(),
       }),
     )
-    .mutation(async ({ input, ctx }) => {
-      return collectionService.softDelete(ctx.user.teamId, input.id);
+    .mutation(async ({ input, ctx: { user } }) => {
+      return collectionService.softDelete(user.teamId, input.id);
     }),
 });

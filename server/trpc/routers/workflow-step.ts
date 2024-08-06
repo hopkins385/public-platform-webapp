@@ -26,7 +26,7 @@ export const workflowStepRouter = router({
         rowCount: z.number(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       const payload = CreateWorkflowStepDto.fromInput(input);
       return workflowStepService.create(payload);
     }),
@@ -37,7 +37,7 @@ export const workflowStepRouter = router({
         workflowStepId: ulidRule(),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ input }) => {
       return workflowStepService.findFirst(input.workflowStepId);
     }),
   // find workflow step including stepables
@@ -47,7 +47,7 @@ export const workflowStepRouter = router({
         workflowStepId: ulidRule(),
       }),
     )
-    .query(async ({ ctx, input }) => {
+    .query(async ({ input }) => {
       return workflowStepService.findFirst(input.workflowStepId);
     }),
   // update workflow step
@@ -60,7 +60,7 @@ export const workflowStepRouter = router({
         orderColumn: z.number(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       const payload = UpdateWorkflowStepDto.fromInput(input);
       return workflowStepService.update(payload);
     }),
@@ -72,7 +72,7 @@ export const workflowStepRouter = router({
         name: z.string().max(100),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       const payload = UpdateWorkflowStepNameDto.fromInput(input);
       return workflowStepService.updateName(payload);
     }),
@@ -85,7 +85,7 @@ export const workflowStepRouter = router({
         assistantId: ulidRule(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       const updatePayload = UpdateWorkflowStepAssistantDto.fromInput(input);
       return workflowStepService.updateAssistant(updatePayload);
     }),
@@ -98,7 +98,7 @@ export const workflowStepRouter = router({
         inputStepIds: z.array(ulidRule()),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       return workflowStepService.updateInputSteps(input.workflowStepId, input.inputStepIds);
     }),
 
@@ -109,7 +109,7 @@ export const workflowStepRouter = router({
         workflowStepId: ulidRule(),
       }),
     )
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       return workflowStepService.softDelete(input.workflowStepId);
     }),
 });
