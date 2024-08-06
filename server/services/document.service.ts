@@ -15,7 +15,6 @@ export class DocumentService {
   async create(payload: CreateDocumentDto) {
     const document = await this.prisma.document.create({
       data: {
-        id: ULID(),
         projectId: payload.projectId,
         name: payload.name,
         description: payload.description,
@@ -29,7 +28,6 @@ export class DocumentService {
   async createMany(payload: CreateDocumentDto[]) {
     return this.prisma.document.createMany({
       data: payload.map((item) => ({
-        id: ULID(),
         projectId: item.projectId,
         name: item.name,
         description: item.description,

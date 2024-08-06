@@ -1,5 +1,4 @@
 import type { ChatMessage } from '~/interfaces/chat.interfaces';
-import { ULID } from '~/server/utils/ulid';
 import type { CreateChatMessageDto } from './dto/chat-message.dto';
 import { TRPCError } from '@trpc/server';
 import consola from 'consola';
@@ -251,7 +250,6 @@ export class ChatService {
   create(assistantId: string, userId: string) {
     return this.prisma.chat.create({
       data: {
-        id: ULID(),
         title: 'Chat',
         user: {
           connect: {
@@ -272,7 +270,6 @@ export class ChatService {
     try {
       return await this.prisma.chatMessage.create({
         data: {
-          id: ULID(),
           chatId: payload.chatId,
           type: payload.message.type,
           role: payload.message.role,
@@ -293,7 +290,6 @@ export class ChatService {
         // create message
         this.prisma.chatMessage.create({
           data: {
-            id: ULID(),
             chatId: payload.chatId,
             type: payload.message.type,
             role: payload.message.role,

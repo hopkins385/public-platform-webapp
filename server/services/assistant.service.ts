@@ -6,7 +6,6 @@ import type {
   CreateAssistantDto,
   DeleteAssistantDto,
 } from './dto/assistant.dto';
-import { ULID } from '~/server/utils/ulid';
 import type { ExtendedPrismaClient } from '../prisma';
 
 export class AssistantService {
@@ -47,7 +46,6 @@ export class AssistantService {
   create(payload: CreateAssistantDto) {
     return this.prisma.assistant.create({
       data: {
-        id: ULID(),
         teamId: payload.teamId,
         llmId: payload.llmId,
         title: payload.title,

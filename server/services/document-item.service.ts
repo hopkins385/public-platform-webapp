@@ -14,7 +14,6 @@ export class DocumentItemService {
   create(payload: CreateDocumentItemDto) {
     return this.prisma.documentItem.create({
       data: {
-        id: ULID(),
         documentId: payload.documentId,
         orderColumn: payload.orderColumn,
         status: payload.status,
@@ -29,7 +28,6 @@ export class DocumentItemService {
   createMany(payload: CreateDocumentItemDto[]) {
     return this.prisma.documentItem.createMany({
       data: payload.map((item) => ({
-        id: ULID(),
         documentId: item.documentId,
         orderColumn: item.orderColumn,
         status: item.status,

@@ -1,12 +1,9 @@
 import { z } from 'zod';
 
 export default function useRouteValidation() {
-  const ulidRegex = new RegExp('^[0-9a-z]{26}$');
-
   function isValidRouteUlid(params: any) {
-    // id is a ulid e.g 01hs0wxy2bfts50e3tp4xvdtv5
     const idSchema = z.object({
-      id: z.string().regex(ulidRegex),
+      id: z.string().cuid2(),
     });
     const res = idSchema.safeParse(params);
     return res.success;
@@ -14,7 +11,7 @@ export default function useRouteValidation() {
 
   function hasValidChatId(params: any) {
     const idSchema = z.object({
-      chatId: z.string().regex(ulidRegex),
+      chatId: z.string().cuid2(),
     });
     const res = idSchema.safeParse(params);
     return res.success;
@@ -22,7 +19,7 @@ export default function useRouteValidation() {
 
   function hasValidProjectId(params: any) {
     const idSchema = z.object({
-      projectId: z.string().regex(ulidRegex),
+      projectId: z.string().cuid2(),
     });
     const res = idSchema.safeParse(params);
     return res.success;
@@ -30,7 +27,7 @@ export default function useRouteValidation() {
 
   function hasValidCollectionId(params: any) {
     const idSchema = z.object({
-      collectionId: z.string().regex(ulidRegex),
+      collectionId: z.string().cuid2(),
     });
     const res = idSchema.safeParse(params);
     return res.success;
@@ -38,7 +35,7 @@ export default function useRouteValidation() {
 
   function hasValidAssistantId(params: any) {
     const idSchema = z.object({
-      assistantId: z.string().regex(ulidRegex),
+      assistantId: z.string().cuid2(),
     });
     const res = idSchema.safeParse(params);
     return res.success;
@@ -46,7 +43,7 @@ export default function useRouteValidation() {
 
   function hasValidWorkflowId(params: any) {
     const idSchema = z.object({
-      workflowId: z.string().regex(ulidRegex),
+      workflowId: z.string().cuid2(),
     });
     const res = idSchema.safeParse(params);
     return res.success;
@@ -54,8 +51,8 @@ export default function useRouteValidation() {
 
   function hasValidProjectWorkflowId(params: any) {
     const idSchema = z.object({
-      projectId: z.string().regex(ulidRegex),
-      workflowId: z.string().regex(ulidRegex),
+      projectId: z.string().cuid2(),
+      workflowId: z.string().cuid2(),
     });
     const res = idSchema.safeParse(params);
     return res.success;
@@ -63,8 +60,8 @@ export default function useRouteValidation() {
 
   function hasValidProjectDocumentId(params: any) {
     const idSchema = z.object({
-      projectId: z.string().regex(ulidRegex),
-      documentId: z.string().regex(ulidRegex),
+      projectId: z.string().cuid2(),
+      documentId: z.string().cuid2(),
     });
     const res = idSchema.safeParse(params);
     return res.success;

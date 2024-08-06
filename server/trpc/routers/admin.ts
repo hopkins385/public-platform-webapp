@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { adminProcedure, router } from '../trpc';
 import { CreateUserByAdminDto, UpdateUserByAdminDto } from '~/server/services/dto/admin-user.dto';
 import prisma from '~/server/prisma';
+import { cuidRule, idSchema } from '~/server/utils/validation/ulid.rule';
 
 const pageRule = () => z.number().int().positive().default(1);
 const limitRule = () => z.number().int().positive().default(20);
@@ -29,7 +30,7 @@ const adminUsersRouter = router({
       });
     }),
 
-  first: adminProcedure.input(z.object({ id: ulidRule() })).query(async ({ input }) => {
+  first: adminProcedure.input(idSchema).query(async ({ input }) => {
     const user = await userService.getUserById(input.id);
     return user;
   }),
@@ -61,7 +62,7 @@ const adminUsersRouter = router({
   update: adminProcedure
     .input(
       z.object({
-        id: ulidRule(),
+        id: cuidRule(),
         email: z.string().email().optional(),
         firstName: z.string().optional(),
         lastName: z.string().optional(),
@@ -80,7 +81,7 @@ const adminUsersRouter = router({
       );
     }),
 
-  delete: adminProcedure.input(z.object({ id: ulidRule() })).mutation(async ({ ctx: { user }, input }) => {
+  delete: adminProcedure.input(idSchema).mutation(async ({ ctx: { user }, input }) => {
     return await userService.softDeleteUser(input.id, user.orgId);
   }),
 });
@@ -103,7 +104,7 @@ const adminTeamsRouter = router({
       });
     }),
 
-  deleteTeam: adminProcedure.input(z.object({ id: ulidRule() })).mutation(async ({ ctx: { user }, input }) => {
+  deleteTeam: adminProcedure.input(idSchema).mutation(async ({ ctx: { user }, input }) => {
     return await teamService.softDeleteTeam(input.id, user.orgId);
   }),
 });

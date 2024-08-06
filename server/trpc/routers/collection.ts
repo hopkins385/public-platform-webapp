@@ -28,7 +28,7 @@ export const collectionRouter = router({
   findFirst: protectedProcedure
     .input(
       z.object({
-        id: ulidRule(),
+        id: cuidRule(),
       }),
     )
     .query(async ({ input, ctx: { user } }) => {
@@ -59,7 +59,7 @@ export const collectionRouter = router({
   update: protectedProcedure
     .input(
       z.object({
-        id: ulidRule(),
+        id: cuidRule(),
         name: z.string().min(3).max(255),
         description: z.string().optional().or(z.string().min(3).max(255)),
       }),
@@ -76,7 +76,7 @@ export const collectionRouter = router({
   delete: protectedProcedure
     .input(
       z.object({
-        id: ulidRule(),
+        id: cuidRule(),
       }),
     )
     .mutation(async ({ input, ctx: { user } }) => {

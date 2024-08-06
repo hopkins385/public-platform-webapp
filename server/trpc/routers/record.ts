@@ -11,8 +11,8 @@ export const recordRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        collectionId: ulidRule(),
-        mediaId: ulidRule(),
+        collectionId: cuidRule(),
+        mediaId: cuidRule(),
       }),
     )
     .mutation(async ({ input, ctx: { user } }) => {
@@ -27,7 +27,7 @@ export const recordRouter = router({
   findAllPaginated: protectedProcedure
     .input(
       z.object({
-        collectionId: ulidRule(),
+        collectionId: cuidRule(),
         page: z.number().default(1).optional(),
         limit: z.number().default(10).optional(),
       }),

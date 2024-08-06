@@ -18,7 +18,6 @@ export class CollectionAbleService {
   async attachTo(payload: AttachCollectionAbleDto) {
     return this.prisma.collectionAble.create({
       data: {
-        id: ULID(),
         collectionId: payload.collectionId,
         collectionAbleId: payload.model.id,
         collectionAbleType: payload.model.type,

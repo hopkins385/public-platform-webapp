@@ -14,7 +14,6 @@ export class WorkflowStepAbleService {
   create(payload: CreateWorkflowStepAbleDto) {
     return this.prisma.workflowStepAble.create({
       data: {
-        id: ULID(),
         workflowStepId: payload.workflowStepId,
         modelType: payload.modelType,
         modelId: payload.modelId,

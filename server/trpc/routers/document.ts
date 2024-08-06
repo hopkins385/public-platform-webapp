@@ -14,7 +14,7 @@ export const documentRouter = router({
         name: z.string(),
         description: z.string(),
         status: z.string(),
-        projectId: ulidRule(),
+        projectId: cuidRule(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -25,8 +25,8 @@ export const documentRouter = router({
   find: protectedProcedure
     .input(
       z.object({
-        projectId: ulidRule(),
-        documentId: ulidRule(),
+        projectId: cuidRule(),
+        documentId: cuidRule(),
       }),
     )
     .query(async ({ input, ctx }) => {
@@ -36,7 +36,7 @@ export const documentRouter = router({
   findAll: protectedProcedure
     .input(
       z.object({
-        projectId: ulidRule(),
+        projectId: cuidRule(),
         page: z.number().default(1),
       }),
     )
@@ -48,7 +48,7 @@ export const documentRouter = router({
   update: protectedProcedure
     .input(
       z.object({
-        documentId: ulidRule(),
+        documentId: cuidRule(),
         name: z.string(),
         description: z.string(),
         status: z.string(),
@@ -62,7 +62,7 @@ export const documentRouter = router({
   delete: protectedProcedure
     .input(
       z.object({
-        documentId: ulidRule(),
+        documentId: cuidRule(),
       }),
     )
     .query(async ({ input, ctx }) => {
@@ -71,7 +71,7 @@ export const documentRouter = router({
   parse: protectedProcedure
     .input(
       z.object({
-        documentId: ulidRule(),
+        documentId: cuidRule(),
       }),
     )
     .query(async ({ input, ctx }) => {

@@ -1,2 +1,3 @@
 import { z } from 'zod';
-export const ulidRule = () => z.string().toUpperCase().ulid();
+export const cuidRule = () => z.string().cuid2();
+export const idSchema = z.object({ id: cuidRule() });

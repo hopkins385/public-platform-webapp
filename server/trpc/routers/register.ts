@@ -38,7 +38,7 @@ export const registerRouter = router({
   confirmEmail: publicProcedure
     .input(
       z.object({
-        userId: ulidRule(),
+        userId: cuidRule(),
         token: z.string(),
       }),
     )

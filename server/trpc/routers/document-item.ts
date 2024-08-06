@@ -1,7 +1,7 @@
 import { DocumentItemService } from './../../services/document-item.service';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
-import { ulidRule } from '~/server/utils/validation/ulid.rule';
+import { cuidRule } from '~/server/utils/validation/ulid.rule';
 import { CreateDocumentItemDto, UpdateDocumentItemDto } from '~/server/services/dto/document-item.dto';
 import prisma from '~/server/prisma';
 
@@ -11,7 +11,7 @@ export const documentItemRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        documentId: ulidRule(),
+        documentId: cuidRule(),
         orderColumn: z.number(),
         status: z.string(),
         type: z.string(),
@@ -26,7 +26,7 @@ export const documentItemRouter = router({
     .input(
       z.array(
         z.object({
-          documentId: ulidRule(),
+          documentId: cuidRule(),
           orderColumn: z.number(),
           status: z.string(),
           type: z.string(),
@@ -41,7 +41,7 @@ export const documentItemRouter = router({
   find: protectedProcedure
     .input(
       z.object({
-        documentItemId: ulidRule(),
+        documentItemId: cuidRule(),
       }),
     )
     .query(async ({ input }) => {
@@ -50,7 +50,7 @@ export const documentItemRouter = router({
   findMany: protectedProcedure
     .input(
       z.object({
-        documentId: ulidRule(),
+        documentId: cuidRule(),
       }),
     )
     .query(async ({ input }) => {
@@ -59,7 +59,7 @@ export const documentItemRouter = router({
   update: protectedProcedure
     .input(
       z.object({
-        documentItemId: ulidRule(),
+        documentItemId: cuidRule(),
         content: z.string(),
         orderColumn: z.number().optional(),
         status: z.string().optional(),
@@ -74,7 +74,7 @@ export const documentItemRouter = router({
     .input(
       z.array(
         z.object({
-          documentItemId: ulidRule(),
+          documentItemId: cuidRule(),
           orderColumn: z.number(),
           status: z.string(),
           type: z.string(),
@@ -89,7 +89,7 @@ export const documentItemRouter = router({
   delete: protectedProcedure
     .input(
       z.object({
-        documentItemId: ulidRule(),
+        documentItemId: cuidRule(),
       }),
     )
     .mutation(async ({ input }) => {

@@ -14,7 +14,7 @@ export class MediaAbleService {
   // create(payload: CreateMediaAbleDto) {
   //   return this.prisma.mediaAbles.create({
   //     data: {
-  //       id: ULID(),
+  //
   //       mediaId: payload.mediaId,
   //       mediaAbleId: payload.model.id,
   //       mediaAbleType: payload.model.type,
@@ -26,7 +26,6 @@ export class MediaAbleService {
   attachTo(payload: AttachMediaAbleDto) {
     return this.prisma.mediaAbles.create({
       data: {
-        id: ULID(),
         mediaId: payload.mediaId,
         mediaAbleId: payload.model.id,
         mediaAbleType: payload.model.type,
@@ -38,7 +37,6 @@ export class MediaAbleService {
   attachManyTo(payload: AttachMediaAbleDto[]) {
     return this.prisma.mediaAbles.createMany({
       data: payload.map((item) => ({
-        id: ULID(),
         mediaId: item.mediaId,
         mediaAbleId: item.model.id,
         mediaAbleType: item.model.type,

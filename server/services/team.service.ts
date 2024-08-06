@@ -14,7 +14,6 @@ export class TeamService {
   async createTeamUser(payload: CreateTeamUserDto) {
     const user = await this.prisma.teamUser.create({
       data: {
-        id: ULID(),
         userId: payload.userId,
         teamId: payload.teamId,
       },

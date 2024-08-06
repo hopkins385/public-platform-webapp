@@ -43,7 +43,7 @@ export const userMeRouter = router({
   delete: protectedProcedure
     .input(
       z.object({
-        userId: ulidRule(),
+        userId: cuidRule(),
         password: z.string().min(6).max(100),
       }),
     )

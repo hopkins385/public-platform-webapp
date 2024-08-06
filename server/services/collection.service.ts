@@ -15,7 +15,6 @@ export class CollectionService {
   async createCollection(payload: CreateCollectionDto) {
     return this.prisma.collection.create({
       data: {
-        id: ULID(),
         teamId: payload.teamId,
         name: payload.name,
         description: payload.description,

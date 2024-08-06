@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-import { ulid } from 'ulidx';
 import * as bcrypt from 'bcrypt';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -19,7 +18,6 @@ async function main() {
   for (const provider of providers) {
     await prisma.largeLangModel.create({
       data: {
-        id: ulid().toLowerCase(),
         provider: provider.provider,
         apiName: provider.apiName,
         description: provider.description,
@@ -39,7 +37,6 @@ async function main() {
     where: { email: 'sven@svenson.ai' },
     update: {},
     create: {
-      id: ulid().toLowerCase(),
       name: 'Sven Stadhouders',
       firstName: 'Sven',
       lastName: 'Stadhouders',
@@ -56,7 +53,6 @@ async function main() {
     where: { email: 'test@test.de' },
     update: {},
     create: {
-      id: ulid().toLowerCase(),
       name: 'Test User',
       firstName: 'Test',
       lastName: 'User',
@@ -71,7 +67,6 @@ async function main() {
   // create role
   const adminRole = await prisma.role.create({
     data: {
-      id: ulid().toLowerCase(),
       name: 'admin',
     },
   });
@@ -79,7 +74,6 @@ async function main() {
   // connect user with role
   await prisma.userRole.create({
     data: {
-      id: ulid().toLowerCase(),
       user: { connect: { id: user.id } },
       role: { connect: { id: adminRole.id } },
     },
@@ -88,7 +82,6 @@ async function main() {
   // create organization
   const org = await prisma.organisation.create({
     data: {
-      id: ulid().toLowerCase(),
       name: 'Demo Organisation',
     },
   });
@@ -96,7 +89,6 @@ async function main() {
   // create team
   const team = await prisma.team.create({
     data: {
-      id: ulid().toLowerCase(),
       name: 'Demo Team',
       organisation: { connect: { id: org.id } },
     },
@@ -105,7 +97,6 @@ async function main() {
   // create team
   const team2 = await prisma.team.create({
     data: {
-      id: ulid().toLowerCase(),
       name: 'Demo Team 2',
       organisation: { connect: { id: org.id } },
     },
@@ -114,7 +105,6 @@ async function main() {
   // connect user with a team
   await prisma.teamUser.create({
     data: {
-      id: ulid().toLowerCase(),
       user: { connect: { id: user.id } },
       team: { connect: { id: team.id } },
     },
@@ -123,7 +113,6 @@ async function main() {
   // connect user 2 with a team
   await prisma.teamUser.create({
     data: {
-      id: ulid().toLowerCase(),
       user: { connect: { id: user2.id } },
       team: { connect: { id: team2.id } },
     },
@@ -132,7 +121,6 @@ async function main() {
   // create credit
   await prisma.credit.create({
     data: {
-      id: ulid().toLowerCase(),
       user: { connect: { id: user.id } },
       amount: 1000,
     },
@@ -143,7 +131,6 @@ async function main() {
     // create project
     const project = await prisma.project.create({
       data: {
-        id: ulid().toLowerCase(),
         name: 'Demo Project ' + projectEnding,
         description: 'This is a demo project',
         team: { connect: { id: team.id } },
@@ -153,14 +140,13 @@ async function main() {
     // create workflow
     const workflow = await prisma.workflow.create({
       data: {
-        id: ulid().toLowerCase(),
         name: 'Workflow',
         description: 'This is a workflow',
         project: { connect: { id: project.id } },
       },
     });
 
-    let prevStepIds: string[] = [];
+    const prevStepIds: string[] = [];
 
     // create i workflow steps
     for (let i = 0; i < 3; i++) {
@@ -168,7 +154,6 @@ async function main() {
       // create assistant
       const assistant = await prisma.assistant.create({
         data: {
-          id: ulid().toLowerCase(),
           team: { connect: { id: team.id } },
           llm: { connect: { id: randomLlm.id } },
           title: randomLlm.displayName,
@@ -181,7 +166,6 @@ async function main() {
       // create document
       const document = await prisma.document.create({
         data: {
-          id: ulid().toLowerCase(),
           name: 'Document Nr. ' + i,
           description: 'This is a document',
           project: { connect: { id: project.id } },
@@ -192,7 +176,6 @@ async function main() {
       for (let j = 0; j < 10; j++) {
         await prisma.documentItem.create({
           data: {
-            id: ulid().toLowerCase(),
             document: { connect: { id: document.id } },
             orderColumn: j,
             content: '',
@@ -203,7 +186,6 @@ async function main() {
 
       const workflowStep = await prisma.workflowStep.create({
         data: {
-          id: ulid().toLowerCase(),
           inputSteps: { set: prevStepIds },
           name: `Step ${i}`,
           description: 'This is a workflow step',

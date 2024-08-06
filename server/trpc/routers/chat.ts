@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { ChatService } from '~/server/services/chat.service';
-import { ulidRule } from '~/server/utils/validation/ulid.rule';
+import { cuidRule } from '~/server/utils/validation/ulid.rule';
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import { ChatMessageRule } from '~/server/utils/validation/chat-message.rule';
 import { GetAllChatsForUserDto } from '~/server/services/dto/chat.dto';
@@ -14,7 +14,7 @@ export const chatRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        assistantId: ulidRule(),
+        assistantId: cuidRule(),
       }),
     )
     .query(async ({ ctx: { user }, input }) => {
@@ -32,7 +32,7 @@ export const chatRouter = router({
   createMessage: protectedProcedure
     .input(
       z.object({
-        chatId: ulidRule(),
+        chatId: cuidRule(),
         message: ChatMessageRule(),
       }),
     )
@@ -76,7 +76,7 @@ export const chatRouter = router({
   clearMessages: protectedProcedure
     .input(
       z.object({
-        chatId: ulidRule(),
+        chatId: cuidRule(),
       }),
     )
     .query(async ({ ctx: { user }, input }) => {
@@ -88,7 +88,7 @@ export const chatRouter = router({
   forUser: protectedProcedure
     .input(
       z.object({
-        chatId: ulidRule(),
+        chatId: cuidRule(),
       }),
     )
     .query(async ({ ctx: { user }, input }) => {
@@ -98,7 +98,7 @@ export const chatRouter = router({
   delete: protectedProcedure
     .input(
       z.object({
-        chatId: ulidRule(),
+        chatId: cuidRule(),
       }),
     )
     .query(async ({ ctx: { user }, input }) => {

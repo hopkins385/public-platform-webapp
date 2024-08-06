@@ -15,7 +15,7 @@ export const collectionAbleRouter = router({
     .input(
       z.object({
         model: collectionAbleRule(),
-        collectionId: ulidRule(),
+        collectionId: cuidRule(),
       }),
     )
     .mutation(async ({ input }) => {
@@ -27,7 +27,7 @@ export const collectionAbleRouter = router({
     .input(
       z.object({
         model: collectionAbleRule(),
-        collectionId: ulidRule(),
+        collectionId: cuidRule(),
       }),
     )
     .mutation(async ({ input }) => {
@@ -50,7 +50,7 @@ export const collectionAbleRouter = router({
     .input(
       z.object({
         model: collectionAbleRule(),
-        collectionId: ulidRule(),
+        collectionId: cuidRule(),
       }),
     )
     .mutation(async ({ input }) => {

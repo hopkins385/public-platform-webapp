@@ -59,7 +59,6 @@ export class RecordService {
     // create record
     const newRecord = await this.prisma.record.create({
       data: {
-        id: ULID(),
         collectionId: payload.collectionId,
         mediaId: media.id,
       },
@@ -75,7 +74,6 @@ export class RecordService {
       });
 
       const chunksData = embedDocuments.map((doc) => ({
-        id: ULID(),
         recordId: newRecord.id,
         content: doc.text,
       }));

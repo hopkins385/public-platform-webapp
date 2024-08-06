@@ -16,16 +16,14 @@ const bodySchema = z.object({
   model: modelRule(),
   provider: providerRule(),
   lang: langRule(),
-  chatId: ulidRule(),
+  chatId: cuidRule(),
   maxTokens: z.number().int().gte(0),
   temperature: z.number().gte(0).lte(1),
   // presencePenalty: z.number().gte(-2).lte(2),
 });
 
 export async function getConversationBody(event: H3Event) {
-  const result = await readValidatedBody(event, (body) =>
-    bodySchema.safeParse(body),
-  );
+  const result = await readValidatedBody(event, (body) => bodySchema.safeParse(body));
 
   if (!result.success) {
     logger.error('Invalid request body', result.error);

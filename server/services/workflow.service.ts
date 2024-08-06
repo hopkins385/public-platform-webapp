@@ -30,7 +30,6 @@ export class WorkflowService {
   async create(payload: CreateWorkflowDto) {
     const workflow = await this.prisma.workflow.create({
       data: {
-        id: ULID(),
         projectId: payload.projectId,
         name: payload.name,
         description: payload.description,

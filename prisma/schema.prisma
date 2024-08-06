@@ -12,7 +12,7 @@ datasource db {
 }
 
 model User {
-  id              String         @id
+  id              String         @id @default(cuid())
   deviceId        String?        @map("device_id")
   email           String         @unique
   name            String
@@ -40,7 +40,7 @@ model User {
 }
 
 model Role {
-  id        String     @id
+  id        String     @id @default(cuid())
   name      String
   createdAt DateTime   @default(now()) @map("created_at")
   updatedAt DateTime   @updatedAt @map("updated_at")
@@ -51,7 +51,7 @@ model Role {
 }
 
 model UserRole {
-  id        String    @id
+  id        String    @id @default(cuid())
   userId    String    @map("user_id")
   roleId    String    @map("role_id")
   createdAt DateTime  @default(now()) @map("created_at")
@@ -112,7 +112,7 @@ model VerificationToken {
 // end of NextAuth
 
 model Organisation {
-  id        String    @id
+  id        String    @id @default(cuid())
   name      String
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
@@ -123,7 +123,7 @@ model Organisation {
 }
 
 model Team {
-  id             String       @id
+  id             String       @id @default(cuid())
   organisationId String       @map("organisation_id")
   name           String
   createdAt      DateTime     @default(now()) @map("created_at")
@@ -142,7 +142,7 @@ model Team {
 }
 
 model TeamUser {
-  id        String    @id
+  id        String    @id @default(cuid())
   teamId    String    @map("team_id")
   userId    String    @map("user_id")
   createdAt DateTime  @default(now()) @map("created_at")
@@ -157,7 +157,7 @@ model TeamUser {
 }
 
 model Chat {
-  id          String        @id
+  id          String        @id @default(cuid())
   userId      String        @map("user_id")
   assistantId String        @map("assistant_id")
   title       String
@@ -174,7 +174,7 @@ model Chat {
 }
 
 model ChatMessage {
-  id            String                  @id
+  id            String                  @id @default(cuid())
   chatId        String                  @map("chat_id")
   type          String?
   role          chat_messages_role_enum @map("role")
@@ -192,7 +192,7 @@ model ChatMessage {
 }
 
 model Assistant {
-  id                     String         @id
+  id                     String         @id @default(cuid())
   teamId                 String         @map("team_id")
   llmId                  String         @map("llm_id")
   title                  String
@@ -214,7 +214,7 @@ model Assistant {
 }
 
 model LargeLangModel {
-  id          String      @id
+  id          String      @id @default(cuid())
   apiName     String      @map("api_name")
   displayName String      @map("display_name")
   description String
@@ -234,7 +234,7 @@ model LargeLangModel {
 }
 
 model Credit {
-  id        String    @id
+  id        String    @id @default(cuid())
   userId    String    @unique @map("user_id")
   amount    Int
   createdAt DateTime  @default(now()) @map("created_at")
@@ -248,7 +248,7 @@ model Credit {
 }
 
 model TokenUsage {
-  id               String    @id
+  id               String    @id @default(cuid())
   userId           String    @map("user_id")
   llmProvider      String    @map("llm_provider")
   llmModel         String    @map("llm_model")
@@ -267,7 +267,7 @@ model TokenUsage {
 }
 
 // model Subscription {
-//   id               String    @id @default(uuid())
+//   id               String    @id @default(cuid())
 //   stripeId         String?
 //   stripeCustomerId String
 //   status           String?
@@ -290,7 +290,7 @@ enum chat_messages_role_enum {
 // Media
 
 model Media {
-  id         String       @id
+  id         String       @id @default(cuid())
   name       String
   teamId     String       @map("team_id")
   fileName   String       @map("file_name")
@@ -313,7 +313,7 @@ model Media {
 // A Media can belong to multiple models
 // e.g. A Media might be created by a User, and is also "attached to" a Project and a Document
 model MediaAbles {
-  id            String    @id
+  id            String    @id @default(cuid())
   mediaId       String    @map("media_id")
   mediaAbleType Int       @map("mediaable_type") @db.SmallInt
   mediaAbleId   String    @map("mediaable_id")
@@ -331,7 +331,7 @@ model MediaAbles {
 
 // Vector Embedding Collections
 model Collection {
-  id              String           @id
+  id              String           @id @default(cuid())
   teamId          String           @map("team_id")
   llmId           String?          @map("model_id")
   name            String           @map("name")
@@ -353,7 +353,7 @@ model Collection {
 // A CollectionAble can belong to multiple models
 // e.g. A CollectionAble might be "attached to" an Assistant and a User
 model CollectionAble {
-  id                 String    @id
+  id                 String    @id @default(cuid())
   collectionId       String    @map("collection_id")
   collectionAbleType Int       @map("collectionable_type") @db.SmallInt
   collectionAbleId   String    @map("collectionable_id")
@@ -370,7 +370,7 @@ model CollectionAble {
 }
 
 model Record {
-  id           String    @id
+  id           String    @id @default(cuid())
   collectionId String    @map("collection_id")
   mediaId      String?   @map("media_id")
   createdAt    DateTime  @default(now()) @map("created_at")
@@ -386,7 +386,7 @@ model Record {
 }
 
 model Chunk {
-  id        String    @id
+  id        String    @id @default(cuid())
   recordId  String    @map("record_id")
   content   String
   createdAt DateTime  @default(now()) @map("created_at")
@@ -401,7 +401,7 @@ model Chunk {
 // Project, Documents, Requirements, and Workflows
 
 model Project {
-  id          String     @id
+  id          String     @id @default(cuid())
   teamId      String     @map("team_id")
   name        String
   description String
@@ -418,7 +418,7 @@ model Project {
 }
 
 model Document {
-  id            String         @id
+  id            String         @id @default(cuid())
   projectId     String         @map("project_id")
   name          String
   description   String?
@@ -435,7 +435,7 @@ model Document {
 }
 
 model DocumentItem {
-  id                String             @id
+  id                String             @id @default(cuid())
   documentId        String             @map("document_id")
   orderColumn       Int                @map("order_column") @db.SmallInt
   status            Json?
@@ -457,7 +457,7 @@ model DocumentItem {
 // A DocumentItem can belong to multiple models
 // e.g. A DocumentItem might be "attached to" a User as kind of a workItem
 model DocumentItemAble {
-  id             String    @id
+  id             String    @id @default(cuid())
   documentItemId String    @map("document_item_id")
   modelType      Int       @map("model_type") @db.SmallInt
   modelId        String    @map("model_id")
@@ -472,7 +472,7 @@ model DocumentItemAble {
 }
 
 model Workflow {
-  id            String         @id
+  id            String         @id @default(cuid())
   projectId     String         @map("project_id")
   name          String
   description   String
@@ -492,7 +492,7 @@ model Workflow {
 // A Workflow can belong to multiple models
 // e.g. A Workflow might be "attached to" e.g. a JobQueue
 model WorkflowAble {
-  id         String    @id
+  id         String    @id @default(cuid())
   workflowId String    @map("workflow_id")
   modelType  Int       @map("model_type") @db.SmallInt
   modelId    String    @map("model_id")
@@ -506,7 +506,7 @@ model WorkflowAble {
 }
 
 model WorkflowStep {
-  id                String             @id
+  id                String             @id @default(cuid())
   workflowId        String             @map("workflow_id")
   documentId        String?            @map("document_id")
   assistantId       String?            @map("assistant_id")
@@ -532,7 +532,7 @@ model WorkflowStep {
 // A WorkflowStep can belong to multiple models
 // e.g. A WorkflowStep might be "attached to" e.g. a JobQueue
 model WorkflowStepAble {
-  id             String    @id
+  id             String    @id @default(cuid())
   workflowStepId String    @map("workflow_step_id")
   modelType      Int       @map("model_type") @db.SmallInt
   modelId        String    @map("model_id")
@@ -549,7 +549,7 @@ model WorkflowStepAble {
 
 // auth token for google drive, one drive, etc.
 model ProviderAuth {
-  id                    String    @id
+  id                    String    @id @default(cuid())
   userId                String    @map("user_id")
   providerName          String    @map("provider_name")
   type                  String

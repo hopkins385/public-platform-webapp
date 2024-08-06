@@ -27,7 +27,6 @@ export async function trackTokensEvent(payload: TrackTokensDto) {
   try {
     await prisma.tokenUsage.create({
       data: {
-        id: ULID(),
         userId: userId.toLowerCase(),
         llmProvider: llm.provider.toString(),
         llmModel: llm.model.toString(),

@@ -1,4 +1,4 @@
-import { ulidRule } from '~/server/utils/validation/ulid.rule';
+import { cuidRule } from '~/server/utils/validation/ulid.rule';
 import { MediaAbleService } from '~/server/services/media-able.service';
 import { mediaAbleRule } from '~/server/utils/validation/media-able.rule';
 import { z } from 'zod';
@@ -12,7 +12,7 @@ export const mediaAbleRouter = router({
   attachTo: protectedProcedure
     .input(
       z.object({
-        mediaId: ulidRule(),
+        mediaId: cuidRule(),
         model: mediaAbleRule(),
       }),
     )
@@ -39,7 +39,7 @@ export const mediaAbleRouter = router({
   /*find: protectedProcedure
     .input(
       z.object({
-        mediaId: ulidRule(),
+        mediaId: cuidRule(),
       }),
     )
     .query(async ({ input }) => {
@@ -73,7 +73,7 @@ export const mediaAbleRouter = router({
   delete: protectedProcedure
     .input(
       z.object({
-        mediaId: ulidRule(),
+        mediaId: cuidRule(),
       }),
     )
     .mutation(async ({ input, ctx }) => {

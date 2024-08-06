@@ -27,7 +27,6 @@ export class ProviderAuthService {
   async create(payload: ProviderAuthDto) {
     const providerAuth = await this.prisma.providerAuth.create({
       data: {
-        id: ULID(),
         providerName: payload.providerName,
         type: payload.type,
         accountInfo: payload.accountInfo,

@@ -76,7 +76,6 @@ export class WorkflowStepService {
 
     const step = await this.prisma.workflowStep.create({
       data: {
-        id: ULID(),
         type: 'text',
         workflowId: payload.workflowId,
         inputSteps: inputStepIds,
@@ -117,7 +116,6 @@ export class WorkflowStepService {
       await this.documentItemService.createMany(documentItemPayloads);
       const step = await this.prisma.workflowStep.create({
         data: {
-          id: ULID(),
           type: 'text',
           workflowId: payload.workflowId,
           assistantId: payload.assistantId,

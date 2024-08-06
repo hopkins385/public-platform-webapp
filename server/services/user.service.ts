@@ -3,7 +3,6 @@ import { SlackService } from './slack.service';
 import type { LoginDto } from './dto/login.dto';
 import type { LastLoginDto } from './dto/last-login.dto';
 import { comparePasswords, hashPassword } from '~/server/utils/auth/bcrypt';
-import { ULID } from '~/server/utils/ulid';
 import { useRuntimeConfig } from '#imports';
 import type { RuntimeConfig } from 'nuxt/schema';
 import jwt from 'jsonwebtoken';
@@ -43,7 +42,6 @@ export class UserService {
     const hashedPassword = await hashPassword(data.password);
     const newUser = await this.prisma.user.create({
       data: {
-        id: ULID(),
         email: data.email,
         password: hashedPassword,
         firstName: data.firstName,
@@ -56,7 +54,6 @@ export class UserService {
     // create credit for new user
     await this.prisma.credit.create({
       data: {
-        id: ULID(),
         userId: newUser.id,
         amount: 1000,
         createdAt: new Date(),
@@ -92,7 +89,6 @@ export class UserService {
 
     const newUser = await this.prisma.user.create({
       data: {
-        id: ULID(),
         email: data.email,
         password: hashedPassword,
         firstName: data.firstName,
@@ -103,7 +99,6 @@ export class UserService {
         updatedAt: new Date(),
         credit: {
           create: {
-            id: ULID(),
             amount: 1000,
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -111,7 +106,6 @@ export class UserService {
         },
         teams: {
           create: {
-            id: ULID(),
             teamId: data.teamId,
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -136,7 +130,6 @@ export class UserService {
 
     await this.prisma.userRole.create({
       data: {
-        id: ULID(),
         userId: newUser.id,
         roleId: role.id,
         createdAt: new Date(),
@@ -354,7 +347,6 @@ export class UserService {
       if (!userRole) {
         await this.prisma.userRole.create({
           data: {
-            id: ULID(),
             userId: payload.userId,
             roleId: role.id,
             createdAt: new Date(),

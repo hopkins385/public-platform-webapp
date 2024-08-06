@@ -22,7 +22,6 @@ export class MediaService {
   async create(payload: CreateMediaDto) {
     const media = await this.prisma.media.create({
       data: {
-        id: ULID(),
         teamId: payload.teamId,
         name: payload.name,
         fileName: payload.fileName,

@@ -1,4 +1,3 @@
-import { ULID } from '~/server/utils/ulid';
 import type { ExtendedPrismaClient } from '../prisma';
 
 function idToLowerCase(id: string) {
@@ -15,7 +14,6 @@ export class CreditService {
   createCredit(userId: string, amount: number) {
     return this.prisma.credit.create({
       data: {
-        id: ULID(),
         userId: idToLowerCase(userId),
         amount,
         createdAt: new Date(),

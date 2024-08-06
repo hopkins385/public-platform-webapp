@@ -31,7 +31,7 @@ export const projectRouter = router({
   first: protectedProcedure
     .input(
       z.object({
-        id: ulidRule(),
+        id: cuidRule(),
       }),
     )
     .query(async ({ ctx: { user }, input }) => {
@@ -66,7 +66,7 @@ export const projectRouter = router({
   update: protectedProcedure
     .input(
       z.object({
-        projectId: ulidRule(),
+        projectId: cuidRule(),
         name: z.string(),
         description: z.string(),
       }),
@@ -89,7 +89,7 @@ export const projectRouter = router({
   delete: protectedProcedure
     .input(
       z.object({
-        projectId: ulidRule(),
+        projectId: cuidRule(),
       }),
     )
     .mutation(async ({ ctx: { user }, input }) => {

@@ -11,7 +11,7 @@ export const mediaRouter = router({
   find: protectedProcedure
     .input(
       z.object({
-        mediaId: ulidRule(),
+        mediaId: cuidRule(),
       }),
     )
     .query(async ({ input }) => {
@@ -46,7 +46,7 @@ export const mediaRouter = router({
   delete: protectedProcedure
     .input(
       z.object({
-        mediaId: ulidRule(),
+        mediaId: cuidRule(),
       }),
     )
     .mutation(async ({ input, ctx }) => {

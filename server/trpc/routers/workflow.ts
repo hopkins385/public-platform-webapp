@@ -2,7 +2,7 @@ import { CreateWorkflowDto, FindAllWorkflowsDto, UpdateWorkflowDto } from '~/ser
 import { WorkflowService } from '~/server/services/workflow.service';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
-import { ulidRule } from '~/server/utils/validation/ulid.rule';
+import { cuidRule } from '~/server/utils/validation/ulid.rule';
 import { TRPCError } from '@trpc/server';
 import prisma from '~/server/prisma';
 
@@ -13,8 +13,8 @@ export const workflowRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        projectId: ulidRule(),
-        assistantId: ulidRule(),
+        projectId: cuidRule(),
+        assistantId: cuidRule(),
         name: z.string(),
         description: z.string(),
       }),
@@ -29,8 +29,8 @@ export const workflowRouter = router({
   reCreateFromMedia: protectedProcedure
     .input(
       z.object({
-        workflowId: ulidRule(),
-        mediaId: ulidRule(),
+        workflowId: cuidRule(),
+        mediaId: cuidRule(),
       }),
     )
     .mutation(async ({ input }) => {
@@ -42,7 +42,7 @@ export const workflowRouter = router({
   full: protectedProcedure
     .input(
       z.object({
-        workflowId: ulidRule(),
+        workflowId: cuidRule(),
       }),
     )
     .query(async ({ ctx: { user }, input }) => {
@@ -65,7 +65,7 @@ export const workflowRouter = router({
   settings: protectedProcedure
     .input(
       z.object({
-        workflowId: ulidRule(),
+        workflowId: cuidRule(),
       }),
     )
     .query(async ({ ctx: { user }, input }) => {
@@ -87,7 +87,7 @@ export const workflowRouter = router({
   allForProject: protectedProcedure
     .input(
       z.object({
-        projectId: ulidRule(),
+        projectId: cuidRule(),
         page: z.number().default(1),
       }),
     )
@@ -107,7 +107,7 @@ export const workflowRouter = router({
   allForUser: protectedProcedure
     .input(
       z.object({
-        projectId: ulidRule().optional(),
+        projectId: cuidRule().optional(),
         page: z.number().default(1),
       }),
     )
@@ -119,7 +119,7 @@ export const workflowRouter = router({
   update: protectedProcedure
     .input(
       z.object({
-        workflowId: ulidRule(),
+        workflowId: cuidRule(),
         name: z.string(),
         description: z.string(),
       }),
@@ -136,7 +136,7 @@ export const workflowRouter = router({
   delete: protectedProcedure
     .input(
       z.object({
-        workflowId: ulidRule(),
+        workflowId: cuidRule(),
       }),
     )
     .mutation(async ({ ctx: { user }, input }) => {
@@ -148,7 +148,7 @@ export const workflowRouter = router({
   deleteRows: protectedProcedure
     .input(
       z.object({
-        workflowId: ulidRule(),
+        workflowId: cuidRule(),
         orderColumns: z.array(z.number()),
       }),
     )

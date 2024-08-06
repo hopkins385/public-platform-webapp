@@ -9,7 +9,7 @@ import {
   FindAssistantDto,
   UpdateAssistantDto,
 } from '~/server/services/dto/assistant.dto';
-import { ulidRule } from '~/server/utils/validation/ulid.rule';
+import { idSchema, cuidRule } from '~/server/utils/validation/ulid.rule';
 import prisma from '~/server/prisma';
 
 const assistantService = new AssistantService(prisma);
@@ -19,8 +19,8 @@ export const assistantRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        teamId: ulidRule(),
-        llmId: ulidRule(),
+        teamId: cuidRule(),
+        llmId: cuidRule(),
         title: z.string(),
         description: z.string(),
         systemPrompt: z.string(),
@@ -37,30 +37,24 @@ export const assistantRouter = router({
       return await assistantService.create(payload);
     }),
   // get assistant by id
-  one: protectedProcedure
-    .input(
-      z.object({
-        id: ulidRule(),
-      }),
-    )
-    .query(async ({ ctx: { user }, input }) => {
-      const payload = FindAssistantDto.fromInput(input);
-      const assistant = await assistantService.findFirst(payload);
+  one: protectedProcedure.input(idSchema).query(async ({ ctx: { user }, input }) => {
+    const payload = FindAssistantDto.fromInput(input);
+    const assistant = await assistantService.findFirst(payload);
 
-      if (!assistant) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'Assistant not found',
-        });
-      }
+    if (!assistant) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Assistant not found',
+      });
+    }
 
-      // console.log(assistant);
+    // console.log(assistant);
 
-      // policy check
-      assistantService.canAccessAssistantPolicy(assistant, user);
+    // policy check
+    assistantService.canAccessAssistantPolicy(assistant, user);
 
-      return assistant;
-    }),
+    return assistant;
+  }),
   // get all assistants
   all: protectedProcedure
     .input(
@@ -78,9 +72,9 @@ export const assistantRouter = router({
   update: protectedProcedure
     .input(
       z.object({
-        teamId: ulidRule(),
-        llmId: ulidRule(),
-        id: ulidRule(),
+        teamId: cuidRule(),
+        llmId: cuidRule(),
+        id: cuidRule(),
         title: z.string(),
         description: z.string(),
         systemPrompt: z.string(),
@@ -100,8 +94,8 @@ export const assistantRouter = router({
   delete: protectedProcedure
     .input(
       z.object({
-        teamId: ulidRule(),
-        id: ulidRule(),
+        teamId: cuidRule(),
+        id: cuidRule(),
       }),
     )
     .mutation(async ({ ctx: { user }, input }) => {

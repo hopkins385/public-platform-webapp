@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
-import { ulidRule } from '~/server/utils/validation/ulid.rule';
+import { cuidRule } from '~/server/utils/validation/ulid.rule';
 import { WorkflowExecutionService } from '~/server/services/workflow-execution.service';
 import prisma from '~/server/prisma';
 
@@ -10,7 +10,7 @@ export const workflowExecRouter = router({
   execute: protectedProcedure
     .input(
       z.object({
-        workflowId: ulidRule(),
+        workflowId: cuidRule(),
       }),
     )
     .mutation(async ({ ctx: { user }, input }) => {

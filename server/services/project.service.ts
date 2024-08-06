@@ -49,7 +49,6 @@ export class ProjectService {
   create(payload: CreateProjectDto) {
     return this.prisma.project.create({
       data: {
-        id: ULID(),
         teamId: payload.teamId,
         name: payload.name,
         description: payload.description,

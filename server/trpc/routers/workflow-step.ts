@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
-import { ulidRule } from '~/server/utils/validation/ulid.rule';
+import { cuidRule } from '~/server/utils/validation/ulid.rule';
 import { WorkflowStepService } from '~/server/services/workflow-step.service';
 import {
   CreateWorkflowStepDto,
@@ -17,9 +17,9 @@ export const workflowStepRouter = router({
   create: protectedProcedure
     .input(
       z.object({
-        workflowId: ulidRule(),
-        projectId: ulidRule(),
-        assistantId: ulidRule(),
+        workflowId: cuidRule(),
+        projectId: cuidRule(),
+        assistantId: cuidRule(),
         name: z.string(),
         description: z.string(),
         orderColumn: z.number(),
@@ -34,7 +34,7 @@ export const workflowStepRouter = router({
   first: protectedProcedure
     .input(
       z.object({
-        workflowStepId: ulidRule(),
+        workflowStepId: cuidRule(),
       }),
     )
     .query(async ({ input }) => {
@@ -44,7 +44,7 @@ export const workflowStepRouter = router({
   firstWithSteps: protectedProcedure
     .input(
       z.object({
-        workflowStepId: ulidRule(),
+        workflowStepId: cuidRule(),
       }),
     )
     .query(async ({ input }) => {
@@ -54,7 +54,7 @@ export const workflowStepRouter = router({
   update: protectedProcedure
     .input(
       z.object({
-        workflowStepId: ulidRule(),
+        workflowStepId: cuidRule(),
         name: z.string(),
         description: z.string(),
         orderColumn: z.number(),
@@ -68,7 +68,7 @@ export const workflowStepRouter = router({
   updateName: protectedProcedure
     .input(
       z.object({
-        workflowStepId: ulidRule(),
+        workflowStepId: cuidRule(),
         name: z.string().max(100),
       }),
     )
@@ -81,8 +81,8 @@ export const workflowStepRouter = router({
   updateAssistant: protectedProcedure
     .input(
       z.object({
-        workflowStepId: ulidRule(),
-        assistantId: ulidRule(),
+        workflowStepId: cuidRule(),
+        assistantId: cuidRule(),
       }),
     )
     .mutation(async ({ input }) => {
@@ -94,8 +94,8 @@ export const workflowStepRouter = router({
   updateInputSteps: protectedProcedure
     .input(
       z.object({
-        workflowStepId: ulidRule(),
-        inputStepIds: z.array(ulidRule()),
+        workflowStepId: cuidRule(),
+        inputStepIds: z.array(cuidRule()),
       }),
     )
     .mutation(async ({ input }) => {
@@ -106,7 +106,7 @@ export const workflowStepRouter = router({
   delete: protectedProcedure
     .input(
       z.object({
-        workflowStepId: ulidRule(),
+        workflowStepId: cuidRule(),
       }),
     )
     .mutation(async ({ input }) => {
