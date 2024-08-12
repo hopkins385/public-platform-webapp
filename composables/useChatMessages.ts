@@ -1,11 +1,16 @@
-import type {
-  ChatMessage,
-  ChatMessageVisionContent,
-} from '../interfaces/chat.interfaces';
+import type { ChatMessage, ChatMessageVisionContent } from '../interfaces/chat.interfaces';
 
 export default function useChatMessages() {
   const chatMessages = ref<ChatMessage[]>([]);
 
+  /**
+   * Add a message to the chat
+   * @param type
+   * @param role
+   * @param content
+   * @param visionContent
+   * @returns void
+   */
   function addMessageToChat({
     type,
     role,
@@ -28,10 +33,17 @@ export default function useChatMessages() {
     return chatMessages.value;
   }
 
+  /**
+   * Clear the chat messages
+   */
   function clearMessages() {
     chatMessages.value = [];
   }
 
+  /**
+   * Initialize the chat messages
+   * @param messages
+   */
   function initMessages(messages: ChatMessage[]) {
     chatMessages.value = messages;
   }

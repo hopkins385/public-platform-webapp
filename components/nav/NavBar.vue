@@ -285,9 +285,7 @@
       </div>
       <div id="spacer" class="h-4"></div>
       <div v-if="navBar.isOpen" class="px-4 pb-4">
-        <!-- 
         <ProjectSelectGlobal select-trigger-class="bg-neutral-50" />
-        -->
       </div>
       <div class="flex h-full flex-col">
         <ul class="space-y-2">
@@ -301,15 +299,8 @@
                 :label="item.label"
                 :label-visible="navBar.isOpen"
               />
-              <ul
-                v-if="item.children.length > 0"
-                :class="navBar.isOpen ? 'block' : 'hidden'"
-              >
-                <li
-                  v-for="child in item.children"
-                  :key="child?.to"
-                  class="nav-item-child"
-                >
+              <ul v-if="item.children.length > 0" :class="navBar.isOpen ? 'block' : 'hidden'">
+                <li v-for="child in item.children" :key="child?.to" class="nav-item-child">
                   <NavLink
                     :active="$route.path === child?.to"
                     :to="child?.to"
@@ -330,10 +321,7 @@
         class="absolute bottom-4 right-2 z-10 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-white/0 opacity-80 hover:border"
         @click="() => navBar.toggleOpen()"
       >
-        <ChevronRightIcon
-          class="size-4 text-muted-foreground/50"
-          :class="{ 'rotate-180 transform': navBar.isOpen }"
-        />
+        <ChevronRightIcon class="size-4 text-muted-foreground/50" :class="{ 'rotate-180 transform': navBar.isOpen }" />
       </div>
     </div>
     <div class="px-5">

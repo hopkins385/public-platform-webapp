@@ -44,8 +44,8 @@
             <div class="flex space-x-2">
               <ProjectSelect
                 :key="selectedProjectId"
-                :projectId="selectedProjectId"
-                @update:projectId="onUpdateProjectFilter"
+                :project-id="selectedProjectId"
+                @update:project-id="onUpdateProjectFilter"
               />
               <Button class="whitespace-nowrap" variant="ghost" @click="onClearProjectFilter"> Clear Filter </Button>
             </div>

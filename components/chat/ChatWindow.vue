@@ -161,6 +161,15 @@
     }
   }
 
+  /**
+   * Aborts the ongoing chat request / chat stream
+   */
+  function abortChatRequest() {
+    if (ac) {
+      ac.abort();
+    }
+  }
+
   function onKeyDownEnter(event: KeyboardEvent) {
     if (event.key === 'Enter' && !event.shiftKey && settings.submitOnEnter) {
       event.preventDefault();
@@ -182,6 +191,9 @@
     });
   }
 
+  /**
+   * Sets the llm model associated with assistant if props.assistant is defined
+   */
   function setModelFromAssistant() {
     if (!props.assistant) return;
     const { apiName, provider, multiModal } = props.assistant.llm;
@@ -298,18 +310,24 @@
   const activeTools = ref<string[]>([]);
 
   function setActiveTool(toolName: string) {
-    console.log('Tool started:', toolName);
     activeTools.value.push(toolName);
   }
 
   function unsetActiveTool(toolName: string) {
-    console.log('Tool ended:', toolName);
     activeTools.value = activeTools.value.filter((tool) => tool !== toolName);
   }
 
   function clearActiveTools() {
     activeTools.value = [];
   }
+
+  const route = useRoute();
+
+  // abort ongoing request when route changes
+  watch(
+    () => route.path,
+    () => abortChatRequest(),
+  );
 
   onMounted(() => {
     setModelFromAssistant();
@@ -322,10 +340,6 @@
   });
 
   onBeforeUnmount(() => {
-    // abort ongoing request
-    if (ac) {
-      ac.abort();
-    }
     socket.off(`chat-${props.chatId}-tool-start-event`, (toolName) => setActiveTool(toolName));
     socket.off(`chat-${props.chatId}-tool-end-event`, (toolName) => unsetActiveTool(toolName));
   });
