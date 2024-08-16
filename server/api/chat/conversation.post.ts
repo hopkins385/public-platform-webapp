@@ -1,5 +1,4 @@
 import type { H3Event } from 'h3';
-import type { ChatMessage, VisionImageUrlContent } from '~/interfaces/chat.interfaces';
 import { ChatToolCallEventDto } from '../../events/dto/chatToolCallEvent.dto';
 import { VectorService } from '../../services/vector.service';
 import { CollectionService } from '~/server/services/collection.service';
@@ -20,6 +19,7 @@ import { getTools } from '../../chatTools/vercelChatTools';
 import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
 import { Readable, Transform } from 'stream';
 import prisma from '~/server/prisma';
+import { formatChatMessages } from '~/server/utils/chat/formatchatMessages';
 
 const chatService = new ChatService(prisma);
 const tokenizerService = new TokenizerService();
@@ -88,52 +88,18 @@ export default defineEventHandler(async (_event) => {
     );
   }
 
-  function getVisionMessages(vis: VisionImageUrlContent[] | null | undefined) {
-    if (!vis) {
-      return [];
-    }
-    return vis.map((v) => {
-      if (!v.url) throw new Error('VisionImageUrlContent url is required');
-      // this format is vercel ai sdk specific!
-      return {
-        type: 'image',
-        image: new URL(v.url),
-      };
-    });
-  }
-
-  function normalizeBodyMessages(messages: ChatMessage[] | null | undefined) {
-    if (!messages) {
-      return [];
-    }
-    return messages.map((message) => {
-      if (message.type === 'image' && message.visionContent) {
-        const text = {
-          type: 'text',
-          text: message.content,
-        };
-        return {
-          role: message.role,
-          content: [text, ...getVisionMessages(message.visionContent)],
-        };
-      }
-      return {
-        role: message.role,
-        content: message.content,
-      };
-    }); // satisfies CoreMessage[];
-  }
-
-  const bodyMessages = normalizeBodyMessages(body.messages);
+  // Format chat messages
+  const chatMessages = formatChatMessages(body.messages);
 
   let systemPrompt = undefined;
 
-  // assistant has knowledge
-  const assistantModelDto = CollectionAbleDto.fromInput({
-    id: chat.assistant.id,
-    type: 'assistant',
-  });
-  const collections = await collectionService.findAllWithRecordsFor(assistantModelDto);
+  // check if assistant has knowledge collections
+  const collections = await collectionService.findAllWithRecordsFor(
+    CollectionAbleDto.fromInput({
+      id: chat.assistant.id,
+      type: 'assistant',
+    }),
+  );
 
   if (collections.length > 0) {
     const recordIds = collections.map((c) => c.records.map((r) => r.id)).flat();
@@ -146,7 +112,7 @@ export default defineEventHandler(async (_event) => {
 
     systemPrompt = chat.assistant.systemPrompt + '\n\n<context>' + context + '</context>';
   } else {
-    systemPrompt = chat.assistant.systemPrompt.toString();
+    systemPrompt = chat.assistant.systemPrompt;
   }
 
   // dd(messages);
@@ -175,7 +141,7 @@ export default defineEventHandler(async (_event) => {
     chatId: chat.id,
     model: body.model,
     provider: body.provider,
-    messages: bodyMessages,
+    messages: chatMessages,
     systemPrompt,
     maxTokens: body.maxTokens,
     config,
@@ -188,9 +154,14 @@ export default defineEventHandler(async (_event) => {
   try {
     const generator = generateStream(generateStreamData);
     const stream = Readable.from(generator).pipe(gatherCunks());
+    stream.on('error', (error) => {
+      logger.error('Generator stream error:', error);
+      stream.destroy();
+      _event.node.res.end();
+    });
     return stream;
   } catch (error) {
-    logger.error('Stream error:', error);
+    logger.error('Create stream error:', error);
     throw createError({
       statusCode: 500,
       statusMessage: 'Internal Server Error',
@@ -282,7 +253,7 @@ function onStreamStopLength() {
   // event(ChatEvent.STREAM_STOP_LENGTH, {});
 }
 
-function createToolStartCallHandler(payload: StreamPayload) {
+function toolStartCallback(payload: StreamPayload) {
   return (toolName: string) =>
     onToolStartCall(
       ChatToolCallEventDto.fromInput({
@@ -307,7 +278,7 @@ function handleStreamGeneratorError(error: any) {
 
 async function* generateStream(payload: StreamPayload) {
   const model = VercelCompletionFactory.fromInput(payload.provider, payload.model, payload.config);
-  const availableTools = payload.provider !== 'groq' ? getTools(createToolStartCallHandler(payload)) : undefined;
+  const availableTools = payload.provider !== 'groq' ? getTools(toolStartCallback(payload)) : undefined;
 
   try {
     const initialResult = await streamText({
@@ -338,7 +309,9 @@ async function* handleStream(
     if (payload.signal.aborted) return;
 
     if (chunk.type === 'error') {
-      throw new Error(`Chunk error: ${chunk.error}`);
+      logger.error(`Chunk error: ${JSON.stringify(chunk.error)}`);
+      yield chunk.error;
+      return;
     }
 
     if (chunk.type === 'finish') {
@@ -381,6 +354,8 @@ async function* handleToolCalls(
     maxTokens: payload.maxTokens,
     tools: availableTools,
   });
+
+  //TODO: track token usage for tools
 
   const toolName = toolResults[0]?.toolName || '';
   onToolEndCall(

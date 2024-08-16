@@ -2,6 +2,7 @@
   "name": "ragna-cloud",
   "private": true,
   "license": "other",
+  "author": "Sven Stadhouders",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
