@@ -49,7 +49,7 @@ export default function useManageWorkflows() {
     projectId.value = id;
   }
 
-  function createWorkflow(payload: ICreateWorkflow) {
+  async function createWorkflow(payload: ICreateWorkflow) {
     return $client.workflow.create.mutate(
       { ...payload },
       {
@@ -58,7 +58,7 @@ export default function useManageWorkflows() {
     );
   }
 
-  function reCreateWorkflowFromMedia(payload: IReCreateWorkflowFromMedia) {
+  async function reCreateWorkflowFromMedia(payload: IReCreateWorkflowFromMedia) {
     return $client.workflow.reCreateFromMedia.mutate(
       { ...payload },
       {
@@ -67,7 +67,10 @@ export default function useManageWorkflows() {
     );
   }
 
-  function getProjectWorkflows(projectId: string | string[] | undefined | null, options: AsyncDataOptions<any> = {}) {
+  async function getProjectWorkflows(
+    projectId: string | string[] | undefined | null,
+    options: AsyncDataOptions<any> = {},
+  ) {
     return useAsyncData(
       `workflows:${projectId}`,
       async () => {
@@ -89,7 +92,7 @@ export default function useManageWorkflows() {
     );
   }
 
-  function getAllWorkflowsForUser(options: AsyncDataOptions<any> = {}) {
+  async function getAllWorkflowsForUser(options: AsyncDataOptions<any> = {}) {
     return useAsyncData(
       `allWorkflowsForUser:${projectId.value}`,
       async () => {
@@ -112,7 +115,7 @@ export default function useManageWorkflows() {
   }
 
   // with assistants, steps, and documents
-  function getFullWorkflow(id: string | string[] | undefined | null, options: AsyncDataOptions<any> = {}) {
+  async function getFullWorkflow(id: string | string[] | undefined | null, options: AsyncDataOptions<any> = {}) {
     setWorkflowId(id);
     return useAsyncData(
       `workflow:${workflowId}`,
@@ -130,7 +133,7 @@ export default function useManageWorkflows() {
     );
   }
 
-  function getWorkflowSettings(id: string | string[] | undefined | null, options: AsyncDataOptions<any> = {}) {
+  async function getWorkflowSettings(id: string | string[] | undefined | null, options: AsyncDataOptions<any> = {}) {
     setWorkflowId(id);
     return useAsyncData(
       `workflowSettings:${workflowId}`,
@@ -148,7 +151,7 @@ export default function useManageWorkflows() {
     );
   }
 
-  function updateWorkflow(payload: IUpdateWorkflow) {
+  async function updateWorkflow(payload: IUpdateWorkflow) {
     return $client.workflow.update.mutate(
       { ...payload },
       {
@@ -157,7 +160,17 @@ export default function useManageWorkflows() {
     );
   }
 
-  function deleteWorkflow(id: string | string[] | undefined | null) {
+  async function clearAllRows(id: string) {
+    setWorkflowId(id);
+    return $client.workflow.clearAllRows.mutate(
+      { workflowId: workflowId.value },
+      {
+        signal: ac.signal,
+      },
+    );
+  }
+
+  async function deleteWorkflow(id: string | string[] | undefined | null) {
     setWorkflowId(id);
     return $client.workflow.delete.mutate(
       { workflowId: workflowId.value },
@@ -177,7 +190,7 @@ export default function useManageWorkflows() {
     );
   }
 
-  function exportWorkflow(id: string | string[] | undefined | null) {
+  async function exportWorkflow(id: string | string[] | undefined | null) {
     setWorkflowId(id);
     return $fetch.raw('/api/export/workflow', {
       method: 'POST',
@@ -202,5 +215,6 @@ export default function useManageWorkflows() {
     deleteWorkflow,
     exportWorkflow,
     deleteWorkflowRows,
+    clearAllRows,
   };
 }

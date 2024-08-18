@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { ChevronDownIcon, CircleChevronRight, RotateCcwIcon, SettingsIcon } from 'lucide-vue-next';
+  import { ChevronDownIcon, CircleChevronRight, RotateCcwIcon, SettingsIcon, SquareXIcon } from 'lucide-vue-next';
 
   const props = defineProps<{
     projectId: string;
@@ -10,7 +10,8 @@
     'run-selected': [void];
     'run-all': [void];
     'run-empty': [void];
-    'reload-sheet': [void];
+    'refresh-all-data': [void];
+    'clear-all-rows': [void];
   }>();
 
   const toSettingsLink = computed(() => `/projects/${props.projectId}/workflows/${props.workflowId}/settings`);
@@ -32,12 +33,7 @@
     <DropdownMenuContent align="end" :avoid-collisions="true" :loop="true" class="w-48 p-2">
       <DropdownMenuLabel class="text-xs">Workflow</DropdownMenuLabel>
       <DropdownMenuSeparator />
-      <DropdownMenuItem
-        class="w-full cursor-pointer text-xs"
-        :disabled="true"
-        @click="$emit('reload-sheet')"
-        as="button"
-      >
+      <DropdownMenuItem class="w-full cursor-pointer text-xs" as="button" @click="$emit('refresh-all-data')">
         <RotateCcwIcon class="mr-1 size-3 stroke-1.5" />
         Reload data
       </DropdownMenuItem>
@@ -46,7 +42,7 @@
         <CircleChevronRight class="mr-1 size-3 stroke-1.5" />
         Run selected
       </!-->
-      <DropdownMenuItem class="w-full cursor-pointer text-xs" @click="$emit('run-all')" as="button">
+      <DropdownMenuItem class="w-full cursor-pointer text-xs" as="button" @click="$emit('run-all')">
         <CircleChevronRight class="mr-1 size-3 stroke-1.5" />
         Run all
       </DropdownMenuItem>
@@ -54,6 +50,15 @@
         <CircleChevronRight class="mr-1 size-3 stroke-1.5" />
         Run empty
       </!-->
+      <DropdownMenuSeparator />
+      <DropdownMenuItem
+        class="w-full cursor-pointer text-xs hover:!text-destructive"
+        as="button"
+        @click="$emit('clear-all-rows')"
+      >
+        <SquareXIcon class="mr-1 size-3 stroke-1.5" />
+        Clear all
+      </DropdownMenuItem>
       <DropdownMenuSeparator />
       <DropdownMenuItem class="text-xs">
         <NuxtLinkLocale :to="toSettingsLink" class="flex w-full items-center">

@@ -17,6 +17,7 @@
   });
 
   const showTable = ref(true);
+  const refreshWorkflowData = ref(false);
 
   const { projectId, workflowId } = useRoute().params;
 
@@ -28,6 +29,15 @@
       return { id: w.id, name: w.name };
     }),
   );
+
+  async function onRefreshWorkflowData() {
+    // set the refresh flag to true to trigger a refresh of the workflow data
+    // set the flag to false after 1 second to prevent multiple refreshes
+    refreshWorkflowData.value = true;
+    setTimeout(() => {
+      refreshWorkflowData.value = false;
+    }, 500);
+  }
 </script>
 
 <template>
@@ -37,10 +47,16 @@
       :project-workflows="projectWorkflows"
       :workflow-id="workflowId as string"
       :project-id="projectId as string"
+      @refresh-workflow-data="onRefreshWorkflowData"
     />
     <div class="min-h-full overflow-x-scroll bg-white">
       <Suspense>
-        <WorkflowSheet v-if="showTable" :workflow-id="workflowId as string" :project-id="projectId as string" />
+        <WorkflowSheet
+          v-if="showTable"
+          :workflow-id="workflowId as string"
+          :project-id="projectId as string"
+          :refresh-data="refreshWorkflowData"
+        />
         <WorkflowFlowView v-else :workflow-id="workflowId as string" />
       </Suspense>
     </div>

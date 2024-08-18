@@ -10,13 +10,14 @@
 
   const emit = defineEmits<{
     'update:showTableView': [boolean];
+    'refresh-workflow-data': [void];
   }>();
 
   const exportIsLoading = ref(false);
   const navBar = useNavBarStore();
   const projectStore = useProjectStore();
   const { executeWorkflow } = useExecuteWorkflow();
-  const { exportWorkflow } = useManageWorkflows();
+  const { exportWorkflow, clearAllRows } = useManageWorkflows();
 
   // const cacheKey = computed(() => `workflow:${props.workflowId}`);
   const { data: workflow } = useNuxtData(`workflow:${props.workflowId}`);
@@ -31,6 +32,15 @@
 
   async function onRunAll() {
     const res = await executeWorkflow(props.workflowId);
+  }
+
+  async function onClearAllRows() {
+    await clearAllRows(props.workflowId);
+    emit('refresh-workflow-data');
+  }
+
+  function onRefreshWorkflowData() {
+    emit('refresh-workflow-data');
   }
 
   async function onExportData() {
@@ -115,11 +125,8 @@
             :project-id="projectId"
             :workflow-id="workflowId"
             @run-all="onRunAll"
-            @reload-sheet="
-              () => {
-                console.error('not implemented');
-              }
-            "
+            @clear-all-rows="onClearAllRows"
+            @refresh-all-data="onRefreshWorkflowData"
           />
         </div>
         <div class="flex items-center space-x-1 rounded-lg bg-stone-200/60" style="padding: 0.2rem">

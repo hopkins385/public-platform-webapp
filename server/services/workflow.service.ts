@@ -470,7 +470,70 @@ export class WorkflowService {
     return true;
   }
 
-  delete(workflowId: string) {
+  async clearAllRows(payload: { workflowId: string }) {
+    // delete/clear all document items content of all workflow steps except the first step
+    const workflow = await this.prisma.workflow.findFirst({
+      where: {
+        id: payload.workflowId.toLowerCase(),
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        steps: {
+          where: {
+            deletedAt: null,
+            orderColumn: {
+              not: 0,
+            },
+          },
+          select: {
+            id: true,
+            document: {
+              where: {
+                deletedAt: null,
+              },
+              select: {
+                id: true,
+                documentItems: {
+                  where: {
+                    deletedAt: null,
+                  },
+                  select: {
+                    id: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!workflow) {
+      throw new Error('Workflow not found');
+    }
+
+    const documentItemsToBeCleared = workflow.steps.map((step) => step.document?.documentItems).flat();
+
+    if (!documentItemsToBeCleared || documentItemsToBeCleared.length === 0) {
+      throw new Error('No document items found');
+    }
+
+    await this.prisma.documentItem.updateMany({
+      data: {
+        content: '',
+      },
+      where: {
+        id: {
+          in: documentItemsToBeCleared.map((item) => item!.id),
+        },
+      },
+    });
+
+    return true;
+  }
+
+  async delete(workflowId: string) {
     return this.prisma.workflow.delete({
       where: {
         id: workflowId.toLowerCase(),
@@ -478,7 +541,7 @@ export class WorkflowService {
     });
   }
 
-  softDelete(workflowId: string) {
+  async softDelete(workflowId: string) {
     return this.prisma.workflow.update({
       where: {
         id: workflowId.toLowerCase(),

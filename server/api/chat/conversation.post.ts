@@ -1,4 +1,5 @@
 import type { H3Event } from 'h3';
+import type { StreamTextResult } from 'ai';
 import { ChatToolCallEventDto } from '../../events/dto/chatToolCallEvent.dto';
 import { VectorService } from '../../services/vector.service';
 import { CollectionService } from '~/server/services/collection.service';
@@ -12,14 +13,13 @@ import { TrackTokensDto } from '~/server/services/dto/track-tokens.dto';
 import { StreamFinishedEventDto, FirstUserMessageEventDto } from '~/server/services/dto/event.dto';
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import { useEvents } from '~/server/events/useEvents';
-import consola from 'consola';
-import { streamText, type StreamTextResult } from 'ai';
+import { streamText } from 'ai';
 import { VercelCompletionFactory } from '~/server/factories/vercelCompletionFactory';
 import { getTools } from '../../chatTools/vercelChatTools';
 import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
 import { Readable, Transform } from 'stream';
 import prisma from '~/server/prisma';
-import { formatChatMessages } from '~/server/utils/chat/formatchatMessages';
+import consola from 'consola';
 
 const chatService = new ChatService(prisma);
 const tokenizerService = new TokenizerService();
@@ -57,6 +57,7 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
+  // Check if chat has messages
   const lastMessage = body.messages[body.messages.length - 1];
   if (!lastMessage) {
     logger.error('No last message');
@@ -67,6 +68,7 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
+  // Store last message in the database
   const message = await chatService.createMessage(
     CreateChatMessageDto.fromInput({
       userId: chat.user.id,

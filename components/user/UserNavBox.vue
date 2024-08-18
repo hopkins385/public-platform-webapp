@@ -45,11 +45,11 @@
         <div class="opacity-75">{{ user?.credit[0]?.amount }} / 1000</div>
       </div>
     </div>
-    <div>
+    <div class="hidden">
       <button class="w-full rounded-full bg-stone-200/60 px-4 py-2 font-semibold">Upgrade to Pro</button>
     </div>
   </div>
-  <div class="pb-2" v-else>
+  <div v-else class="pb-2">
     <div class="mx-auto w-fit opacity-60">
       <NuxtLinkLocale to="/user/profile" class="hover:underline">
         <CircleUserIcon class="inline-block size-5 stroke-1" />

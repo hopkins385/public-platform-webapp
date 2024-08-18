@@ -70,7 +70,8 @@
       </div>
       <div class="flex flex-col p-4 text-xs">
         <div
-          v-for="(step, index) in workflowFilteredSteps"
+          v-for="(step, i) in workflowFilteredSteps"
+          :key="i"
           class="m-4 h-fit w-[40rem] rounded-lg border bg-white p-4 shadow-md"
         >
           <div class="">
@@ -78,8 +79,8 @@
               {{ step.name }}
             </div>
             <div id="content">
-              <div v-for="(item, index) in step.document.documentItems">
-                <div class="md-content" v-dompurify-html="parseMarkdown(item.content)"></div>
+              <div v-for="(item, index) in step.document.documentItems" :key="index">
+                <div v-dompurify-html="parseMarkdown(item.content)" class="md-content"></div>
               </div>
             </div>
           </div>

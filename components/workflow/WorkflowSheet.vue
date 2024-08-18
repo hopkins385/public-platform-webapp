@@ -15,6 +15,7 @@
   const props = defineProps<{
     workflowId: string;
     projectId: string;
+    refreshData: boolean;
   }>();
 
   const sideBarOpen = ref(false);
@@ -180,6 +181,15 @@
   function setCellActive(columnIndex: number, rowIndex: number) {
     cellActive.value = { x: columnIndex, y: rowIndex };
   }
+
+  watch(
+    () => props.refreshData,
+    async () => {
+      if (props.refreshData) {
+        await refresh();
+      }
+    },
+  );
 
   useEventListener('keydown', (event) => {
     if (event.key === 'Escape') {

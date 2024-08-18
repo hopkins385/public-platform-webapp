@@ -160,4 +160,19 @@ export const workflowRouter = router({
         orderColumns: input.orderColumns,
       });
     }),
+
+  // update row contents to empty
+  clearAllRows: protectedProcedure
+    .input(
+      z.object({
+        workflowId: cuidRule(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      // const pass = await workflowService.canClearRowsPolicy(input.workflowId, ctx.user);
+
+      return await workflowService.clearAllRows({
+        workflowId: input.workflowId,
+      });
+    }),
 });

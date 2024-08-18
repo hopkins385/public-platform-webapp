@@ -3,6 +3,7 @@
   "private": true,
   "license": "other",
   "author": "Sven Stadhouders",
+  "version": "0.8.1",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
