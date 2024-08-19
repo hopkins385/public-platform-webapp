@@ -1165,203 +1165,11 @@
           "hasDefaultValue": false,
           "isId": false,
           "maxLength": null
-        },
-        {
-          "name": "collections",
-          "type": "collections",
-          "isRequired": true,
-          "kind": "object",
-          "relationName": "collection_ablesTocollections",
-          "relationFromFields": [
-            "collection_id"
-          ],
-          "relationToFields": [
-            "id"
-          ],
-          "isList": false,
-          "isId": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false
         }
       ],
       "uniqueConstraints": [
         {
           "name": "collection_ables_pkey",
-          "fields": [
-            "id"
-          ],
-          "nullNotDistinct": false
-        }
-      ]
-    },
-    "collections": {
-      "id": "public.collections",
-      "schemaName": "public",
-      "tableName": "collections",
-      "fields": [
-        {
-          "id": "public.collections.id",
-          "name": "id",
-          "columnName": "id",
-          "type": "text",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": true,
-          "maxLength": null
-        },
-        {
-          "id": "public.collections.team_id",
-          "name": "team_id",
-          "columnName": "team_id",
-          "type": "text",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.collections.model_id",
-          "name": "model_id",
-          "columnName": "model_id",
-          "type": "text",
-          "isRequired": false,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.collections.name",
-          "name": "name",
-          "columnName": "name",
-          "type": "text",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.collections.description",
-          "name": "description",
-          "columnName": "description",
-          "type": "text",
-          "isRequired": false,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.collections.created_at",
-          "name": "created_at",
-          "columnName": "created_at",
-          "type": "timestamp",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": true,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.collections.updated_at",
-          "name": "updated_at",
-          "columnName": "updated_at",
-          "type": "timestamp",
-          "isRequired": true,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "id": "public.collections.deleted_at",
-          "name": "deleted_at",
-          "columnName": "deleted_at",
-          "type": "timestamp",
-          "isRequired": false,
-          "kind": "scalar",
-          "isList": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false,
-          "isId": false,
-          "maxLength": null
-        },
-        {
-          "name": "teams",
-          "type": "teams",
-          "isRequired": true,
-          "kind": "object",
-          "relationName": "collectionsToteams",
-          "relationFromFields": [
-            "team_id"
-          ],
-          "relationToFields": [
-            "id"
-          ],
-          "isList": false,
-          "isId": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false
-        },
-        {
-          "name": "collection_ables",
-          "type": "collection_ables",
-          "isRequired": false,
-          "kind": "object",
-          "relationName": "collection_ablesTocollections",
-          "relationFromFields": [],
-          "relationToFields": [],
-          "isList": true,
-          "isId": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false
-        },
-        {
-          "name": "records",
-          "type": "records",
-          "isRequired": false,
-          "kind": "object",
-          "relationName": "recordsTocollections",
-          "relationFromFields": [],
-          "relationToFields": [],
-          "isList": true,
-          "isId": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false
-        }
-      ],
-      "uniqueConstraints": [
-        {
-          "name": "collections_pkey",
           "fields": [
             "id"
           ],
@@ -3086,24 +2894,6 @@
           "maxLength": null
         },
         {
-          "name": "collections",
-          "type": "collections",
-          "isRequired": true,
-          "kind": "object",
-          "relationName": "recordsTocollections",
-          "relationFromFields": [
-            "collection_id"
-          ],
-          "relationToFields": [
-            "id"
-          ],
-          "isList": false,
-          "isId": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false
-        },
-        {
           "name": "medias",
           "type": "medias",
           "isRequired": false,
@@ -3599,20 +3389,6 @@
           "isRequired": false,
           "kind": "object",
           "relationName": "assistantsToteams",
-          "relationFromFields": [],
-          "relationToFields": [],
-          "isList": true,
-          "isId": false,
-          "isGenerated": false,
-          "sequence": false,
-          "hasDefaultValue": false
-        },
-        {
-          "name": "collections",
-          "type": "collections",
-          "isRequired": false,
-          "kind": "object",
-          "relationName": "collectionsToteams",
           "relationFromFields": [],
           "relationToFields": [],
           "isList": true,

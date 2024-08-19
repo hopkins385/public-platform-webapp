@@ -1,6 +1,6 @@
 import type { QdrantVectorStore } from 'llamaindex';
 import type { RuntimeConfig } from 'nuxt/schema';
-import { OpenAIEmbedding, Settings, VectorStoreIndex } from 'llamaindex';
+import { OpenAIEmbedding, Settings, storageContextFromDefaults, VectorStoreIndex } from 'llamaindex';
 import { FileReaderFactory } from '~/server/factories/fileReaderFactory';
 import OpenAI from 'openai';
 import consola from 'consola';
@@ -34,8 +34,12 @@ export class VectorService {
         Object.assign(doc.metadata, additionalMetadata);
       });
 
-      const res = await VectorStoreIndex.fromDocuments(documents, {
+      const context = await storageContextFromDefaults({
         vectorStore: this.vectorStore,
+      });
+
+      const res = await VectorStoreIndex.fromDocuments(documents, {
+        storageContext: context,
       });
 
       return documents;
