@@ -81,7 +81,7 @@
     "displayName": "Mistral large",
     "provider": "mistral",
     "description": "",
-    "contextSize": 32,
+    "contextSize": 128,
     "maxTokens": 0,
     "multiModal": false,
     "hidden": false,
@@ -94,7 +94,7 @@
     "description": "",
     "contextSize": 200,
     "maxTokens": 4,
-    "multiModal": false,
+    "multiModal": true,
     "hidden": false,
     "free": false
   },
@@ -105,7 +105,7 @@
     "description": "",
     "contextSize": 200,
     "maxTokens": 4,
-    "multiModal": false,
+    "multiModal": true,
     "hidden": false,
     "free": false
   },
@@ -116,7 +116,7 @@
     "description": "",
     "contextSize": 200,
     "maxTokens": 4,
-    "multiModal": false,
+    "multiModal": true,
     "hidden": false,
     "free": false
   },
@@ -127,7 +127,7 @@
     "description": "",
     "contextSize": 200,
     "maxTokens": 4,
-    "multiModal": false,
+    "multiModal": true,
     "hidden": false,
     "free": false
   }

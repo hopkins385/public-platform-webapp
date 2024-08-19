@@ -4,11 +4,13 @@
  */
 import { PrismaClient } from '@prisma/client';
 import { pagination } from 'prisma-extension-pagination';
+import cuid2Extension from 'prisma-extension-cuid2';
 
 const prismaClientSingleton = () => {
   return new PrismaClient({
     log: ['info', 'warn', 'error'], // 'query'
   })
+    .$extends(cuid2Extension())
     .$extends(pagination())
     .$extends({
       name: 'hasEmailVerified',
