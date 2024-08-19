@@ -15,7 +15,7 @@
     "migrate": "prisma migrate dev",
     "postmigrate": "npx @snaplet/seed sync",
     "migrate:prod": "prisma migrate deploy",
-    "reset:db": "npx prisma db push --force-reset && npx prisma db seed",
+    "db:reset": "npx @snaplet/seed sync && npx prisma db push --force-reset && npx prisma db seed",
     "do:upgrade": "ncu -u && npm install"
   },
   "devDependencies": {
