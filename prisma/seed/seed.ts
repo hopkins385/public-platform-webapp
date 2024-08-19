@@ -78,7 +78,7 @@ async function seedDefaultUsers(seed: SeedClient) {
       name: 'Sven Stadhouders',
       firstName: 'Sven',
       lastName: 'Stadhouders',
-      email: 'sven@svenson.ai',
+      email: process.env.ADMIN_EMAIL!,
       password: () => bcrypt.hash(process.env.ADMIN_PASSWORD!, 10),
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -90,7 +90,7 @@ async function seedDefaultUsers(seed: SeedClient) {
       name: 'Test User',
       firstName: 'Test',
       lastName: 'User',
-      email: 'test@test.de',
+      email: process.env.TESTER_EMAIL!,
       password: () => bcrypt.hash(process.env.TESTER_PASSWORD!, 10),
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -148,6 +148,11 @@ async function seedDefaults(seed: SeedClient, payload: { orgId: string; firstTea
     {
       id: createId(),
       userId: users[0].id,
+      roleId: role[0].id,
+    },
+    {
+      id: createId(),
+      userId: users[1].id,
       roleId: role[0].id,
     },
   ]);
