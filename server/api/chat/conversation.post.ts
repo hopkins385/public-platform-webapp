@@ -154,7 +154,7 @@ export default defineEventHandler(async (_event) => {
   _event.node.res.on('drain', () => logger.debug('Response drain'));
 
   // set proper headers
-  _event.node.res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  _event.node.res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
   _event.node.res.setHeader('Cache-Control', 'no-cache');
   _event.node.res.setHeader('Connection', 'keep-alive');
   _event.node.res.setHeader('Transfer-Encoding', 'chunked');
