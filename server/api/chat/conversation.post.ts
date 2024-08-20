@@ -153,6 +153,12 @@ export default defineEventHandler(async (_event) => {
   _event.node.res.on('error', (error) => onResponseError(_event, error));
   _event.node.res.on('drain', () => logger.debug('Response drain'));
 
+  // set proper headers
+  _event.node.res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  _event.node.res.setHeader('Cache-Control', 'no-cache');
+  _event.node.res.setHeader('Connection', 'keep-alive');
+  _event.node.res.setHeader('Transfer-Encoding', 'chunked');
+
   try {
     const generator = generateStream(generateStreamData);
     const stream = Readable.from(generator).pipe(gatherCunks());
@@ -161,7 +167,7 @@ export default defineEventHandler(async (_event) => {
       stream.destroy();
       _event.node.res.end();
     });
-    return sendStream(_event, stream);
+    return stream;
   } catch (error) {
     logger.error('Create stream error:', error);
     throw createError({
