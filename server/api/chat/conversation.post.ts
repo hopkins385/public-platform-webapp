@@ -158,6 +158,7 @@ export default defineEventHandler(async (_event) => {
   _event.node.res.setHeader('Cache-Control', 'no-cache');
   _event.node.res.setHeader('Connection', 'keep-alive');
   _event.node.res.setHeader('Transfer-Encoding', 'chunked');
+  _event.node.res.setHeader('X-Accel-Buffering', 'no');
 
   try {
     const generator = generateStream(generateStreamData);
