@@ -161,7 +161,7 @@ export default defineEventHandler(async (_event) => {
       stream.destroy();
       _event.node.res.end();
     });
-    return stream;
+    return sendStream(_event, stream);
   } catch (error) {
     logger.error('Create stream error:', error);
     throw createError({
