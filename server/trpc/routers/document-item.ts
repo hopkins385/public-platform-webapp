@@ -20,7 +20,7 @@ export const documentItemRouter = router({
     )
     .mutation(async ({ input }) => {
       const payload = CreateDocumentItemDto.fromInput(input);
-      return documentItemService.create(payload);
+      return await documentItemService.create(payload);
     }),
   createMany: protectedProcedure
     .input(
@@ -36,7 +36,7 @@ export const documentItemRouter = router({
     )
     .mutation(async ({ input }) => {
       const payload = input.map((item) => CreateDocumentItemDto.fromInput(item));
-      return documentItemService.createMany(payload);
+      return await documentItemService.createMany(payload);
     }),
   find: protectedProcedure
     .input(
@@ -45,7 +45,7 @@ export const documentItemRouter = router({
       }),
     )
     .query(async ({ input }) => {
-      return documentItemService.findFirst(input.documentItemId.toLowerCase());
+      return await documentItemService.findFirst(input.documentItemId.toLowerCase());
     }),
   findMany: protectedProcedure
     .input(
@@ -54,7 +54,7 @@ export const documentItemRouter = router({
       }),
     )
     .query(async ({ input }) => {
-      return documentItemService.findMany(input.documentId.toLowerCase());
+      return await documentItemService.findMany(input.documentId.toLowerCase());
     }),
   update: protectedProcedure
     .input(
@@ -68,7 +68,7 @@ export const documentItemRouter = router({
     )
     .mutation(async ({ input }) => {
       const payload = UpdateDocumentItemDto.fromInput(input);
-      return documentItemService.update(payload);
+      return await documentItemService.update(payload);
     }),
   updateMany: protectedProcedure
     .input(
@@ -84,7 +84,7 @@ export const documentItemRouter = router({
     )
     .mutation(async ({ input }) => {
       const payload = input.map((item) => UpdateDocumentItemDto.fromInput(item));
-      return documentItemService.updateMany(payload);
+      return await documentItemService.updateMany(payload);
     }),
   delete: protectedProcedure
     .input(
@@ -93,6 +93,6 @@ export const documentItemRouter = router({
       }),
     )
     .mutation(async ({ input }) => {
-      return documentItemService.softDelete(input.documentItemId.toLowerCase());
+      return await documentItemService.softDelete(input.documentItemId.toLowerCase());
     }),
 });

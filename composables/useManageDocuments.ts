@@ -16,7 +16,7 @@ export default function useManageDocuments() {
   const { $client } = useNuxtApp();
   const ac = new AbortController();
 
-  let page: number = 1;
+  const page = ref(1);
   let documentId: string = '';
 
   onScopeDispose(() => {
@@ -24,7 +24,7 @@ export default function useManageDocuments() {
   });
 
   function setPage(p: number) {
-    page = p;
+    page.value = p;
   }
 
   function setDocumentId(id: string | string[] | undefined | null) {
@@ -43,18 +43,24 @@ export default function useManageDocuments() {
   }
 
   function getAllDocuments(projectId: string | string[] | undefined | null) {
-    return useAsyncData(`allDocumentsForProject:${projectId}`, async () => {
-      const [documents, meta] = await $client.document.findAll.query(
-        {
-          projectId: projectId as string,
-          page,
-        },
-        {
-          signal: ac.signal,
-        },
-      );
-      return { documents, meta };
-    });
+    return useAsyncData(
+      `allDocumentsForProject:${projectId}`,
+      async () => {
+        const [documents, meta] = await $client.document.findAll.query(
+          {
+            projectId: projectId as string,
+            page: page.value,
+          },
+          {
+            signal: ac.signal,
+          },
+        );
+        return { documents, meta };
+      },
+      {
+        watch: [page],
+      },
+    );
   }
 
   function getDocument(projectId: string, documentId: string) {

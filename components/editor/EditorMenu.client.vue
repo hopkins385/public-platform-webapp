@@ -64,10 +64,7 @@
 </script>
 
 <template>
-  <div
-    v-if="editor"
-    class="relative flex justify-between bg-slate-900 px-4 py-3 text-white"
-  >
+  <div v-if="editor" class="relative flex justify-between bg-slate-900 px-4 py-3 text-white">
     <div class="flex space-x-2">
       <div
         class="editor__menu-button"
@@ -139,6 +136,8 @@
         <Redo2Icon class="size-4" />
       </div>
       <EditorAIMenu
+        :disabled="!hasTextSelected"
+        :is-loading="isLoading"
         @improve-click="() => onImproveClick()"
         @extend-click="() => onExtendClick()"
         @shorten-click="() => onShortenClick()"
@@ -147,19 +146,17 @@
         @simplify-click="() => onSimplifyClick()"
         @spelling-grammar-click="() => onSpellingGrammarClick()"
         @translate-click="(lang) => onTranslateClick(lang)"
-        :disabled="!hasTextSelected"
-        :is-loading="isLoading"
       />
       <div v-if="isLoading" class="flex items-center justify-center">
         <Loader2Icon class="size-6 animate-spin text-slate-300" />
       </div>
     </div>
-    <div class="ml-auto flex items-center space-x-4">
+    <div class="ml-auto flex hidden items-center space-x-4">
       <div class="text-sm">Autocomplete</div>
       <Switch
-        @update:checked="onAutocompleteIsActiveChange"
         :checked="autocompleteIsActive"
         class="outline outline-slate-500"
+        @update:checked="onAutocompleteIsActiveChange"
       />
     </div>
   </div>

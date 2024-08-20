@@ -51,7 +51,7 @@
               <span>
                 <FileTextIcon class="default-icon size-4" />
               </span>
-              <NuxtLinkLocale :to="`/projects/${projectId}/documents`"> Documents </NuxtLinkLocale>
+              <NuxtLinkLocale to="/documents"> Documents </NuxtLinkLocale>
             </div>
           </li>
         </ul>

@@ -20,8 +20,7 @@
   const emits = defineEmits(['update:modelValue']);
   const { locale } = useI18n();
   const { runCompletion, isLoading } = useRunCompletion();
-  const { fetchAutoCompletion, isLoading: autoCompleteIsLoading } =
-    useFetchAutoCompletion();
+  const { fetchAutoCompletion, isLoading: autoCompleteIsLoading } = useFetchAutoCompletion();
 
   const editorWrapperRef = ref<Element | null>(null);
   const showInstructionMenu = ref(false);
@@ -56,9 +55,7 @@
   });
 
   function setFocus() {
-    const editorWrapper = window.document.getElementById(
-      'editor-content-wrapper',
-    );
+    const editorWrapper = window.document.getElementById('editor-content-wrapper');
     if (editorWrapper) {
       const child = editorWrapper.children[0] as HTMLElement;
       if (child) {
@@ -82,19 +79,16 @@
   });
 
   // tbd
-  const autocompleteIsActive = ref(true);
+  const autocompleteIsActive = ref(false);
 </script>
 
 <template>
-  <div
-    id="text-editor"
-    class="relative overflow-hidden rounded-lg border-0 border-slate-300 bg-white shadow-sm"
-  >
+  <div id="text-editor" class="relative overflow-hidden rounded-lg border-0 border-slate-300 bg-white shadow-sm">
     <!-- Menu -->
     <EditorMenu
+      v-model:autocomplete-is-active="autocompleteIsActive"
       :editor="editor"
       :is-loading="showLoading"
-      v-model:autocomplete-is-active="autocompleteIsActive"
       @toggle-instruction-menu="toggleInstructionMenu"
     />
     <!-- Menu END-->
@@ -122,9 +116,7 @@
       id="editor-content-wrapper"
       ref="editorWrapperRef"
       :editor="editor"
-      :class="
-        showLoading ? 'pointer-events-none opacity-50' : 'pointer-events-auto'
-      "
+      :class="showLoading ? 'pointer-events-none opacity-50' : 'pointer-events-auto'"
     />
     <!-- Editor END -->
   </div>

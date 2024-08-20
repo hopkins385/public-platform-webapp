@@ -1,30 +1,17 @@
 <script setup lang="ts">
-  import { FileIcon, Trash2Icon } from 'lucide-vue-next';
-  import RecordAddFileDialog from '../record/RecordAddFileDialog.vue';
-
-  const props = defineProps<{
-    refresh: boolean;
-  }>();
-
-  const emits = defineEmits<{
-    'update:refresh': [boolean];
-  }>();
-
-  const { data: auth } = useAuth();
-  const { findPaginateAllMediaFor, setPage, deleteMedia } = useManageMedia();
-  const { getFileSizeForHumans } = useForHumans();
+  import { EditIcon, FileIcon, Trash2Icon } from 'lucide-vue-next';
 
   const showConfirmDialog = ref(false);
-  const showAddToCollectionDialog = ref(false);
-  const deleteMediaId = ref('');
   const errorAlert = reactive({ show: false, message: '' });
+  const deleteDocumentId = ref('');
 
-  const { data, refresh: refreshMedia } = await findPaginateAllMediaFor(
-    { id: auth.value?.user.id, type: 'user' },
-    { lazy: true },
-  );
+  const toast = useToast();
+  const projectStore = useProjectStore();
 
-  const media = computed(() => data.value?.media || []);
+  const { getAllDocuments, deleteDocument, setPage } = useManageDocuments();
+  const { data, refresh: refreshDocuments } = await getAllDocuments(projectStore.activeProjectId);
+
+  const documents = computed(() => data.value?.documents || []);
   const meta = computed(() => {
     return {
       totalCount: data.value?.meta?.totalCount || 0,
@@ -32,29 +19,15 @@
     };
   });
 
-  function onEdit(id: string) {
-    return navigateTo(`/media/${id}/edit`);
-  }
-
-  function onDelete(id: string) {
-    deleteMediaId.value = id;
-    showConfirmDialog.value = true;
-  }
-
-  function onPlusClick(id: string) {
-    showAddToCollectionDialog.value = true;
-  }
-
   function handleDelete() {
-    const toast = useToast();
-    const id = deleteMediaId.value;
-    deleteMedia(id)
+    const id = deleteDocumentId.value;
+    deleteDocument(id)
       .then(() => {
-        deleteMediaId.value = '';
+        deleteDocumentId.value = '';
         toast.success({
-          description: 'Media has been deleted successfully.',
+          description: 'Document has been deleted successfully.',
         });
-        refreshMedia();
+        refreshDocuments();
       })
       .catch((error: any) => {
         errorAlert.show = true;
@@ -62,55 +35,49 @@
       });
   }
 
-  watch(
-    () => props.refresh,
-    async (value) => {
-      if (value) {
-        await refreshMedia();
-        emits('update:refresh', false);
-      }
-    },
-  );
+  function onDelete(id: string) {
+    deleteDocumentId.value = id;
+    showConfirmDialog.value = true;
+  }
+
+  function onEditClick(id: string) {
+    navigateTo(`/documents/${id}/edit`);
+  }
 </script>
 
 <template>
   <div>
     <ErrorAlert v-model="errorAlert.show" :message="errorAlert.message" />
     <ConfirmDialog v-model="showConfirmDialog" @confirm="handleDelete" />
-    <RecordAddFileDialog v-model="showAddToCollectionDialog" />
 
     <Table>
       <TableCaption>
         Showing from
         {{ meta.totalCount > 10 ? meta.currentPage * 10 - 10 + 1 : 1 }}
         to
-        {{ meta.totalCount > 10 ? meta.currentPage * 10 - 10 + media.length : meta.totalCount }}
+        {{ meta.totalCount > 10 ? meta.currentPage * 10 - 10 + documents.length : meta.totalCount }}
         of total
         {{ meta.totalCount }}
       </TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead> File </TableHead>
+          <TableHead> Document </TableHead>
           <TableHead> Name </TableHead>
-          <TableHead> File Size </TableHead>
           <TableHead class="text-right"> Action </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow v-for="item in media || []" :key="item.id">
+        <TableRow v-for="item in documents || []" :key="item.id">
           <TableCell>
             <div class="flex size-8 items-center justify-center truncate rounded-full">
               <FileIcon class="size-4" />
             </div>
           </TableCell>
           <TableCell>{{ item.name }}</TableCell>
-          <TableCell>
-            {{ getFileSizeForHumans(item.fileSize) }}
-          </TableCell>
           <TableCell class="space-x-2 text-right">
-            <!-- Button variant="outline" size="icon" @click="onPlusClick(item.id)">
-              <PlusIcon class="size-4" />
-            </!-->
+            <Button variant="outline" size="icon" @click="onEditClick(item.id)">
+              <EditIcon class="size-4 stroke-1.5" />
+            </Button>
             <Button variant="outline" size="icon" @click="onDelete(item.id)">
               <Trash2Icon class="size-4 stroke-1.5 text-destructive" />
             </Button>

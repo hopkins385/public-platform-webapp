@@ -49,6 +49,14 @@ export default function useRouteValidation() {
     return res.success;
   }
 
+  function hasValidDocumentId(params: any) {
+    const idSchema = z.object({
+      documentId: z.string().cuid2(),
+    });
+    const res = idSchema.safeParse(params);
+    return res.success;
+  }
+
   function hasValidProjectWorkflowId(params: any) {
     const idSchema = z.object({
       projectId: z.string().cuid2(),
@@ -82,6 +90,7 @@ export default function useRouteValidation() {
     hasValidProjectId,
     hasValidAssistantId,
     hasValidWorkflowId,
+    hasValidDocumentId,
     hasValidProjectWorkflowId,
     hasValidProjectDocumentId,
     hasValidCollectionId,

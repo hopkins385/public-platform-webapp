@@ -10,16 +10,17 @@
     },
   });
 
+  const projectStore = useProjectStore();
   const { createDocument } = useManageDocuments();
 
   async function onNewDocument() {
     const document = await createDocument({
-      projectId: '',
+      projectId: projectStore.activeProjectId,
       name: 'Untitled Document',
       description: '',
       status: 'draft',
     });
-    await navigateTo(`/document/${document.id}/edit`);
+    await navigateTo(`/documents/${document.id}/edit`);
   }
 </script>
 
@@ -30,7 +31,7 @@
       <template #top> </template>
       <template #bottom>
         <div class="ml-auto flex flex-col space-y-1 self-end px-3 pb-2 pt-14">
-          <Button @click="() => onNewDocument()">
+          <Button variant="outline" @click="onNewDocument">
             New Document
             <PlusIcon class="ml-2 size-4 stroke-2" />
           </Button>
@@ -38,7 +39,7 @@
       </template>
     </Heading>
     <BoxContainer>
-      <div>Document Index</div>
+      <DocumentList />
     </BoxContainer>
   </SectionContainer>
 </template>
