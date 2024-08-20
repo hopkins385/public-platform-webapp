@@ -37,6 +37,7 @@ export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);
   const user = getAuthUser(session); // do not remove this line
 
+  // Conversation body
   const body = await getConversationBody(_event);
 
   // Check if user has enough credits and is allowed to access the chat
@@ -121,7 +122,7 @@ export default defineEventHandler(async (_event) => {
 
   let gathered: string | undefined = undefined;
 
-  const gatherCunks = () => {
+  const gatherChunks = () => {
     const transform = new Transform({
       objectMode: true,
       transform(chunk, encoding, callback) {
@@ -137,18 +138,7 @@ export default defineEventHandler(async (_event) => {
     return transform;
   };
 
-  const generateStreamData = {
-    signal: controller.signal,
-    userId: user.id,
-    chatId: chat.id,
-    model: body.model,
-    provider: body.provider,
-    messages: chatMessages,
-    systemPrompt,
-    maxTokens: body.maxTokens,
-    config,
-  };
-
+  // listen for response events
   _event.node.res.on('close', () => onResponseClose(_event, controller, chat, user, body, gathered));
   _event.node.res.on('error', (error) => onResponseError(_event, error));
   _event.node.res.on('drain', () => logger.debug('Response drain'));
@@ -160,23 +150,24 @@ export default defineEventHandler(async (_event) => {
   _event.node.res.setHeader('Transfer-Encoding', 'chunked');
   _event.node.res.setHeader('X-Accel-Buffering', 'no');
 
-  try {
-    const generator = generateStream(generateStreamData);
-    const stream = Readable.from(generator).pipe(gatherCunks());
-    stream.on('error', (error) => {
-      logger.error('Generator stream error:', error);
-      stream.destroy();
-      _event.node.res.end();
-    });
-    return stream;
-  } catch (error) {
-    logger.error('Create stream error:', error);
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Internal Server Error',
-      message: 'Error processing conversation',
-    });
-  }
+  // start the stream
+  const streamData = {
+    signal: controller.signal,
+    userId: user.id,
+    chatId: chat.id,
+    model: body.model,
+    provider: body.provider,
+    messages: chatMessages,
+    systemPrompt,
+    maxTokens: body.maxTokens,
+    config,
+  };
+
+  const generator = generateStream(streamData);
+  const readableStream = Readable.from(generator).pipe(gatherChunks());
+  readableStream.on('error', (error) => onStreamError(_event, readableStream, error));
+
+  return readableStream;
 });
 
 interface StreamPayload {
@@ -189,6 +180,12 @@ interface StreamPayload {
   systemPrompt: string;
   maxTokens: number;
   config: any;
+}
+
+function onStreamError(_event: H3Event, stream: any, error: any) {
+  logger.error('Generator stream error:', JSON.stringify(error));
+  stream?.destroy();
+  _event.node.res.end();
 }
 
 function onResponseClose(
@@ -282,7 +279,11 @@ function logWarnings(warnings: any[] | undefined) {
 function handleStreamGeneratorError(error: any) {
   if (error.name === 'AbortError') return;
   logger.error('Stream generator error:', JSON.stringify(error));
-  throw error;
+  throw createError({
+    statusCode: 500,
+    statusMessage: 'Internal Server Error',
+    message: 'Failed to generate stream',
+  });
 }
 
 async function* generateStream(payload: StreamPayload) {
