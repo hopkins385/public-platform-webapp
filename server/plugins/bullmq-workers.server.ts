@@ -38,14 +38,14 @@ export default defineNitroPlugin((nitroApp) => {
     const messages = [
       {
         role: 'system',
-        content: `Your task is to create a very short chat title for this conversation based on the user message.\n
+        content: `Your task is to create a very short chat title for this conversation based on the provided user message.\n
            You only respond with the chat title.\n
            You will be provided with the user message encapsulated in three hyphens.\n
-           You always respond in the exact same language as the user message.\n`,
+           The chat title is in the same language as the user message.\n`,
       },
       {
         role: 'user',
-        content: `"""${firstMessage}"""`,
+        content: `""" ${firstMessage} """`,
       },
     ] satisfies CoreMessage[];
 
@@ -56,7 +56,7 @@ export default defineNitroPlugin((nitroApp) => {
     };
 
     try {
-      const model = VercelCompletionFactory.fromInput('openai', 'gpt-4o-mini', config);
+      const model = VercelCompletionFactory.fromInput('openai', 'gpt-3.5-turbo', config);
       const { text } = await generateText({
         model: model,
         messages: messages,
