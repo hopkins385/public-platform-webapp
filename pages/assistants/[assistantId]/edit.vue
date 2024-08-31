@@ -1,7 +1,6 @@
 <script setup lang="ts">
-  import { toTypedSchema } from '@vee-validate/zod';
   import { useForm } from 'vee-validate';
-  import * as z from 'zod';
+  import { assistantFormSchema } from '~/schemas/assistant.form';
 
   definePageMeta({
     title: 'assistant.meta.edit.title',
@@ -19,8 +18,6 @@
   const { assistantId } = useRoute().params;
   const { data: auth } = useAuth();
   const toast = useToast();
-
-  console.log('assistantId', assistantId);
 
   const assistantModel = ref({
     type: 'assistant',
@@ -52,56 +49,44 @@
     });
   }
 
-  const route = useRoute();
-  route.meta.breadcrumb.label = 'Update - ' + assistant.value?.title || 'Assistant';
+  // const route = useRoute();
+  // route.meta.breadcrumb.label = 'Update - ' + assistant.value?.title || 'Assistant';
 
-  const systemPrompt = ref(assistant.value?.systemPrompt);
-
-  const assistantFormSchema = toTypedSchema(
-    z.object({
-      teamId: z.string(),
-      llmId: z.string().min(3).max(255),
-      title: z.string().min(3).max(255),
-      description: z.string().min(3).max(255),
-      systemPrompt: z.string().min(3).max(6000),
-      isShared: z.boolean().default(false),
-      collectionId: z.string().optional(),
-      functions: z.array(z.string()).default([]),
-    }),
-  );
+  const systemPrompt = ref(assistant.value?.systemPrompt || '');
 
   const { handleSubmit } = useForm({
     validationSchema: assistantFormSchema,
     initialValues: {
-      teamId: auth.value?.user.teamId,
+      teamId: auth.value?.user.teamId || '-1',
       llmId: assistant.value?.llm.id || '',
-      title: assistant.value?.title,
-      description: assistant.value?.description,
-      systemPrompt: assistant.value?.systemPrompt,
-      isShared: assistant.value?.isShared,
+      title: assistant.value?.title || '',
+      description: assistant.value?.description || '',
+      systemPrompt: assistant.value?.systemPrompt || '',
+      isShared: assistant.value?.isShared || false,
       functions: ['website'],
     },
   });
 
-  const onSubmit = handleSubmit(async (values) => {
-    try {
-      if (!assistant.value) {
-        throw new Error('Assistant not found');
-      }
-      await updateAssistant({
-        id: assistant.value.id,
-        ...values,
-        systemPromptTokenCount: 1, // TODO: calculate token count
-      });
-      toast.success({
-        description: 'Assistant updated successfully',
-      });
-      await refresh();
-    } catch (error: any) {
-      toast.error({
-        description: error.message,
-      });
+  const onSubmit = handleSubmit((values) => {
+    if (!assistant.value) {
+      throw new Error('Assistant not found');
     }
+    updateAssistant({
+      id: assistant.value.id,
+      ...values,
+      systemPromptTokenCount: 1, // TODO: calculate token count
+    })
+      .then(() => {
+        toast.success({
+          description: 'Assistant updated successfully',
+        });
+        navigateTo('/assistants');
+      })
+      .catch((error: any) => {
+        toast.error({
+          description: error.message,
+        });
+      });
   });
 
   const initialAssistantName = computed(() => assistant.value?.llm.displayName ?? 'Select AI Model');
@@ -196,7 +181,7 @@
                 :id="value"
                 :initial-display-name="initialCollectionName"
                 @update:id="
-                  (id) => {
+                  (id: string) => {
                     handleChange(id), updateCollection(id);
                   }
                 "

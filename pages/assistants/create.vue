@@ -1,7 +1,6 @@
 <script setup lang="ts">
-  import { toTypedSchema } from '@vee-validate/zod';
   import { useForm } from 'vee-validate';
-  import * as z from 'zod';
+  import { assistantFormSchema } from '~/schemas/assistant.form';
 
   definePageMeta({
     title: 'assistant.meta.create.title',
@@ -14,39 +13,38 @@
 
   const { createAssistant } = useManageAssistants();
   const { data: auth } = useAuth();
-
-  const assistantFormSchema = toTypedSchema(
-    z.object({
-      title: z.string().min(3).max(255),
-      description: z.string().min(3).max(255),
-      llmId: z.string().min(3).max(255),
-      systemPrompt: z.string().min(3).max(2500),
-      isShared: z.boolean().default(false),
-    }),
-  );
+  const toast = useToast();
 
   const { handleSubmit } = useForm({
     validationSchema: assistantFormSchema,
+    initialValues: {
+      teamId: auth.value?.user.teamId || '-1',
+      llmId: '',
+      title: '',
+      description: '',
+      systemPrompt: '',
+      isShared: false,
+      functions: [],
+    },
   });
 
-  const onSubmit = handleSubmit(async (values, { resetForm }) => {
-    const toast = useToast();
-    try {
-      const assistant = await createAssistant({
-        ...values,
-        teamId: auth.value?.user.teamId,
-        systemPromptTokenCount: 1, // TODO: calculate token count
+  const onSubmit = handleSubmit((values, { resetForm }) => {
+    createAssistant({
+      ...values,
+      systemPromptTokenCount: 1,
+    })
+      .then(() => {
+        toast.success({
+          description: 'Assistant created successfully',
+        });
+        resetForm();
+        navigateTo('/assistants');
+      })
+      .catch(() => {
+        toast.error({
+          description: 'Failed to create assistant',
+        });
       });
-      toast.success({
-        description: 'Assistant created successfully',
-      });
-      resetForm();
-      return await navigateTo('/assistants');
-    } catch (error: any) {
-      toast.error({
-        description: 'Ups, something went wrong.',
-      });
-    }
   });
 </script>
 

@@ -12,7 +12,7 @@
 
 <template>
   <SectionContainer>
-    <SectionHeading title="Welcome to RAGNA Cloud" subtitle="The best way to Automate your Requirements Engineering" />
+    <SectionHeading title="Welcome to RAGNA Cloud" subtitle="AI Workflow Automation" />
     <div class="grid max-w-5xl grid-cols-3 gap-5">
       <NuxtLinkLocale :to="`/projects/${projectStore.activeProjectId}`">
         <BoxContainer class="hover:shadow-md">
