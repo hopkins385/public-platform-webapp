@@ -11,6 +11,7 @@
   } from 'lucide-vue-next';
   import ChatSettings from './ChatSettings.vue';
   import type { ChatMessage, ChatImage } from '~/interfaces/chat.interfaces';
+  import type { ToolInfoData } from '~/interfaces/tool.interfaces';
 
   const allowedFileMimeTypes = ['image/jpg', 'image/png', 'image/jpeg', 'image/gif', 'image/webp'];
 
@@ -307,14 +308,14 @@
     },
   );
 
-  const activeTools = ref<string[]>([]);
+  const activeTools = ref<ToolInfoData[]>([]);
 
-  function setActiveTool(toolName: string) {
-    activeTools.value.push(toolName);
+  function setActiveTool(toolInfoData: ToolInfoData) {
+    activeTools.value.push(toolInfoData);
   }
 
   function unsetActiveTool(toolName: string) {
-    activeTools.value = activeTools.value.filter((tool) => tool !== toolName);
+    activeTools.value = activeTools.value.filter((data) => data.toolName !== toolName);
   }
 
   function clearActiveTools() {
@@ -335,12 +336,12 @@
       initMessages(props.chatMessages);
       scrollToBottom({ instant: true });
     }
-    socket.on(`chat-${props.chatId}-tool-start-event`, (toolName) => setActiveTool(toolName));
+    socket.on(`chat-${props.chatId}-tool-start-event`, (data: ToolInfoData) => setActiveTool(data));
     socket.on(`chat-${props.chatId}-tool-end-event`, (toolName) => unsetActiveTool(toolName));
   });
 
   onBeforeUnmount(() => {
-    socket.off(`chat-${props.chatId}-tool-start-event`, (toolName) => setActiveTool(toolName));
+    socket.off(`chat-${props.chatId}-tool-start-event`, (d) => setActiveTool(d));
     socket.off(`chat-${props.chatId}-tool-end-event`, (toolName) => unsetActiveTool(toolName));
   });
 </script>

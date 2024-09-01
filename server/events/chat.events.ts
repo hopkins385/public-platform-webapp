@@ -37,9 +37,9 @@ export async function firstUserMessageEvent(data: FirstUserMessageEventDto) {
 
 export function chatToolCallStartEvent(data: ChatToolCallEventDto) {
   const io = getIO();
-  const { userId, chatId, toolName } = data;
+  const { userId, chatId, toolName, toolInfo } = data;
 
-  io.to(`user:${userId}`).emit(`chat-${chatId}-tool-start-event`, toolName);
+  io.to(`user:${userId}`).emit(`chat-${chatId}-tool-start-event`, { toolName, toolInfo });
 }
 
 export function chatToolCallEndEvent(data: ChatToolCallEventDto) {

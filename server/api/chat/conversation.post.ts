@@ -1,5 +1,6 @@
 import type { H3Event } from 'h3';
 import type { StreamTextResult } from 'ai';
+import type { ToolInfoData } from '../../chatTools/vercelChatTools';
 import { ChatToolCallEventDto } from '../../events/dto/chatToolCallEvent.dto';
 import { VectorService } from '../../services/vector.service';
 import { CollectionService } from '~/server/services/collection.service';
@@ -260,12 +261,13 @@ function onStreamStopLength() {
 }
 
 function toolStartCallback(payload: StreamPayload) {
-  return (toolName: string) =>
+  return (toolInfoData: ToolInfoData) =>
     onToolStartCall(
       ChatToolCallEventDto.fromInput({
         userId: payload.userId,
         chatId: payload.chatId,
-        toolName,
+        toolName: toolInfoData.toolName,
+        toolInfo: toolInfoData.toolInfo,
       }),
     );
 }

@@ -1,7 +1,9 @@
 <script setup lang="ts">
+  import type { ToolInfoData } from '~/interfaces/tool.interfaces';
+
   defineProps<{
     displayName: string;
-    activeTools: string[];
+    activeTools: ToolInfoData;
   }>();
 </script>
 
@@ -13,7 +15,10 @@
       <div class="space-y-4">
         <div v-for="(tool, index) in activeTools" :key="index" class="flex items-center space-x-2">
           <!-- icon -->
-          Executing Tool:&nbsp;<span class="text-sm font-semibold capitalize">{{ tool }}</span>
+          <p>
+            Executing Tool:&nbsp;<span class="text-sm font-semibold capitalize">{{ tool.toolName }}</span>
+          </p>
+          <p>{{ tool.toolInfo }}</p>
         </div>
       </div>
     </div>
