@@ -27,8 +27,12 @@ export function getTools(emitToolInfoData: (toolInfoData: ToolInfoData) => void)
       execute: async function ({ url }) {
         const newUrl = new URL(url);
         emitToolInfoData({ toolName: 'website', toolInfo: `${newUrl.href}` });
-        const response = await scrapeWebsite(newUrl);
-        return response;
+        try {
+          const result = await scrapeWebsite(newUrl);
+          return result;
+        } catch (error) {
+          return { error: 'cannot scrape website. does it exist?' };
+        }
       },
     }),
   };

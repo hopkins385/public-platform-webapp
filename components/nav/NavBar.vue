@@ -19,7 +19,7 @@
   } from 'lucide-vue-next';
 
   const props = defineProps<{
-    isSettings: boolean;
+    isSettings?: boolean;
   }>();
 
   const navBarRef = ref(null);

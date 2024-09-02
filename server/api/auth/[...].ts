@@ -1,10 +1,11 @@
+import type { DefaultSession } from 'next-auth';
 import { NuxtAuthHandler } from '#auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { UserService } from '~/server/services/user.service';
 import { AuthEvent } from '~/server/utils/enums/auth-event.enum';
 import { useEvents } from '~/server/events/useEvents';
 import prisma from '~/server/prisma';
-import type { DefaultSession } from 'next-auth';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
 
 declare module 'next-auth' {
   interface Session {
@@ -50,7 +51,7 @@ function getFirstTeam(teams: any) {
 }
 
 export default NuxtAuthHandler({
-  // adapter: PrismaAdapter(getClient()),
+  // adapter: PrismaAdapter(prisma),
   secret: useRuntimeConfig().auth.secret,
   pages: {
     signIn: '/login',
@@ -96,6 +97,7 @@ export default NuxtAuthHandler({
 
 function authorize() {
   return async (credentials: Record<'email' | 'password', string> | undefined) => {
+    // console.log('credentials', credentials);
     if (!credentials) throw new Error('Missing credentials');
     if (!credentials.email) throw new Error('"email" is required in credentials');
     if (!credentials.password) throw new Error('"password" is required in credentials');
@@ -120,7 +122,8 @@ function authorize() {
       id: user.id,
       email: user.email,
       name: user.name,
-      teams: user.teams,
+      teamId: user.teams[0].teamId, // TODO: only first team?
+      teams: user.teams, // TODO: is this needed?
       roles: getRoles(user),
     };
 

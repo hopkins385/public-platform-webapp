@@ -134,9 +134,11 @@ export default defineNuxtConfig({
     dirs: ['stores'],
   },
   auth: {
+    // baseURL: 'http://localhost:3000/api/auth',
     globalAppMiddleware: true,
     provider: {
       type: 'authjs',
+      defaultProvider: 'credentials',
     },
   },
   security: {
