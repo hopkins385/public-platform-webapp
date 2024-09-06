@@ -164,6 +164,11 @@ export default defineNuxtConfig({
         xssValidator: false,
       },
     },
+    'api/trpc/*': {
+      security: {
+        xssValidator: false, // TODO: make xss more granular
+      },
+    },
     'api/trpc/workflow.full': {
       security: {
         rateLimiter: false,
