@@ -11,8 +11,8 @@ RUN npm ci
 
 # Set to production environment
 ENV NODE_ENV production
-ENV GENERATE_SOURCEMAP=false
-ENV NODE_OPTIONS=--max-old-space-size=16384
+#ENV GENERATE_SOURCEMAP=false
+#ENV NODE_OPTIONS=--max-old-space-size=16384
 
 # Generate the production build. The build script runs "vite build" to compile the application.
 RUN npx nuxt build
