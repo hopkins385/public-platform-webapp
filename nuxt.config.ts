@@ -34,7 +34,7 @@ export default defineNuxtConfig({
     '@nuxt/image',
     'nuxt-zod-i18n',
     '@nuxtjs/i18n',
-    'nuxt-security',
+    // 'nuxt-security',
     '@sidebase/nuxt-auth',
     ['@pinia/nuxt', { autoImports: ['defineStore', 'acceptHMRUpdate'] }],
     '@pinia-plugin-persistedstate/nuxt',
@@ -141,6 +141,7 @@ export default defineNuxtConfig({
       defaultProvider: 'credentials',
     },
   },
+  /*
   security: {
     enabled: process.env.NODE_ENV === 'production',
     headers: {
@@ -174,7 +175,7 @@ export default defineNuxtConfig({
         rateLimiter: false,
       },
     },
-  },
+  },*/
   svgo: {
     autoImportPath: './assets/icons',
     defaultImport: 'component',
