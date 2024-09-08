@@ -12,11 +12,14 @@ export default defineNuxtConfig({
     },
   },
   devtools: {
-    enabled: true,
+    enabled: false,
   },
   telemetry: false,
   debug: false,
-  sourcemap: isDevelopment,
+  sourcemap: {
+    server: false,
+    client: isDevelopment,
+  },
   typescript: {
     shim: false,
     tsConfig: {
@@ -34,7 +37,6 @@ export default defineNuxtConfig({
     '@nuxt/image',
     'nuxt-zod-i18n',
     '@nuxtjs/i18n',
-    // 'nuxt-security',
     '@sidebase/nuxt-auth',
     ['@pinia/nuxt', { autoImports: ['defineStore', 'acceptHMRUpdate'] }],
     '@pinia-plugin-persistedstate/nuxt',
@@ -134,7 +136,6 @@ export default defineNuxtConfig({
     dirs: ['stores'],
   },
   auth: {
-    // baseURL: 'http://localhost:3000/api/auth',
     globalAppMiddleware: true,
     provider: {
       type: 'authjs',

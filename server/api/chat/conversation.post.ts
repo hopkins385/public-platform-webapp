@@ -119,6 +119,9 @@ export default defineEventHandler(async (_event) => {
     systemPrompt = chat.assistant.systemPrompt;
   }
 
+  // add current date at the end of the system prompt
+  systemPrompt += '\n\n' + 'Timestamp now(): ' + new Date().toISOString();
+
   // dd(messages);
 
   let gathered: string | undefined = undefined;
