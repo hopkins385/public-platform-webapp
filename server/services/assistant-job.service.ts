@@ -3,7 +3,7 @@ import { DocumentItemService } from './document-item.service';
 import type { AssistantJobDto } from './dto/job.dto';
 import { TrackTokensDto } from './dto/track-tokens.dto';
 import { useEvents } from '../events/useEvents';
-import { scrapeWebsite } from '~/utils/scrapeWebsite';
+import { scrapeWebsite } from '~/server/utils/scrapeWebsite';
 import { VercelCompletionFactory } from '../factories/vercelCompletionFactory';
 import { generateText, type CoreMessage } from 'ai';
 import consola from 'consola';

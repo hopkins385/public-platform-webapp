@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { tool } from 'ai';
-import { scrapeWebsite } from '~/utils/scrapeWebsite';
+import { scrapeWebsite } from '~/server/utils/scrapeWebsite';
+import { scrapeYoutube } from '~/server/utils/scrapeYoutube';
 
 // const stringRegex = new RegExp('^[a-zA-Z0-9, ]+$');
 
@@ -33,6 +34,17 @@ export function getTools(emitToolInfoData: (toolInfoData: ToolInfoData) => void)
         } catch (error) {
           return { error: 'cannot scrape website. does it exist?' };
         }
+      },
+    }),
+    youtubeTranscript: tool({
+      description: 'Get the transcript of a youtube video',
+      parameters: z.object({
+        urlOrId: z.string().describe('The URL or video id of the youtube video to get the transcript of'),
+      }),
+      execute: async function ({ urlOrId }) {
+        emitToolInfoData({ toolName: 'youtubeTranscript', toolInfo: `${urlOrId}` });
+        const result = await scrapeYoutube(urlOrId);
+        return result;
       },
     }),
   };
