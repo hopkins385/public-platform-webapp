@@ -12,7 +12,7 @@ function mergeTextChunks(chunks: TranscriptResponse[]) {
   return chunks.map((chunk) => chunk.text).join(' ');
 }
 
-// scrape website
+// scrape youtube transcript
 export async function scrapeYoutube(urlOrId: string) {
   let videoUrl = '';
   // check if its an instance of URL and if its a valid url

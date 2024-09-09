@@ -128,6 +128,9 @@ export default defineNuxtConfig({
       // baseUrl: process.env.ANTHROPIC_BASE_URL,
       apiKey: process.env.ANTHROPIC_API_KEY,
     },
+    serp: {
+      apiKey: process.env.SERP_API_KEY,
+    },
   },
   build: {
     transpile: ['trpc-nuxt', 'vue-sonner'],

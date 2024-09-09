@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { tool } from 'ai';
 import { scrapeWebsite } from '~/server/utils/scrapeWebsite';
 import { scrapeYoutube } from '~/server/utils/scrapeYoutube';
+import { searchWeb } from '~/server/utils/searchWeb';
 
 // const stringRegex = new RegExp('^[a-zA-Z0-9, ]+$');
 
@@ -28,12 +29,8 @@ export function getTools(emitToolInfoData: (toolInfoData: ToolInfoData) => void)
       execute: async function ({ url }) {
         const newUrl = new URL(url);
         emitToolInfoData({ toolName: 'website', toolInfo: `${newUrl.href}` });
-        try {
-          const result = await scrapeWebsite(newUrl);
-          return result;
-        } catch (error) {
-          return { error: 'cannot scrape website. does it exist?' };
-        }
+        const result = await scrapeWebsite(newUrl);
+        return result;
       },
     }),
     youtubeTranscript: tool({
@@ -44,6 +41,17 @@ export function getTools(emitToolInfoData: (toolInfoData: ToolInfoData) => void)
       execute: async function ({ urlOrId }) {
         emitToolInfoData({ toolName: 'youtubeTranscript', toolInfo: `${urlOrId}` });
         const result = await scrapeYoutube(urlOrId);
+        return result;
+      },
+    }),
+    searchWeb: tool({
+      description: 'Search the web',
+      parameters: z.object({
+        query: z.string().min(3).max(100).describe('The query to search the web for'),
+      }),
+      execute: async function ({ query }) {
+        emitToolInfoData({ toolName: 'searchWeb', toolInfo: `${query}` });
+        const result = await searchWeb(query);
         return result;
       },
     }),
