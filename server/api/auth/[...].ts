@@ -61,8 +61,8 @@ export default NuxtAuthHandler({
   session: {
     // strategy: 'database',
     strategy: 'jwt',
-    maxAge: 1 * 24 * 60 * 60, // 1 day
-    updateAge: 24 * 60 * 60, // 24 hours
+    maxAge: 60 * 60 * 24 * 30, // 30 days
+    updateAge: 60 * 60 * 24, // 24 hours
   },
   callbacks: {
     signIn({ user, account, profile, email, credentials }) {
