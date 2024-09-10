@@ -98,9 +98,9 @@ export default NuxtAuthHandler({
 function authorize() {
   return async (credentials: Record<'email' | 'password', string> | undefined) => {
     // console.log('credentials', credentials);
-    if (!credentials) throw new Error('Missing credentials');
-    if (!credentials.email) throw new Error('"email" is required in credentials');
-    if (!credentials.password) throw new Error('"password" is required in credentials');
+    if (!credentials) return null;
+    if (!credentials.email) return null;
+    if (!credentials.password) return null;
 
     // debounce
     await new Promise((resolve) => setTimeout(resolve, 300));
