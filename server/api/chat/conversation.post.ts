@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3';
 import type { StreamTextResult } from 'ai';
-import type { ToolInfoData } from '../../chatTools/vercelChatTools';
+import type { ToolInfoData } from '../../chatTools/chatTools';
 import { ChatToolCallEventDto } from '../../events/dto/chatToolCallEvent.dto';
 import { VectorService } from '../../services/vector.service';
 import { CollectionService } from '~/server/services/collection.service';
@@ -16,7 +16,7 @@ import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import { useEvents } from '~/server/events/useEvents';
 import { streamText } from 'ai';
 import { VercelCompletionFactory } from '~/server/factories/vercelCompletionFactory';
-import { getTools } from '../../chatTools/vercelChatTools';
+import { getTools } from '../../chatTools/chatTools';
 import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
 import { Readable, Transform } from 'stream';
 import prisma from '~/server/prisma';
