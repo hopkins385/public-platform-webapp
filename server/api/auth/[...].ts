@@ -5,7 +5,8 @@ import { UserService } from '~/server/services/user.service';
 import { AuthEvent } from '~/server/utils/enums/auth-event.enum';
 import { useEvents } from '~/server/events/useEvents';
 import prisma from '~/server/prisma';
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import { loginSchema } from './loginSchema';
+// import { PrismaAdapter } from '@next-auth/prisma-adapter';
 
 declare module 'next-auth' {
   interface Session {
@@ -60,7 +61,7 @@ export default NuxtAuthHandler({
   session: {
     // strategy: 'database',
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 1 * 24 * 60 * 60, // 1 day
     updateAge: 24 * 60 * 60, // 24 hours
   },
   callbacks: {
@@ -97,7 +98,6 @@ export default NuxtAuthHandler({
 
 function authorize() {
   return async (credentials: Record<'email' | 'password', string> | undefined) => {
-    // console.log('credentials', credentials);
     if (!credentials) return null;
     if (!credentials.email) return null;
     if (!credentials.password) return null;
@@ -105,17 +105,36 @@ function authorize() {
     // debounce
     await new Promise((resolve) => setTimeout(resolve, 300));
 
-    const user = await userService.getAuthUser({
-      email: credentials.email,
-      password: credentials.password,
-    });
+    let validated: any | null = null;
 
-    if (!user) {
-      throw createError({
-        statusCode: 403,
-        statusMessage: 'Forbidden',
-        message: 'Credentials wrong',
+    // zod validation
+    try {
+      validated = loginSchema.parse({
+        email: credentials.email,
+        password: credentials.password,
       });
+    } catch (error) {
+      return null;
+    }
+
+    if (!validated) {
+      return null;
+    }
+
+    let user: any | null = null;
+
+    try {
+      user = await userService.getAuthUser({
+        email: validated.email,
+        password: validated.password,
+      });
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+
+    if (!user || !user.id) {
+      return null;
     }
 
     const sessionUser: SessionUser = {
