@@ -15,12 +15,14 @@ import { StreamFinishedEventDto, FirstUserMessageEventDto } from '~/server/servi
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import { useEvents } from '~/server/events/useEvents';
 import { streamText } from 'ai';
-import { VercelCompletionFactory } from '~/server/factories/vercelCompletionFactory';
+import { AiCompletionFactory } from '~/server/factories/completionFactory';
 import { getTools } from '../../chatTools/chatTools';
 import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
 import { Readable, Transform } from 'stream';
 import prisma from '~/server/prisma';
 import consola from 'consola';
+
+const { event } = useEvents();
 
 const chatService = new ChatService(prisma);
 const tokenizerService = new TokenizerService();
@@ -38,10 +40,10 @@ export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);
   const user = getAuthUser(session); // do not remove this line
 
-  // Conversation body
+  // Get validated conversation body
   const body = await getConversationBody(_event);
 
-  // Check if user has enough credits and is allowed to access the chat
+  // Check if user is allowed to access the chat
   const chat = await chatService.getChatAndCreditsForUser(body.chatId, user.id);
   if (!chat) {
     throw createError({
@@ -51,6 +53,7 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
+  // Check if user has enough credits
   if (chat.user.credit[0].amount < 1) {
     throw createError({
       statusCode: 402,
@@ -79,9 +82,8 @@ export default defineEventHandler(async (_event) => {
     }),
   );
 
-  // Event to update chat title
+  // Update chat title if it's the first message of the chat
   if (body.messages.length === 1) {
-    const { event } = useEvents();
     event(
       ChatEvent.FIRST_USERMESSAGE,
       FirstUserMessageEventDto.fromInput({
@@ -154,7 +156,7 @@ export default defineEventHandler(async (_event) => {
   _event.node.res.setHeader('Transfer-Encoding', 'chunked');
   _event.node.res.setHeader('X-Accel-Buffering', 'no');
 
-  // start the stream
+  // stream data
   const streamData = {
     signal: controller.signal,
     userId: user.id,
@@ -208,7 +210,6 @@ function onResponseClose(
 
   const inputTokens = tokenizerService.getTokens(body.messages[body.messages.length - 1].content);
   const outputTokens = tokenizerService.getTokens(gathered);
-  const { event } = useEvents();
 
   // creates the response message in the database
   event(
@@ -247,19 +248,16 @@ function onResponseError(_event: H3Event, error: any) {
 }
 
 function onToolStartCall(payload: ChatToolCallEventDto) {
-  const { event } = useEvents();
   event(ChatEvent.TOOL_START_CALL, payload);
 }
 
 function onToolEndCall(payload: ChatToolCallEventDto) {
-  const { event } = useEvents();
   event(ChatEvent.TOOL_END_CALL, payload);
 }
 
 // TODO: stream stop event: show continue button
 function onStreamStopLength() {
   logger.debug('Stream stop length event');
-  // const { event } = useEvents();
   // event(ChatEvent.STREAM_STOP_LENGTH, {});
 }
 
@@ -292,7 +290,7 @@ function handleStreamGeneratorError(error: any) {
 }
 
 async function* generateStream(payload: StreamPayload) {
-  const model = VercelCompletionFactory.fromInput(payload.provider, payload.model, payload.config);
+  const model = AiCompletionFactory.fromInput(payload.provider, payload.model, payload.config);
   const availableTools = payload.provider !== 'groq' ? getTools(toolStartCallback(payload)) : undefined;
 
   try {

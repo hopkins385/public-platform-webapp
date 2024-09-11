@@ -3,7 +3,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createMistral } from '@ai-sdk/mistral';
 
-export class VercelCompletionFactory {
+export class AiCompletionFactory {
   private readonly model: string;
   private readonly config: RuntimeConfig;
   private readonly provider: string;
@@ -49,6 +49,6 @@ export class VercelCompletionFactory {
   }
 
   static fromInput(provider: string, model: string, config: RuntimeConfig) {
-    return new VercelCompletionFactory(provider, model, config).getModel();
+    return new AiCompletionFactory(provider, model, config).getModel();
   }
 }

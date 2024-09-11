@@ -10,7 +10,7 @@ import { trackTokensEvent } from '../events/track-tokens.event';
 import { ChatService } from '../services/chat.service';
 import { useEvents } from '../events/useEvents';
 import consola from 'consola';
-import { VercelCompletionFactory } from '../factories/vercelCompletionFactory';
+import { AiCompletionFactory } from '../factories/completionFactory';
 import { generateText, type CoreMessage } from 'ai';
 import prisma from '../prisma';
 
@@ -38,30 +38,22 @@ export default defineNitroPlugin((nitroApp) => {
     const messages = [
       {
         role: 'system',
-        content: `Your task is to create a very short chat title for this conversation based on the provided user message.\n
-           You only respond with the chat title.\n
-           You will be provided with the user message encapsulated in three hyphens.\n
-           The chat title is in the same language as the user message.\n`,
+        content: `You are a chat title generator.\n
+Your task is to create a short chat title based on the provided text.\n
+You always only respond with the chat title.`,
       },
       {
         role: 'user',
-        content: `""" ${firstMessage} """`,
+        content: firstMessage,
       },
     ] satisfies CoreMessage[];
 
-    const params = {
-      maxTokens: 20,
-      temperature: 0.5,
-      stream: false,
-    };
-
     try {
-      const model = VercelCompletionFactory.fromInput('openai', 'gpt-3.5-turbo', config);
+      const model = AiCompletionFactory.fromInput('openai', 'gpt-4o-mini', config);
       const { text } = await generateText({
-        model: model,
-        messages: messages,
-        maxTokens: params.maxTokens,
-        temperature: params.temperature,
+        model,
+        messages,
+        maxTokens: 20,
       });
 
       // remove " from the beginning and end of the message

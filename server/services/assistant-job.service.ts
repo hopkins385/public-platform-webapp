@@ -4,7 +4,7 @@ import type { AssistantJobDto } from './dto/job.dto';
 import { TrackTokensDto } from './dto/track-tokens.dto';
 import { useEvents } from '../events/useEvents';
 import { scrapeWebsite } from '~/server/utils/scrapeWebsite';
-import { VercelCompletionFactory } from '../factories/vercelCompletionFactory';
+import { AiCompletionFactory } from '../factories/completionFactory';
 import { generateText, type CoreMessage } from 'ai';
 import consola from 'consola';
 import type { ExtendedPrismaClient } from '../prisma';
@@ -62,10 +62,11 @@ export class AssistantJobService {
 
     if (inputDocumentItems.length === 1) {
       const inputDocumentItem = inputDocumentItems[0];
-      const url = inputDocumentItem.content;
+      const { content } = inputDocumentItem;
       // if content is an url, fetch the content
-      if (url.startsWith('https://')) {
+      if (content && content.length > 6 && content.startsWith('https://')) {
         // fetch content
+        const url = new URL(content);
         const response = await scrapeWebsite(url);
         if (response) {
           // replace the content with scraped content
@@ -107,7 +108,7 @@ export class AssistantJobService {
     ] satisfies CoreMessage[];
 
     const config = useRuntimeConfig();
-    const model = VercelCompletionFactory.fromInput(llmProvider, llmNameApi, config);
+    const model = AiCompletionFactory.fromInput(llmProvider, llmNameApi, config);
     const { text, usage } = await generateText({
       model,
       maxTokens: 1000,
