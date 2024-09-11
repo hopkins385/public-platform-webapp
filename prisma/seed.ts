@@ -44,7 +44,7 @@ async function main() {
       password: await hashPassword(process.env.ADMIN_PASSWORD!),
       createdAt: new Date(),
       updatedAt: new Date(),
-      emailVerifiedAt: new Date(),
+      emailVerified: new Date(),
     },
   });
 
@@ -60,7 +60,7 @@ async function main() {
       password: await hashPassword(process.env.TESTER_PASSWORD!),
       createdAt: new Date(),
       updatedAt: new Date(),
-      emailVerifiedAt: new Date(),
+      emailVerified: new Date(),
     },
   });
 

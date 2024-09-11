@@ -1,12 +1,13 @@
 import type { DefaultSession } from 'next-auth';
 import { NuxtAuthHandler } from '#auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import Auth0Provider from 'next-auth/providers/auth0';
 import { UserService } from '~/server/services/user.service';
 import { AuthEvent } from '~/server/utils/enums/auth-event.enum';
 import { useEvents } from '~/server/events/useEvents';
 import prisma from '~/server/prisma';
 import { loginSchema } from './loginSchema';
-// import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
 
 declare module 'next-auth' {
   interface Session {
@@ -51,9 +52,12 @@ function getFirstTeam(teams: any) {
   };
 }
 
+const { secret, auth0 } = useRuntimeConfig().auth;
+
 export default NuxtAuthHandler({
+  // @ts-expect-error
   // adapter: PrismaAdapter(prisma),
-  secret: useRuntimeConfig().auth.secret,
+  secret,
   pages: {
     signIn: '/login',
     signOut: '/logout',
@@ -79,7 +83,8 @@ export default NuxtAuthHandler({
       }
       return token;
     },
-    session({ session, token }) {
+    session({ session, token, user }) {
+      // session.user = user;
       const firstTeam = getFirstTeam(token.teams);
       session.user.id = token.sub!;
       session.user.teamId = firstTeam?.teamId;
@@ -88,11 +93,19 @@ export default NuxtAuthHandler({
       return session;
     },
   },
+
   providers: [
     // @ts-expect-error
     CredentialsProvider.default({
       authorize: authorize(),
     }),
+    // @ts-expect-error
+    // Auth0Provider.default({
+    //   clientId: auth0.clientId,
+    //   clientSecret: auth0.clientSecret,
+    //   issuer: auth0.domain,
+    //   // allowDangerousEmailAccountLinking: true,
+    // }),
   ],
 });
 

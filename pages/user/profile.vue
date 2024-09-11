@@ -17,15 +17,15 @@
   const team = computed(() => {
     if (!user.value?.teams) return null;
     return {
-      name: user.value.teams[0].team.name,
+      name: user.value.teams[0]?.team.name,
     };
   });
 
   const org = computed(() => {
     if (!user.value?.teams) return null;
     return {
-      name: user.value.teams[0].team.organisation.name,
-      id: user.value.teams[0].team.organisation.id,
+      name: user.value.teams[0]?.team.organisation.name ?? '',
+      id: user.value.teams[0]?.team.organisation.id ?? '',
     };
   });
 
@@ -68,7 +68,7 @@
       <div class="col-span-1 grid grid-cols-1 space-y-6 text-sm">
         <BoxContainer>
           <h2 class="pb-5 font-semibold">Account Security</h2>
-          <UserEmailVerified :verified-at="user?.emailVerifiedAt ?? null" />
+          <UserEmailVerified :verified-at="user?.emailVerified ?? null" />
         </BoxContainer>
         <BoxContainer>
           <h2 class="pb-2 font-semibold">Plan</h2>

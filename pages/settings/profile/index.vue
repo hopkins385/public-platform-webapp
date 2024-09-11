@@ -39,9 +39,7 @@
       subtitle="On this page you can edit your personal profile settings"
     >
       <template #button>
-        <Button variant="outline" @click="() => navigateTo('/logout')">
-          Logout
-        </Button>
+        <Button variant="outline" @click="() => navigateTo('/logout')"> Logout </Button>
       </template>
     </SectionHeading>
     <div class="grid grid-cols-4 gap-5">
@@ -59,7 +57,7 @@
       <div class="col-span-1 grid grid-cols-1 space-y-6 text-sm">
         <BoxContainer>
           <h2 class="pb-5 font-semibold">Account Security</h2>
-          <UserEmailVerified :verified-at="user?.emailVerifiedAt ?? null" />
+          <UserEmailVerified :verified-at="user?.emailVerified ?? null" />
         </BoxContainer>
         <BoxContainer>
           <h2 class="pb-2 font-semibold">Plan</h2>
@@ -85,11 +83,7 @@
     <BoxContainer class="mt-5">
       <h2 class="pb-5">Workspaces</h2>
       <ul>
-        <li
-          v-for="space in workspaces"
-          :key="space.workspace.id"
-          class="w-fit text-sm"
-        >
+        <li v-for="space in workspaces" :key="space.workspace.id" class="w-fit text-sm">
           {{ space.workspace.name }}
         </li>
       </ul>

@@ -83,7 +83,7 @@ async function seedDefaultUsers(seed: SeedClient) {
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null,
-      emailVerifiedAt: new Date(),
+      emailVerified: new Date(),
     },
     {
       id: createId(),
@@ -95,7 +95,7 @@ async function seedDefaultUsers(seed: SeedClient) {
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null,
-      emailVerifiedAt: new Date(),
+      emailVerified: new Date(),
     },
   ];
   return await seed.user(data);

@@ -59,6 +59,11 @@ export default defineNuxtConfig({
     auth: {
       origin: process.env.AUTH_ORIGIN,
       secret: process.env.AUTH_SECRET,
+      auth0: {
+        clientId: process.env.AUTH0_CLIENT_ID,
+        clientSecret: process.env.AUTH0_CLIENT_SECRET,
+        domain: process.env.AUTH0_DOMAIN,
+      },
     },
     slack: {
       webhookUrl: process.env.SLACK_WEBHOOK_URL,

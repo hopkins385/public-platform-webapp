@@ -17,9 +17,9 @@ const prismaClientSingleton = () => {
       result: {
         user: {
           hasEmailVerified: {
-            needs: { emailVerifiedAt: true },
+            needs: { emailVerified: true },
             compute(user) {
-              return user.emailVerifiedAt !== null;
+              return user.emailVerified !== null;
             },
           },
         },

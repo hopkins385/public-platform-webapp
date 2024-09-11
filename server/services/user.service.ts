@@ -94,7 +94,7 @@ export class UserService {
         firstName: data.firstName,
         lastName: data.lastName,
         name: `${data.firstName} ${data.lastName}`,
-        emailVerifiedAt: new Date(),
+        emailVerified: new Date(),
         createdAt: new Date(),
         updatedAt: new Date(),
         credit: {
@@ -163,7 +163,7 @@ export class UserService {
         lastName: true,
         email: true,
         password: false,
-        emailVerifiedAt: true,
+        emailVerified: true,
         credit: {
           select: {
             amount: true,
@@ -247,7 +247,7 @@ export class UserService {
           id: true,
           name: true,
           email: true,
-          emailVerifiedAt: true,
+          emailVerified: true,
           lastLoginAt: true,
           createdAt: true,
           updatedAt: true,
@@ -309,14 +309,14 @@ export class UserService {
       select: {
         id: true,
         email: true,
-        emailVerifiedAt: true,
+        emailVerified: true,
       },
       where: { id: userId },
     });
     if (!user) {
       throw new Error('User not found');
     }
-    if (user.emailVerifiedAt) {
+    if (user.emailVerified) {
       return user;
     }
     const tokenPayload = jwt.verify(payload.token, this.config.jwtSecret) as any;
@@ -325,7 +325,7 @@ export class UserService {
     }
     return this.prisma.user.update({
       where: { id: user.id },
-      data: { emailVerifiedAt: new Date() },
+      data: { emailVerified: new Date() },
     });
   }
 
