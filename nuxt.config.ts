@@ -142,7 +142,6 @@ export default defineNuxtConfig({
     globalAppMiddleware: true,
     provider: {
       type: 'authjs',
-      defaultProvider: 'credentials',
     },
   },
   /*
