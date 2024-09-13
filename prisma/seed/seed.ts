@@ -176,7 +176,7 @@ const main = async () => {
   await seed.$resetDatabase();
 
   // Seed the database with large language models
-  // const { llm } = await seedLLMs(seed);
+  const { llm } = await seedLLMs(seed);
   // // Seed the database with roles
   // const { role } = await seed.role([
   //   {
