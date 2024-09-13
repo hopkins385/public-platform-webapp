@@ -20,8 +20,10 @@ import { collectionAbleRouter } from './collection-able';
 import { providerAuthRouter } from './provider-auth';
 import { adminRouter } from './admin';
 import { usageRouter } from './usage';
+import { onboardingRouter } from './onboarding';
 
 export const appRouter = router({
+  onboarding: onboardingRouter,
   admin: adminRouter,
   usage: usageRouter,
   register: registerRouter,

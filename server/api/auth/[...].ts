@@ -18,6 +18,7 @@ declare module 'next-auth' {
       teamId: string | null | undefined;
       orgId: string | null | undefined;
       roles: string[];
+      onboardingDone: boolean;
     } & DefaultSession['user'];
   }
 }
@@ -28,6 +29,7 @@ export interface SessionUser {
   name: string;
   teamId: string;
   roles: string[];
+  onboardingDone: boolean;
 }
 
 const { event } = useEvents();
@@ -56,7 +58,7 @@ const { secret, auth0 } = useRuntimeConfig().auth;
 
 export default NuxtAuthHandler({
   // @ts-expect-error
-  // adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma),
   secret,
   pages: {
     signIn: '/login',
@@ -80,16 +82,19 @@ export default NuxtAuthHandler({
         token.id = user ? user.id || '' : '';
         token.teams = user ? (user as any).teams || '' : '';
         token.roles = user ? (user as any).roles || [] : [];
+        token.onboardingDone = user ? (user as any).onboardingDone || false : false;
       }
       return token;
     },
-    session({ session, token, user }) {
-      // session.user = user;
+
+    async session({ session, token, user }) {
       const firstTeam = getFirstTeam(token.teams);
       session.user.id = token.sub!;
       session.user.teamId = firstTeam?.teamId;
       session.user.orgId = firstTeam?.orgId;
       session.user.roles = (token as any).roles;
+      session.user.onboardingDone = (token as any).onboardingDone;
+
       return session;
     },
   },
@@ -99,13 +104,6 @@ export default NuxtAuthHandler({
     CredentialsProvider.default({
       authorize: authorize(),
     }),
-    // @ts-expect-error
-    // Auth0Provider.default({
-    //   clientId: auth0.clientId,
-    //   clientSecret: auth0.clientSecret,
-    //   issuer: auth0.domain,
-    //   // allowDangerousEmailAccountLinking: true,
-    // }),
   ],
 });
 
@@ -157,6 +155,7 @@ function authorize() {
       teamId: user.teams[0].teamId, // TODO: only first team?
       teams: user.teams, // TODO: is this needed?
       roles: getRoles(user),
+      onboardingDone: user.onboardedAt !== null,
     };
 
     return sessionUser;

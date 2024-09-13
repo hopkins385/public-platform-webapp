@@ -41,10 +41,13 @@
       isLoading.value = false;
     }
   };
+
+  const { data: auth } = useAuth();
 </script>
 
 <template>
   <SectionContainer>
+    {{ auth }}
     <SectionHeading
       :title="`${user?.firstName ?? ''}'s Profile`"
       subtitle="On this page you can edit your personal profile settings"

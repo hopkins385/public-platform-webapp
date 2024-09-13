@@ -26,6 +26,7 @@ model User {
   createdAt     DateTime       @default(now()) @map("created_at")
   updatedAt     DateTime       @updatedAt @map("updated_at")
   deletedAt     DateTime?      @map("deleted_at")
+  onboardedAt   DateTime?      @map("onboarded_at")
   roles         UserRole[]
   chats         Chat[]
   credit        Credit[]
@@ -113,12 +114,13 @@ model VerificationToken {
 // end of NextAuth
 
 model Organisation {
-  id        String    @id @default(cuid())
-  name      String
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
-  teams     Team[]
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+  teams       Team[]
 
   @@map("organisations")
 }

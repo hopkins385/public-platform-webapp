@@ -1379,6 +1379,32 @@
     "description": "This column is about storing the names of organizations within the system."
   },
   {
+    "input": "public organisations description",
+    "examples": [
+      "A non-profit organization dedicated to helping homeless shelters in urban areas.",
+      "An international charity focused on providing clean water to communities in need.",
+      "A tech startup revolutionizing the agriculture industry with smart farming solutions.",
+      "A healthcare organization that offers affordable medical services to underprivileged populations.",
+      "A fashion brand committed to sustainable and ethical practices.",
+      "A music label supporting emerging artists and promoting diversity in the industry.",
+      "A software company specializing in cybersecurity solutions for small businesses.",
+      "A marketing agency that helps brands connect with Gen Z consumers through social media.",
+      "A education nonprofit that provides tutoring and mentorship programs for at-risk youth.",
+      "An environmental organization working to protect endangered species and habitats.",
+      "A food bank that distributes meals to families facing food insecurity.",
+      "A sports academy training young athletes for professional careers in sports.",
+      "A legal aid organization offering pro bono legal services to low-income individuals.",
+      "A volunteer organization coordinating community clean-up events and charity drives.",
+      "An arts foundation supporting local artists and cultural events.",
+      "A technology institute promoting STEM education for girls in rural areas.",
+      "A wellness center offering yoga classes, meditation sessions, and holistic health services.",
+      "A pet rescue shelter dedicated to finding loving homes for abandoned animals.",
+      "A consulting firm specializing in diversity and inclusion training for corporations.",
+      "A renewable energy company developing solar power solutions for residential buildings."
+    ],
+    "description": "This column contains descriptions of organizations in the system."
+  },
+  {
     "input": "public projects id",
     "examples": [
       "PRJ001",

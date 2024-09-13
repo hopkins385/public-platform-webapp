@@ -163,7 +163,6 @@ async function seedDefaults(seed: SeedClient, payload: { orgId: string; firstTea
       id: createId(),
       name: 'Demo Project',
       description: 'This is a demo project',
-      organisationId: payload.orgId,
       teamId: payload.firstTeamId,
       deletedAt: null,
     })),
@@ -177,7 +176,14 @@ const main = async () => {
   await seed.$resetDatabase();
 
   // Seed the database with large language models
-  const { llm } = await seedLLMs(seed);
+  // const { llm } = await seedLLMs(seed);
+  // // Seed the database with roles
+  // const { role } = await seed.role([
+  //   {
+  //     id: createId(),
+  //     name: 'admin',
+  //   },
+  // ]);
 
   // Seed the database with 10 organisations
   const { organisation } = await seedOrganisations(seed);

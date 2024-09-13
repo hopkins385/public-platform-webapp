@@ -22,6 +22,12 @@ const prismaClientSingleton = () => {
               return user.emailVerified !== null;
             },
           },
+          hasOnboardingDone: {
+            needs: { onboardedAt: true },
+            compute(user) {
+              return user.onboardedAt !== null;
+            },
+          },
         },
       },
     })

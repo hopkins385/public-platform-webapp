@@ -142,7 +142,7 @@ export class UserService {
 
   async getAuthUser(payload: LoginDto) {
     const user = await this.getUserByEmail(payload.email);
-    if (!user) {
+    if (!user || !user.password) {
       return null;
     }
     const result = await comparePasswords(payload.password, user.password);
@@ -164,6 +164,7 @@ export class UserService {
         email: true,
         password: false,
         emailVerified: true,
+        onboardedAt: true,
         credit: {
           select: {
             amount: true,
@@ -207,6 +208,7 @@ export class UserService {
         lastName: true,
         email: true,
         password: true,
+        onboardedAt: true,
         teams: {
           select: {
             teamId: true,
