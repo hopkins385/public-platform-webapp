@@ -14,6 +14,7 @@ const mediaService = new MediaService(prisma);
 const logger = consola.create({}).withTag('api.upload.post');
 
 export default defineEventHandler(async (_event) => {
+  // Needs Auth
   const session = await getServerSession(_event);
   const user = getAuthUser(session); // do not remove this line
 
@@ -24,8 +25,8 @@ export default defineEventHandler(async (_event) => {
     maxFilesSize: 5 * 1024 * 1024,
     maxFields: 8,
     // TODO: add filter for file types
-    // filter: function ({ name, originalFilename, mimetype }) {
-    //   return mimetype && mimetype.includes('pdf') && mimetype.includes('plain');
+    // filter: ({ name, originalFilename, mimetype }) => {
+    //   return mimetype && (mimetype.includes('pdf') || mimetype.includes('plain'));
     // },
   } as FormidableOptions;
 

@@ -19,8 +19,8 @@
   function onSubmit() {
     isLoading.value = true;
     onboardUser({ orgName: orgName.value })
-      .then(() => {
-        navigateTo('/user/profile');
+      .then(async () => {
+        await navigateTo('/user/profile');
       })
       .catch((error) => console.error(error))
       .finally(() => (isLoading.value = false));

@@ -113,7 +113,7 @@ export default NuxtAuthHandler({
 
 function authorize() {
   return async (credentials: Record<'email' | 'password', string> | undefined) => {
-    console.log('credentials in authorize', credentials);
+    // console.log('credentials in authorize', credentials);
     if (!credentials) return null;
     if (!credentials.email) return null;
     if (!credentials.password) return null;

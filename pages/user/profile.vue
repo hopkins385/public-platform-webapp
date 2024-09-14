@@ -47,7 +47,6 @@
 
 <template>
   <SectionContainer>
-    {{ auth }}
     <SectionHeading
       :title="`${user?.firstName ?? ''}'s Profile`"
       subtitle="On this page you can edit your personal profile settings"
