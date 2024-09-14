@@ -136,12 +136,7 @@ async function seedDefaults(seed: SeedClient, payload: { orgId: string; firstTea
 
   // Seed the database with roles
 
-  const { role } = await seed.role([
-    {
-      id: createId(),
-      name: 'admin',
-    },
-  ]);
+  const { role } = await seedRoles(seed);
 
   // connect user with role
   await seed.userRole([
@@ -169,7 +164,40 @@ async function seedDefaults(seed: SeedClient, payload: { orgId: string; firstTea
   );
 }
 
-const main = async () => {
+async function seedRoles(seed: SeedClient) {
+  return await seed.role([
+    {
+      id: createId(),
+      name: 'admin',
+    },
+    {
+      id: createId(),
+      name: 'user',
+    },
+  ]);
+}
+
+async function seedFirstUser(seed: SeedClient) {
+  // seed first user
+  const { user } = await seed.user([
+    {
+      id: createId(),
+      name: 'Sven Stadhouders',
+      deviceId: '',
+      firstName: 'Sven',
+      lastName: 'Stadhouders',
+      email: process.env.ADMIN_EMAIL!,
+      password: () => bcrypt.hash(process.env.ADMIN_PASSWORD!, 10),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
+      emailVerified: new Date(),
+      onboardedAt: null,
+    },
+  ]);
+}
+
+async function main() {
   const seed = await createSeedClient();
 
   // Truncate all tables in the database
@@ -177,14 +205,14 @@ const main = async () => {
 
   // Seed the database with large language models
   const { llm } = await seedLLMs(seed);
-  // // Seed the database with roles
-  // const { role } = await seed.role([
-  //   {
-  //     id: createId(),
-  //     name: 'admin',
-  //   },
-  // ]);
 
+  // seed roles
+  const { role } = await seedRoles(seed);
+
+  // Seed the database with admin user
+  await seedFirstUser(seed);
+
+  /*
   // Seed the database with 10 organisations
   const { organisation } = await seedOrganisations(seed);
 
@@ -201,7 +229,8 @@ const main = async () => {
   // Seed the database with default users and so on
   const data = { orgId: organisation[0].id, firstTeamId: firstTeam.id, secondTeamId: secondTeam.id };
   await seedDefaults(seed, data);
-};
+  */
+}
 
 main()
   .then(() => {

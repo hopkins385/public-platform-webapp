@@ -45,12 +45,15 @@ function getRoles(user: any) {
 }
 
 function getFirstTeam(teams: any) {
-  if (!Array.isArray(teams)) {
-    return null;
+  if (!teams || !Array.isArray(teams)) {
+    return {
+      teamId: null,
+      orgId: null,
+    };
   }
   return {
-    teamId: teams[0].teamId,
-    orgId: teams[0].team.organisation.id,
+    teamId: teams[0]?.teamId || null,
+    orgId: teams[0]?.team.organisation.id || null,
   };
 }
 
@@ -80,7 +83,7 @@ export default NuxtAuthHandler({
       const isSignIn = user ? true : false;
       if (isSignIn) {
         token.id = user ? user.id || '' : '';
-        token.teams = user ? (user as any).teams || '' : '';
+        token.teams = user ? (user as any).teams || [] : [];
         token.roles = user ? (user as any).roles || [] : [];
         token.onboardingDone = user ? (user as any).onboardingDone || false : false;
       }
@@ -88,12 +91,13 @@ export default NuxtAuthHandler({
     },
 
     async session({ session, token, user }) {
-      const firstTeam = getFirstTeam(token.teams);
       session.user.id = token.sub!;
-      session.user.teamId = firstTeam?.teamId;
-      session.user.orgId = firstTeam?.orgId;
       session.user.roles = (token as any).roles;
       session.user.onboardingDone = (token as any).onboardingDone;
+
+      const firstTeam = getFirstTeam(token.teams);
+      session.user.teamId = firstTeam.teamId;
+      session.user.orgId = firstTeam.orgId;
 
       return session;
     },
@@ -109,6 +113,7 @@ export default NuxtAuthHandler({
 
 function authorize() {
   return async (credentials: Record<'email' | 'password', string> | undefined) => {
+    console.log('credentials in authorize', credentials);
     if (!credentials) return null;
     if (!credentials.email) return null;
     if (!credentials.password) return null;
@@ -152,8 +157,8 @@ function authorize() {
       id: user.id,
       email: user.email,
       name: user.name,
-      teamId: user.teams[0].teamId, // TODO: only first team?
-      teams: user.teams, // TODO: is this needed?
+      teamId: user.teams[0]?.teamId || null, // TODO: only first team?
+      teams: user.teams || null, // TODO: is this needed?
       roles: getRoles(user),
       onboardingDone: user.onboardedAt !== null,
     };
