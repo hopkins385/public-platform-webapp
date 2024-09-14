@@ -1,5 +1,5 @@
 import consola from 'consola';
-import { QdrantVectorStore } from 'llamaindex';
+import type { QdrantVectorStore } from 'llamaindex';
 
 declare module 'h3' {
   interface H3EventContext {
@@ -10,7 +10,7 @@ declare module 'h3' {
 const logger = consola.create({}).withTag('server.vector-store-middleware');
 
 export default eventHandler((event) => {
-  const config = useRuntimeConfig();
+  const { url } = useRuntimeConfig().qdrant;
   const { getVectorStore } = useQdrant();
-  event.context.vectorStore = getVectorStore({ collectionName: 'media', serverUrl: config.qdrant.url });
+  event.context.vectorStore = getVectorStore({ collectionName: 'media', serverUrl: url });
 });

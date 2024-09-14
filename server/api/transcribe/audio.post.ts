@@ -6,7 +6,7 @@ import Groq from 'groq-sdk';
 import { createReadStream } from 'fs';
 import { basename, extname } from 'path';
 
-const logger = consola.create({}).withTag('transcribe.audio.post');
+const logger = consola.create({}).withTag('api.transcribe');
 
 const options = {
   includeFields: true,
@@ -27,7 +27,7 @@ export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);
   const user = getAuthUser(session); // throws error if not authenticated
 
-  const { fields, form, files } = await readFiles(_event, options);
+  const { files } = await readFiles(_event, options);
 
   if (!files.audioFile || !Array.isArray(files.audioFile) || files.audioFile.length === 0) {
     throw createError({
@@ -54,8 +54,8 @@ export default defineEventHandler(async (_event) => {
 });
 
 async function getTranscript(filePath: string, fileName: string): Promise<string | null> {
-  if (!filePath) {
-    consola.error('No audio file provided');
+  if (!filePath || !fileName) {
+    logger.error('No audio file provided');
     return null;
   }
 
@@ -68,10 +68,10 @@ async function getTranscript(filePath: string, fileName: string): Promise<string
       file: fileStream,
       model: 'whisper-large-v3',
     });
-
     return text.trim() || null;
+    //
   } catch (error) {
-    consola.error('Failed to transcribe audio file %s', error);
+    logger.error('Failed to transcribe audio file %s', error);
     return null; // Empty audio file
   }
 }
