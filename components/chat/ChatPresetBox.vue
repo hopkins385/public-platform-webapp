@@ -37,7 +37,7 @@
 
 <template>
   <div
-    class="h-34 max-w-72 cursor-pointer overflow-hidden rounded-lg border bg-white p-5 text-sm shadow-md"
+    class="h-34 max-w-72 cursor-pointer overflow-hidden rounded-lg border bg-white p-5 text-sm shadow-sm hover:shadow-md"
   >
     <div class="flex items-center space-x-3 pb-2">
       <div>

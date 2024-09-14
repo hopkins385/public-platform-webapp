@@ -1,10 +1,22 @@
 <script setup lang="ts">
+  /**
+   * Component: ChatSettings
+   */
   import { SlidersHorizontalIcon, RotateCcwIcon } from 'lucide-vue-next';
+
+  const props = defineProps<{
+    assistantId: string;
+  }>();
 
   const show = ref(false);
   const settings = useChatSettingsStore();
 
   const presencePenalty = false;
+
+  function onEditAssistantClick() {
+    if (!props.assistantId) return;
+    navigateTo(`/assistants/${props.assistantId}/edit`);
+  }
 </script>
 
 <template>
@@ -21,6 +33,8 @@
           <RotateCcwIcon class="size-3 opacity-60" />
         </button>
       </div>
+      <Separator class="my-3" />
+      <Button variant="outline" size="sm" class="w-full" @click="onEditAssistantClick"> Edit Assistant </Button>
       <Separator class="my-3" />
       <div class="my-5 flex flex-col space-y-4">
         <div class="flex w-full justify-between">

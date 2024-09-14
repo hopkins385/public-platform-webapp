@@ -377,18 +377,6 @@
       </div>
 
       <div class="pointer-events-auto flex shrink-0 space-x-3">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger :as-child="true">
-              <Button size="icon" variant="outline" class="group" @click="clearChatMessages">
-                <SquareXIcon class="size-4 stroke-1.5 group-hover:stroke-2 group-hover:text-destructive" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p class="text-sm">Clear messages</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
         <!--
         <ChatShareDialog v-model="showShareDialog" />
         <Button
@@ -400,8 +388,6 @@
           <ShareIcon class="size-4 stroke-1.5 group-hover:stroke-2" />
         </Button>
         -->
-
-        <ChatSettings />
 
         <TooltipProvider>
           <Tooltip>
@@ -416,6 +402,8 @@
           </Tooltip>
         </TooltipProvider>
 
+        <ChatSettings :assistant-id="assistant?.id" />
+
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger :as-child="true">
@@ -425,6 +413,19 @@
             </TooltipTrigger>
             <TooltipContent>
               <p class="text-sm">Split Screen</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger :as-child="true">
+              <Button size="icon" variant="outline" class="group" @click="clearChatMessages">
+                <SquareXIcon class="size-4 stroke-1.5 group-hover:stroke-2 group-hover:text-destructive" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p class="text-sm">Clear messages</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
