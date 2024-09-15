@@ -17,9 +17,13 @@
   const { getChatForUser } = useChat();
   const { data: chat, error } = await getChatForUser(chatId as string);
 
+  const chatSettings = useChatSettingsStore();
+
   if (!chat.value) {
     await navigateTo('/404');
   }
+
+  const editorContent = ref<string>('');
 </script>
 
 <template>
@@ -28,7 +32,18 @@
     <div class="flex h-full">
       <!-- ChatSideBar /-->
       <ChatNewModal />
-      <ChatWindow v-if="chat" :chat-id="chat?.id" :chat-messages="chat?.messages" :assistant="chat?.assistant" />
+      <div class="flex w-full">
+        <ChatWindow
+          v-if="chat"
+          :chat-id="chat?.id"
+          :chat-messages="chat?.messages"
+          :assistant="chat?.assistant"
+          :class="chatSettings.sideBarOpen ? 'w-1/2' : 'w-full'"
+        />
+        <div :class="chatSettings.sideBarOpen ? 'w-1/2 p-10' : 'w-0'">
+          <LazyEditorBox v-if="chatSettings.sideBarOpen" :model-value="editorContent" />
+        </div>
+      </div>
     </div>
   </div>
 </template>

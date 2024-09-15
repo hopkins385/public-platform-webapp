@@ -2,12 +2,10 @@
   import { useDropZone, useEventListener, useMutationObserver, useScroll } from '@vueuse/core';
   import {
     MessageSquareTextIcon,
-    MessageSquareXIcon,
     PaperclipIcon,
     SendIcon,
     SquareIcon,
     SquareSplitHorizontalIcon,
-    SquareXIcon,
   } from 'lucide-vue-next';
   import ChatSettings from './ChatSettings.vue';
   import type { ChatMessage, ChatImage } from '~/interfaces/chat.interfaces';
@@ -350,21 +348,11 @@
   <BoxContainer
     id="chatWrapper"
     ref="chatBoxContainerRef"
-    class="relative flex size-full flex-col border-0 px-10 pb-10 pt-20 md:px-20 2xl:px-40"
+    class="relative flex size-full flex-col border-0 px-10 pb-10 pt-20"
+    :class="{
+      'md:px-20 2xl:px-40': !settings.sideBarOpen,
+    }"
   >
-    <!-- toggle sidebar -->
-    <!--
-    <div class="absolute left-0 top-1/2 -translate-y-1/2">
-      <Button size="icon" variant="ghost" @click="() => settings.toggleSideBarOpen()">
-        <ChevronLeftIcon
-          class="size-4 stroke-1.5"
-          :class="{
-            'rotate-180 transform': !settings.sideBarOpen,
-          }"
-        />
-      </Button>
-    </div>
-    -->
     <!-- chat header -->
     <div id="chatHeader" class="pointer-events-none absolute left-0 top-0 z-10 flex w-full justify-between px-8 py-5">
       <!-- chat model selector -->
@@ -375,7 +363,7 @@
       <div class="flex shrink items-center 2xl:pr-8">
         <AssistantDetailsActive :key="assistant?.id" :assistant="assistant" />
       </div>
-
+      <!-- chat actions -->
       <div class="pointer-events-auto flex shrink-0 space-x-3">
         <!--
         <ChatShareDialog v-model="showShareDialog" />
@@ -407,7 +395,7 @@
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger :as-child="true">
-              <Button variant="outline" size="icon" class="group">
+              <Button variant="outline" size="icon" class="group" @click="() => settings.toggleSideBarOpen()">
                 <SquareSplitHorizontalIcon class="size-4 stroke-1.5 group-hover:stroke-2" />
               </Button>
             </TooltipTrigger>
