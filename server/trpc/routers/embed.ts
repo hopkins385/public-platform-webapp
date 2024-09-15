@@ -1,9 +1,8 @@
 import { z } from 'zod';
-import type { ChatMessage } from 'llamaindex';
 import { protectedProcedure, router } from '../trpc';
-import useEmbedDocuments from '../../utils/useEmbedDocuments';
+// import useEmbedDocuments from '../../utils/useEmbedDocuments';
 
-const { embedDocument, queryEmbedDocuments, chat } = useEmbedDocuments();
+// const { embedDocument, queryEmbedDocuments, chat } = useEmbedDocuments();
 
 export const embedRouter = router({
   // get one chat
@@ -14,10 +13,10 @@ export const embedRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      await embedDocument({
-        path: input.path,
-        vectorStore: ctx.vectorStore,
-      });
+      // await embedDocument({
+      //   path: input.path,
+      //   vectorStore: ctx.vectorStore,
+      // });
       return { success: true };
     }),
   queryDocuments: protectedProcedure
@@ -27,7 +26,7 @@ export const embedRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      return await queryEmbedDocuments(input.query, ctx.vectorStore);
+      // return await queryEmbedDocuments(input.query, ctx.vectorStore);
     }),
   conversation: protectedProcedure
     .input(
@@ -41,6 +40,6 @@ export const embedRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      return await chat(input.messages, ctx.vectorStore);
+      // return await chat(input.messages, ctx.vectorStore);
     }),
 });

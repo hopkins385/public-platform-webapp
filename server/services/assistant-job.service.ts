@@ -107,8 +107,7 @@ export class AssistantJobService {
       },
     ] satisfies CoreMessage[];
 
-    const config = useRuntimeConfig();
-    const model = AiCompletionFactory.fromInput(llmProvider, llmNameApi, config);
+    const model = AiCompletionFactory.fromInput(llmProvider, llmNameApi);
     const { text, usage } = await generateText({
       model,
       maxTokens: 1000,

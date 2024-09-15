@@ -26,7 +26,6 @@ This is a [sidebase merino](https://sidebase.io/) app created by running `npm cr
 - zod
 - vee-validate & vee-zod
 - bullmq
-- llamaindex
 - tiktoken
 - stripe
 - slack-notify

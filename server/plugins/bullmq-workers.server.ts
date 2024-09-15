@@ -26,7 +26,6 @@ const chatService = new ChatService(prisma);
 const logger = consola.create({}).withTag('bullmq-workers');
 
 export default defineNitroPlugin((nitroApp) => {
-  const config = useRuntimeConfig();
   const { createWorker } = useBullmq();
 
   const createChatTitle = createWorker(QueueEnum.CREATE_CHAT_TITLE, async (job) => {
@@ -49,7 +48,7 @@ You always only respond with the chat title.`,
     ] satisfies CoreMessage[];
 
     try {
-      const model = AiCompletionFactory.fromInput('openai', 'gpt-4o-mini', config);
+      const model = AiCompletionFactory.fromInput('openai', 'gpt-4o-mini');
       const { text } = await generateText({
         model,
         messages,

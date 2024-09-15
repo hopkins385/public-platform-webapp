@@ -1,13 +1,9 @@
-import {
-  PDFReader,
-  DocxReader,
-  MarkdownReader,
-  PapaCSVReader as CSVReader,
-  TextFileReader,
-  HTMLReader,
-} from 'llamaindex';
-import type { FileReader } from 'llamaindex';
 import { FileType } from '~/server/utils/enums/file-type.enum';
+import { PDFReader } from '../readers/PDFReader';
+import { DocxReader } from '../readers/DocxReader';
+import { PapaCSVReader } from '../readers/CSVReader';
+import { TextFileReader } from '../readers/TextFileReader';
+import type { FileReader } from '../readers/types';
 
 export class FileReaderFactory {
   type: string;
@@ -31,11 +27,11 @@ export class FileReaderFactory {
       case FileType.DOCX:
         return new DocxReader();
       case FileType.MARKDOWN:
-        return new MarkdownReader();
+        throw new Error('Not implemented');
       case FileType.CSV:
-        return new CSVReader();
+        return new PapaCSVReader();
       case FileType.HTML:
-        return new HTMLReader();
+        throw new Error('Not implemented');
       default:
         throw new Error(`Unsupported file type: ${this.type}`);
     }

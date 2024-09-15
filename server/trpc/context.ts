@@ -12,7 +12,7 @@ export async function createContext(_event: H3Event) {
   const user: SessionUser = session?.user;
 
   return {
-    prisma: _event.context.prisma,
+    // prisma: _event.context.prisma,
     user,
   };
 }

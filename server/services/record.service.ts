@@ -1,21 +1,19 @@
 import type { Media } from '@prisma/client';
 import type { CreateRecordDto, FindRecordsDto } from './dto/record.dto';
+import type { ExtendedPrismaClient } from '../prisma';
 import { MediaService } from './media.service';
 import { VectorService } from './vector.service';
-import type { RuntimeConfig } from 'nuxt/schema';
-import type { ExtendedPrismaClient } from '../prisma';
 
 export class RecordService {
   private readonly prisma: ExtendedPrismaClient;
   private readonly mediaService: MediaService;
   private readonly vectorService: VectorService;
 
-  constructor(prisma: ExtendedPrismaClient, config: RuntimeConfig) {
+  constructor(prisma: ExtendedPrismaClient, mediaService: MediaService, vectorService: VectorService) {
     if (!prisma) throw new Error('Prisma client not found');
-    if (!config) throw new Error('Runtime config not found');
     this.prisma = prisma;
-    this.mediaService = new MediaService(prisma);
-    this.vectorService = new VectorService(config);
+    this.mediaService = mediaService;
+    this.vectorService = vectorService;
   }
 
   async create(payload: CreateRecordDto) {

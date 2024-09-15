@@ -21,57 +21,30 @@ import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
 import { Readable, Transform } from 'stream';
 import prisma from '~/server/prisma';
 import consola from 'consola';
+import qdrant from '~/server/qdrant';
 
 const { event } = useEvents();
 
 const chatService = new ChatService(prisma);
-const tokenizerService = new TokenizerService();
 const collectionService = new CollectionService(prisma);
+const vectorService = new VectorService(qdrant);
+const tokenizerService = new TokenizerService();
 
 const logger = consola.create({}).withTag('conversation.post');
 
 export default defineEventHandler(async (_event) => {
-  const controller = new AbortController();
-
-  const config = useRuntimeConfig();
-  const vectorService = new VectorService(config);
-
-  // Auth
+  // Needs Auth
   const session = await getServerSession(_event);
-  const user = getAuthUser(session); // do not remove this line
+  const user = getAuthUser(session); // throws error if user not found
 
   // Get validated conversation body
   const body = await getConversationBody(_event);
 
-  // Check if user is allowed to access the chat
-  const chat = await chatService.getChatAndCreditsForUser(body.chatId, user.id);
-  if (!chat) {
-    throw createError({
-      statusCode: 404,
-      statusMessage: 'Not Found',
-      message: 'Chat not found',
-    });
-  }
-
-  // Check if user has enough credits
-  if (chat.user.credit[0].amount < 1) {
-    throw createError({
-      statusCode: 402,
-      statusMessage: 'Payment Required',
-      message: 'Insufficient credits',
-    });
-  }
+  // Check if user is allowed to access the chat and has enough credits
+  const chat = await getChatForUser({ chatId: body.chatId, userId: user.id });
 
   // Check if chat has messages
-  const lastMessage = body.messages[body.messages.length - 1];
-  if (!lastMessage) {
-    logger.error('No last message');
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Bad Request',
-      message: 'Invalid body message length',
-    });
-  }
+  const lastMessage = getLastChatMessage(body.messages);
 
   // Store last message in the database
   const message = await chatService.createMessage(
@@ -100,26 +73,8 @@ export default defineEventHandler(async (_event) => {
   let systemPrompt = undefined;
 
   // check if assistant has knowledge collections
-  const collections = await collectionService.findAllWithRecordsFor(
-    CollectionAbleDto.fromInput({
-      id: chat.assistant.id,
-      type: 'assistant',
-    }),
-  );
-
-  if (collections.length > 0) {
-    const recordIds = collections.map((c) => c.records.map((r) => r.id)).flat();
-    const res = await vectorService.searchIndex({
-      query: lastMessage.content,
-      recordIds,
-    });
-
-    const context = res.map((r) => r?.content || '').join('\n\n');
-
-    systemPrompt = chat.assistant.systemPrompt + '\n\n<context>' + context + '</context>';
-  } else {
-    systemPrompt = chat.assistant.systemPrompt;
-  }
+  // await checkCollection()
+  systemPrompt = chat.assistant.systemPrompt;
 
   // add current date at the end of the system prompt
   systemPrompt += '\n\n' + 'Timestamp now(): ' + new Date().toISOString();
@@ -144,6 +99,8 @@ export default defineEventHandler(async (_event) => {
     return transform;
   };
 
+  const controller = new AbortController();
+
   // listen for response events
   _event.node.res.on('close', () => onResponseClose(_event, controller, chat, user, body, gathered));
   _event.node.res.on('error', (error) => onResponseError(_event, error));
@@ -166,7 +123,6 @@ export default defineEventHandler(async (_event) => {
     messages: chatMessages,
     systemPrompt,
     maxTokens: body.maxTokens,
-    config,
   };
 
   const generator = generateStream(streamData);
@@ -185,7 +141,6 @@ interface StreamPayload {
   messages: any[];
   systemPrompt: string;
   maxTokens: number;
-  config: any;
 }
 
 function onStreamError(_event: H3Event, stream: any, error: any) {
@@ -290,7 +245,7 @@ function handleStreamGeneratorError(error: any) {
 }
 
 async function* generateStream(payload: StreamPayload) {
-  const model = AiCompletionFactory.fromInput(payload.provider, payload.model, payload.config);
+  const model = AiCompletionFactory.fromInput(payload.provider, payload.model);
   const availableTools = payload.provider !== 'groq' ? getTools(toolStartCallback(payload)) : undefined;
 
   try {
@@ -380,4 +335,63 @@ async function* handleToolCalls(
   );
 
   yield* followUpResult.textStream;
+}
+
+async function getChatForUser(payload: { chatId: string; userId: string }) {
+  const chat = await chatService.getChatAndCreditsForUser(payload.chatId, payload.userId);
+  if (!chat) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Not Found',
+      message: 'Chat not found',
+    });
+  }
+
+  // Check if user has enough credits
+  if (chat.user.credit[0].amount < 1) {
+    throw createError({
+      statusCode: 402,
+      statusMessage: 'Payment Required',
+      message: 'Insufficient credits',
+    });
+  }
+
+  return chat;
+}
+
+function getLastChatMessage(messages: any[]) {
+  const lastMessage = messages[messages.length - 1];
+  if (!lastMessage) {
+    logger.error('No last message');
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Bad Request',
+      message: 'Invalid body message length',
+    });
+  }
+  return lastMessage;
+}
+
+async function checkCollection() {
+  throw new Error('Not implemented');
+  const collections = await collectionService.findAllWithRecordsFor(
+    CollectionAbleDto.fromInput({
+      id: assistantId,
+      type: 'assistant',
+    }),
+  );
+
+  if (collections.length > 0) {
+    const recordIds = collections.map((c) => c.records.map((r) => r.id)).flat();
+    const res = await vectorService.searchIndex({
+      query: lastMessage.content,
+      recordIds,
+    });
+
+    const context = res.map((r) => r?.content || '').join('\n\n');
+
+    systemPrompt = chat.assistant.systemPrompt + '\n\n<context>' + context + '</context>';
+  } else {
+    systemPrompt = chat.assistant.systemPrompt;
+  }
 }

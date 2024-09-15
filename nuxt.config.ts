@@ -29,7 +29,8 @@ export default defineNuxtConfig({
     },
   },
   modules: [
-    '@nuxt/test-utils/module',
+    // '@nuxt/test-utils/module',
+    '@nuxt/eslint',
     '@nuxtjs/tailwindcss',
     'shadcn-nuxt',
     '@vee-validate/nuxt',
@@ -43,7 +44,6 @@ export default defineNuxtConfig({
     ['unplugin-icons/nuxt', { autoInstall: true }],
     '@vue-macros/nuxt',
     '@nuxtjs/device',
-    '@nuxt/eslint',
   ],
   runtimeConfig: {
     public: {
@@ -112,6 +112,8 @@ export default defineNuxtConfig({
       password: process.env.REDIS_PASSWORD,
     },
     qdrant: {
+      host: process.env.QDRANT_HOST,
+      port: process.env.QDRANT_PORT,
       url: process.env.QDRANT_URL,
     },
     scrapeServer: {

@@ -5,13 +5,13 @@ import { createMistral } from '@ai-sdk/mistral';
 
 export class AiCompletionFactory {
   private readonly model: string;
-  private readonly config: RuntimeConfig;
   private readonly provider: string;
+  private readonly config: RuntimeConfig;
 
-  constructor(provider: string, model: string, config: RuntimeConfig) {
+  constructor(provider: string, model: string) {
     this.provider = provider;
     this.model = model;
-    this.config = config;
+    this.config = useRuntimeConfig();
   }
 
   getModel() {
@@ -48,7 +48,7 @@ export class AiCompletionFactory {
     }
   }
 
-  static fromInput(provider: string, model: string, config: RuntimeConfig) {
-    return new AiCompletionFactory(provider, model, config).getModel();
+  static fromInput(provider: string, model: string) {
+    return new AiCompletionFactory(provider, model).getModel();
   }
 }

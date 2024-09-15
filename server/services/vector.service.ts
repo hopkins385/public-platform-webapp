@@ -1,6 +1,4 @@
-import type { QdrantVectorStore } from 'llamaindex';
-import type { RuntimeConfig } from 'nuxt/schema';
-import { OpenAIEmbedding, Settings, storageContextFromDefaults, VectorStoreIndex } from 'llamaindex';
+import type { QdrantClient } from '@qdrant/js-client-rest';
 import { FileReaderFactory } from '~/server/factories/fileReaderFactory';
 import OpenAI from 'openai';
 import consola from 'consola';
@@ -8,18 +6,16 @@ import consola from 'consola';
 const logger = consola.create({}).withTag('VectorService');
 
 export class VectorService {
-  private readonly vectorStore: QdrantVectorStore;
+  private readonly vectorStore: QdrantClient;
 
-  constructor(config: RuntimeConfig) {
-    if (!config) throw new Error('Runtime config not found');
-    const { getVectorStore } = useQdrant();
-    this.vectorStore = getVectorStore({ collectionName: 'media', serverUrl: config.qdrant.url });
+  constructor(qdrant: QdrantClient) {
+    this.vectorStore = qdrant;
   }
 
   async createIndex(payload: { mediaId: string; recordId: string; mimeType: string; path: string }) {
-    Settings.embedModel = new OpenAIEmbedding({
-      model: 'text-embedding-3-small',
-    });
+    // Settings.embedModel = new OpenAIEmbedding({
+    //   model: 'text-embedding-3-small',
+    // });
 
     try {
       const reader = new FileReaderFactory(payload.mimeType); // throws error if unsupported file type
@@ -34,13 +30,13 @@ export class VectorService {
         Object.assign(doc.metadata, additionalMetadata);
       });
 
-      const context = await storageContextFromDefaults({
-        vectorStore: this.vectorStore,
-      });
+      // const context = await storageContextFromDefaults({
+      //   vectorStore: this.vectorStore,
+      // });
 
-      const res = await VectorStoreIndex.fromDocuments(documents, {
-        storageContext: context,
-      });
+      // const res = await VectorStoreIndex.fromDocuments(documents, {
+      //   storageContext: context,
+      // });
 
       return documents;
     } catch (e) {
@@ -76,8 +72,7 @@ export class VectorService {
     }
 
     try {
-      const client = this.vectorStore.client();
-      const result = await client.search('media', {
+      const result = await this.vectorStore.search('media', {
         with_payload: {
           include: ['mediaId', 'recordId', '_node_content'],
         },
@@ -95,6 +90,7 @@ export class VectorService {
         limit: 3,
       });
 
+      // TODO: vector result
       const resp = result.map((node) => {
         const content = node.payload?._node_content ? JSON.parse(node.payload?._node_content) : {};
         return {
