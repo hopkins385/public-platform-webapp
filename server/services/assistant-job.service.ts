@@ -4,7 +4,7 @@ import type { AssistantJobDto } from './dto/job.dto';
 import { TrackTokensDto } from './dto/track-tokens.dto';
 import { useEvents } from '../events/useEvents';
 import { scrapeWebsite } from '~/server/utils/scrapeWebsite';
-import { AiCompletionFactory } from '../factories/completionFactory';
+import { AiModelFactory } from '../factories/aiModelFactory';
 import { generateText, type CoreMessage } from 'ai';
 import consola from 'consola';
 import type { ExtendedPrismaClient } from '../prisma';
@@ -107,9 +107,8 @@ export class AssistantJobService {
       },
     ] satisfies CoreMessage[];
 
-    const model = AiCompletionFactory.fromInput(llmProvider, llmNameApi);
     const { text, usage } = await generateText({
-      model,
+      model: AiModelFactory.fromInput({ provider: llmProvider, model: llmNameApi }),
       maxTokens: 1000,
       temperature,
       messages,

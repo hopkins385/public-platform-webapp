@@ -397,12 +397,12 @@
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p class="text-sm">Start new Chat</p>
+              <p class="text-sm">New Chat</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
 
-        <ChatSettings :assistant-id="assistant?.id" />
+        <ChatSettings :assistant-id="assistant?.id" @delete-all-messages="clearChatMessages" />
 
         <TooltipProvider>
           <Tooltip>
@@ -416,7 +416,7 @@
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-
+        <!--
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger :as-child="true">
@@ -429,6 +429,7 @@
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
+-->
       </div>
     </div>
     <!-- chat messages container -->

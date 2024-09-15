@@ -8,6 +8,10 @@
     assistantId: string;
   }>();
 
+  const emits = defineEmits<{
+    deleteAllMessages: [void];
+  }>();
+
   const show = ref(false);
   const settings = useChatSettingsStore();
 
@@ -16,6 +20,10 @@
   function onEditAssistantClick() {
     if (!props.assistantId) return;
     navigateTo(`/assistants/${props.assistantId}/edit`);
+  }
+
+  function onDeleteChatMessages() {
+    emits('deleteAllMessages');
   }
 </script>
 
@@ -35,6 +43,10 @@
       </div>
       <Separator class="my-3" />
       <Button variant="outline" size="sm" class="w-full" @click="onEditAssistantClick"> Edit Assistant </Button>
+      <Separator class="my-3" />
+      <Button variant="outline" size="sm" class="w-full hover:text-destructive" @click="onDeleteChatMessages">
+        Reset Chat
+      </Button>
       <Separator class="my-3" />
       <div class="my-5 flex flex-col space-y-4">
         <div class="flex w-full justify-between">

@@ -15,7 +15,7 @@ import { StreamFinishedEventDto, FirstUserMessageEventDto } from '~/server/servi
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import { useEvents } from '~/server/events/useEvents';
 import { streamText } from 'ai';
-import { AiCompletionFactory } from '~/server/factories/completionFactory';
+import { AiModelFactory } from '~/server/factories/aiModelFactory';
 import { getTools } from '../../chatTools/chatTools';
 import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
 import { Readable, Transform } from 'stream';
@@ -38,13 +38,13 @@ export default defineEventHandler(async (_event) => {
   const user = getAuthUser(session); // throws error if user not found
 
   // Get validated conversation body
-  const body = await getConversationBody(_event);
+  const validatedBody = await getConversationBody(_event);
 
   // Check if user is allowed to access the chat and has enough credits
-  const chat = await getChatForUser({ chatId: body.chatId, userId: user.id });
+  const chat = await getChatForUser({ chatId: validatedBody.chatId, userId: user.id });
 
   // Check if chat has messages
-  const lastMessage = getLastChatMessage(body.messages);
+  const lastMessage = getLastChatMessage(validatedBody.messages);
 
   // Store last message in the database
   const message = await chatService.createMessage(
@@ -56,19 +56,19 @@ export default defineEventHandler(async (_event) => {
   );
 
   // Update chat title if it's the first message of the chat
-  if (body.messages.length === 1) {
+  if (validatedBody.messages.length === 1) {
     event(
       ChatEvent.FIRST_USERMESSAGE,
       FirstUserMessageEventDto.fromInput({
         chatId: chat.id,
         userId: user.id,
-        messageContent: body.messages[0].content,
+        messageContent: validatedBody.messages[0].content,
       }),
     );
   }
 
   // Format chat messages
-  const chatMessages = formatChatMessages(body.messages);
+  const chatMessages = formatChatMessages(validatedBody.messages);
 
   let systemPrompt = undefined;
 
@@ -99,10 +99,12 @@ export default defineEventHandler(async (_event) => {
     return transform;
   };
 
-  const controller = new AbortController();
+  const abortController = new AbortController();
 
   // listen for response events
-  _event.node.res.on('close', () => onResponseClose(_event, controller, chat, user, body, gathered));
+  _event.node.res.on('close', () =>
+    onResponseClose(_event, abortController, { chat, user, body: validatedBody, gathered }),
+  );
   _event.node.res.on('error', (error) => onResponseError(_event, error));
   _event.node.res.on('drain', () => logger.debug('Response drain'));
 
@@ -115,14 +117,14 @@ export default defineEventHandler(async (_event) => {
 
   // stream data
   const streamData = {
-    signal: controller.signal,
+    signal: abortController.signal,
     userId: user.id,
     chatId: chat.id,
-    model: body.model,
-    provider: body.provider,
+    model: validatedBody.model,
+    provider: validatedBody.provider,
     messages: chatMessages,
     systemPrompt,
-    maxTokens: body.maxTokens,
+    maxTokens: validatedBody.maxTokens,
   };
 
   const generator = generateStream(streamData);
@@ -152,28 +154,30 @@ function onStreamError(_event: H3Event, stream: any, error: any) {
 function onResponseClose(
   _event: H3Event,
   controller: AbortController,
-  chat: any,
-  user: any,
-  body: any,
-  gathered: string | undefined,
+  payload: {
+    chat: any;
+    user: any;
+    body: any;
+    gathered: string | undefined;
+  },
 ) {
   controller.abort();
 
-  if (!gathered || gathered.length === 0) {
+  if (!payload.gathered || payload.gathered.length === 0) {
     logger.error('completion finished but gathered text empty. This is causing errors on token calc!');
   }
 
-  const inputTokens = tokenizerService.getTokens(body.messages[body.messages.length - 1].content);
-  const outputTokens = tokenizerService.getTokens(gathered);
+  const inputTokens = tokenizerService.getTokens(payload.body.messages[payload.body.messages.length - 1].content);
+  const outputTokens = tokenizerService.getTokens(payload.gathered);
 
   // creates the response message in the database
   event(
     ChatEvent.STREAM_FINISHED,
     StreamFinishedEventDto.fromInput({
-      chatId: chat.id,
-      userId: user.id,
-      assistantId: chat.assistant.id,
-      messageContent: gathered,
+      chatId: payload.chat.id,
+      userId: payload.user.id,
+      assistantId: payload.chat.assistant.id,
+      messageContent: payload.gathered,
     }),
   );
 
@@ -181,10 +185,10 @@ function onResponseClose(
   event(
     UsageEvent.TRACKTOKENS,
     TrackTokensDto.fromInput({
-      userId: user.id,
+      userId: payload.user.id,
       llm: {
-        provider: body.provider,
-        model: body.model,
+        provider: payload.body.provider,
+        model: payload.body.model,
       },
       usage: {
         promptTokens: inputTokens.tokenCount,
@@ -245,7 +249,7 @@ function handleStreamGeneratorError(error: any) {
 }
 
 async function* generateStream(payload: StreamPayload) {
-  const model = AiCompletionFactory.fromInput(payload.provider, payload.model);
+  const model = AiModelFactory.fromInput({ provider: payload.provider, model: payload.model });
   const availableTools = payload.provider !== 'groq' ? getTools(toolStartCallback(payload)) : undefined;
 
   try {

@@ -10,7 +10,7 @@ import { trackTokensEvent } from '../events/track-tokens.event';
 import { ChatService } from '../services/chat.service';
 import { useEvents } from '../events/useEvents';
 import consola from 'consola';
-import { AiCompletionFactory } from '../factories/completionFactory';
+import { AiModelFactory } from '../factories/aiModelFactory';
 import { generateText, type CoreMessage } from 'ai';
 import prisma from '../prisma';
 
@@ -28,6 +28,9 @@ const logger = consola.create({}).withTag('bullmq-workers');
 export default defineNitroPlugin((nitroApp) => {
   const { createWorker } = useBullmq();
 
+  /**
+   * Create chat title worker
+   */
   const createChatTitle = createWorker(QueueEnum.CREATE_CHAT_TITLE, async (job) => {
     const payload = job.data as FirstUserMessageEventDto;
 
@@ -48,9 +51,8 @@ You always only respond with the chat title.`,
     ] satisfies CoreMessage[];
 
     try {
-      const model = AiCompletionFactory.fromInput('openai', 'gpt-4o-mini');
       const { text } = await generateText({
-        model,
+        model: AiModelFactory.fromInput({ provider: 'openai', model: 'gpt-4o-mini' }),
         messages,
         maxTokens: 20,
       });
@@ -66,6 +68,9 @@ You always only respond with the chat title.`,
     }
   });
 
+  /**
+   * Track tokens usage worker
+   */
   const tokenUsageQueue = createWorker(QueueEnum.TOKENUSAGE, async (job) => {
     switch (job.name) {
       case JobEnum.TRACKTOKENS:
@@ -76,6 +81,9 @@ You always only respond with the chat title.`,
     }
   });
 
+  /**
+   * Workflow row completed worker
+   */
   const workflowRowCompletion = createWorker(QueueEnum.WORKFLOW_ROW_COMLETED, async (job) => {
     const { event } = useEvents();
     const { data } = job;
