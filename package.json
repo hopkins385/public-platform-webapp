@@ -48,7 +48,7 @@
     "@vue/test-utils": "^2.4.6",
     "exponential-backoff": "^3.1.1",
     "h3-formidable": "^1.0.0",
-    "nuxt": "^3.13.1",
+    "nuxt": "^3.13.2",
     "nuxt-svgo": "^4.0.5",
     "nuxt-zod-i18n": "^1.9.0",
     "pinia": "^2.2.2",

@@ -135,6 +135,7 @@
       <div class="editor__menu-button" @click="onRedoClick()">
         <Redo2Icon class="size-4" />
       </div>
+      <!--
       <EditorAIMenu
         :disabled="!hasTextSelected"
         :is-loading="isLoading"
@@ -147,11 +148,13 @@
         @spelling-grammar-click="() => onSpellingGrammarClick()"
         @translate-click="(lang) => onTranslateClick(lang)"
       />
+      -->
       <div v-if="isLoading" class="flex items-center justify-center">
         <Loader2Icon class="size-6 animate-spin text-slate-300" />
       </div>
     </div>
-    <div class="ml-auto flex hidden items-center space-x-4">
+    <!--
+    <div class="ml-auto flex items-center space-x-4">
       <div class="text-sm">Autocomplete</div>
       <Switch
         :checked="autocompleteIsActive"
@@ -159,5 +162,6 @@
         @update:checked="onAutocompleteIsActiveChange"
       />
     </div>
+    -->
   </div>
 </template>
