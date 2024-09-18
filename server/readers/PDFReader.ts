@@ -1,11 +1,11 @@
-import { Document, FileReader } from './types';
+import { RagDocument, FileReader } from './types';
 import { extractText } from 'unpdf';
 
 /**
  * Read the text of a PDF
  */
 export class PDFReader extends FileReader {
-  async loadDataAsContent(content: Uint8Array): Promise<Document[]> {
+  async loadDataAsContent(content: Uint8Array): Promise<RagDocument[]> {
     // XXX: create a new Uint8Array to prevent "Please provide binary data as `Uint8Array`, rather than `Buffer`." error if a Buffer passed
     if (content instanceof Buffer) {
       content = new Uint8Array(content);
@@ -16,7 +16,7 @@ export class PDFReader extends FileReader {
         page_number: page + 1,
         total_pages: totalPages,
       };
-      return new Document({ text, metadata });
+      return new RagDocument({ text, metadata });
     });
   }
 }

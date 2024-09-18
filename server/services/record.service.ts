@@ -1,19 +1,16 @@
 import type { Media } from '@prisma/client';
 import type { CreateRecordDto, FindRecordsDto } from './dto/record.dto';
 import type { ExtendedPrismaClient } from '../prisma';
-import { MediaService } from './media.service';
-import { VectorService } from './vector.service';
+import type { MediaService } from './media.service';
+import type { EmbeddingService } from './embedding.service';
 
 export class RecordService {
-  private readonly prisma: ExtendedPrismaClient;
-  private readonly mediaService: MediaService;
-  private readonly vectorService: VectorService;
-
-  constructor(prisma: ExtendedPrismaClient, mediaService: MediaService, vectorService: VectorService) {
-    if (!prisma) throw new Error('Prisma client not found');
-    this.prisma = prisma;
-    this.mediaService = mediaService;
-    this.vectorService = vectorService;
+  constructor(
+    private readonly prisma: ExtendedPrismaClient,
+    private readonly mediaService: MediaService,
+    private readonly embeddingService: EmbeddingService,
+  ) {
+    if (!this.prisma) throw new Error('Prisma client not found');
   }
 
   async create(payload: CreateRecordDto) {
@@ -53,6 +50,7 @@ export class RecordService {
   }
 
   async embedMedia(media: Media, payload: CreateRecordDto) {
+    throw new Error('Not implemented');
     const { filePath, fileMime } = media;
     // create record
     const newRecord = await this.prisma.record.create({
@@ -62,9 +60,11 @@ export class RecordService {
       },
     });
 
+    // TODO: fix emebd file
+
     try {
       // store/embed file to vectorStore
-      const embedDocuments = await this.vectorService.createIndex({
+      const embedDocuments = await this.embeddingService.embedFile({
         mediaId: media.id,
         recordId: newRecord.id,
         mimeType: fileMime,

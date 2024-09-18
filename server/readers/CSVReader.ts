@@ -1,5 +1,5 @@
-import { Document, FileReader } from './types';
 import type { ParseConfig } from 'papaparse';
+import { RagDocument, FileReader } from './types';
 import Papa from 'papaparse';
 
 /**
@@ -38,7 +38,7 @@ export class PapaCSVReader extends FileReader {
    * @param {GenericFileSystem} [fs=DEFAULT_FS] - The file system to use for reading the file.
    * @returns {Promise<Document[]>}
    */
-  async loadDataAsContent(fileContent: Uint8Array): Promise<Document[]> {
+  async loadDataAsContent(fileContent: Uint8Array): Promise<RagDocument[]> {
     const decoder = new TextDecoder('utf-8');
     const fileContentString = decoder.decode(fileContent);
     const result = Papa.parse(fileContentString, this.papaConfig);
@@ -49,9 +49,9 @@ export class PapaCSVReader extends FileReader {
     });
 
     if (this.concatRows) {
-      return [new Document({ text: textList.join(this.rowJoiner) })];
+      return [new RagDocument({ text: textList.join(this.rowJoiner) })];
     } else {
-      return textList.map((text: string) => new Document({ text }));
+      return textList.map((text: string) => new RagDocument({ text }));
     }
   }
 }

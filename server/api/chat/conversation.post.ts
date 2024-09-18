@@ -2,7 +2,6 @@ import type { H3Event } from 'h3';
 import type { StreamTextResult } from 'ai';
 import type { ToolInfoData } from '../../chatTools/chatTools';
 import { ChatToolCallEventDto } from '../../events/dto/chatToolCallEvent.dto';
-import { VectorService } from '../../services/vector.service';
 import { CollectionService } from '~/server/services/collection.service';
 import { TokenizerService } from '~/server/services/tokenizer.service';
 import { getServerSession } from '#auth';
@@ -22,12 +21,15 @@ import { Readable, Transform } from 'stream';
 import prisma from '~/server/prisma';
 import consola from 'consola';
 import qdrant from '~/server/qdrant';
+import { EmbeddingService } from '~/server/services/embedding.service';
+import cohere from '~/server/cohere';
+import openai from '~/server/openai';
 
 const { event } = useEvents();
 
 const chatService = new ChatService(prisma);
 const collectionService = new CollectionService(prisma);
-const vectorService = new VectorService(qdrant);
+const embeddingService = new EmbeddingService(qdrant, openai, cohere);
 const tokenizerService = new TokenizerService();
 
 const logger = consola.create({}).withTag('conversation.post');
@@ -387,7 +389,7 @@ async function checkCollection() {
 
   if (collections.length > 0) {
     const recordIds = collections.map((c) => c.records.map((r) => r.id)).flat();
-    const res = await vectorService.searchIndex({
+    const res = await embeddingService.searchDocsByQuery({
       query: lastMessage.content,
       recordIds,
     });

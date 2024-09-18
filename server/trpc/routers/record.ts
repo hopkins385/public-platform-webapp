@@ -3,13 +3,15 @@ import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { RecordService } from '~/server/services/record.service';
 import { CreateRecordDto, FindRecordsDto } from '~/server/services/dto/record.dto';
-import { VectorService } from '~/server/services/vector.service';
 import prisma from '~/server/prisma';
 import qdrant from '~/server/qdrant';
+import { EmbeddingService } from '~/server/services/embedding.service';
+import openai from '~/server/openai';
+import cohere from '~/server/cohere';
 
 const mediaService = new MediaService(prisma);
-const vectorService = new VectorService(qdrant);
-const recordService = new RecordService(prisma, mediaService, vectorService);
+const embeddingService = new EmbeddingService(qdrant, openai, cohere);
+const recordService = new RecordService(prisma, mediaService, embeddingService);
 
 export const recordRouter = router({
   create: protectedProcedure

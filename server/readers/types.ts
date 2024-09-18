@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import { readFile } from 'fs/promises';
 import { basename, resolve } from 'path';
+import type { Embedding } from '../services/embedding.service';
 
 export enum ObjectType {
   TEXT = 'TEXT',
@@ -13,27 +14,32 @@ export enum ObjectType {
 export type Metadata = Record<string, any>;
 
 export type BaseNodeParams<T extends Metadata = Metadata> = {
-  id_?: string | undefined;
+  id?: string | undefined;
   metadata?: T | undefined;
 };
 
 export type TextNodeParams<T extends Metadata = Metadata> = BaseNodeParams<T> & {
   text?: string | undefined;
+  embedding?: Embedding;
 };
 
 /**
  * A document is just a special text node with a docId.
  */
-export class Document<T extends Metadata = Metadata> {
-  id_: string;
+export class RagDocument<T extends Metadata = Metadata> {
+  id: string;
   text: string;
   metadata: T;
+  embedding: Embedding;
+  mediaId?: string;
+  recordId?: string;
 
   constructor(init: TextNodeParams<T> = {}) {
-    const { id_, metadata } = init || {};
-    this.id_ = id_ ?? randomUUID();
+    const { id, metadata, embedding } = init || {};
+    this.id = id ?? randomUUID();
     this.text = init.text ?? '';
     this.metadata = metadata ?? ({} as T);
+    this.embedding = embedding ?? [];
   }
 
   get type() {
@@ -45,16 +51,16 @@ export class Document<T extends Metadata = Metadata> {
  * A reader takes imports data into Document objects.
  */
 export interface BaseReader {
-  loadData(...args: unknown[]): Promise<Document[]>;
+  loadData(...args: unknown[]): Promise<RagDocument[]>;
 }
 
 /**
  * A FileReader takes file paths and imports data into Document objects.
  */
 export abstract class FileReader implements BaseReader {
-  abstract loadDataAsContent(fileContent: Uint8Array, fileName?: string): Promise<Document[]>;
+  abstract loadDataAsContent(fileContent: Uint8Array, fileName?: string): Promise<RagDocument[]>;
 
-  async loadData(filePath: string): Promise<Document[]> {
+  async loadData(filePath: string): Promise<RagDocument[]> {
     const fileContent = await readFile(filePath);
     const fileName = basename(filePath);
     const docs = await this.loadDataAsContent(fileContent, fileName);
@@ -63,11 +69,15 @@ export abstract class FileReader implements BaseReader {
   }
 
   static addMetaData(filePath: string) {
-    return (doc: Document, index: number) => {
+    return (doc: RagDocument, index: number) => {
       // generate id as loadDataAsContent is only responsible for the content
-      doc.id_ = `${filePath}_${index + 1}`;
+      doc.id = `${toBase64(filePath)}_${index + 1}`;
       doc.metadata['file_path'] = resolve(filePath);
       doc.metadata['file_name'] = basename(filePath);
     };
   }
+}
+
+function toBase64(originalString: string) {
+  return Buffer.from(originalString).toString('base64');
 }
