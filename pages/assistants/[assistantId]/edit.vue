@@ -63,7 +63,7 @@
       description: assistant.value?.description || '',
       systemPrompt: assistant.value?.systemPrompt || '',
       isShared: assistant.value?.isShared || false,
-      functions: ['website'],
+      functions: ['webSearch', 'website', 'ytTranscript'],
     },
   });
 
@@ -94,11 +94,21 @@
 
   const availableFunctions = [
     {
-      id: 'website',
-      label: 'Web Scraper',
+      id: 'webSearch',
+      label: 'Web Search',
       disabled: true,
     },
-  ] as const;
+    {
+      id: 'website',
+      label: 'Website Scraper',
+      disabled: true,
+    },
+    {
+      id: 'ytTranscript',
+      label: 'YouTube Transcript',
+      disabled: true,
+    },
+  ];
 </script>
 
 <template>

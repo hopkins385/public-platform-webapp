@@ -14,12 +14,14 @@ export class RecordService {
   }
 
   async create(payload: CreateRecordDto) {
+    // find media
     const media = await this.mediaService.findFirst(payload.mediaId);
     if (!media) {
       throw new Error('Media not found');
     }
 
     // find record
+    /*
     const record = await this.prisma.record.findFirst({
       select: {
         id: true,
@@ -34,26 +36,25 @@ export class RecordService {
         mediaId: media.id,
       },
     });
+    */
 
+    // TODO: create new record and duplicate chunks but don't embed file again to vector store
+    // for now, just create new record and embed file to vectorStore
+    return this.embedMedia(media, payload);
+
+    /*
     if (!record) {
       // create record and embed file to vectorStore
       return this.embedMedia(media, payload);
     }
 
     if (record.collectionId === payload.collectionId) {
-      // delete the record and the chunks
-      await this.prisma.record.delete({
-        where: {
-          id: record.id,
-        },
-      });
-      return this.embedMedia(media, payload);
-      // throw new Error('Record already exists in this collection');
+      throw new Error('Record already exists in this collection');
     }
 
-    // TODO: create new record and duplicate chunks but don't embed file again to vector store
     // for now, just throw an error
     throw new Error('Record already exists in another collection');
+    */
   }
 
   async embedMedia(media: Media, payload: CreateRecordDto) {
@@ -75,7 +76,7 @@ export class RecordService {
           mimeType: fileMime,
           path: filePath,
         },
-        { resetCollection: false }, // TODO: [IMPORTANT] resetCollection will delete all previous embeddings
+        // { resetCollection: true }, // TODO: [IMPORTANT] resetCollection will delete all previous embeddings
       );
 
       const chunksData = embedDocuments.map((doc) => ({
@@ -88,7 +89,7 @@ export class RecordService {
         data: chunksData,
       });
 
-      console.log('embedDocuments:', embedDocuments);
+      // console.log('embedDocuments:', embedDocuments);
 
       return newRecord;
     } catch (e) {
