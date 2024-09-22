@@ -13,8 +13,8 @@ export const useChatSettingsStore = defineStore('chat-settings', {
   state: (): IChatSettings => ({
     temperature: [80],
     presencePenalty: [0],
-    maxTokens: [1500],
-    submitOnEnter: false,
+    maxTokens: [4000],
+    submitOnEnter: true,
     sideBarOpen: false,
     newChatModalOpen: false,
   }),
@@ -45,7 +45,7 @@ export const useChatSettingsStore = defineStore('chat-settings', {
     resetSettings() {
       this.temperature = [80];
       this.presencePenalty = [0];
-      this.maxTokens = [1500];
+      this.maxTokens = [4000];
     },
   },
   persist: true,

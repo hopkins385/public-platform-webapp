@@ -190,7 +190,7 @@
       },
       "maxTokens": {
         "title": "Max Tokens",
-        "description": "The maximum number of tokens (words) to generate in the response. A higher value will make the model generate longer responses."
+        "description": "The maximum number of tokens (words) the model is allowed to generate."
       },
       "onEnterSubmit": {
         "title": "On Enter Send",

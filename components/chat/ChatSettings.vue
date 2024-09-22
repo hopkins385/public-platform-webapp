@@ -93,7 +93,7 @@
           </div>
           <div>{{ settings.getMaxTokens }}</div>
         </div>
-        <Slider v-model="settings.maxTokens" :default-value="[500]" :max="3500" :step="1" class="slider" />
+        <Slider v-model="settings.maxTokens" :default-value="[500]" :max="4000" :step="1" class="slider" />
       </div>
       <div class="flex flex-col">
         <div>
