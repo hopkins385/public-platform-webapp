@@ -21,22 +21,17 @@
   <Dialog v-model:open="open">
     <DialogTrigger as-child>
       <Button variant="outline">
-        Add Record
+        Add File
         <PlusIcon class="ml-2 size-4 stroke-2" />
       </Button>
     </DialogTrigger>
     <DialogContent class="max-w-4xl">
       <DialogHeader>
-        <DialogTitle>Add Record</DialogTitle>
-        <DialogDescription>
-          Choose a file to create a record from.
-        </DialogDescription>
+        <DialogTitle>Add File to Collection</DialogTitle>
+        <DialogDescription> Choose a file to add to collection. </DialogDescription>
       </DialogHeader>
       <Suspense>
-        <RecordAddMediaTable
-          :collection-id="collectionId"
-          @success="() => onSuccess()"
-        />
+        <RecordAddMediaTable :collection-id="collectionId" @success="() => onSuccess()" />
       </Suspense>
       <DialogFooter>
         <Button variant="outline" @click="open = false">Cancel</Button>

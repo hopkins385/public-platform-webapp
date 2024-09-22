@@ -1,5 +1,12 @@
 <script setup lang="ts">
-  import { FileEditIcon, SettingsIcon, SquareArrowOutUpRightIcon, Trash2Icon } from 'lucide-vue-next';
+  import {
+    FileEditIcon,
+    FilesIcon,
+    SettingsIcon,
+    SquareArrowOutUpRightIcon,
+    SquarePlusIcon,
+    Trash2Icon,
+  } from 'lucide-vue-next';
 
   const showConfirmDialog = ref(false);
   const errorAlert = reactive({
@@ -73,7 +80,7 @@
           </TableCell>
           <TableCell class="space-x-2 text-right">
             <LinkButton class="group" variant="outline" size="icon" :to="`/collections/${collection.id}`">
-              <SquareArrowOutUpRightIcon class="size-4 stroke-1.5 text-primary group-hover:stroke-2" />
+              <FilesIcon class="size-4 stroke-1.5 text-primary group-hover:stroke-2" />
             </LinkButton>
             <Button class="group" variant="outline" size="icon" @click="onDelete(collection.id)">
               <Trash2Icon class="size-4 stroke-1.5 text-destructive group-hover:stroke-2" />

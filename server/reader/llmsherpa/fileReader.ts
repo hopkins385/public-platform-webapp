@@ -9,21 +9,35 @@ class LayoutPDFReader {
     const formData = new FormData();
     formData.append('file', new Blob([payloadFile[1]], { type: payloadFile[2] }), payloadFile[0]);
 
-    const response = await this.apiConnection.post(this.parserApiUrl, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const headers = {
+      'Content-Type': 'multipart/form-data',
+    };
 
-    return response.data;
+    try {
+      const response = await fetch(this.parserApiUrl, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return response.json();
+    } catch (e) {
+      console.log('error:', e);
+      return null;
+    }
   }
 
-  async readPdf(pathOrUrl: string, contents?: Buffer): Promise<ParsedDocument> {
+  async readPdf(payload: { path: string; contents?: Buffer }): Promise<ParsedDocument> {
     let pdfFile: [string, Buffer, string];
 
-    if (contents) {
-      pdfFile = [path.basename(pathOrUrl), contents, 'application/pdf'];
+    if (payload.contents) {
+      pdfFile = [path.basename(payload.path), payload.contents, 'application/pdf'];
     } else {
-      const fileName = path.basename(pathOrUrl);
-      const fileData = await fs.promises.readFile(pathOrUrl);
+      const fileName = path.basename(payload.path);
+      const fileData = await fs.promises.readFile(payload.path);
       pdfFile = [fileName, fileData, 'application/pdf'];
     }
 

@@ -12,7 +12,7 @@ export default defineNuxtConfig({
     },
   },
   devtools: {
-    enabled: false,
+    enabled: true,
   },
   telemetry: false,
   debug: false,

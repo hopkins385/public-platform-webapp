@@ -29,8 +29,8 @@
   }
 
   // set meta label
-  const route = useRoute();
-  route.meta.breadcrumb.label = collection.value?.name || '...';
+  // const route = useRoute();
+  // route.meta.breadcrumb.label = collection.value?.name || '...';
 
   async function onRefresh() {
     refresh.value = true;

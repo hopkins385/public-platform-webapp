@@ -26,10 +26,11 @@ import cohere from '~/server/cohere';
 import openai from '~/server/openai';
 
 const { event } = useEvents();
+const config = useRuntimeConfig();
 
 const chatService = new ChatService(prisma);
 const collectionService = new CollectionService(prisma);
-const embeddingService = new EmbeddingService(qdrant, openai, cohere);
+const embeddingService = new EmbeddingService(qdrant, openai, cohere, config.fileReaderServer.url);
 const tokenizerService = new TokenizerService();
 
 const logger = consola.create({}).withTag('conversation.post');
@@ -104,8 +105,9 @@ export default defineEventHandler(async (_event) => {
   const abortController = new AbortController();
 
   // listen for response events
-  _event.node.res.on('close', () =>
-    onResponseClose(_event, abortController, { chat, user, body: validatedBody, gathered }),
+  _event.node.res.on(
+    'close',
+    async () => await onResponseClose(_event, abortController, { chat, user, body: validatedBody, gathered }),
   );
   _event.node.res.on('error', (error) => onResponseError(_event, error));
   _event.node.res.on('drain', () => logger.debug('Response drain'));
@@ -153,7 +155,7 @@ function onStreamError(_event: H3Event, stream: any, error: any) {
   _event.node.res.end();
 }
 
-function onResponseClose(
+async function onResponseClose(
   _event: H3Event,
   controller: AbortController,
   payload: {
@@ -168,9 +170,10 @@ function onResponseClose(
   if (!payload.gathered || payload.gathered.length === 0) {
     logger.error('completion finished but gathered text empty. This is causing errors on token calc!');
   }
-
-  const inputTokens = tokenizerService.getTokens(payload.body.messages[payload.body.messages.length - 1].content);
-  const outputTokens = tokenizerService.getTokens(payload.gathered);
+  // TODO: set tokenizer model based on the user's model
+  // tokenizerService.setModel('gpt-4o' ? 'o200k_base': 'cl100k_base');
+  const inputTokens = await tokenizerService.getTokens(payload.body.messages[payload.body.messages.length - 1].content);
+  const outputTokens = await tokenizerService.getTokens(payload.gathered);
 
   // creates the response message in the database
   event(

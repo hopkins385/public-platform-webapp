@@ -12,21 +12,19 @@
   const errorAlert = reactive({ show: false, message: '' });
   const pendingUpdateId = ref<string | null>(null);
 
-  const { findPaginateAllMediaFor, setPage, setLimit } = useManageMedia();
-
-  setLimit(5);
+  const { findPaginateAllMediaFor, setPage } = useManageMedia();
 
   const { data: auth } = useAuth();
-  const { data, pending, error, refresh } = await findPaginateAllMediaFor({
-    id: auth.value?.user.id,
+  const { data: allMediaPaginated } = await findPaginateAllMediaFor({
+    id: auth.value?.user.id || '',
     type: 'user',
   });
 
-  const media = computed(() => data.value?.media || []);
+  const media = computed(() => allMediaPaginated.value?.media || []);
   const meta = computed(() => {
     return {
-      totalCount: data.value?.meta?.totalCount || 0,
-      currentPage: data.value?.meta?.currentPage || 0,
+      totalCount: allMediaPaginated.value?.meta?.totalCount || 0,
+      currentPage: allMediaPaginated.value?.meta?.currentPage || 0,
     };
   });
 

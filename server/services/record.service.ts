@@ -83,14 +83,17 @@ export class RecordService {
       });
       */
 
-      return newRecord;
+      console.log('embedDocuments:', embedDocuments);
+
+      // return newRecord;
+      return null;
     } catch (e) {
       // delete record if embedding fails
-      await this.prisma.record.delete({
-        where: {
-          id: newRecord.id,
-        },
-      });
+      // await this.prisma.record.delete({
+      //   where: {
+      //     id: newRecord.id,
+      //   },
+      // });
       throw e;
     }
   }
