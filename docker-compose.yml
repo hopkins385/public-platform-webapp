@@ -1,4 +1,4 @@
-name: svenson_platform
+name: ragna_cloud
 
 volumes:
   postgres_data:
@@ -8,7 +8,7 @@ volumes:
 
 services:
   app:
-    container_name: svenson_platform
+    container_name: app
     restart: unless-stopped
     working_dir: /app
     volumes:
@@ -22,7 +22,7 @@ services:
 
   postgres:
     image: postgres:16.2-alpine
-    container_name: svenson_platform_postgresql
+    container_name: postgresql
     restart: always
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -38,7 +38,7 @@ services:
 
   redis:
     image: redis:7.2.4-alpine
-    container_name: svenson_platform_redis
+    container_name: redis
     restart: always
     command: 'redis-server --save 60 1 --loglevel warning --requirepass ${REDIS_PASSWORD}'
     volumes:
@@ -49,9 +49,9 @@ services:
       - app_net
 
   qdrant:
-    container_name: svenson_platform_qdrant
+    image: qdrant/qdrant:latest
+    container_name: qdrant
     restart: unless-stopped
-    image: qdrant/qdrant
     environment:
       QDRANT__TELEMETRY_DISABLED: true
     volumes:
@@ -61,7 +61,16 @@ services:
     networks:
       - app_net
 
+  tika:
+    image: apache/tika:3.0.0.0-BETA2
+    container_name: tika
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - app_net
+
 networks:
   app_net:
-    name: svenson_platform_network
+    name: ragna_network
     driver: bridge

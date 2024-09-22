@@ -9,8 +9,9 @@ import { EmbeddingService } from '~/server/services/embedding.service';
 import openai from '~/server/openai';
 import cohere from '~/server/cohere';
 
+const { url } = useRuntimeConfig().fileReaderServer;
 const mediaService = new MediaService(prisma);
-const embeddingService = new EmbeddingService(qdrant, openai, cohere);
+const embeddingService = new EmbeddingService(qdrant, openai, cohere, url);
 const recordService = new RecordService(prisma, mediaService, embeddingService);
 
 export const recordRouter = router({

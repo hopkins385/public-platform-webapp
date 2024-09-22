@@ -119,6 +119,9 @@ export default defineNuxtConfig({
     scrapeServer: {
       url: process.env.SCRAPE_SERVER_URL,
     },
+    fileReaderServer: {
+      url: process.env.FILE_READER_SERVER_URL,
+    },
     openai: {
       // baseUrl: process.env.OPENAI_BASE_URL,
       apiKey: process.env.OPENAI_API_KEY,

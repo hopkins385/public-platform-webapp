@@ -1,17 +1,18 @@
 import type { QdrantClient } from '@qdrant/js-client-rest';
-import type { RagDocument } from '../readers/types';
-import { FileReaderFactory } from '~/server/factories/fileReaderFactory';
 import type OpenAI from 'openai';
 import consola from 'consola';
 import type { CohereClient } from 'cohere-ai';
 import { similarity } from 'ml-distance';
+import fs from 'fs';
 
 type Vector = number[];
 export type Embedding = Vector;
 
 interface IEmbedFilePayload {
+  mediaId: string;
+  recordId: string;
+  mimeType: string;
   path: string;
-  fileType: string;
 }
 
 interface SearchResultDocument {
@@ -27,13 +28,22 @@ export class EmbeddingService {
     private readonly vectorStore: QdrantClient,
     private readonly openai: OpenAI,
     private readonly cohere: CohereClient,
+    private readonly fileReaderServerUrl: string,
   ) {}
 
   async embedFile(payload: IEmbedFilePayload) {
-    const reader = new FileReaderFactory(payload.fileType);
-    const documents = await reader.loadData(payload.path);
+    const buffer = await fs.promises.readFile(payload.path);
 
-    console.log(documents);
+    const response = await $fetch(this.fileReaderServerUrl, {
+      method: 'PUT',
+      headers: {
+        Accept: 'text/plain',
+        'Content-Type': payload.mimeType,
+      },
+      body: buffer,
+    });
+
+    console.log('response:', response);
 
     throw new Error('Not implemented');
   }
