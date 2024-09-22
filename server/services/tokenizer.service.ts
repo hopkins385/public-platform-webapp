@@ -1,14 +1,12 @@
-import consola from 'consola';
-import { get_encoding as getEncoding, type TiktokenEncoding } from 'tiktoken';
-
-const logger = consola.create({}).withTag('tokenizer.service');
+import type { TiktokenEncoding } from 'tiktoken';
+import { get_encoding as getEncoding, Tiktoken } from 'tiktoken';
 
 export class TokenizerService {
   private model: TiktokenEncoding;
-  private encoder: any;
+  private encoder: Tiktoken;
 
   constructor() {
-    this.model = 'o200k_base';
+    this.model = 'cl100k_base';
     this.encoder = getEncoding(this.model);
   }
 
@@ -19,10 +17,10 @@ export class TokenizerService {
 
   async getTokens(
     content: string | undefined | null,
-  ): Promise<{ tokens: number[]; tokenCount: number; charCount: number }> {
+  ): Promise<{ tokens: Uint32Array; tokenCount: number; charCount: number }> {
     return new Promise((resolve, reject) => {
-      if (!content) {
-        return reject(new Error('Content is empty'));
+      if (!content || !content.length) {
+        return reject(new Error('TokenizerService getTokens: Content is empty'));
       }
 
       const tokens = this.encoder.encode(content);
@@ -33,10 +31,10 @@ export class TokenizerService {
     });
   }
 
-  async detokenize(tokens: number[]): Promise<string> {
+  async detokenize(tokens: Uint32Array): Promise<Uint8Array> {
     return new Promise((resolve, reject) => {
       if (!tokens || !tokens.length) {
-        return reject(new Error('Tokens are empty'));
+        return reject(new Error('TokenizerService detokenize: Tokens are empty'));
       }
 
       const text = this.encoder.decode(tokens);

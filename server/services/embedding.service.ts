@@ -6,7 +6,7 @@ import type { CohereClient } from 'cohere-ai';
 import { similarity } from 'ml-distance';
 import fs from 'fs';
 import LayoutPDFReader from '../reader/llmsherpa/fileReader';
-import { tokenize } from '../../utils/tokenize';
+import { RecursiveCharacterSplitter } from '../splitter/RecursiveCharacterSplitter';
 
 type Vector = number[];
 export type Embedding = Vector;
@@ -42,7 +42,7 @@ export class EmbeddingService {
   async embedFile(payload: IEmbedFilePayload) {
     //
     const buffer = await fs.promises.readFile(payload.path);
-    const response = await $fetch(this.fileReaderServerUrl, {
+    const response = await $fetch<string>(this.fileReaderServerUrl, {
       method: 'PUT',
       headers: {
         Accept: 'text/plain',
@@ -51,11 +51,19 @@ export class EmbeddingService {
       body: buffer,
     });
 
-    console.log('response:', response);
+    // console.log('response:', response);
 
-    const { tokenCount } = await tokenizerService.getTokens(response as string);
+    const splitter = new RecursiveCharacterSplitter(tokenizerService, {
+      chunkSize: 1000,
+      chunkOverlap: 200,
+    });
 
-    console.log('len:', tokenCount);
+    try {
+      const chunks = await splitter.split(response);
+      console.log('chunks:', chunks);
+    } catch (e) {
+      console.error(e);
+    }
 
     // const response = await parser.readPdf({ path: payload.path });
     // console.log('response:', response.toHtml());

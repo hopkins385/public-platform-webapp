@@ -170,10 +170,11 @@ async function onResponseClose(
   if (!payload.gathered || payload.gathered.length === 0) {
     logger.error('completion finished but gathered text empty. This is causing errors on token calc!');
   }
-  // TODO: set tokenizer model based on the user's model
-  // tokenizerService.setModel('gpt-4o' ? 'o200k_base': 'cl100k_base');
-  const inputTokens = await tokenizerService.getTokens(payload.body.messages[payload.body.messages.length - 1].content);
-  const outputTokens = await tokenizerService.getTokens(payload.gathered);
+
+  const { tokenCount: inputTokenCount } = await tokenizerService.getTokens(
+    payload.body.messages[payload.body.messages.length - 1].content,
+  );
+  const { tokenCount: outputTokenCount } = await tokenizerService.getTokens(payload.gathered);
 
   // creates the response message in the database
   event(
@@ -196,9 +197,9 @@ async function onResponseClose(
         model: payload.body.model,
       },
       usage: {
-        promptTokens: inputTokens.tokenCount,
-        completionTokens: outputTokens.tokenCount,
-        totalTokens: inputTokens.tokenCount + outputTokens.tokenCount,
+        promptTokens: inputTokenCount,
+        completionTokens: outputTokenCount,
+        totalTokens: inputTokenCount + outputTokenCount,
       },
     }),
   );
