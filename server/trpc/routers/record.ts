@@ -28,7 +28,8 @@ export const recordRouter = router({
         mediaId: input.mediaId,
         teamId: user.teamId,
       });
-      return recordService.create(payload);
+
+      return await recordService.create(payload);
     }),
 
   findAllPaginated: protectedProcedure

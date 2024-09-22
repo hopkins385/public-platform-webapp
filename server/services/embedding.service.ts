@@ -1,3 +1,4 @@
+import { RagDocument } from './../../.backup/readers/types';
 import { TokenizerService } from '~/server/services/tokenizer.service';
 import type { QdrantClient } from '@qdrant/js-client-rest';
 import type OpenAI from 'openai';
@@ -37,12 +38,13 @@ export class EmbeddingService {
     private readonly openai: OpenAI,
     private readonly cohere: CohereClient,
     private readonly fileReaderServerUrl: string,
+    private readonly collectionName: string = 'media',
   ) {}
 
-  async embedFile(payload: IEmbedFilePayload) {
+  async embedFile(payload: IEmbedFilePayload, options: { resetCollection?: boolean } = {}): Promise<RagDocument[]> {
     //
     const buffer = await fs.promises.readFile(payload.path);
-    const response = await $fetch<string>(this.fileReaderServerUrl, {
+    const text = await $fetch<string>(this.fileReaderServerUrl, {
       method: 'PUT',
       headers: {
         Accept: 'text/plain',
@@ -51,27 +53,39 @@ export class EmbeddingService {
       body: buffer,
     });
 
-    // console.log('response:', response);
-
     const splitter = new RecursiveCharacterSplitter(tokenizerService, {
       chunkSize: 1000,
       chunkOverlap: 200,
     });
 
-    try {
-      const chunks = await splitter.split(response);
-      console.log('chunks:', chunks);
-    } catch (e) {
-      console.error(e);
+    const chunks = await splitter.split(text);
+
+    // create rag documents
+    const documents = chunks.map((chunk, index) => {
+      return new RagDocument({
+        text: chunk,
+        metadata: {
+          mediaId: payload.mediaId,
+          recordId: payload.recordId,
+        },
+      });
+    });
+
+    // assign the embeddings to the documents
+    for (const document of documents) {
+      document.embedding = await this.#getEmbedding(document.text);
     }
 
-    // const response = await parser.readPdf({ path: payload.path });
-    // console.log('response:', response.toHtml());
+    // upsert the documents into the vector store
+    const { status } = await this.#upsertVectorIndex(documents, { resetCollection: options.resetCollection });
+    if (status !== 'completed') {
+      throw new Error('Failed to upsert documents into the vector store');
+    }
 
-    throw new Error('Not implemented');
+    return documents;
   }
 
-  private async embedText(text: string | string[]) {
+  async #getEmbedding(text: string | string[]) {
     let res: OpenAI.Embeddings.CreateEmbeddingResponse;
 
     try {
@@ -93,10 +107,7 @@ export class EmbeddingService {
     return res.data[0].embedding;
   }
 
-  private async searchVectorStore(payload: {
-    embedding: number[];
-    recordIds: string[];
-  }): Promise<SearchResultDocument[]> {
+  async #searchVectorStore(payload: { embedding: number[]; recordIds: string[] }): Promise<SearchResultDocument[]> {
     try {
       const result = await this.vectorStore.search('media', {
         with_payload: {
@@ -129,9 +140,8 @@ export class EmbeddingService {
     }
   }
 
-  private async createMediaCollection() {
-    const collectionName = 'media';
-    await this.vectorStore.createCollection(collectionName, {
+  async #createMediaCollection() {
+    await this.vectorStore.createCollection(this.collectionName, {
       vectors: {
         size: 1536,
         distance: 'Cosine',
@@ -140,52 +150,60 @@ export class EmbeddingService {
 
     //  -------- Create payload indexes -------------
 
-    await this.vectorStore.createPayloadIndex(collectionName, {
+    await this.vectorStore.createPayloadIndex(this.collectionName, {
       wait: true,
       field_name: 'recordId',
       field_schema: 'keyword',
     });
 
-    await this.vectorStore.createPayloadIndex(collectionName, {
+    await this.vectorStore.createPayloadIndex(this.collectionName, {
       wait: true,
       field_name: 'mediaId',
       field_schema: 'keyword',
     });
 
-    await this.vectorStore.createPayloadIndex(collectionName, {
+    await this.vectorStore.createPayloadIndex(this.collectionName, {
       wait: true,
       field_name: 'text',
       field_schema: 'text',
     });
   }
 
-  private async upsertVectorIndex(documents: RagDocument[]) {
-    const collectionName = 'media';
-    if (!(await this.collectionExists(collectionName))) {
-      await this.createMediaCollection();
+  async #upsertVectorIndex(documents: RagDocument[], options: { resetCollection?: boolean } = {}) {
+    try {
+      const collectionExists = await this.#collectionExists(this.collectionName);
+      if (!collectionExists) {
+        await this.#createMediaCollection();
+      } else if (options.resetCollection === true) {
+        await this.vectorStore.deleteCollection(this.collectionName);
+        await this.#createMediaCollection();
+      }
+
+      const embeddingPoints = documents.map((doc) => ({
+        id: doc.id,
+        vector: doc.embedding,
+        payload: {
+          recordId: doc.metadata.recordId,
+          mediaId: doc.metadata.recordId,
+          text: doc.text,
+        },
+      }));
+
+      return await this.vectorStore.upsert(this.collectionName, {
+        wait: true,
+        points: embeddingPoints,
+      });
+    } catch (e) {
+      logger.error(e);
+      return { status: 'failed' };
     }
-
-    const embeddingPoints = documents.map((doc) => ({
-      id: doc.id,
-      vector: doc.embedding,
-      payload: {
-        recordId: doc.recordId,
-        mediaId: doc.recordId,
-        text: doc.text,
-      },
-    }));
-
-    return this.vectorStore.upsert(collectionName, {
-      wait: true,
-      points: embeddingPoints,
-    });
   }
 
-  private async collectionExists(collectionName: string) {
+  async #collectionExists(collectionName: string) {
     return this.vectorStore.collectionExists(collectionName);
   }
 
-  private async reRankDocuments(payload: {
+  async #reRankDocuments(payload: {
     query: string;
     documents: SearchResultDocument[];
   }): Promise<SearchResultDocument[]> {
@@ -218,18 +236,18 @@ export class EmbeddingService {
 
   async searchDocsByQuery(payload: { query: string; recordIds: string[] }): Promise<SearchResultDocument[]> {
     // get the embedding vectors for the query
-    const embedding = await this.embedText(payload.query);
+    const embedding = await this.#getEmbedding(payload.query);
 
     // search the vector store
-    const documents = await this.searchVectorStore({ embedding, recordIds: payload.recordIds });
+    const documents = await this.#searchVectorStore({ embedding, recordIds: payload.recordIds });
 
     // rerank the documents based on the query
-    const rerankedDocuments = await this.reRankDocuments({ query: payload.query, documents });
+    const rerankedDocuments = await this.#reRankDocuments({ query: payload.query, documents });
 
     return rerankedDocuments;
   }
 
-  private async calculateCosineDistances(embeddings: Embedding[] | number[]) {
+  async #calculateCosineDistances(embeddings: Embedding[] | number[]) {
     // Calculate the cosine distance (1 - cosine similarity) between consecutive embeddings.
     const distances: number[] = [];
     for (let i = 0; i < embeddings.length - 1; i++) {
@@ -241,14 +259,15 @@ export class EmbeddingService {
     return distances;
   }
 
-  private async semanticChunkDocs(docs: RagDocument[]): Promise<string[]> {
+  async #semanticChunkDocs(docs: RagDocument[]): Promise<string[]> {
     const breakpointPercentileThreshold = 95;
     const texts = docs.map((doc) => doc.text);
 
-    const embeddings = await this.embedText(texts);
+    // TODO: need to check id this is correct
+    const embeddings = await this.#getEmbedding(texts);
 
     // Calculate the cosine distances between consecutive embeddings.
-    const distances = await this.calculateCosineDistances(embeddings);
+    const distances = await this.#calculateCosineDistances(embeddings);
 
     // Calculate the percentile of the distances.
     const percentile = calculatePercentile(distances, breakpointPercentileThreshold);

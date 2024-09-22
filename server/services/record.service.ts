@@ -41,7 +41,14 @@ export class RecordService {
     }
 
     if (record.collectionId === payload.collectionId) {
-      throw new Error('Record already exists in this collection');
+      // delete the record and the chunks
+      await this.prisma.record.delete({
+        where: {
+          id: record.id,
+        },
+      });
+      return this.embedMedia(media, payload);
+      // throw new Error('Record already exists in this collection');
     }
 
     // TODO: create new record and duplicate chunks but don't embed file again to vector store
@@ -50,28 +57,27 @@ export class RecordService {
   }
 
   async embedMedia(media: Media, payload: CreateRecordDto) {
-    // throw new Error('Not implemented');
     const { filePath, fileMime } = media;
     // create record
-    // const newRecord = await this.prisma.record.create({
-    //   data: {
-    //     collectionId: payload.collectionId,
-    //     mediaId: media.id,
-    //   },
-    // });
-
-    // TODO: fix emebd file
+    const newRecord = await this.prisma.record.create({
+      data: {
+        collectionId: payload.collectionId,
+        mediaId: media.id,
+      },
+    });
 
     try {
       // store/embed file to vectorStore
-      const embedDocuments = await this.embeddingService.embedFile({
-        mediaId: media.id,
-        recordId: '', // newRecord.id,
-        mimeType: fileMime,
-        path: filePath,
-      });
+      const embedDocuments = await this.embeddingService.embedFile(
+        {
+          mediaId: media.id,
+          recordId: newRecord.id,
+          mimeType: fileMime,
+          path: filePath,
+        },
+        { resetCollection: false }, // TODO: [IMPORTANT] resetCollection will delete all previous embeddings
+      );
 
-      /*
       const chunksData = embedDocuments.map((doc) => ({
         recordId: newRecord.id,
         content: doc.text,
@@ -81,19 +87,17 @@ export class RecordService {
       const chunks = await this.prisma.chunk.createMany({
         data: chunksData,
       });
-      */
 
       console.log('embedDocuments:', embedDocuments);
 
-      // return newRecord;
-      return null;
+      return newRecord;
     } catch (e) {
       // delete record if embedding fails
-      // await this.prisma.record.delete({
-      //   where: {
-      //     id: newRecord.id,
-      //   },
-      // });
+      await this.prisma.record.delete({
+        where: {
+          id: newRecord.id,
+        },
+      });
       throw e;
     }
   }

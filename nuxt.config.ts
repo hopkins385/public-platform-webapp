@@ -114,7 +114,6 @@ export default defineNuxtConfig({
     qdrant: {
       host: process.env.QDRANT_HOST,
       port: process.env.QDRANT_PORT,
-      url: process.env.QDRANT_URL,
     },
     scrapeServer: {
       url: process.env.SCRAPE_SERVER_URL,
