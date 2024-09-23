@@ -131,7 +131,7 @@ export default defineEventHandler(async (_event) => {
     maxTokens: validatedBody.maxTokens,
   };
 
-  const generator = generateStream(streamData);
+  const generator = generateStream(_event, streamData);
   const readableStream = Readable.from(generator).pipe(gatherChunks());
   readableStream.on('error', (error) => onStreamError(_event, readableStream, error));
 
@@ -150,7 +150,7 @@ interface StreamPayload {
 }
 
 function onStreamError(_event: H3Event, stream: any, error: any) {
-  logger.error('Generator stream error:', JSON.stringify(error));
+  logger.error('onStreamError:', JSON.stringify(error));
   stream?.destroy();
   _event.node.res.end();
 }
@@ -168,7 +168,8 @@ async function onResponseClose(
   controller.abort();
 
   if (!payload.gathered || payload.gathered.length === 0) {
-    logger.error('completion finished but gathered text empty. This is causing errors on token calc!');
+    logger.info('completion finished but gathered text empty. Aborting.');
+    return;
   }
 
   const { tokenCount: inputTokenCount } = await tokenizerService.getTokens(
@@ -244,17 +245,13 @@ function logWarnings(warnings: any[] | undefined) {
   }
 }
 
-function handleStreamGeneratorError(error: any) {
-  if (error.name === 'AbortError') return;
-  logger.error('Stream generator error:', JSON.stringify(error));
-  throw createError({
-    statusCode: 500,
-    statusMessage: 'Internal Server Error',
-    message: 'Failed to generate stream',
-  });
+function handleStreamGeneratorError(_event: H3Event, error: any) {
+  if (error?.name === 'AbortError') return;
+  logger.error('handleStreamGeneratorError:', JSON.stringify(error));
+  _event.node.res.end();
 }
 
-async function* generateStream(payload: StreamPayload) {
+async function* generateStream(_event: H3Event, payload: StreamPayload) {
   const model = AiModelFactory.fromInput({ provider: payload.provider, model: payload.model });
   const availableTools = payload.provider !== 'groq' ? getTools(toolStartCallback(payload)) : undefined;
 
@@ -271,8 +268,8 @@ async function* generateStream(payload: StreamPayload) {
     logWarnings(initialResult.warnings);
 
     yield* handleStream(initialResult, payload, model, availableTools);
-  } catch (error: any) {
-    handleStreamGeneratorError(error);
+  } catch (error) {
+    handleStreamGeneratorError(_event, error);
   }
 }
 
