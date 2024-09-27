@@ -1,11 +1,11 @@
 services:
-  #app:
-  #  image: ragna/cloud-platform-dev
-  #  volumes:
-  #    - /app/node_modules
-  #  ports:
-  #    - 3000:3000
-  #  command: npm run dev
+  app:
+    image: ragna/cloud-platform-dev
+    volumes:
+      - /app/node_modules
+    ports:
+      - 3000:3000
+    command: npm run dev
 
   postgres:
     ports:

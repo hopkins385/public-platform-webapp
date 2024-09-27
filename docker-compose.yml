@@ -7,18 +7,18 @@ volumes:
   app_uploads:
 
 services:
-  # app:
-  #   container_name: app
-  #   restart: unless-stopped
-  #   working_dir: /app
-  #   volumes:
-  #     - app_uploads:/app/uploads:rw
-  #   env_file:
-  #     - .env
-  #   security_opt:
-  #     - no-new-privileges:true
-  #   networks:
-  #     - app_net
+  app:
+    container_name: app
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - app_uploads:/app/uploads:rw
+    env_file:
+      - .env
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - app_net
 
   postgres:
     image: postgres:17.0-alpine3.20

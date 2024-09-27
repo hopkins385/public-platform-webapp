@@ -1,13 +1,13 @@
-import { RagDocument } from './../../.backup/readers/types';
-import { TokenizerService } from '~/server/services/tokenizer.service';
 import type { QdrantClient } from '@qdrant/js-client-rest';
 import type OpenAI from 'openai';
-import consola from 'consola';
 import type { CohereClient } from 'cohere-ai';
+import { RagDocument } from '~/server/reader/types';
+import { TokenizerService } from '~/server/services/tokenizer.service';
+import consola from 'consola';
 import { similarity } from 'ml-distance';
 import fs from 'fs';
 import LayoutPDFReader from '../reader/llmsherpa/fileReader';
-import { RecursiveCharacterSplitter } from '../splitter/RecursiveCharacterSplitter';
+import { RecursiveCharacterSplitter } from '~/server/splitter/RecursiveCharacterSplitter';
 
 type Vector = number[];
 export type Embedding = Vector;
