@@ -1,11 +1,11 @@
 services:
-  app:
-    image: ragna/cloud-platform-dev
-    volumes:
-      - /app/node_modules
-    ports:
-      - 3000:3000
-    command: npm run dev
+  #app:
+  #  image: ragna/cloud-platform-dev
+  #  volumes:
+  #    - /app/node_modules
+  #  ports:
+  #    - 3000:3000
+  #  command: npm run dev
 
   postgres:
     ports:
@@ -18,3 +18,7 @@ services:
   qdrant:
     ports:
       - 6333:6333
+
+  tika:
+    ports:
+      - 5010:5001

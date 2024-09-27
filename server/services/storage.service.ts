@@ -2,23 +2,15 @@ import fs from 'fs-extra';
 import path from 'path';
 import { existsSync } from 'fs';
 import { CreateMediaDto } from './dto/media.dto';
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import type { S3Client } from '@aws-sdk/client-s3';
+import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import type { UploadFiletDto } from './dto/file.dto';
 
-const { accountId, accessKeyId, secretAccessKey, bucket } = useRuntimeConfig().cloudflare;
-
 export class StorageService {
-  private readonly s3Client: S3Client;
-  constructor() {
-    this.s3Client = new S3Client({
-      region: 'auto',
-      endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-      credentials: {
-        accessKeyId: accessKeyId,
-        secretAccessKey: secretAccessKey,
-      },
-    });
-  }
+  constructor(
+    private readonly s3Client: S3Client,
+    private readonly bucket: string = 'ragna-app',
+  ) {}
 
   async uploadFile(payload: UploadFiletDto): Promise<CreateMediaDto> {
     if (!payload.file.mimetype) {
@@ -88,7 +80,7 @@ export class StorageService {
     const fileBlob = await fs.readFile(payload.file.filepath);
 
     const putObjectCommand = new PutObjectCommand({
-      Bucket: bucket,
+      Bucket: this.bucket,
       Key: `uploads/${payload.userId}/${fileName}`,
       Body: fileBlob,
       ContentType: payload.file.mimetype,
@@ -114,7 +106,7 @@ export class StorageService {
 
   async downloadFile(path: string): Promise<Buffer> {
     const getObjectCommand = new GetObjectCommand({
-      Bucket: bucket,
+      Bucket: this.bucket,
       Key: path,
     });
     const { Body } = await this.s3Client.send(getObjectCommand);
@@ -141,7 +133,7 @@ export class StorageService {
   async deleteFile(path: string): Promise<boolean> {
     // await fs.unlink(path);
     const deleteObjectCommand = new DeleteObjectCommand({
-      Bucket: bucket,
+      Bucket: this.bucket,
       Key: path,
     });
     await this.s3Client.send(deleteObjectCommand);

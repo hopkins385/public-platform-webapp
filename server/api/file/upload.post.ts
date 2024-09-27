@@ -1,3 +1,4 @@
+import { MediaAbleService } from './../../services/media-able.service';
 import { readFiles } from 'h3-formidable';
 import type { Options as FormidableOptions } from 'formidable';
 import { getServerSession } from '#auth';
@@ -7,9 +8,21 @@ import { StorageService } from '~/server/services/storage.service';
 import consola from 'consola';
 import { UploadFiletDto } from '~/server/services/dto/file.dto';
 import prisma from '~/server/prisma';
+import { S3Client } from '@aws-sdk/client-s3';
 
-const storageService = new StorageService();
-const mediaService = new MediaService(prisma);
+const { accountId, accessKeyId, secretAccessKey, bucket } = useRuntimeConfig().cloudflare;
+const s3Client = new S3Client({
+  region: 'auto',
+  endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: accessKeyId,
+    secretAccessKey: secretAccessKey,
+  },
+});
+
+const storageService = new StorageService(s3Client, bucket);
+const mediaAbleService = new MediaAbleService(prisma);
+const mediaService = new MediaService(prisma, mediaAbleService, storageService);
 
 const logger = consola.create({}).withTag('api.upload.post');
 

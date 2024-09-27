@@ -1,4 +1,4 @@
 {
   "upgrade": false,
-  "reject": ["next-auth", "happy-dom"]
+  "reject": ["next-auth", "@aws-sdk/client-s3"]
 }

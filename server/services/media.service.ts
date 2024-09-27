@@ -2,21 +2,18 @@ import type { ExtendedPrismaClient } from '../prisma';
 import type { MediaAbleDto } from './dto/media-able.dto';
 import { CreateMediaAbleDto } from './dto/media-able.dto';
 import type { CreateMediaDto } from './dto/media.dto';
-import { MediaAbleService } from './media-able.service';
-import { StorageService } from './storage.service';
+import type { MediaAbleService } from './media-able.service';
+import type { StorageService } from './storage.service';
 
 export class MediaService {
-  private readonly prisma: ExtendedPrismaClient;
-  private readonly mediaAbleService: MediaAbleService;
-  private readonly storageService: StorageService;
-
-  constructor(prisma: ExtendedPrismaClient) {
+  constructor(
+    private readonly prisma: ExtendedPrismaClient,
+    private readonly mediaAbleService: MediaAbleService,
+    private readonly storageService: StorageService,
+  ) {
     if (!prisma) {
       throw new Error('Prisma client not found');
     }
-    this.prisma = prisma;
-    this.mediaAbleService = new MediaAbleService(prisma);
-    this.storageService = new StorageService();
   }
 
   async create(payload: CreateMediaDto) {

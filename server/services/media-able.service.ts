@@ -2,13 +2,10 @@ import type { ExtendedPrismaClient } from '../prisma';
 import type { AttachMediaAbleDto, DetachMediaAbleDto, MediaAbleDto } from './dto/media-able.dto';
 
 export class MediaAbleService {
-  private readonly prisma: ExtendedPrismaClient;
-
-  constructor(prisma: ExtendedPrismaClient) {
+  constructor(private readonly prisma: ExtendedPrismaClient) {
     if (!prisma) {
       throw new Error('Prisma client not found');
     }
-    this.prisma = prisma;
   }
 
   // create(payload: CreateMediaAbleDto) {
