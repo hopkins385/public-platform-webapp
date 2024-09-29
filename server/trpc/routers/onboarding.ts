@@ -13,10 +13,14 @@ export const onboardingRouter = router({
       }),
     )
     .mutation(async ({ ctx: { user }, input }) => {
-      const result = await createNewUserAction.run({
-        userId: user.id,
-        orgName: input.orgName,
-      });
-      return { success: true };
+      try {
+        const result = await createNewUserAction.run({
+          userId: user.id,
+          orgName: input.orgName,
+        });
+        return { success: true };
+      } catch (error) {
+        return { success: false };
+      }
     }),
 });

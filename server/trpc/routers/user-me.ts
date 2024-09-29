@@ -15,20 +15,14 @@ export const userMeRouter = router({
     .input(
       z.object({
         data: z.object({
-          firstName: z.string().optional(),
-          lastName: z.string().optional(),
+          firstName: z.string().min(1).max(100),
+          lastName: z.string().min(1).max(100),
         }),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx: { user }, input }) => {
       const { data } = input;
-      const name = `${data.firstName} ${data.lastName}`;
-      // wait for 500 ms to show the loading state
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      // return await .user.update({
-      //   where: { id: ctx.user.id },
-      //   data: { name, ...data },
-      // });
+      return await userService.updateUserName({ userId: user.id, ...data });
     }),
   updatePassword: protectedProcedure
     .input(
@@ -38,7 +32,7 @@ export const userMeRouter = router({
       }),
     )
     .mutation(async ({ ctx: { user }, input }) => {
-      return userService.updatePassword(user.id, input.currentPassword, input.newPassword);
+      return await userService.updatePassword(user.id, input.currentPassword, input.newPassword);
     }),
   delete: protectedProcedure
     .input(
@@ -51,6 +45,6 @@ export const userMeRouter = router({
       if (user.id !== input.userId.toLowerCase()) {
         throw new Error('Invalid user');
       }
-      return userService.softDelete(user.id, input.password);
+      return await userService.softDelete(user.id, input.password);
     }),
 });

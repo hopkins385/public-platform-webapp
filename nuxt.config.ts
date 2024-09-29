@@ -154,7 +154,7 @@ export default defineNuxtConfig({
     globalAppMiddleware: true,
     provider: {
       type: 'authjs',
-      // defaultProvider: 'auth0',
+      // defaultProvider: 'auth0', // wait until https://github.com/unjs/h3/pull/888 is merged
     },
   },
   /*

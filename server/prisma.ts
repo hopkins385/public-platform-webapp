@@ -13,7 +13,7 @@ const prismaClientSingleton = () => {
     .$extends(cuid2Extension())
     .$extends(pagination())
     .$extends({
-      name: 'hasEmailVerified',
+      name: 'userExtensions',
       result: {
         user: {
           hasEmailVerified: {
@@ -32,7 +32,7 @@ const prismaClientSingleton = () => {
       },
     })
     .$extends({
-      name: 'isExternal',
+      name: 'mediaExtensions',
       result: {
         media: {
           isExternal: {

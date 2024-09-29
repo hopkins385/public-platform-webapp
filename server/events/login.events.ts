@@ -9,5 +9,10 @@ export async function updateLastLogin(user: any) {
     email: user.email,
     lastLoginAt: new Date(),
   });
-  await userService.updateLastLogin(payload);
+  try {
+    return await userService.updateLastLogin(payload);
+  } catch (error) {
+    // console.error('Error updating last login', error);
+    // silently fail
+  }
 }

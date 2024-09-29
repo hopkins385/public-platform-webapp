@@ -43,6 +43,13 @@ export class CreatesNewUserAction {
     this.userId = userId;
   }
 
+  async updateUserName(pay: { firstName: string; lastName: string }) {
+    return this.prisma.user.update({
+      where: { id: this.userId },
+      data: { firstName: pay.firstName, lastName: pay.lastName, name: `${pay.firstName} ${pay.lastName}` },
+    });
+  }
+
   async createOrganization(payload: NewOrganizationDto) {
     return this.prisma.organisation.create({
       data: {
@@ -175,6 +182,8 @@ export class CreatesNewUserAction {
     }
     try {
       this.setUserId(userId);
+
+      await this.updateUserName({ firstName: 'User', lastName: 'Name' }); // TODO: Update with actual user name
 
       const org = await this.createOrganization({ name: orgName });
 

@@ -11,7 +11,7 @@
   const isLoading = ref(false);
 
   const { getMe } = useManageMyUserProfile();
-  const { data: user, refresh } = await getMe();
+  const { data: user, refresh: refreshUserData } = await getMe();
   const { getCheckoutUrl } = useStripe();
 
   const team = computed(() => {
@@ -29,7 +29,7 @@
     };
   });
 
-  const onManageSubscriptionClick = async () => {
+  async function onManageSubscriptionClick() {
     isLoading.value = true;
     try {
       const { data } = await getCheckoutUrl();
@@ -40,9 +40,13 @@
     } finally {
       isLoading.value = false;
     }
-  };
+  }
 
-  const { data: auth } = useAuth();
+  async function onRefresh() {
+    await refreshUserData();
+  }
+
+  // const { data: auth } = useAuth();
 </script>
 
 <template>
@@ -64,7 +68,7 @@
             firstName: user?.firstName ?? '',
             lastName: user?.lastName ?? '',
           }"
-          @refresh="refresh"
+          @refresh="onRefresh"
         />
       </BoxContainer>
       <div class="col-span-1 grid grid-cols-1 space-y-6 text-sm">

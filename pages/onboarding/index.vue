@@ -8,7 +8,7 @@
     layout: 'onboarding',
     title: 'onboarding.meta.title',
   });
-  const { data: auth } = useAuth();
+  const { data: auth, getSession } = useAuth();
   const user = computed(() => auth.value?.user);
 
   const { onboardUser } = useOnboarding();
@@ -20,6 +20,9 @@
     isLoading.value = true;
     onboardUser({ orgName: orgName.value })
       .then(async () => {
+        // refresh session
+        await getSession();
+        // navigate to user profile
         await navigateTo('/user/profile');
       })
       .catch((error) => console.error(error))

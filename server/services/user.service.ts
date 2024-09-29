@@ -280,8 +280,8 @@ export class UserService {
     const user = await this.prisma.user.findFirst({
       where: { id: userId },
     });
-    if (!user) {
-      throw new Error('User not found');
+    if (!user || !user.password) {
+      throw new Error('User not found or password not set');
     }
     const result = await comparePasswords(currentPassword, user.password);
     if (!result) {
@@ -295,14 +295,10 @@ export class UserService {
   }
 
   async updateLastLogin(data: LastLoginDto) {
-    try {
-      return await this.prisma.user.update({
-        where: { email: data.email },
-        data: { lastLoginAt: data.lastLoginAt },
-      });
-    } catch (error: any) {
-      console.log('Cannot update users last login, Error is: ', error?.meta);
-    }
+    return this.prisma.user.update({
+      where: { email: data.email, deletedAt: null },
+      data: { lastLoginAt: data.lastLoginAt },
+    });
   }
 
   async confirmEmail(payload: { userId: string; token: string }) {
@@ -374,6 +370,13 @@ export class UserService {
         name: `${payload.firstName} ${payload.lastName}`,
         updatedAt: new Date(),
       },
+    });
+  }
+
+  async updateUserName(pay: { userId: string; firstName: string; lastName: string }) {
+    return this.prisma.user.update({
+      where: { id: pay.userId },
+      data: { firstName: pay.firstName, lastName: pay.lastName, name: `${pay.firstName} ${pay.lastName}` },
     });
   }
 
