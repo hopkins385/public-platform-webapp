@@ -1,13 +1,11 @@
 import type { DefaultSession } from 'next-auth';
 import { NuxtAuthHandler } from '#auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
 import Auth0Provider from 'next-auth/providers/auth0';
 import { UserService } from '~/server/services/user.service';
 import { AuthEvent } from '~/server/utils/enums/auth-event.enum';
 import { useEvents } from '~/server/events/useEvents';
-import prisma from '~/server/prisma';
-import { loginSchema } from './loginSchema';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import prisma from '~/server/prisma';
 
 declare module 'next-auth' {
   interface Session {
@@ -31,6 +29,8 @@ export interface SessionUser {
   roles: string[];
   onboardingDone: boolean;
 }
+
+const { secret, auth0 } = useRuntimeConfig().auth;
 
 const { event } = useEvents();
 const userService = new UserService(prisma);
@@ -57,8 +57,6 @@ function getFirstTeam(teams: any) {
   };
 }
 
-const { secret, auth0 } = useRuntimeConfig().auth;
-
 export default NuxtAuthHandler({
   // @ts-expect-error
   adapter: PrismaAdapter(prisma),
@@ -68,10 +66,7 @@ export default NuxtAuthHandler({
     signOut: '/logout',
   },
   session: {
-    // strategy: 'database',
-    strategy: 'jwt',
-    maxAge: 60 * 60 * 24 * 30, // 30 days
-    updateAge: 60 * 60 * 24, // 24 hours
+    strategy: 'database',
   },
   callbacks: {
     signIn({ user, account, profile, email, credentials }) {
@@ -79,25 +74,19 @@ export default NuxtAuthHandler({
       event(AuthEvent.LOGIN, user);
       return true;
     },
-    jwt({ token, user }) {
-      const isSignIn = user ? true : false;
-      if (isSignIn) {
-        token.id = user ? user.id || '' : '';
-        token.teams = user ? (user as any).teams || [] : [];
-        token.roles = user ? (user as any).roles || [] : [];
-        token.onboardingDone = user ? (user as any).onboardingDone || false : false;
-      }
-      return token;
-    },
-
     async session({ session, token, user }) {
-      session.user.id = token.sub!;
-      session.user.roles = (token as any).roles;
-      session.user.onboardingDone = (token as any).onboardingDone;
+      const fullUser = await userService.getUserById(user.id);
+      // TODO: cache fullUser
 
-      const firstTeam = getFirstTeam(token.teams);
-      session.user.teamId = firstTeam.teamId;
-      session.user.orgId = firstTeam.orgId;
+      if (!fullUser) {
+        return session;
+      }
+      const { teamId, orgId } = getFirstTeam(fullUser.teams);
+      session.user.id = fullUser.id;
+      session.user.teamId = teamId;
+      session.user.orgId = orgId;
+      session.user.roles = getRoles(fullUser);
+      session.user.onboardingDone = fullUser.onboardedAt !== null;
 
       return session;
     },
@@ -105,64 +94,15 @@ export default NuxtAuthHandler({
 
   providers: [
     // @ts-expect-error
-    CredentialsProvider.default({
-      authorize: authorize(),
+    Auth0Provider.default({
+      clientId: auth0.clientId,
+      clientSecret: auth0.clientSecret,
+      issuer: auth0.domain,
+      authorization: {
+        params: {
+          prompt: 'login',
+        },
+      },
     }),
   ],
 });
-
-function authorize() {
-  return async (credentials: Record<'email' | 'password', string> | undefined) => {
-    // console.log('credentials in authorize', credentials);
-    if (!credentials) return null;
-    if (!credentials.email) return null;
-    if (!credentials.password) return null;
-
-    // debounce
-    await new Promise((resolve) => setTimeout(resolve, 300));
-
-    let validated: any | null = null;
-
-    // zod validation
-    try {
-      validated = loginSchema.parse({
-        email: credentials.email,
-        password: credentials.password,
-      });
-    } catch (error) {
-      return null;
-    }
-
-    if (!validated) {
-      return null;
-    }
-
-    let user: any | null = null;
-
-    try {
-      user = await userService.getAuthUser({
-        email: validated.email,
-        password: validated.password,
-      });
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
-
-    if (!user || !user.id) {
-      return null;
-    }
-
-    const sessionUser: SessionUser = {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      teamId: user.teams[0]?.teamId || null, // TODO: only first team?
-      teams: user.teams || null, // TODO: is this needed?
-      roles: getRoles(user),
-      onboardingDone: user.onboardedAt !== null,
-    };
-
-    return sessionUser;
-  };
-}
