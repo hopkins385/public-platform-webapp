@@ -10,17 +10,13 @@
   }>();
 
   const onSubmit = () => {
-    console.log('submit');
+    // console.log('submit');
   };
 </script>
 
 <template>
   <form class="space-y-8" @submit.prevent="onSubmit">
-    <FormField
-      v-slot="{ componentField }"
-      name="email"
-      :model-value="user?.email ?? ''"
-    >
+    <FormField v-slot="{ componentField }" name="email" :model-value="user?.email ?? ''">
       <FormItem>
         <FormLabel>
           <div class="flex items-center">
@@ -32,12 +28,7 @@
         </FormLabel>
         <FormControl>
           <div class="flex">
-            <Input
-              type="text"
-              placeholder="email"
-              v-bind="componentField"
-              disabled
-            />
+            <Input type="text" placeholder="email" v-bind="componentField" disabled />
             <div class="flex w-1/2">
               <div class="w-full"></div>
             </div>
@@ -46,7 +37,7 @@
         <FormMessage />
       </FormItem>
     </FormField>
-
+    <!--
     <FormField
       v-slot="{ componentField }"
       name="password"
@@ -76,5 +67,6 @@
         <FormMessage />
       </FormItem>
     </FormField>
+    -->
   </form>
 </template>
