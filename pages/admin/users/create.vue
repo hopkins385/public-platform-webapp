@@ -61,6 +61,7 @@
   <SectionContainer>
     <SectionHeading title="Create User" subtitle="Add a new user to your space" />
     <ErrorAlert v-model="errorAlert.show" :message="errorAlert.message" />
+    <!--
     <BoxContainer>
       <form class="space-y-8" @submit="onSubmit">
         <FormField v-slot="{ componentField }" name="firstName">
@@ -111,7 +112,6 @@
           </FormItem>
         </FormField>
 
-        <!-- isAdmin -->
         <FormField v-slot="{ value, handleChange }" name="isAdmin">
           <FormItem>
             <FormLabel>
@@ -127,5 +127,6 @@
         <Button type="submit">Create User</Button>
       </form>
     </BoxContainer>
+    -->
   </SectionContainer>
 </template>

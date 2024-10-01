@@ -19,11 +19,13 @@
           <div class="h-20 w-60 rounded-lg border-0">Workflows</div>
         </BoxContainer>
       </NuxtLinkLocale>
+      <!--
       <NuxtLinkLocale to="/documents">
         <BoxContainer class="hover:shadow-md">
           <div class="h-20 w-60 rounded-lg border-0">Documents</div>
         </BoxContainer>
       </NuxtLinkLocale>
+      -->
       <NuxtLinkLocale to="/chats">
         <BoxContainer class="hover:shadow-md">
           <div class="h-20 w-60 rounded-lg border-0">Chat</div>

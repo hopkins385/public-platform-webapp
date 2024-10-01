@@ -45,15 +45,19 @@
               <NuxtLinkLocale :to="`/projects/${projectId}`" class="border-b-2"> Workflows </NuxtLinkLocale>
             </div>
           </li>
+          <!--
           <li>|</li>
           <li>
             <div class="flex items-center justify-center space-x-1">
               <span>
                 <FileTextIcon class="default-icon size-4" />
               </span>
+
               <NuxtLinkLocale to="/documents"> Documents </NuxtLinkLocale>
+
             </div>
           </li>
+                -->
         </ul>
       </div>
     </BoxContainer>

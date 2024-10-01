@@ -28,6 +28,8 @@
         isLoading.value = false;
       });
   }
+
+  // onBeforeMount(() => onSubmit());
 </script>
 
 <template>
@@ -35,7 +37,7 @@
     <h2 class="text-2xl font-bold">{{ $t('auth.login') }}</h2>
 
     <LoadingButton :is-loading="isLoading" type="submit" class="w-full" @click="onSubmit">
-      {{ $t('Click to continue') }}
+      {{ $t('Continue to Login') }}
     </LoadingButton>
   </div>
 </template>

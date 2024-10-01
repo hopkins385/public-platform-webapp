@@ -16,6 +16,7 @@
     FolderKanbanIcon,
     BriefcaseBusinessIcon,
     UserIcon,
+    SpeechIcon,
   } from 'lucide-vue-next';
 
   const props = defineProps<{
@@ -68,14 +69,14 @@
         hidden: false,
         children: [],
       },
-      {
+      /*{
         name: 'documents',
         icon: FileTextIcon,
         to: `/documents`,
         label: 'Documents',
         children: [],
       },
-      /*{
+      {
         name: 'editor',
         icon: PenLineIcon,
         to: '/editor',
@@ -119,6 +120,13 @@
         icon: CloudUploadIcon,
         to: '/media',
         label: 'File Manager',
+        children: [],
+      },
+      {
+        name: 'speech',
+        icon: SpeechIcon,
+        to: `/speech`,
+        label: 'Speech',
         children: [],
       },
     ];

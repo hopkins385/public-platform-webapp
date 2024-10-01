@@ -33,21 +33,6 @@
             <IconRagna class="size-9" />
             <h1 class="pl-3 text-lg text-slate-300"><span class="font-semibold tracking-wide">RAGNA</span> Cloud</h1>
           </div>
-          <div class="mt-40 hidden p-20 text-slate-300 lg:block">
-            <p class="text-2xl">Automate engineering tasks reliably at scale</p>
-            <div class="pt-4">
-              <ul class="space-y-1">
-                <li>Requirements Engineering</li>
-                <li>Software Engineering</li>
-                <li>Quality Assurance</li>
-                <li>Data Insights</li>
-                <li>Knowledge Collections</li>
-                <li>Intern AI Chat</li>
-                <li>Fine-Tuned LLMs</li>
-                <li>Privacy First</li>
-              </ul>
-            </div>
-          </div>
         </div>
         <slot />
       </div>

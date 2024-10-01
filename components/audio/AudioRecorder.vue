@@ -6,6 +6,7 @@
   const silenceThreshold = -50;
   const maxSilenceDuration = 800;
 
+  const transcribedText = ref('');
   const isRecording = ref(false);
   const isUploading = ref(false);
   const uploadStatus = ref('');
@@ -84,7 +85,7 @@
     formData.append('audioFile', audioBlob, 'audio.webm');
 
     isUploading.value = true;
-    uploadStatus.value = 'Uploading...';
+    uploadStatus.value = 'Processing...';
 
     abortController = new AbortController();
 
@@ -95,6 +96,7 @@
         signal: abortController.signal,
       });
       uploadStatus.value = 'Upload successful!';
+      transcribedText.value = response?.transcript || '';
       console.log('API response:', response);
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') {
@@ -209,11 +211,14 @@
 
 <template>
   <div>
-    <div>
-      <button :disabled="isRecording" @click="startRecording">Start Recording</button>
-      <button :disabled="!isRecording" @click="stopRecording">Stop Recording</button>
+    <div class="space-x-2 pb-2">
+      <Button :disabled="isRecording" @click="startRecording">Start Recording</Button>
+      <Button :disabled="!isRecording" @click="stopRecording">Stop Recording</Button>
     </div>
     <canvas v-if="showVisualization" ref="visualizer" width="300" height="100"></canvas>
-    <div v-if="isUploading && uploadStatus">{{ uploadStatus }}</div>
+    <div v-if="isUploading && uploadStatus" class="pt-4">{{ uploadStatus }}</div>
+    <div v-if="!isRecording && !isUploading && transcribedText.length > 0" class="pt-4">
+      Text: {{ transcribedText }}
+    </div>
   </div>
 </template>
