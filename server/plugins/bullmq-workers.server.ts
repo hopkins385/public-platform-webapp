@@ -99,11 +99,11 @@ You always only respond with the chat title.`,
 
   const workflowWorkers = [
     {
-      name: 'groq-llama3-8b-8192',
+      name: 'groq-llama-3.2-11b-vision-preview',
       options: { concurrency: workerConcurrency, limiter: { max: groqReqPerMin, duration: rateLimitDuration } },
     },
     {
-      name: 'groq-llama3-70b-8192',
+      name: 'groq-llama-3.1-70b-versatile',
       options: { concurrency: workerConcurrency, limiter: { max: groqReqPerMin, duration: rateLimitDuration } },
     },
     {
@@ -111,20 +111,8 @@ You always only respond with the chat title.`,
       options: { concurrency: workerConcurrency, limiter: { max: groqReqPerMin, duration: rateLimitDuration } },
     },
     {
-      name: 'mistral-small-latest',
-      options: { concurrency: workerConcurrency, limiter: { max: mistralReqPerMin, duration: rateLimitDuration } },
-    },
-    {
       name: 'mistral-large-latest',
       options: { concurrency: workerConcurrency, limiter: { max: mistralReqPerMin, duration: rateLimitDuration } },
-    },
-    {
-      name: 'openai-gpt-3.5-turbo',
-      options: { concurrency: workerConcurrency, limiter: { max: openaiReqPerMin, duration: rateLimitDuration } },
-    },
-    {
-      name: 'openai-gpt-4',
-      options: { concurrency: workerConcurrency, limiter: { max: openaiReqPerMin, duration: rateLimitDuration } },
     },
     {
       name: 'openai-gpt-4o',
@@ -133,14 +121,6 @@ You always only respond with the chat title.`,
     {
       name: 'openai-gpt-4o-mini',
       options: { concurrency: workerConcurrency, limiter: { max: openaiReqPerMin, duration: rateLimitDuration } },
-    },
-    {
-      name: 'anthropic-claude-3-haiku-20240307',
-      options: { concurrency: workerConcurrency, limiter: { max: claudeReqPerMin, duration: rateLimitDuration } },
-    },
-    {
-      name: 'anthropic-claude-3-sonnet-20240229',
-      options: { concurrency: workerConcurrency, limiter: { max: claudeReqPerMin, duration: rateLimitDuration } },
     },
     {
       name: 'anthropic-claude-3-5-sonnet-20240620',

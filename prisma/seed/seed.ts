@@ -210,7 +210,7 @@ async function main() {
   const { role } = await seedRoles(seed);
 
   // Seed the database with admin user
-  await seedFirstUser(seed);
+  // await seedFirstUser(seed);
 
   /*
   // Seed the database with 10 organisations
