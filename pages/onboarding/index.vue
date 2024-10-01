@@ -12,9 +12,21 @@
   const user = computed(() => auth.value?.user);
 
   const { onboardUser } = useOnboarding();
+  const { getAllProjects } = useManageProjects();
 
   const orgName = ref('');
   const isLoading = ref(false);
+
+  const projectStore = useProjectStore();
+
+  async function initProjectStore() {
+    const { data: projects, error } = await getAllProjects();
+    if (error.value || !projects.value || projects.value.length < 1) {
+      return;
+    }
+    const { id } = projects.value[0]; // TODO: projectId validation
+    projectStore.setActiveProjectId(id);
+  }
 
   function onSubmit() {
     isLoading.value = true;
@@ -22,6 +34,8 @@
       .then(async () => {
         // refresh session
         await getSession();
+        // init store with first project
+        await initProjectStore();
         // navigate to user profile
         await navigateTo('/user/profile');
       })
