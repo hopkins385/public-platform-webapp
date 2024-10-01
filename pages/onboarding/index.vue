@@ -47,7 +47,7 @@
 <template>
   <div class="flex justify-center">
     <div class="space-y-2 p-10">
-      <div>Hello, {{ user?.name }}</div>
+      <div>Hello, {{ user?.name ?? 'User' }}</div>
       <div>Please enter your organisation name:</div>
       <div>
         <form class="space-y-2" @submit.prevent="onSubmit">
