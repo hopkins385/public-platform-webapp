@@ -39,7 +39,7 @@
     "description": "",
     "contextSize": 8,
     "maxTokens": 0,
-    "multiModal": true,
+    "multiModal": false,
     "hidden": false,
     "free": true
   },
@@ -50,7 +50,7 @@
     "description": "",
     "contextSize": 4,
     "maxTokens": 0,
-    "multiModal": true,
+    "multiModal": false,
     "hidden": false,
     "free": true
   },
