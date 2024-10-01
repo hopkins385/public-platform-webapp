@@ -76,13 +76,17 @@ export default defineEventHandler(async (_event) => {
   let systemPrompt = undefined;
 
   // check if assistant has knowledge collections
-  // await checkCollection()
-  systemPrompt = chat.assistant.systemPrompt;
+  systemPrompt = await getContextAwareSystemPrompt({
+    assistantId: chat.assistant.id,
+    lastMessageContent: lastMessage.content,
+    assistantSystemPrompt: chat.assistant.systemPrompt,
+  });
 
   // add current date at the end of the system prompt
   systemPrompt += '\n\n' + 'Timestamp now(): ' + new Date().toISOString();
 
-  // dd(messages);
+  // dd(systemPrompt);
+  // return;
 
   let gathered: string | undefined = undefined;
 
@@ -379,26 +383,31 @@ function getLastChatMessage(messages: any[]) {
   return lastMessage;
 }
 
-async function checkCollection() {
-  throw new Error('Not implemented');
+async function getContextAwareSystemPrompt(payload: {
+  assistantId: string;
+  lastMessageContent: string;
+  assistantSystemPrompt: string;
+}) {
   const collections = await collectionService.findAllWithRecordsFor(
     CollectionAbleDto.fromInput({
-      id: assistantId,
+      id: payload.assistantId,
       type: 'assistant',
     }),
   );
 
-  if (collections.length > 0) {
-    const recordIds = collections.map((c) => c.records.map((r) => r.id)).flat();
-    const res = await embeddingService.searchDocsByQuery({
-      query: lastMessage.content,
-      recordIds,
-    });
-
-    const context = res.map((r) => r?.content || '').join('\n\n');
-
-    systemPrompt = chat.assistant.systemPrompt + '\n\n<context>' + context + '</context>';
-  } else {
-    systemPrompt = chat.assistant.systemPrompt;
+  if (collections.length < 1) {
+    return payload.assistantSystemPrompt;
   }
+
+  const recordIds = collections.map((c) => c.records.map((r) => r.id)).flat();
+  const res = await embeddingService.searchDocsByQuery({
+    query: payload.lastMessageContent,
+    recordIds,
+  });
+
+  const context = res.map((r) => r?.text || '').join('\n\n');
+
+  // console.log('system prompt context:', context);
+
+  return payload.assistantSystemPrompt + '\n\n<context>' + context + '</context>';
 }

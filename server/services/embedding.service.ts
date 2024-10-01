@@ -27,8 +27,8 @@ interface SearchResultDocument {
 
 const logger = consola.create({}).withTag('EmbeddingService');
 
-const apiUrl = 'http://localhost:5010/api/parseDocument?renderFormat=all&useNewIndentParser=true';
-const parser = new LayoutPDFReader(apiUrl);
+// const apiUrl = 'http://localhost:5010/api/parseDocument?renderFormat=all&useNewIndentParser=true';
+// const parser = new LayoutPDFReader(apiUrl);
 
 const tokenizerService = new TokenizerService();
 
@@ -44,14 +44,19 @@ export class EmbeddingService {
   async embedFile(payload: IEmbedFilePayload, options: { resetCollection?: boolean } = {}): Promise<RagDocument[]> {
     //
     const buffer = await fs.promises.readFile(payload.path);
-    const text = await $fetch<string>(this.fileReaderServerUrl, {
-      method: 'PUT',
-      headers: {
-        Accept: 'text/plain',
-        'Content-Type': payload.mimeType,
-      },
-      body: buffer,
-    });
+    let text = '';
+    try {
+      text = await $fetch<string>(this.fileReaderServerUrl, {
+        method: 'PUT',
+        headers: {
+          Accept: 'text/plain',
+          'Content-Type': payload.mimeType,
+        },
+        body: buffer,
+      });
+    } catch (err) {
+      throw new Error('Failed to get file contents. Is the server reachable?');
+    }
 
     const splitter = new RecursiveCharacterSplitter(tokenizerService, {
       chunkSize: 1000,
@@ -85,8 +90,13 @@ export class EmbeddingService {
     return documents;
   }
 
-  async #getEmbedding(text: string | string[]) {
+  async #getEmbedding(text: string | string[] | number[] | number[][]): Promise<number[]> {
     let res: OpenAI.Embeddings.CreateEmbeddingResponse;
+
+    if (!text || text.length < 1) {
+      logger.info('text for embeeding empty!');
+      return [];
+    }
 
     try {
       res = await this.openai.embeddings.create({
@@ -124,15 +134,18 @@ export class EmbeddingService {
             },
           ],
         },
-        limit: 3,
+        limit: 6,
       });
 
-      // TODO: vector result
-      const resp = result.map((node) => {
-        // TODO: this
+      const docs = result.map((doc) => {
+        return {
+          mediaId: doc.payload?.mediaId || '',
+          recordId: doc.payload?.recordId || '',
+          text: doc.payload?.text || '',
+        } as SearchResultDocument;
       });
 
-      return resp;
+      return docs;
       //
     } catch (e) {
       logger.error(e);
@@ -171,7 +184,7 @@ export class EmbeddingService {
 
   async #upsertVectorIndex(documents: RagDocument[], options: { resetCollection?: boolean } = {}) {
     try {
-      const collectionExists = await this.#collectionExists(this.collectionName);
+      const { exists: collectionExists } = await this.#collectionExists(this.collectionName);
       if (!collectionExists) {
         await this.#createMediaCollection();
       } else if (options.resetCollection === true) {
@@ -241,9 +254,10 @@ export class EmbeddingService {
     // search the vector store
     const documents = await this.#searchVectorStore({ embedding, recordIds: payload.recordIds });
 
+    return documents;
+
     // rerank the documents based on the query
     const rerankedDocuments = await this.#reRankDocuments({ query: payload.query, documents });
-
     return rerankedDocuments;
   }
 

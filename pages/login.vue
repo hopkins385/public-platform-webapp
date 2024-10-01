@@ -28,10 +28,6 @@
         isLoading.value = false;
       });
   }
-
-  // onBeforeMount(async () => {
-  //   await onSubmit();
-  // });
 </script>
 
 <template>
