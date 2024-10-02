@@ -67,7 +67,7 @@
   },
   {
     "apiName": "mistral-large-latest",
-    "displayName": "Mistral large",
+    "displayName": "Mistral Large",
     "provider": "mistral",
     "description": "",
     "contextSize": 128,

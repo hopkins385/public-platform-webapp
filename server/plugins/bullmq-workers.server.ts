@@ -111,7 +111,7 @@ You always only respond with the chat title.`,
       options: { concurrency: workerConcurrency, limiter: { max: groqReqPerMin, duration: rateLimitDuration } },
     },
     {
-      name: 'mistral-large-latest',
+      name: 'mistral-mistral-large-latest',
       options: { concurrency: workerConcurrency, limiter: { max: mistralReqPerMin, duration: rateLimitDuration } },
     },
     {
