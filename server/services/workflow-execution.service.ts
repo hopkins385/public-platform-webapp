@@ -122,7 +122,7 @@ export class WorkflowExecutionService {
       workflowId: id,
     });
 
-    // console.log(`Workflow: ${JSON.stringify(rows, null, 2)}`);
+    // console.log(`Workflow: ${JSON.stringify(jobs, null, 2)}`);
     // throw new Error('Not implemented');
 
     const chain = await flowProducer.addBulk(jobs);

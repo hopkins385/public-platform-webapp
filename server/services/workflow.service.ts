@@ -175,6 +175,9 @@ export class WorkflowService {
   }
 
   async findFirst(workflowId: string) {
+    if (!workflowId || workflowId === '' || typeof workflowId !== 'string') {
+      throw new Error('Workflow ID is required');
+    }
     const workflow = await this.prisma.workflow.findFirst({
       relationLoadStrategy: 'join',
       select: {
@@ -220,6 +223,9 @@ export class WorkflowService {
   }
 
   async findFirstWithSteps(workflowId: string) {
+    if (!workflowId || workflowId === '' || typeof workflowId !== 'string') {
+      throw new Error('Workflow ID is required');
+    }
     const workflow = await this.prisma.workflow.findFirst({
       relationLoadStrategy: 'join',
       where: {
@@ -275,10 +281,16 @@ export class WorkflowService {
                 type: true,
                 processingStatus: true,
               },
+              where: {
+                deletedAt: null,
+              },
               orderBy: {
                 orderColumn: 'asc',
               },
             },
+          },
+          where: {
+            deletedAt: null,
           },
         },
         assistant: {
@@ -294,6 +306,9 @@ export class WorkflowService {
                 apiName: true,
               },
             },
+          },
+          where: {
+            deletedAt: null,
           },
         },
       },
@@ -349,6 +364,7 @@ export class WorkflowService {
         },
         where: {
           id: projectId?.toLowerCase(),
+          deletedAt: null,
           team: {
             users: {
               some: {
