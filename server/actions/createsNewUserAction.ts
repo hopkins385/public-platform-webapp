@@ -128,16 +128,15 @@ export class CreatesNewUserAction {
   }
 
   private async findSuitableLLM(): Promise<LargeLangModel | null> {
-    const gpt4Omni = await this.prisma.largeLangModel.findFirst({
+    const claude = await this.prisma.largeLangModel.findFirst({
       where: {
-        // deletedAt: null,
-        apiName: { equals: 'gpt-4o' },
+        apiName: { equals: 'claude-3-5-sonnet-20240620' },
       },
     });
-    if (!gpt4Omni) {
-      console.error('GPT-4 Omni not found');
+    if (!claude) {
+      console.error('claude-3-5-sonnet not found');
     }
-    if (gpt4Omni) return gpt4Omni;
+    if (claude) return claude;
 
     return this.prisma.largeLangModel.findFirst({
       where: {
@@ -160,7 +159,7 @@ export class CreatesNewUserAction {
         llmId: llm.id,
         title: 'RAGNA Assistant',
         description: 'RAGNA Assistant',
-        systemPrompt: 'You are a friendly and helpful assistant.\n',
+        systemPrompt: 'You are a friendly and helpful assistant\n',
         isShared: false,
         systemPromptTokenCount: 10,
         createdAt: new Date(),
