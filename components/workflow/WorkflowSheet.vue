@@ -58,6 +58,12 @@
     return steps.value.find((step: any) => step.id === stepCard.workflowStepId);
   });
 
+  function onRefresh() {
+    refresh()
+      .then(() => initSheetDimensions(props.workflowId))
+      .catch((err) => console.error(err));
+  }
+
   async function onAddWorkflowStep() {
     const assistant = workflowData.value?.steps[0]?.assistant;
     if (!assistant || !assistant?.id) {
@@ -364,7 +370,7 @@
       :workflow-id="workflowData.id"
       :all-workflow-steps="steps"
       :workflow-step="workflowStepCardActive"
-      @refresh="refresh"
+      @refresh="onRefresh"
       @close="onCloseStepCard"
       @show-settings="() => (sideBarOpen = true)"
       @prev-steps-updated="(obj) => onInputStepsUpdated(obj)"
@@ -381,7 +387,7 @@
       :content="cellCard.content"
       :width="cellCard.width"
       @close="() => onCloseCellCard()"
-      @refresh="refresh"
+      @refresh="onRefresh"
     />
   </Teleport>
   <!-- Settings Slider -->
