@@ -2,9 +2,9 @@ import type { FirstUserMessageEventDto, StreamFinishedEventDto } from '~/server/
 import type { ChatToolCallEventDto } from './dto/chatToolCallEvent.dto';
 import { ChatService } from '~/server/services/chat.service';
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
-import { getIO } from '../socket/socketInstance';
-import consola from 'consola';
+import socket from '../socket';
 import prisma from '../prisma';
+import consola from 'consola';
 
 const chatService = new ChatService(prisma);
 const { queueAddJob } = useBullmq();
@@ -36,15 +36,13 @@ export async function firstUserMessageEvent(data: FirstUserMessageEventDto) {
 }
 
 export function chatToolCallStartEvent(data: ChatToolCallEventDto) {
-  const io = getIO();
   const { userId, chatId, toolName, toolInfo } = data;
 
-  io.to(`user:${userId}`).emit(`chat-${chatId}-tool-start-event`, { toolName, toolInfo });
+  socket.io.to(`user:${userId}`).emit(`chat-${chatId}-tool-start-event`, { toolName, toolInfo });
 }
 
 export function chatToolCallEndEvent(data: ChatToolCallEventDto) {
-  const io = getIO();
   const { userId, chatId, toolName } = data;
 
-  io.to(`user:${userId}`).emit(`chat-${chatId}-tool-end-event`, toolName);
+  socket.io.to(`user:${userId}`).emit(`chat-${chatId}-tool-end-event`, toolName);
 }

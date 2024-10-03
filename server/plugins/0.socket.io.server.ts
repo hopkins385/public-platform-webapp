@@ -1,19 +1,12 @@
 import type { NitroApp } from 'nitropack';
 import consola from 'consola';
-import { init, getEngine } from '../socket/socketInstance';
+import so from '../socket';
 
 const logger = consola.create({}).withTag('socket-server');
 
 export default defineNitroPlugin((nitroApp: NitroApp) => {
-  const { port, origin } = useRuntimeConfig().websocket;
-  const serverPort = port ? Number(port) : 3001;
-  const serverOrigin = origin || 'http://localhost';
-
-  const io = init(serverPort, serverOrigin);
-  const engine = getEngine();
-
   // middleware
-  io.use(async (socket, next) => {
+  so.io.use(async (socket, next) => {
     const token = socket.handshake.auth?.token;
     if (!token) {
       return next(new Error('Authentication error'));
@@ -21,7 +14,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     next();
   });
 
-  io.on('connection', async (socket) => {
+  so.io.on('connection', async (socket) => {
     const userId = socket.handshake.auth?.token;
 
     socket.on(SocketEvent.join, (room: string) => {
@@ -40,10 +33,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
       logger.info(`Auth userId ${userId} joined room ${room}`);
 
       // say hello
-      io.to(room.toLowerCase()).emit(
-        'new_message',
-        'Connected to room ' + room,
-      );
+      so.io.to(room.toLowerCase()).emit('new_message', 'Connected to room ' + room);
       // socket
       //   .to(room.toLowerCase())
       //   .emit('new_message', 'Connected to room ' + room);
@@ -55,7 +45,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
         return;
       }
       socket.leave(room);
-      logger.info(`Auth userId ${auth} left room ${room}`);
+      logger.info(`Auth userId ${userId} left room ${room}`);
     });
 
     socket.on('disconnect', () => {
@@ -63,7 +53,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     });
   });
 
-  io.engine.on('connection_error', (err) => {
+  so.io.engine.on('connection_error', (err) => {
     logger.error('request', err.req); // the request object
     logger.error('code', err.code); // the error code, for example 1
     logger.error('message', err.message); // the error message, for example "Session ID unknown"
@@ -75,7 +65,7 @@ export default defineNitroPlugin((nitroApp: NitroApp) => {
     defineEventHandler({
       handler(event) {
         // const session = getServerSession(event); // TODO: add auth
-        engine.handleRequest(event.node.req, event.node.res);
+        so.engine.handleRequest(event.node.req, event.node.res);
         event._handled = true;
       },
       websocket: {

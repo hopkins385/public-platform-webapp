@@ -1,12 +1,11 @@
 import consola from 'consola';
 import type { TrackTokensDto } from '~/server/services/dto/track-tokens.dto';
-import { getIO } from '../socket/socketInstance';
+import socket from '../socket';
 import prisma from '../prisma';
 
 const logger = consola.create({}).withTag('track-tokens.worker');
 
 export async function trackTokensEvent(payload: TrackTokensDto) {
-  const io = getIO();
   const { userId, llm, usage } = payload;
 
   const inputPrice1KTokens = 0.001;
@@ -41,7 +40,7 @@ export async function trackTokensEvent(payload: TrackTokensDto) {
   }
 
   const room = `user:${userId}`;
-  io.to(room).emit('usage', {
+  socket.io.to(room).emit('usage', {
     promptTokens: usage.promptTokens,
     completionTokens: usage.completionTokens,
     totalTokens: usage.totalTokens,

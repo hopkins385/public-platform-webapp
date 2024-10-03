@@ -1,14 +1,13 @@
 import consola from 'consola';
-import { getIO } from '../socket/socketInstance';
+import socket from '../socket';
 
 const logger = consola.create({}).withTag('row-completed-event');
 
 export async function rowCompletedEvent(data: any) {
   try {
-    const io = getIO(); // get the socket instance
     const { userId, workflowId } = data;
     const status = 'completed';
-    io.to(`user:${userId}`).emit(`workflow-${workflowId}-update`, {
+    socket.io.to(`user:${userId}`).emit(`workflow-${workflowId}-update`, {
       ...data,
       status,
     });
@@ -20,10 +19,9 @@ export async function rowCompletedEvent(data: any) {
 
 export async function cellCompletedEvent(data: any) {
   try {
-    const io = getIO(); // get the socket instance
     const { userId, workflowId } = data;
     const status = 'completed';
-    io.to(`user:${userId}`).emit(`workflow-${workflowId}-update`, {
+    socket.io.to(`user:${userId}`).emit(`workflow-${workflowId}-update`, {
       ...data,
       status,
     });
@@ -35,9 +33,8 @@ export async function cellCompletedEvent(data: any) {
 
 export async function cellActiveEvent(data: any) {
   try {
-    const io = getIO(); // get the socket instance
     const { userId, workflowId } = data;
-    io.to(`user:${userId}`).emit(`workflow-${workflowId}-update`, {
+    socket.io.to(`user:${userId}`).emit(`workflow-${workflowId}-update`, {
       ...data,
       status: 'active',
     });
