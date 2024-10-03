@@ -1,13 +1,9 @@
 import type { QdrantClient } from '@qdrant/js-client-rest';
 import type OpenAI from 'openai';
 import type { CohereClient } from 'cohere-ai';
-import { RagDocument } from '~/server/reader/types';
 import { TokenizerService } from '~/server/services/tokenizer.service';
 import consola from 'consola';
-import { similarity } from 'ml-distance';
 import fs from 'fs';
-import LayoutPDFReader from '../reader/llmsherpa/fileReader';
-import { RecursiveCharacterSplitter } from '~/server/splitter/RecursiveCharacterSplitter';
 
 type Vector = number[];
 export type Embedding = Vector;
@@ -26,10 +22,6 @@ interface SearchResultDocument {
 }
 
 const logger = consola.create({}).withTag('EmbeddingService');
-
-// const apiUrl = 'http://localhost:5010/api/parseDocument?renderFormat=all&useNewIndentParser=true';
-// const parser = new LayoutPDFReader(apiUrl);
-
 const tokenizerService = new TokenizerService();
 
 export class EmbeddingService {
@@ -260,89 +252,4 @@ export class EmbeddingService {
     const rerankedDocuments = await this.#reRankDocuments({ query: payload.query, documents });
     return rerankedDocuments;
   }
-
-  async #calculateCosineDistances(embeddings: Embedding[] | number[]) {
-    // Calculate the cosine distance (1 - cosine similarity) between consecutive embeddings.
-    const distances: number[] = [];
-    for (let i = 0; i < embeddings.length - 1; i++) {
-      const sim: number = similarity.cosine(embeddings[i], embeddings[i + 1]);
-      const distance: number = 1 - sim;
-      distances.push(distance);
-    }
-
-    return distances;
-  }
-
-  async #semanticChunkDocs(docs: RagDocument[]): Promise<string[]> {
-    const breakpointPercentileThreshold = 95;
-    const texts = docs.map((doc) => doc.text);
-
-    // TODO: need to check id this is correct
-    const embeddings = await this.#getEmbedding(texts);
-
-    // Calculate the cosine distances between consecutive embeddings.
-    const distances = await this.#calculateCosineDistances(embeddings);
-
-    // Calculate the percentile of the distances.
-    const percentile = calculatePercentile(distances, breakpointPercentileThreshold);
-
-    // Find the indices of the distances above the percentile threshold.
-    const indices = findIndicesAboveThreshold(distances, percentile);
-
-    // Create text chunks based on the identified breakpoints.
-    const chunks = createTextChunks(texts, indices);
-
-    return chunks;
-  }
-}
-
-function calculatePercentile(arr: number[], percentile: number): number {
-  if (percentile < 0 || percentile > 100) {
-    throw new Error('Percentile must be between 0 and 100');
-  }
-
-  const sortedArr: number[] = [...arr].sort((a, b) => a - b);
-  const index: number = (percentile / 100) * (sortedArr.length - 1);
-  const lowerIndex: number = Math.floor(index);
-  const upperIndex: number = Math.ceil(index);
-
-  if (lowerIndex === upperIndex) {
-    return sortedArr[lowerIndex];
-  }
-
-  const lowerValue: number = sortedArr[lowerIndex];
-  const upperValue: number = sortedArr[upperIndex];
-  const fraction: number = index - lowerIndex;
-
-  return lowerValue + (upperValue - lowerValue) * fraction;
-}
-
-function findIndicesAboveThreshold(distances: number[], breakpointDistanceThreshold: number): number[] {
-  return distances.reduce((indices: number[], distance: number, index: number): number[] => {
-    if (distance > breakpointDistanceThreshold) {
-      indices.push(index);
-    }
-    return indices;
-  }, []);
-}
-
-function createTextChunks(singleSentencesList: string[], indicesAboveThresh: number[]): string[] {
-  const chunks: string[] = [];
-  let startIndex: number = 0;
-
-  // Loop through the identified breakpoints and create chunks accordingly.
-  for (const index of indicesAboveThresh) {
-    const chunk: string = singleSentencesList.slice(startIndex, index + 1).join(' ');
-    chunks.push(chunk);
-    startIndex = index + 1;
-  }
-
-  // If there are any sentences left after the last breakpoint, add them as the final chunk.
-  if (startIndex < singleSentencesList.length) {
-    const chunk: string = singleSentencesList.slice(startIndex).join(' ');
-    chunks.push(chunk);
-  }
-
-  // Return the list of text chunks.
-  return chunks;
 }
