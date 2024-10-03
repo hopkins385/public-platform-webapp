@@ -17,6 +17,7 @@
     BriefcaseBusinessIcon,
     UserIcon,
     SpeechIcon,
+    ImageIcon,
   } from 'lucide-vue-next';
 
   const props = defineProps<{
@@ -120,6 +121,13 @@
         icon: CloudUploadIcon,
         to: '/media',
         label: 'File Manager',
+        children: [],
+      },
+      {
+        name: 'image-gen',
+        icon: ImageIcon,
+        to: `/image-gen',`,
+        label: 'Image Gen',
         children: [],
       },
       {

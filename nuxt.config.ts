@@ -143,6 +143,9 @@ export default defineNuxtConfig({
     serp: {
       apiKey: process.env.SERP_API_KEY,
     },
+    flux: {
+      apiKey: process.env.FLUX_API_KEY,
+    },
   },
   build: {
     transpile: ['trpc-nuxt', 'vue-sonner'],

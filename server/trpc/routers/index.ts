@@ -21,6 +21,7 @@ import { providerAuthRouter } from './provider-auth';
 import { adminRouter } from './admin';
 import { usageRouter } from './usage';
 import { onboardingRouter } from './onboarding';
+import { imageGenRouter } from './image-gen';
 
 export const appRouter = router({
   onboarding: onboardingRouter,
@@ -45,6 +46,7 @@ export const appRouter = router({
   workflowStep: workflowStepRouter,
   workflowExec: workflowExecRouter,
   providerAuth: providerAuthRouter,
+  imageGen: imageGenRouter,
 });
 
 // export type definition of API
