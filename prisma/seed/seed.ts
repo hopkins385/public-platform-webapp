@@ -29,6 +29,7 @@ async function seedLLMs(seed: SeedClient) {
       multiModal: provider.multiModal,
       hidden: provider.hidden,
       free: provider.free,
+      deletedAt: null,
     });
   }
   return await seed.largeLangModel(prData);

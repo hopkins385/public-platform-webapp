@@ -259,14 +259,20 @@ async function* generateStream(_event: H3Event, payload: StreamPayload) {
   const model = AiModelFactory.fromInput({ provider: payload.provider, model: payload.model });
   const availableTools = payload.provider !== 'groq' ? getTools(toolStartCallback(payload)) : undefined;
 
+  // TODO: refactor to createCallSettings function
+  const isPreview = payload.model.startsWith('o1-');
+  const callSettings = {
+    system: payload.systemPrompt,
+    tools: availableTools,
+    maxTokens: payload.maxTokens,
+  };
+
   try {
     const initialResult = await streamText({
       abortSignal: payload.signal,
       model,
-      system: payload.systemPrompt,
       messages: payload.messages,
-      maxTokens: payload.maxTokens,
-      tools: availableTools,
+      ...(!isPreview && callSettings), // don't use system prompt and tools for o1-preview
     });
 
     logWarnings(initialResult.warnings);
@@ -276,6 +282,29 @@ async function* generateStream(_event: H3Event, payload: StreamPayload) {
     handleStreamGeneratorError(_event, error);
   }
 }
+
+/*
+function createCallSettings(payload) {
+  const o1PreviewModel = 'o1-';
+  const isO1Preview = payload.model.startsWith(o1PreviewModel);
+  const baseSettings = {
+    abortSignal: payload.signal,
+    model,
+    messages: payload.messages,
+  };
+
+  if (isO1Preview) {
+    return baseSettings;
+  }
+
+  return {
+    ...baseSettings,
+    system: payload.systemPrompt,
+    tools: availableTools,
+    maxTokens: payload.maxTokens,
+  };
+}
+*/
 
 async function* handleStream(
   initalResult: StreamTextResult<any>,
