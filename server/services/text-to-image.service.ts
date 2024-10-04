@@ -14,49 +14,13 @@ enum TextToImageRunStatus {
 
 export class TextToImageService {
   private readonly filePath: string;
+
   constructor(
     private readonly prisma: ExtendedPrismaClient,
     private readonly fluxImageGenerator: FluxImageGenerator,
   ) {
-    this.filePath = join('public', 'ai-images');
+    this.filePath = join(process.cwd(), 'uploads', 'ai-images');
   }
-
-  /*
-  public async generateImages(payload: FluxProInputs): Promise<string[]> {
-    const imgCount = payload.imgCount ?? 1;
-
-    const runPromises = Array.from({ length: imgCount }, () =>
-      this.#createRun({
-        folderId: payload.folderId,
-        prompt: payload.prompt,
-        settings: {},
-      }),
-    );
-    const runs = await Promise.all(runPromises);
-
-    const imagePromises = runs.map(() => this.fluxImageGenerator.generateImage(payload));
-    const images = await Promise.all(imagePromises);
-
-    const imageUrls = await Promise.all(
-      images.map(async ({ id, imgUrl, status }) => {
-        const castStatus = this.castStatus(status);
-        console.log('castStatus', castStatus);
-        const runStatus = await this.#updateRunStatus({ runId: id, status: castStatus });
-        if (runStatus.status !== TextToImageRunStatus.COMPLETED || !imgUrl) {
-          return '';
-        }
-        const textToImage = await this.#saveToDiskAndCreateTextToImage({
-          runId: id,
-          folderId: payload.folderId,
-          externalImageUrl: imgUrl,
-        });
-        return textToImage.path;
-      }),
-    );
-
-    return imageUrls;
-  }
-    */
 
   public async generateImages(payload: FluxProInputs): Promise<string[]> {
     const imgCount = payload.imgCount ?? 1;
@@ -105,7 +69,6 @@ export class TextToImageService {
 
           const { imgUrl, status } = image;
           const castStatus = this.castStatus(status);
-          console.log('castStatus', castStatus);
 
           try {
             await this.#updateRunStatus({ runId: run.id, status: castStatus });
@@ -120,7 +83,8 @@ export class TextToImageService {
               externalImageUrl: imgUrl,
             });
 
-            return textToImage.path;
+            // return textToImage.path; // TODO: Return path instead of URL
+            return imgUrl;
           } catch (error) {
             console.error(`Failed to process image for run ${run.id}:`, error);
             await this.#updateRunStatus({ runId: run.id, status: TextToImageRunStatus.FAILED });
