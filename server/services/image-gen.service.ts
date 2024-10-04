@@ -1,5 +1,5 @@
 import type { FluxImageGenerator } from '../utils/fluxImageGen';
-import type { FluxProInputs } from '~/schemas/fluxPro.schema';
+import type { FluxProInputs } from '~/server/schema/fluxPro.schema';
 import { join } from 'path';
 import fs from 'fs/promises';
 import { randomUUID } from 'crypto';

@@ -1,5 +1,5 @@
 import type { RuntimeConfig } from 'nuxt/schema';
-import { AiModelProvider } from '~/server/schema/aiModelProvider';
+import { AiModelProvider } from '~/server/schemas/aiModelProvider';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createMistral } from '@ai-sdk/mistral';
