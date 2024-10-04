@@ -5,12 +5,6 @@ import { FluxProInputsSchema } from '~/server/schemas/fluxPro.schema';
 
 export const textToImageRouter = router({
   generateImages: protectedProcedure.input(FluxProInputsSchema).query(async ({ ctx: { user, services }, input }) => {
-    // console.log('input', input);
-    // find the folder
-    const folder = await services.textToImageService.findFolderById(input.folderId);
-    if (!folder) {
-      throw new Error('Folder not found');
-    }
     return await services.textToImageService.generateImages(input);
   }),
   getFirstFolderId: protectedProcedure
