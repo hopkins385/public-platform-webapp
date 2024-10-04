@@ -11,7 +11,6 @@ import {
   documentItemService,
   documentService,
   embeddingService,
-  imageGenService,
   llmService,
   mediaAbleService,
   mediaService,
@@ -21,6 +20,7 @@ import {
   storageService,
   stripeService,
   teamService,
+  textToImageService,
   usageService,
   userService,
   workflowExecService,
@@ -34,6 +34,7 @@ import {
  */
 export async function createContext(_event: H3Event) {
   const session = await getServerSession(_event);
+  // @ts-ignore
   const user: SessionUser = session?.user;
 
   return {
@@ -49,7 +50,7 @@ export async function createContext(_event: H3Event) {
       collectionService,
       documentService,
       documentItemService,
-      imageGenService,
+      textToImageService,
       mediaService,
       mediaAbleService,
       storageService,

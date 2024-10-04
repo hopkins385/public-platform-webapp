@@ -50,10 +50,11 @@ interface HTTPValidationError {
 
 interface PollingResult {
   id: string;
-  sample: string;
+  imgUrl: string | null;
+  status: StatusResponse;
 }
 
-enum StatusResponse {
+export enum StatusResponse {
   TaskNotFound = 'Task not found',
   Pending = 'Pending',
   RequestModerated = 'Request Moderated',
@@ -119,25 +120,29 @@ export class FluxImageGenerator {
           if (res.result) {
             return {
               id: requestId,
-              sample: res.result.sample,
+              imgUrl: res.result.sample,
+              status: res.status,
             };
+          } else {
+            throw new Error('Result is missing');
           }
           break;
-        case StatusResponse.Error:
-          throw new Error('Image generation failed');
-        case StatusResponse.TaskNotFound:
-          throw new Error('Task not found');
         case StatusResponse.Pending:
           break;
+        case StatusResponse.Error:
+        case StatusResponse.TaskNotFound:
         case StatusResponse.RequestModerated:
-          throw new Error('Request moderated');
         case StatusResponse.ContentModerated:
-          throw new Error('Content moderated');
+          return {
+            id: requestId,
+            imgUrl: null,
+            status: res.status,
+          };
         default:
           throw new Error(`Unexpected response status: ${res.status}`);
       }
 
-      await this.#delay(pollingInterval);
+      await this.#sleep(pollingInterval);
     }
 
     throw new Error('Timeout: Image generation took too long');
@@ -166,7 +171,7 @@ export class FluxImageGenerator {
     return response.json();
   }
 
-  #delay(ms: number): Promise<void> {
+  #sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

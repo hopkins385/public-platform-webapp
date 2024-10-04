@@ -20,7 +20,7 @@ import { providerAuthRouter } from './provider-auth';
 import { adminRouter } from './admin';
 import { usageRouter } from './usage';
 import { onboardingRouter } from './onboarding';
-import { imageGenRouter } from './image-gen';
+import { textToImageRouter } from './text-to-image';
 
 export const appRouter = router({
   onboarding: onboardingRouter,
@@ -44,7 +44,7 @@ export const appRouter = router({
   workflowStep: workflowStepRouter,
   workflowExec: workflowExecRouter,
   providerAuth: providerAuthRouter,
-  imageGen: imageGenRouter,
+  textToImage: textToImageRouter,
 });
 
 // export type definition of API

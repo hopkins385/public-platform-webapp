@@ -404,15 +404,16 @@ model Chunk {
 // Project, Documents, Requirements, and Workflows
 
 model Project {
-  id          String     @id @default(cuid())
-  teamId      String     @map("team_id")
-  name        String
-  description String
-  createdAt   DateTime   @default(now()) @map("created_at")
-  updatedAt   DateTime   @updatedAt @map("updated_at")
-  deletedAt   DateTime?  @map("deleted_at")
-  documents   Document[]
-  workflows   Workflow[]
+  id                 String              @id @default(cuid())
+  teamId             String              @map("team_id")
+  name               String
+  description        String
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
+  deletedAt          DateTime?           @map("deleted_at")
+  documents          Document[]
+  workflows          Workflow[]
+  textToImageFolders TextToImageFolder[]
 
   team Team @relation(fields: [teamId], references: [id])
 
@@ -567,4 +568,59 @@ model ProviderAuth {
   user User @relation(fields: [userId], references: [id])
 
   @@map("provider_auths")
+}
+
+enum text_to_image_run_status {
+  PENDING
+  COMPLETED
+  MODERATED
+  FAILED
+}
+
+model TextToImageFolder {
+  id              String           @id @default(cuid())
+  projectId       String           @map("project_id")
+  name            String
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+  deletedAt       DateTime?        @map("deleted_at")
+  textToImageRuns TextToImageRun[]
+
+  project Project @relation(fields: [projectId], references: [id])
+
+  @@index([projectId])
+  @@map("text_to_image_folders")
+}
+
+model TextToImageRun {
+  id        String                   @id @default(cuid())
+  folderId  String                   @map("folder_id")
+  prompt    String
+  settings  Json?
+  status    text_to_image_run_status
+  createdAt DateTime                 @default(now()) @map("created_at")
+  updatedAt DateTime                 @updatedAt @map("updated_at")
+  deletedAt DateTime?                @map("deleted_at")
+  images    TextToImage[]
+
+  folder TextToImageFolder @relation(fields: [folderId], references: [id])
+
+  @@index([folderId])
+  @@map("text_to_image_runs")
+}
+
+model TextToImage {
+  id        String    @id @default(cuid())
+  runId     String    @map("run_id")
+  name      String
+  path      String    @map("path")
+  mimeType  String    @map("mime_type")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  run TextToImageRun @relation(fields: [runId], references: [id])
+
+  @@index([runId])
+  @@map("text_to_images")
 }

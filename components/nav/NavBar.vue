@@ -18,11 +18,24 @@
     UserIcon,
     SpeechIcon,
     ImageIcon,
+    type LucideProps,
+    FolderIcon,
+    PaintbrushVerticalIcon,
   } from 'lucide-vue-next';
+  import type { FunctionalComponent } from 'vue';
 
-  const props = defineProps<{
-    isSettings?: boolean;
-  }>();
+  interface NavItem {
+    icon: FunctionalComponent<LucideProps, {}, any, {}> | null;
+    path: string;
+    label: string;
+    hidden: boolean | null;
+    children: NavItem[];
+  }
+
+  enum UserRoles {
+    ADMIN = 'admin',
+    // Additional roles...
+  }
 
   const navBarRef = ref(null);
   const navBarResizerRef = ref(null);
@@ -33,226 +46,240 @@
   const workspaceStore = useWorkspaceStore();
   const { data: auth } = useAuth();
 
-  const adminRoutes = [
+  const homeNavItem: NavItem = {
+    icon: HomeIcon,
+    path: '/',
+    label: 'Home',
+    hidden: false,
+    children: [],
+  };
+
+  const spacerNavItem: NavItem = {
+    icon: null,
+    path: '',
+    label: '',
+    hidden: false,
+    children: [],
+  };
+
+  const defaultRoutes = computed((): NavItem[] => [
     {
-      name: 'spacer',
-      icon: null,
-      to: null,
-      label: null,
+      icon: WorkflowIcon,
+      path: `/projects/${workspaceStore.activeProjectId}`,
+      label: 'Workflows',
       hidden: false,
       children: [],
     },
     {
-      name: 'admin',
+      icon: MessagesSquareIcon,
+      path: '/chats',
+      label: 'Chat',
+      hidden: false,
+      children: [],
+    },
+    {
+      icon: ArchiveIcon,
+      path: '/chats/history',
+      label: 'Chat History',
+      hidden: false,
+      children: [],
+    },
+    {
+      icon: BotIcon,
+      path: '/assistants',
+      label: 'Assistants',
+      hidden: false,
+      children: [],
+    },
+    {
+      icon: DatabaseIcon,
+      path: '/collections',
+      label: 'Collections',
+      hidden: false,
+      children: [],
+    },
+    {
+      icon: CloudUploadIcon,
+      path: '/media',
+      label: 'File Manager',
+      hidden: false,
+      children: [],
+    },
+    {
+      icon: ImageIcon,
+      path: '/text-to-image',
+      label: 'Image Gen',
+      hidden: false,
+      children: [],
+    },
+    {
+      icon: SpeechIcon,
+      path: '/speech',
+      label: 'Speech',
+      hidden: false,
+      children: [],
+    },
+  ]);
+
+  const settingsRoutes: NavItem[] = [
+    {
       icon: SettingsIcon,
-      to: '/admin',
+      path: '/settings',
+      label: 'Settings',
+      hidden: false,
+      children: [
+        {
+          icon: UserIcon,
+          path: '/settings/profile',
+          label: 'My Profile',
+          hidden: false,
+          children: [],
+        },
+      ],
+    },
+    {
+      icon: Building2Icon,
+      path: '/settings/organization',
+      label: 'Organization',
+      hidden: false,
+      children: [
+        {
+          icon: Building2Icon,
+          path: '/settings/organization',
+          label: 'Overview',
+          hidden: false,
+          children: [],
+        },
+        {
+          icon: UsersIcon,
+          path: '/settings/organization/members',
+          label: 'Members',
+          hidden: false,
+          children: [],
+        },
+        {
+          icon: SettingsIcon,
+          path: '/settings/organization/billing',
+          label: 'Billing',
+          hidden: false,
+          children: [],
+        },
+        {
+          icon: SettingsIcon,
+          path: '/settings/organization/models',
+          label: 'Models',
+          hidden: false,
+          children: [],
+        },
+        {
+          icon: SettingsIcon,
+          path: '/settings/organization/statistics',
+          label: 'Statistics',
+          hidden: false,
+          children: [],
+        },
+        {
+          icon: SettingsIcon,
+          path: '/settings/organization/privacy',
+          label: 'Privacy',
+          hidden: false,
+          children: [],
+        },
+      ],
+    },
+    {
+      icon: BriefcaseBusinessIcon,
+      path: '/settings/workspaces',
+      label: 'Workspaces',
+      hidden: false,
+      children: [
+        {
+          icon: BriefcaseBusinessIcon,
+          path: '/settings/workspaces',
+          label: 'Overview',
+          hidden: false,
+          children: [],
+        },
+        {
+          icon: UsersIcon,
+          path: '/settings/workspace/users',
+          label: 'Users',
+          hidden: false,
+          children: [],
+        },
+      ],
+    },
+    {
+      icon: FolderKanbanIcon,
+      path: '/settings/projects',
+      label: 'Projects',
+      hidden: false,
+      children: [
+        {
+          icon: FolderKanbanIcon,
+          path: '/settings/projects',
+          label: 'Overview',
+          hidden: false,
+          children: [],
+        },
+        {
+          icon: UsersIcon,
+          path: '/settings/project/users',
+          label: 'Users',
+          hidden: false,
+          children: [],
+        },
+      ],
+    },
+  ];
+
+  const adminRoutes: NavItem[] = [
+    spacerNavItem,
+    {
+      icon: SettingsIcon,
+      path: '/admin',
       label: 'Space Manager',
       hidden: false,
       children: [],
     },
   ];
 
-  const defaultNavItems = computed(() => {
-    const publicRoutes = [
-      {
-        name: 'home',
-        icon: HomeIcon,
-        to: '/',
-        label: 'Home',
-        hidden: false,
-        children: [],
-      },
-      {
-        name: 'workflows',
-        icon: WorkflowIcon,
-        to: `/projects/${workspaceStore.activeProjectId}`,
-        label: 'Workflows',
-        hidden: false,
-        children: [],
-      },
-      /*{
-        name: 'documents',
-        icon: FileTextIcon,
-        to: `/documents`,
-        label: 'Documents',
-        children: [],
-      },
-      {
-        name: 'editor',
-        icon: PenLineIcon,
-        to: '/editor',
-        label: 'Editor',
-        hidden: true,
-        children: [],
-      },*/
-      {
-        name: 'chats',
-        icon: MessagesSquareIcon,
-        to: '/chats',
-        label: 'Chat',
-        hidden: false,
-        children: [],
-      },
-      {
-        name: 'chat-history',
-        icon: ArchiveIcon,
-        to: '/chats/history',
-        label: 'Chat History',
-        hidden: false,
-        children: [],
-      },
-      {
-        name: 'assistants',
-        icon: BotIcon,
-        to: '/assistants',
-        label: 'Assistants',
-        hidden: false,
-        children: [],
-      },
-      {
-        name: 'collections',
-        icon: DatabaseIcon,
-        to: `/collections`,
-        label: 'Collections',
-        children: [],
-      },
-      {
-        name: 'media',
-        icon: CloudUploadIcon,
-        to: '/media',
-        label: 'File Manager',
-        children: [],
-      },
-      {
-        name: 'image-gen',
-        icon: ImageIcon,
-        to: '/image-gen',
-        label: 'Image Gen',
-        children: [],
-      },
-      {
-        name: 'speech',
-        icon: SpeechIcon,
-        to: `/speech`,
-        label: 'Speech',
-        children: [],
-      },
-    ];
-    if (auth.value?.user.roles?.includes('admin')) {
-      return [...publicRoutes, ...adminRoutes];
-    }
-    return publicRoutes;
-  });
-
-  const settings = [
+  const imageGenRoutes: NavItem[] = [
     {
-      name: 'Profile',
-      icon: UserIcon,
-      to: '/settings/profile',
-      label: 'My Profile',
+      icon: PaintbrushVerticalIcon,
+      path: '/text-to-image',
+      label: 'Create',
       hidden: false,
       children: [],
     },
+    // Assets
     {
-      name: 'Organization',
-      icon: Building2Icon,
-      to: '/settings/organization',
-      label: 'Organization',
+      icon: ImageIcon,
+      path: '/text-to-image/assets',
+      label: 'Assets',
       hidden: false,
-      children: [
-        {
-          name: 'Organization',
-          icon: Building2Icon,
-          to: '/settings/organization',
-          label: 'Overview',
-          hidden: false,
-        },
-        {
-          name: 'Members',
-          icon: UsersIcon,
-          to: '/settings/organization/members',
-          label: 'Members',
-          hidden: false,
-        },
-        {
-          name: 'Billing',
-          icon: SettingsIcon,
-          to: '/settings/organization/billing',
-          label: 'Billing',
-          hidden: false,
-        },
-        {
-          name: 'Models',
-          icon: SettingsIcon,
-          to: '/settings/organization/models',
-          label: 'Models',
-          hidden: false,
-        },
-        {
-          name: 'Statistics',
-          icon: SettingsIcon,
-          to: '/settings/organization/statistics',
-          label: 'Statistics',
-          hidden: false,
-        },
-        {
-          name: 'Privacy',
-          icon: SettingsIcon,
-          to: '/settings/organization/privacy',
-          label: 'Privacy',
-          hidden: false,
-        },
-      ],
-    },
-    {
-      name: 'Workspace',
-      icon: BriefcaseBusinessIcon,
-      to: '/settings/workspaces',
-      label: 'Workspaces',
-      hidden: false,
-      children: [
-        {
-          name: 'General',
-          icon: BriefcaseBusinessIcon,
-          to: '/settings/workspaces',
-          label: 'Overview',
-        },
-        {
-          name: 'Users',
-          icon: UsersIcon,
-          to: '/settings/workspace/users',
-          label: 'Users',
-        },
-      ],
-    },
-    {
-      name: 'Project',
-      icon: FolderKanbanIcon,
-      to: '/settings/projects',
-      label: 'Projects',
-      hidden: false,
-      children: [
-        {
-          name: 'General',
-          icon: FolderKanbanIcon,
-          to: '/settings/projects',
-          label: 'Overview',
-        },
-        {
-          name: 'Users',
-          icon: UsersIcon,
-          to: '/settings/project/users',
-          label: 'Users',
-        },
-      ],
+      children: [],
     },
   ];
 
-  const navItems = computed(() => {
-    if (props.isSettings) {
-      return settings;
+  const isAdmin = computed(() => auth.value?.user.roles?.includes(UserRoles.ADMIN) ?? false);
+
+  const navItems: Ref<NavItem[]> = computed((): NavItem[] => {
+    const items = [homeNavItem, spacerNavItem];
+
+    if (route.path.includes('/settings')) {
+      items.push(...settingsRoutes);
+    } else if (route.path.includes('/text-to-image')) {
+      items.push(...imageGenRoutes);
+    } else {
+      items.push(...defaultRoutes.value);
+
+      if (isAdmin.value) {
+        items.push(...adminRoutes);
+      }
     }
-    return defaultNavItems.value;
+
+    return items;
   });
 
   const { pressed } = useMousePressed({ target: navBarResizerRef });
@@ -306,20 +333,20 @@
       <div class="flex h-full flex-col">
         <ul class="space-y-2">
           <template v-for="(item, index) in navItems" :key="index">
-            <li v-if="item.to" class="nav-item">
+            <li v-if="item.path" class="nav-item">
               <NavLink
-                v-if="item.to"
-                :active="route.path === item.to"
-                :to="item.to"
+                v-if="item.path"
+                :active="route.path === item.path"
+                :to="item.path"
                 :icon="item.icon"
                 :label="item.label"
                 :label-visible="navBar.isOpen"
               />
               <ul v-if="item.children.length > 0" :class="navBar.isOpen ? 'block' : 'hidden'">
-                <li v-for="child in item.children" :key="child?.to" class="nav-item-child">
+                <li v-for="child in item.children" :key="child?.path" class="nav-item-child">
                   <NavLink
-                    :active="$route.path === child?.to"
-                    :to="child?.to"
+                    :active="$route.path === child?.path"
+                    :to="child?.path"
                     :icon="child?.icon"
                     :label="child?.label"
                     :label-visible="navBar.isOpen"

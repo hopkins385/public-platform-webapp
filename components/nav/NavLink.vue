@@ -1,10 +1,10 @@
 <script setup lang="ts">
   defineProps<{
-    active: Boolean;
+    active: boolean;
     to: string;
     icon: any;
     label: string;
-    labelVisible: Boolean;
+    labelVisible: boolean;
   }>();
 </script>
 
@@ -15,10 +15,7 @@
     :class="active ? 'nav-link-active' : ''"
   >
     <component :is="icon" class="nav-icon default-icon" />
-    <span
-      class="truncate px-4 text-foreground"
-      :class="labelVisible ? 'block opacity-100' : 'hidden opacity-0'"
-    >
+    <span class="truncate px-4 text-foreground" :class="labelVisible ? 'block opacity-100' : 'hidden opacity-0'">
       {{ label }}
     </span>
   </NuxtLinkLocale>
