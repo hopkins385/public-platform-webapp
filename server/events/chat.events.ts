@@ -1,12 +1,10 @@
 import type { FirstUserMessageEventDto, StreamFinishedEventDto } from '~/server/services/dto/event.dto';
 import type { ChatToolCallEventDto } from './dto/chatToolCallEvent.dto';
-import { ChatService } from '~/server/services/chat.service';
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import socket from '../socket';
-import prisma from '../prisma';
 import consola from 'consola';
+import { chatService } from '../service-instances';
 
-const chatService = new ChatService(prisma);
 const { queueAddJob } = useBullmq();
 
 const logger = consola.create({}).withTag('chat-events');

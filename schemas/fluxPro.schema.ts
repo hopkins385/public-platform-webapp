@@ -18,7 +18,7 @@ export const FluxProInputsSchema = z.object({
     .min(256)
     .max(1440)
     .multipleOf(32)
-    .default(768)
+    .default(1024)
     .optional()
     .describe('Height of the generated image in pixels. Must be a multiple of 32.'),
   steps: z

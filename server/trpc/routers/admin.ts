@@ -1,16 +1,10 @@
-import { TeamService } from '~/server/services/team.service';
-import { UserService } from '~/server/services/user.service';
 import { z } from 'zod';
 import { adminProcedure, router } from '../trpc';
 import { CreateUserByAdminDto, UpdateUserByAdminDto } from '~/server/services/dto/admin-user.dto';
-import prisma from '~/server/prisma';
 import { cuidRule, idSchema } from '~/server/utils/validation/ulid.rule';
 
 const pageRule = () => z.number().int().positive().default(1);
 const limitRule = () => z.number().int().positive().default(20);
-
-const userService = new UserService(prisma);
-const teamService = new TeamService(prisma);
 
 const adminUsersRouter = router({
   allPaginated: adminProcedure
@@ -21,8 +15,8 @@ const adminUsersRouter = router({
         search: z.string().optional(),
       }),
     )
-    .query(async ({ ctx: { user }, input }) => {
-      return await userService.getAllUsersByOrgId({
+    .query(async ({ ctx: { user, services }, input }) => {
+      return await services.userService.getAllUsersByOrgId({
         orgId: user.orgId,
         page: input.page,
         limit: input.limit,
@@ -30,8 +24,8 @@ const adminUsersRouter = router({
       });
     }),
 
-  first: adminProcedure.input(idSchema).query(async ({ input }) => {
-    const user = await userService.getUserById(input.id);
+  first: adminProcedure.input(idSchema).query(async ({ ctx: { services }, input }) => {
+    const user = await services.userService.getUserById(input.id);
     return user;
   }),
 
@@ -45,9 +39,9 @@ const adminUsersRouter = router({
         isAdmin: z.boolean().default(false),
       }),
     )
-    .mutation(async ({ ctx: { user }, input }) => {
+    .mutation(async ({ ctx: { user, services }, input }) => {
       const randomString = Math.random().toString(36).substring(7);
-      return await userService.createNewUserByAdmin(
+      return await services.userService.createNewUserByAdmin(
         CreateUserByAdminDto.fromInput({
           email: input.email,
           firstName: input.firstName,
@@ -69,8 +63,8 @@ const adminUsersRouter = router({
         isAdmin: z.boolean().optional(),
       }),
     )
-    .mutation(async ({ input }) => {
-      return await userService.updateByAdmin(
+    .mutation(async ({ ctx: { services }, input }) => {
+      return await services.userService.updateByAdmin(
         UpdateUserByAdminDto.fromInput({
           userId: input.id,
           email: input.email,
@@ -81,8 +75,8 @@ const adminUsersRouter = router({
       );
     }),
 
-  delete: adminProcedure.input(idSchema).mutation(async ({ ctx: { user }, input }) => {
-    return await userService.softDeleteUser(input.id, user.orgId);
+  delete: adminProcedure.input(idSchema).mutation(async ({ ctx: { user, services }, input }) => {
+    return await services.userService.softDeleteUser(input.id, user.orgId);
   }),
 });
 
@@ -95,8 +89,8 @@ const adminTeamsRouter = router({
         search: z.string().optional(),
       }),
     )
-    .query(async ({ ctx: { user }, input }) => {
-      return await teamService.getAllTeamsByOrgId({
+    .query(async ({ ctx: { user, services }, input }) => {
+      return await services.teamService.getAllTeamsByOrgId({
         orgId: user.orgId,
         page: input.page,
         limit: input.limit,
@@ -104,8 +98,8 @@ const adminTeamsRouter = router({
       });
     }),
 
-  deleteTeam: adminProcedure.input(idSchema).mutation(async ({ ctx: { user }, input }) => {
-    return await teamService.softDeleteTeam(input.id, user.orgId);
+  deleteTeam: adminProcedure.input(idSchema).mutation(async ({ ctx: { user, services }, input }) => {
+    return await services.teamService.softDeleteTeam(input.id, user.orgId);
   }),
 });
 

@@ -1,12 +1,8 @@
 import { cuidRule } from '~/server/utils/validation/ulid.rule';
-import { MediaAbleService } from '~/server/services/media-able.service';
 import { mediaAbleRule } from '~/server/utils/validation/media-able.rule';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { AttachMediaAbleDto, DetachMediaAbleDto } from '~/server/services/dto/media-able.dto';
-import prisma from '~/server/prisma';
-
-const mediaAbleService = new MediaAbleService(prisma);
 
 export const mediaAbleRouter = router({
   attachTo: protectedProcedure
@@ -16,13 +12,13 @@ export const mediaAbleRouter = router({
         model: mediaAbleRule(),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx: { services }, input }) => {
       const payload = AttachMediaAbleDto.fromInput({
         mediaId: input.mediaId.toLowerCase(),
         mediaAbleId: input.model.id,
         mediaAbleType: input.model.type,
       });
-      return mediaAbleService.attachTo(payload);
+      return await services.mediaAbleService.attachTo(payload);
     }),
 
   detachFrom: protectedProcedure
@@ -31,9 +27,9 @@ export const mediaAbleRouter = router({
         model: mediaAbleRule(),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx: { services }, input }) => {
       const payload = DetachMediaAbleDto.fromInput(input.model);
-      return mediaAbleService.detachFrom(payload);
+      return await services.mediaAbleService.detachFrom(payload);
     }),
 
   /*find: protectedProcedure

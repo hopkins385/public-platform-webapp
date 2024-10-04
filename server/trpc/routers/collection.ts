@@ -1,12 +1,8 @@
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { CreateCollectionDto } from '~/server/services/dto/collection.dto';
-import { CollectionService } from '~/server/services/collection.service';
 import { collectionAbleRule } from '~/server/utils/validation/collection-able.rule';
 import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
-import prisma from '~/server/prisma';
-
-const collectionService = new CollectionService(prisma);
 
 export const collectionRouter = router({
   create: protectedProcedure
@@ -16,13 +12,13 @@ export const collectionRouter = router({
         description: z.string().optional().or(z.string().min(3).max(255)),
       }),
     )
-    .mutation(async ({ input, ctx: { user } }) => {
+    .mutation(async ({ input, ctx: { user, services } }) => {
       const payload = CreateCollectionDto.fromInput({
         teamId: user.teamId,
         name: input.name,
         description: input.description,
       });
-      return collectionService.createCollection(payload);
+      return await services.collectionService.createCollection(payload);
     }),
 
   findFirst: protectedProcedure
@@ -31,18 +27,18 @@ export const collectionRouter = router({
         id: cuidRule(),
       }),
     )
-    .query(async ({ input, ctx: { user } }) => {
-      return collectionService.findFirst(user.teamId, input.id);
+    .query(async ({ input, ctx: { user, services } }) => {
+      return await services.collectionService.findFirst(user.teamId, input.id);
     }),
 
-  findAll: protectedProcedure.query(async ({ ctx: { user } }) => {
-    return collectionService.findAll(user.teamId);
+  findAll: protectedProcedure.query(async ({ ctx: { user, services } }) => {
+    return await services.collectionService.findAll(user.teamId);
   }),
 
   findAllPaginated: protectedProcedure
     .input(z.object({ page: z.number().int().positive().default(1) }))
-    .query(async ({ input, ctx: { user } }) => {
-      return collectionService.findAllPaginated(user.teamId, input.page);
+    .query(async ({ input, ctx: { user, services } }) => {
+      return await services.collectionService.findAllPaginated(user.teamId, input.page);
     }),
 
   findAllFor: protectedProcedure
@@ -51,9 +47,9 @@ export const collectionRouter = router({
         model: collectionAbleRule(),
       }),
     )
-    .query(async ({ input }) => {
+    .query(async ({ ctx: { services }, input }) => {
       const payload = CollectionAbleDto.fromInput(input.model);
-      return collectionService.findAllFor(payload);
+      return await services.collectionService.findAllFor(payload);
     }),
 
   update: protectedProcedure
@@ -64,13 +60,13 @@ export const collectionRouter = router({
         description: z.string().optional().or(z.string().min(3).max(255)),
       }),
     )
-    .mutation(async ({ input, ctx: { user } }) => {
+    .mutation(async ({ input, ctx: { user, services } }) => {
       const payload = CreateCollectionDto.fromInput({
         teamId: user.teamId,
         name: input.name,
         description: input.description,
       });
-      return collectionService.update(user.teamId, input.id, payload);
+      return await services.collectionService.update(user.teamId, input.id, payload);
     }),
 
   delete: protectedProcedure
@@ -79,7 +75,7 @@ export const collectionRouter = router({
         id: cuidRule(),
       }),
     )
-    .mutation(async ({ input, ctx: { user } }) => {
-      return collectionService.softDelete(user.teamId, input.id);
+    .mutation(async ({ input, ctx: { user, services } }) => {
+      return await services.collectionService.softDelete(user.teamId, input.id);
     }),
 });

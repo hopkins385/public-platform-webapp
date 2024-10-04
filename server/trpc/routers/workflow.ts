@@ -1,12 +1,8 @@
 import { CreateWorkflowDto, FindAllWorkflowsDto, UpdateWorkflowDto } from '~/server/services/dto/workflow.dto';
-import { WorkflowService } from '~/server/services/workflow.service';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { cuidRule } from '~/server/utils/validation/ulid.rule';
 import { TRPCError } from '@trpc/server';
-import prisma from '~/server/prisma';
-
-const workflowService = new WorkflowService(prisma);
 
 export const workflowRouter = router({
   // create workflow
@@ -19,10 +15,10 @@ export const workflowRouter = router({
         description: z.string(),
       }),
     )
-    .mutation(async ({ ctx: { user }, input }) => {
+    .mutation(async ({ ctx: { user, services }, input }) => {
       const payload = CreateWorkflowDto.fromInput(input);
-      const pass = await workflowService.canCreateWorkflowPolicy(payload, user);
-      return await workflowService.create(payload);
+      const pass = await services.workflowService.canCreateWorkflowPolicy(payload, user);
+      return await services.workflowService.create(payload);
     }),
 
   // re-create workflow from media
@@ -33,9 +29,9 @@ export const workflowRouter = router({
         mediaId: cuidRule(),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx: { services }, input }) => {
       // const pass = await workflowService.canReCreateFromMediaPolicy(input.workflowId, user);
-      return await workflowService.reCreateFromMedia(input);
+      return await services.workflowService.reCreateFromMedia(input);
     }),
 
   // find workflow including steps
@@ -45,8 +41,8 @@ export const workflowRouter = router({
         workflowId: cuidRule(),
       }),
     )
-    .query(async ({ ctx: { user }, input }) => {
-      const workflow = await workflowService.findFirstWithSteps(input.workflowId);
+    .query(async ({ ctx: { user, services }, input }) => {
+      const workflow = await services.workflowService.findFirstWithSteps(input.workflowId);
 
       if (!workflow) {
         throw new TRPCError({
@@ -56,7 +52,7 @@ export const workflowRouter = router({
       }
 
       // policy check
-      workflowService.canAccessWorkflowPolicy(workflow.project.team.id, user);
+      services.workflowService.canAccessWorkflowPolicy(workflow.project.team.id, user);
 
       return workflow;
     }),
@@ -68,8 +64,8 @@ export const workflowRouter = router({
         workflowId: cuidRule(),
       }),
     )
-    .query(async ({ ctx: { user }, input }) => {
-      const workflow = await workflowService.findFirst(input.workflowId);
+    .query(async ({ ctx: { user, services }, input }) => {
+      const workflow = await services.workflowService.findFirst(input.workflowId);
 
       if (!workflow) {
         throw new TRPCError({
@@ -79,7 +75,7 @@ export const workflowRouter = router({
       }
 
       // policy check
-      workflowService.canAccessWorkflowPolicy(workflow.project.team.id, user);
+      services.workflowService.canAccessWorkflowPolicy(workflow.project.team.id, user);
 
       return workflow;
     }),
@@ -91,10 +87,10 @@ export const workflowRouter = router({
         page: z.number().default(1),
       }),
     )
-    .query(async ({ input }) => {
+    .query(async ({ ctx: { services }, input }) => {
       const payload = FindAllWorkflowsDto.fromInput(input);
 
-      const workflow = await workflowService.findAll(payload);
+      const workflow = await services.workflowService.findAll(payload);
 
       // TODO: policy check
       // const pass = workflowService.canAccessWorkflowPolicy(
@@ -111,8 +107,8 @@ export const workflowRouter = router({
         page: z.number().default(1),
       }),
     )
-    .query(async ({ ctx: { user }, input }) => {
-      return workflowService.findAllForUser(user.id, input?.projectId, input.page);
+    .query(async ({ ctx: { user, services }, input }) => {
+      return services.workflowService.findAllForUser(user.id, input?.projectId, input.page);
     }),
 
   // update workflow
@@ -124,12 +120,12 @@ export const workflowRouter = router({
         description: z.string(),
       }),
     )
-    .mutation(async ({ ctx: { user }, input }) => {
+    .mutation(async ({ ctx: { user, services }, input }) => {
       const payload = UpdateWorkflowDto.fromInput(input);
 
-      const pass = await workflowService.canUpdateWorkflowPolicy(payload, user);
+      const pass = await services.workflowService.canUpdateWorkflowPolicy(payload, user);
 
-      return workflowService.update(payload);
+      return services.workflowService.update(payload);
     }),
 
   // delete workflow
@@ -139,10 +135,10 @@ export const workflowRouter = router({
         workflowId: cuidRule(),
       }),
     )
-    .mutation(async ({ ctx: { user }, input }) => {
-      const pass = await workflowService.canDeleteWorkflowPolicy(input.workflowId, user);
+    .mutation(async ({ ctx: { user, services }, input }) => {
+      const pass = await services.workflowService.canDeleteWorkflowPolicy(input.workflowId, user);
 
-      return await workflowService.delete(input.workflowId);
+      return await services.workflowService.delete(input.workflowId);
     }),
 
   deleteRows: protectedProcedure
@@ -152,10 +148,10 @@ export const workflowRouter = router({
         orderColumns: z.array(z.number()),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx: { services }, input }) => {
       // const pass = await workflowService.canDeleteRowsPolicy(input.workflowId, ctx.user);
 
-      return await workflowService.deleteRows({
+      return await services.workflowService.deleteRows({
         workflowId: input.workflowId,
         orderColumns: input.orderColumns,
       });
@@ -168,10 +164,10 @@ export const workflowRouter = router({
         workflowId: cuidRule(),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx: { services }, input }) => {
       // const pass = await workflowService.canClearRowsPolicy(input.workflowId, ctx.user);
 
-      return await workflowService.clearAllRows({
+      return await services.workflowService.clearAllRows({
         workflowId: input.workflowId,
       });
     }),

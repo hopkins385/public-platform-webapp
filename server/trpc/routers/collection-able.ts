@@ -5,10 +5,6 @@ import {
   DetachAllCollectionAbleDto,
   DetachCollectionAbleDto,
 } from '~/server/services/dto/collection-able.dto';
-import { CollectionAbleService } from '~/server/services/collection-able.service';
-import prisma from '~/server/prisma';
-
-const collectionAbleService = new CollectionAbleService(prisma);
 
 export const collectionAbleRouter = router({
   attachTo: protectedProcedure
@@ -18,9 +14,9 @@ export const collectionAbleRouter = router({
         collectionId: cuidRule(),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx: { services }, input }) => {
       const payload = AttachCollectionAbleDto.fromInput(input);
-      return collectionAbleService.attachTo(payload);
+      return await services.collectionAbleService.attachTo(payload);
     }),
 
   detachFrom: protectedProcedure
@@ -30,9 +26,9 @@ export const collectionAbleRouter = router({
         collectionId: cuidRule(),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx: { services }, input }) => {
       const payload = DetachCollectionAbleDto.fromInput(input);
-      return collectionAbleService.detachFrom(payload);
+      return await services.collectionAbleService.detachFrom(payload);
     }),
 
   detachAllFrom: protectedProcedure
@@ -41,9 +37,9 @@ export const collectionAbleRouter = router({
         model: collectionAbleRule(),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx: { services }, input }) => {
       const payload = DetachAllCollectionAbleDto.fromInput(input);
-      return collectionAbleService.detachAllFrom(payload);
+      return await services.collectionAbleService.detachAllFrom(payload);
     }),
 
   replaceTo: protectedProcedure
@@ -53,8 +49,8 @@ export const collectionAbleRouter = router({
         collectionId: cuidRule(),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx: { services }, input }) => {
       const payload = AttachCollectionAbleDto.fromInput(input);
-      return collectionAbleService.replaceTo(payload);
+      return await services.collectionAbleService.replaceTo(payload);
     }),
 });

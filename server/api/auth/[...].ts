@@ -1,11 +1,11 @@
 import type { DefaultSession } from 'next-auth';
 import { NuxtAuthHandler } from '#auth';
 import Auth0Provider from 'next-auth/providers/auth0';
-import { UserService } from '~/server/services/user.service';
 import { AuthEvent } from '~/server/utils/enums/auth-event.enum';
 import { useEvents } from '~/server/events/useEvents';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from '~/server/prisma';
+import { userService } from '~/server/service-instances';
 
 declare module 'next-auth' {
   interface Session {
@@ -33,7 +33,6 @@ export interface SessionUser {
 const { secret, auth0 } = useRuntimeConfig().auth;
 
 const { event } = useEvents();
-const userService = new UserService(prisma);
 
 function getRoles(user: any) {
   if (!Array.isArray(user.roles)) {

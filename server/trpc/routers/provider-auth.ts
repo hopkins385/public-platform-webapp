@@ -1,9 +1,5 @@
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
-import { ProviderAuthService } from '~/server/services/provider-auth.service';
-import prisma from '~/server/prisma';
-
-const providerAuthService = new ProviderAuthService(prisma);
 
 export const providerAuthRouter = router({
   get: protectedProcedure
@@ -13,8 +9,8 @@ export const providerAuthRouter = router({
         type: z.enum(['googledrive', 'onedrive']),
       }),
     )
-    .query(async ({ input, ctx: { user } }) => {
-      return await providerAuthService.findFirst({
+    .query(async ({ input, ctx: { user, services } }) => {
+      return await services.providerAuthService.findFirst({
         userId: user.id,
         providerName: input.providerName,
         type: input.type,

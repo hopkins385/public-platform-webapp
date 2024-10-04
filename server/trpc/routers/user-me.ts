@@ -1,14 +1,10 @@
-import { UserService } from '~/server/services/user.service';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
-import prisma from '~/server/prisma';
-
-const userService = new UserService(prisma);
 
 export const userMeRouter = router({
   // get me
-  user: protectedProcedure.query(async ({ ctx: { user } }) => {
-    return await userService.getUserById(user.id);
+  user: protectedProcedure.query(async ({ ctx: { user, services } }) => {
+    return await services.userService.getUserById(user.id);
   }),
   // update me
   update: protectedProcedure
@@ -20,9 +16,9 @@ export const userMeRouter = router({
         }),
       }),
     )
-    .mutation(async ({ ctx: { user }, input }) => {
+    .mutation(async ({ ctx: { user, services }, input }) => {
       const { data } = input;
-      return await userService.updateUserName({ userId: user.id, ...data });
+      return await services.userService.updateUserName({ userId: user.id, ...data });
     }),
   updatePassword: protectedProcedure
     .input(
@@ -31,8 +27,8 @@ export const userMeRouter = router({
         newPassword: z.string().min(6).max(100),
       }),
     )
-    .mutation(async ({ ctx: { user }, input }) => {
-      return await userService.updatePassword(user.id, input.currentPassword, input.newPassword);
+    .mutation(async ({ ctx: { user, services }, input }) => {
+      return await services.userService.updatePassword(user.id, input.currentPassword, input.newPassword);
     }),
   delete: protectedProcedure
     .input(
@@ -41,10 +37,10 @@ export const userMeRouter = router({
         password: z.string().min(6).max(100),
       }),
     )
-    .mutation(async ({ ctx: { user }, input }) => {
+    .mutation(async ({ ctx: { user, services }, input }) => {
       if (user.id !== input.userId.toLowerCase()) {
         throw new Error('Invalid user');
       }
-      return await userService.softDelete(user.id, input.password);
+      return await services.userService.softDelete(user.id, input.password);
     }),
 });

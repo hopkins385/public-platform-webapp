@@ -1,10 +1,6 @@
-import { DocumentService } from './../../services/document.service';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { CreateDocumentDto, FindAllDocumentsDto, UpdateDocumentDto } from '~/server/services/dto/document.dto';
-import prisma from '~/server/prisma';
-
-const documentService = new DocumentService(prisma);
 
 export const documentRouter = router({
   // create document
@@ -17,9 +13,9 @@ export const documentRouter = router({
         projectId: cuidRule(),
       }),
     )
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input, ctx: { services } }) => {
       const payload = CreateDocumentDto.fromInput(input);
-      return documentService.create(payload);
+      return await services.documentService.create(payload);
     }),
   // find document
   find: protectedProcedure
@@ -29,8 +25,8 @@ export const documentRouter = router({
         documentId: cuidRule(),
       }),
     )
-    .query(async ({ input, ctx }) => {
-      return documentService.findFirst(input.projectId.toLowerCase(), input.documentId.toLowerCase());
+    .query(async ({ input, ctx: { services } }) => {
+      return await services.documentService.findFirst(input.projectId.toLowerCase(), input.documentId.toLowerCase());
     }),
   // find all documents
   findAll: protectedProcedure
@@ -40,9 +36,9 @@ export const documentRouter = router({
         page: z.number().default(1),
       }),
     )
-    .query(({ input, ctx }) => {
+    .query(async ({ input, ctx: { services } }) => {
       const payload = FindAllDocumentsDto.fromInput(input);
-      return documentService.findAll(payload);
+      return await services.documentService.findAll(payload);
     }),
   // update document
   update: protectedProcedure
@@ -54,9 +50,9 @@ export const documentRouter = router({
         status: z.string(),
       }),
     )
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input, ctx: { services } }) => {
       const payload = UpdateDocumentDto.fromInput(input);
-      return documentService.update(payload);
+      return await services.documentService.update(payload);
     }),
   // delete document
   delete: protectedProcedure
@@ -65,8 +61,8 @@ export const documentRouter = router({
         documentId: cuidRule(),
       }),
     )
-    .query(async ({ input, ctx }) => {
-      return documentService.softDelete(input.documentId.toLowerCase());
+    .query(async ({ input, ctx: { services } }) => {
+      return await services.documentService.softDelete(input.documentId.toLowerCase());
     }),
   parse: protectedProcedure
     .input(
@@ -74,7 +70,7 @@ export const documentRouter = router({
         documentId: cuidRule(),
       }),
     )
-    .query(async ({ input, ctx }) => {
-      return documentService.parse(input.documentId.toLowerCase());
+    .query(async ({ input, ctx: { services } }) => {
+      return await services.documentService.parse(input.documentId.toLowerCase());
     }),
 });

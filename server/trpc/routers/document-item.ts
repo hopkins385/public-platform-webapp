@@ -1,11 +1,7 @@
-import { DocumentItemService } from './../../services/document-item.service';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { cuidRule } from '~/server/utils/validation/ulid.rule';
 import { CreateDocumentItemDto, UpdateDocumentItemDto } from '~/server/services/dto/document-item.dto';
-import prisma from '~/server/prisma';
-
-const documentItemService = new DocumentItemService(prisma);
 
 export const documentItemRouter = router({
   create: protectedProcedure
@@ -18,9 +14,9 @@ export const documentItemRouter = router({
         content: z.string(),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx: { services }, input }) => {
       const payload = CreateDocumentItemDto.fromInput(input);
-      return await documentItemService.create(payload);
+      return await services.documentItemService.create(payload);
     }),
   createMany: protectedProcedure
     .input(
@@ -34,9 +30,9 @@ export const documentItemRouter = router({
         }),
       ),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx: { services }, input }) => {
       const payload = input.map((item) => CreateDocumentItemDto.fromInput(item));
-      return await documentItemService.createMany(payload);
+      return await services.documentItemService.createMany(payload);
     }),
   find: protectedProcedure
     .input(
@@ -44,8 +40,8 @@ export const documentItemRouter = router({
         documentItemId: cuidRule(),
       }),
     )
-    .query(async ({ input }) => {
-      return await documentItemService.findFirst(input.documentItemId.toLowerCase());
+    .query(async ({ ctx: { services }, input }) => {
+      return await services.documentItemService.findFirst(input.documentItemId.toLowerCase());
     }),
   findMany: protectedProcedure
     .input(
@@ -53,8 +49,8 @@ export const documentItemRouter = router({
         documentId: cuidRule(),
       }),
     )
-    .query(async ({ input }) => {
-      return await documentItemService.findMany(input.documentId.toLowerCase());
+    .query(async ({ ctx: { services }, input }) => {
+      return await services.documentItemService.findMany(input.documentId.toLowerCase());
     }),
   update: protectedProcedure
     .input(
@@ -66,9 +62,9 @@ export const documentItemRouter = router({
         type: z.string().optional(),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx: { services }, input }) => {
       const payload = UpdateDocumentItemDto.fromInput(input);
-      return await documentItemService.update(payload);
+      return await services.documentItemService.update(payload);
     }),
   updateMany: protectedProcedure
     .input(
@@ -82,9 +78,9 @@ export const documentItemRouter = router({
         }),
       ),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx: { services }, input }) => {
       const payload = input.map((item) => UpdateDocumentItemDto.fromInput(item));
-      return await documentItemService.updateMany(payload);
+      return await services.documentItemService.updateMany(payload);
     }),
   delete: protectedProcedure
     .input(
@@ -92,7 +88,7 @@ export const documentItemRouter = router({
         documentItemId: cuidRule(),
       }),
     )
-    .mutation(async ({ input }) => {
-      return await documentItemService.softDelete(input.documentItemId.toLowerCase());
+    .mutation(async ({ ctx: { services }, input }) => {
+      return await services.documentItemService.softDelete(input.documentItemId.toLowerCase());
     }),
 });

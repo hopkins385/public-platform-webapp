@@ -5,7 +5,6 @@ import { assistantRouter } from './assistant';
 import { tokenizerRouter } from './tokenizer';
 import { chatRouter } from './chat';
 import { llmsRouter } from './llm-models';
-import { registerRouter } from './register';
 import { projectRouter } from './project';
 import { workflowRouter } from './workflow';
 import { documentRouter } from './document';
@@ -27,7 +26,6 @@ export const appRouter = router({
   onboarding: onboardingRouter,
   admin: adminRouter,
   usage: usageRouter,
-  register: registerRouter,
   llms: llmsRouter,
   chat: chatRouter,
   collection: collectionRouter,

@@ -1,9 +1,5 @@
-import { CreatesNewUserAction } from '~/server/actions/createsNewUserAction';
 import { protectedProcedure, router } from '../trpc';
-import prisma from '~/server/prisma';
 import { z } from 'zod';
-
-const createNewUserAction = new CreatesNewUserAction(prisma);
 
 export const onboardingRouter = router({
   newUserAction: protectedProcedure
@@ -12,9 +8,9 @@ export const onboardingRouter = router({
         orgName: z.string().min(3).max(100),
       }),
     )
-    .mutation(async ({ ctx: { user }, input }) => {
+    .mutation(async ({ ctx: { user, actions }, input }) => {
       try {
-        const result = await createNewUserAction.run({
+        const result = await actions.createNewUserAction.run({
           userId: user.id,
           orgName: input.orgName,
         });

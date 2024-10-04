@@ -1,11 +1,7 @@
 import { mediaAbleRule } from '~/server/utils/validation/media-able.rule';
-import { MediaService } from '~/server/services/media.service';
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { MediaAbleDto } from '~/server/services/dto/media-able.dto';
-import prisma from '~/server/prisma';
-
-const mediaService = new MediaService(prisma);
 
 export const mediaRouter = router({
   find: protectedProcedure
@@ -14,8 +10,8 @@ export const mediaRouter = router({
         mediaId: cuidRule(),
       }),
     )
-    .query(async ({ input }) => {
-      return await mediaService.findFirst(input.mediaId);
+    .query(async ({ ctx: { services }, input }) => {
+      return await services.mediaService.findFirst(input.mediaId);
     }),
 
   findAllFor: protectedProcedure
@@ -24,9 +20,9 @@ export const mediaRouter = router({
         model: mediaAbleRule(),
       }),
     )
-    .query(async ({ input }) => {
+    .query(async ({ ctx: { services }, input }) => {
       const model = MediaAbleDto.fromInput(input.model);
-      return await mediaService.findAllFor(model);
+      return await services.mediaService.findAllFor(model);
     }),
 
   paginateFindAllFor: protectedProcedure
@@ -37,10 +33,10 @@ export const mediaRouter = router({
         limit: z.number().default(10).optional(),
       }),
     )
-    .query(async ({ input }) => {
+    .query(async ({ ctx: { services }, input }) => {
       const { limit, page, model } = input;
       const payload = MediaAbleDto.fromInput(model);
-      return await mediaService.paginateFindAllFor(payload, page, limit);
+      return await services.mediaService.paginateFindAllFor(payload, page, limit);
     }),
 
   delete: protectedProcedure
@@ -49,7 +45,7 @@ export const mediaRouter = router({
         mediaId: cuidRule(),
       }),
     )
-    .mutation(async ({ input, ctx }) => {
-      return await mediaService.delete(input.mediaId);
+    .mutation(async ({ ctx: { services }, input }) => {
+      return await services.mediaService.delete(input.mediaId);
     }),
 });

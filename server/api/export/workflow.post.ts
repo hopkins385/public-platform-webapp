@@ -1,11 +1,8 @@
-import { WorkflowService } from '../../services/workflow.service';
 import { getServerSession } from '#auth';
 import consola from 'consola';
-import prisma from '~/server/prisma';
+import { workflowService } from '~/server/service-instances';
 
 const logger = consola.create({}).withTag('api.export.workflow.post');
-
-const workflowService = new WorkflowService(prisma);
 
 export default defineEventHandler(async (_event) => {
   const session = await getServerSession(_event);

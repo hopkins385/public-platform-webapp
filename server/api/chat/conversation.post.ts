@@ -2,10 +2,8 @@ import type { H3Event } from 'h3';
 import type { StreamTextResult } from 'ai';
 import type { ToolInfoData } from '../../chatTools/chatTools';
 import { ChatToolCallEventDto } from '../../events/dto/chatToolCallEvent.dto';
-import { CollectionService } from '~/server/services/collection.service';
 import { TokenizerService } from '~/server/services/tokenizer.service';
 import { getServerSession } from '#auth';
-import { ChatService } from '~/server/services/chat.service';
 import { getConversationBody } from '~/server/utils/request/chatConversationBody';
 import { ChatEvent } from '~/server/utils/enums/chat-event.enum';
 import { UsageEvent } from '~/server/utils/enums/usage-event.enum';
@@ -18,19 +16,10 @@ import { AiModelFactory } from '~/server/factories/aiModelFactory';
 import { getTools } from '../../chatTools/chatTools';
 import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
 import { Readable, Transform } from 'stream';
-import prisma from '~/server/prisma';
 import consola from 'consola';
-import qdrant from '~/server/qdrant';
-import { EmbeddingService } from '~/server/services/embedding.service';
-import cohere from '~/server/cohere';
-import openai from '~/server/openai';
+import { chatService, collectionService, embeddingService } from '~/server/service-instances';
 
 const { event } = useEvents();
-const config = useRuntimeConfig();
-
-const chatService = new ChatService(prisma);
-const collectionService = new CollectionService(prisma);
-const embeddingService = new EmbeddingService(qdrant, openai, cohere, config.fileReaderServer.url);
 const tokenizerService = new TokenizerService();
 
 const logger = consola.create({}).withTag('conversation.post');

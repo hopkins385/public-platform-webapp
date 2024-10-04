@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { TRPCError } from '@trpc/server';
-import { AssistantService } from '~/server/services/assistant.service';
 import {
   CreateAssistantDto,
   DeleteAssistantDto,
@@ -10,9 +9,6 @@ import {
   UpdateAssistantDto,
 } from '~/server/services/dto/assistant.dto';
 import { idSchema, cuidRule } from '~/server/utils/validation/ulid.rule';
-import prisma from '~/server/prisma';
-
-const assistantService = new AssistantService(prisma);
 
 export const assistantRouter = router({
   // create assistant
@@ -28,18 +24,18 @@ export const assistantRouter = router({
         systemPromptTokenCount: z.number(),
       }),
     )
-    .mutation(async ({ ctx: { user }, input }) => {
+    .mutation(async ({ ctx: { user, services }, input }) => {
       const payload = CreateAssistantDto.fromInput(input);
 
       // policy check
-      assistantService.canCreateAssistantPolicy(payload, user);
+      services.assistantService.canCreateAssistantPolicy(payload, user);
 
-      return await assistantService.create(payload);
+      return await services.assistantService.create(payload);
     }),
   // get assistant by id
-  one: protectedProcedure.input(idSchema).query(async ({ ctx: { user }, input }) => {
+  one: protectedProcedure.input(idSchema).query(async ({ ctx: { user, services }, input }) => {
     const payload = FindAssistantDto.fromInput(input);
-    const assistant = await assistantService.findFirst(payload);
+    const assistant = await services.assistantService.findFirst(payload);
 
     if (!assistant) {
       throw new TRPCError({
@@ -51,7 +47,7 @@ export const assistantRouter = router({
     // console.log(assistant);
 
     // policy check
-    assistantService.canAccessAssistantPolicy(assistant, user);
+    services.assistantService.canAccessAssistantPolicy(assistant, user);
 
     return assistant;
   }),
@@ -63,10 +59,10 @@ export const assistantRouter = router({
         searchQuery: z.string().max(255).optional(),
       }),
     )
-    .query(({ ctx: { user }, input }) => {
+    .query(({ ctx: { user, services }, input }) => {
       const payload = FindAllAssistantsDto.fromInput(user.teamId, input.page, input.searchQuery);
 
-      return assistantService.findAll(payload);
+      return services.assistantService.findAll(payload);
     }),
   // update assistant by id
   update: protectedProcedure
@@ -82,13 +78,13 @@ export const assistantRouter = router({
         systemPromptTokenCount: z.number(),
       }),
     )
-    .mutation(async ({ ctx: { user }, input }) => {
+    .mutation(async ({ ctx: { user, services }, input }) => {
       const payload = UpdateAssistantDto.fromInput(input);
 
       // policy check
-      await assistantService.canUpdateAssistantPolicy(payload, user);
+      await services.assistantService.canUpdateAssistantPolicy(payload, user);
 
-      return await assistantService.update(payload);
+      return await services.assistantService.update(payload);
     }),
   // delete assistant by id
   delete: protectedProcedure
@@ -98,12 +94,12 @@ export const assistantRouter = router({
         id: cuidRule(),
       }),
     )
-    .mutation(async ({ ctx: { user }, input }) => {
+    .mutation(async ({ ctx: { user, services }, input }) => {
       const deletePayload = DeleteAssistantDto.fromInput(input);
 
       // policy check
-      await assistantService.canDeleteAssistantPolicy(deletePayload, user);
+      await services.assistantService.canDeleteAssistantPolicy(deletePayload, user);
 
-      return await assistantService.softDelete(deletePayload);
+      return await services.assistantService.softDelete(deletePayload);
     }),
 });
