@@ -25,6 +25,7 @@ export class AssistantJobService {
     this.prisma = prisma;
     this.event = event;
     this.documentItemService = new DocumentItemService(prisma);
+    // console.log('AssistantJobService instantiated');
   }
 
   async processJob(payload: AssistantJobDto) {

@@ -126,7 +126,7 @@
       {
         name: 'image-gen',
         icon: ImageIcon,
-        to: `/image-gen',`,
+        to: '/image-gen',
         label: 'Image Gen',
         children: [],
       },

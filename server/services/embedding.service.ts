@@ -31,7 +31,9 @@ export class EmbeddingService {
     private readonly cohere: CohereClient,
     private readonly fileReaderServerUrl: string,
     private readonly collectionName: string = 'media',
-  ) {}
+  ) {
+    // console.log('EmbeddingService instantiated');
+  }
 
   async embedFile(payload: IEmbedFilePayload, options: { resetCollection?: boolean } = {}): Promise<RagDocument[]> {
     //

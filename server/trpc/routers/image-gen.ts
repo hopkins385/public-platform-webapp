@@ -1,20 +1,14 @@
 import { FluxImageGenerator } from './../../utils/fluxImageGen';
 import { ImageGenService } from './../../services/image-gen.service';
-import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
+import { FluxProInputsSchema } from '~/schemas/fluxPro.schema';
 
 const { apiKey } = useRuntimeConfig().flux;
-const fluxImageGeneratorInstance = new FluxImageGenerator(apiKey);
-const imageGenService = new ImageGenService(fluxImageGeneratorInstance);
+const fluxImageGenerator = new FluxImageGenerator(apiKey);
+const imageGenService = new ImageGenService(fluxImageGenerator);
 
 export const imageGenRouter = router({
-  generateImage: protectedProcedure
-    .input(
-      z.object({
-        prompt: z.string().min(1),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
-      return await imageGenService.generateImages({ prompt: input.prompt.trim(), width: 1024, height: 1024 });
-    }),
+  generateImage: protectedProcedure.input(FluxProInputsSchema).query(async ({ ctx: { user }, input }) => {
+    return await imageGenService.generateImages(user.id, input);
+  }),
 });

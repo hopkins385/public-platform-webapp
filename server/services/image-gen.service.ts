@@ -1,14 +1,18 @@
 import { join } from 'path';
-import type { FluxImageGenerator } from '../utils/fluxImageGen';
+import type { FluxImageGenerator, FluxProPlusInputs } from '../utils/fluxImageGen';
 import fs from 'fs/promises';
 import { randomUUID } from 'crypto';
+import type { FluxProInputs } from '~/schemas/fluxPro.schema';
 
 export class ImageGenService {
-  constructor(private readonly fluxImageGenerator: FluxImageGenerator) {}
+  constructor(private readonly fluxImageGenerator: FluxImageGenerator) {
+    console.log('ImageGenService instantiated');
+  }
 
-  public async generateImages(payload: { prompt: string; width: number; height: number }): Promise<string[]> {
+  public async generateImages(userId: string, payload: FluxProInputs): Promise<string[]> {
+    const imgCount = payload.imgCount ?? 1;
     try {
-      const imagePromises = Array.from({ length: 4 }, () => this.fluxImageGenerator.generateImage(payload));
+      const imagePromises = Array.from({ length: imgCount }, () => this.fluxImageGenerator.generateImage(payload));
       const images = await Promise.all(imagePromises);
 
       const imageUrls = await Promise.all(

@@ -1,4 +1,4 @@
-interface GenerationRequest {
+/*interface GenerationRequest {
   prompt: string;
   width?: number; // default: 1024
   height?: number; // default: 768
@@ -14,22 +14,52 @@ interface GenerationRequest {
   safetyTolerance?: number; // min: 0, max: 6, default: 2
   // Interval parameter for guidance control.
   interval?: number; // min: 1, max: 4, default: 2
+}*/
+
+export interface FluxProPlusInputs {
+  prompt: string;
+  width?: number; // default: 1024, min: 256, max: 1440, multiple of 32
+  height?: number; // default: 768, min: 256, max: 1440, multiple of 32
+  steps?: number; // default: 40, min: 1, max: 50
+  prompt_upsampling?: boolean; // default: false
+  seed?: number | null; // default: null
+  guidance?: number; // min: 1.5, max: 5.0, default: 2.5
+  safety_tolerance?: number | null; // min: 0, max: 6, default: 2
+  interval?: number; // min: 1.0, max: 4.0, default: 2.0
+}
+
+interface ResultResponse {
+  id: string;
+  status: StatusResponse;
+  result?: {
+    sample: string;
+  };
 }
 
 interface GenerationResponse {
   id: string;
 }
 
-interface ResultResponse {
-  status: string;
-  result?: {
-    sample: string;
-  };
+interface HTTPValidationError {
+  detail: Array<{
+    loc: (string | number)[];
+    msg: string;
+    type: string;
+  }>;
 }
 
 interface PollingResult {
   id: string;
   sample: string;
+}
+
+enum StatusResponse {
+  TaskNotFound = 'Task not found',
+  Pending = 'Pending',
+  RequestModerated = 'Request Moderated',
+  ContentModerated = 'Content Moderated',
+  Ready = 'Ready',
+  Error = 'Error',
 }
 
 export class FluxImageGenerator {
@@ -40,7 +70,7 @@ export class FluxImageGenerator {
     this.apiKey = apiKey;
   }
 
-  public async generateImage(request: GenerationRequest): Promise<PollingResult> {
+  public async generateImage(request: FluxProPlusInputs): Promise<PollingResult> {
     try {
       // Step 1: Create the generation request
       const generationResponse = await this.#createRequest(request);
@@ -55,7 +85,7 @@ export class FluxImageGenerator {
     }
   }
 
-  async #createRequest(request: GenerationRequest): Promise<GenerationResponse> {
+  async #createRequest(request: FluxProPlusInputs): Promise<GenerationResponse> {
     const response = await fetch(`${this.baseUrl}/flux-pro-1.1`, {
       method: 'POST',
       headers: {
@@ -67,6 +97,10 @@ export class FluxImageGenerator {
     });
 
     if (!response.ok) {
+      if (response.status === 422) {
+        const validationError: HTTPValidationError = await response.json();
+        throw new Error(`Validation error: ${JSON.stringify(validationError)}`);
+      }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
@@ -80,11 +114,27 @@ export class FluxImageGenerator {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const res = await this.#getResult(requestId);
 
-      if (res.status === 'Ready' && res.result) {
-        return {
-          id: requestId,
-          sample: res.result.sample,
-        };
+      switch (res.status) {
+        case StatusResponse.Ready:
+          if (res.result) {
+            return {
+              id: requestId,
+              sample: res.result.sample,
+            };
+          }
+          break;
+        case StatusResponse.Error:
+          throw new Error('Image generation failed');
+        case StatusResponse.TaskNotFound:
+          throw new Error('Task not found');
+        case StatusResponse.Pending:
+          break;
+        case StatusResponse.RequestModerated:
+          throw new Error('Request moderated');
+        case StatusResponse.ContentModerated:
+          throw new Error('Content moderated');
+        default:
+          throw new Error(`Unexpected response status: ${res.status}`);
       }
 
       await this.#delay(pollingInterval);
@@ -106,6 +156,10 @@ export class FluxImageGenerator {
     });
 
     if (!response.ok) {
+      if (response.status === 422) {
+        const validationError: HTTPValidationError = await response.json();
+        throw new Error(`Validation error: ${JSON.stringify(validationError)}`);
+      }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
