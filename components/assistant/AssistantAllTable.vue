@@ -107,7 +107,7 @@
           </TableCell>
           <TableCell class="flex justify-end space-x-2 whitespace-nowrap text-right">
             <Button variant="outline" @click="onStart(assistant.id)">
-              New Chat
+              Chat
               <MessageSquareIcon class="ml-2 size-4 shrink-0 stroke-1.5 text-primary" />
             </Button>
             <LinkButton :to="`/assistants/${assistant.id}/edit`" variant="outline" size="icon">

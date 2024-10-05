@@ -19,6 +19,11 @@
           <div class="h-20 w-60 rounded-lg border-0">Workflows</div>
         </BoxContainer>
       </NuxtLinkLocale>
+      <NuxtLinkLocale to="/text-to-image">
+        <BoxContainer class="hover:shadow-md">
+          <div class="h-20 w-60 rounded-lg border-0">Image Generator</div>
+        </BoxContainer>
+      </NuxtLinkLocale>
       <!--
       <NuxtLinkLocale to="/documents">
         <BoxContainer class="hover:shadow-md">

@@ -72,6 +72,14 @@
       children: [],
     },
     {
+      icon: ImageIcon,
+      path: '/text-to-image',
+      label: 'Image Gen',
+      hidden: false,
+      children: [],
+    },
+    spacerNavItem,
+    {
       icon: MessagesSquareIcon,
       path: '/chats',
       label: 'Chat',
@@ -92,6 +100,7 @@
       hidden: false,
       children: [],
     },
+    spacerNavItem,
     {
       icon: DatabaseIcon,
       path: '/collections',
@@ -103,13 +112,6 @@
       icon: CloudUploadIcon,
       path: '/media',
       label: 'File Manager',
-      hidden: false,
-      children: [],
-    },
-    {
-      icon: ImageIcon,
-      path: '/text-to-image',
-      label: 'Image Gen',
       hidden: false,
       children: [],
     },
