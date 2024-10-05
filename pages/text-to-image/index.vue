@@ -71,16 +71,13 @@
    * Adjusts the height of the textarea based on its content.
    */
   const adjustTextareaHeight = () => {
+    const maxHeight = 364;
     const textarea = promptFormRef.value?.querySelector('textarea');
     if (textarea) {
-      // shall not exceed 364px
-      if (textarea.scrollHeight > 364) {
-        return;
-      }
       // Reset height to auto to calculate the new height
       textarea.style.height = 'auto';
       // Set the height to match the scrollHeight
-      textarea.style.height = `${textarea.scrollHeight}px`;
+      textarea.style.height = `${Math.min(maxHeight, textarea.scrollHeight)}px`;
     }
   };
 
