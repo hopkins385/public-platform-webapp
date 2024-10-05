@@ -122,6 +122,6 @@ export class MediaService {
       }),
     ]);
     // then we delete the media from the storage
-    return this.storageService.deleteFile(media.filePath);
+    return this.storageService.deleteFileFromBucket(media.filePath);
   }
 }

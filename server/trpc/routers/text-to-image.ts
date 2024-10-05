@@ -27,4 +27,13 @@ export const textToImageRouter = router({
       const folder = folders[0];
       return { folderId: folder.id };
     }),
+  getFolderImagesRuns: protectedProcedure
+    .input(
+      z.object({
+        folderId: cuidRule(),
+      }),
+    )
+    .query(async ({ ctx: { user, services }, input }) => {
+      return await services.textToImageService.getFolderImagesRuns(input.folderId);
+    }),
 });

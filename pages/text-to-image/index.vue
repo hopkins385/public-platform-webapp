@@ -43,11 +43,16 @@
   }
 
   function openImage(url: string) {
-    window.open(url, '_blank');
+    imgPreviewSrc.value = url;
+    showImagePreview.value = true;
   }
+
+  const showImagePreview = ref(false);
+  const imgPreviewSrc = ref('');
 </script>
 
 <template>
+  <ImagePreviewDialog v-model:show="showImagePreview" :img-src="imgPreviewSrc" />
   <SectionContainer>
     <div class="flex space-x-4">
       <div id="left" class="w-full">

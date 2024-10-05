@@ -15,8 +15,8 @@ export default function useTextToImage() {
     guidance: number;
     prompt_upsampling: boolean;
   }) {
+    const { folderId, prompt, imgCount, width, height, guidance, prompt_upsampling } = payload;
     return useAsyncData(async () => {
-      const { folderId, prompt, imgCount, width, height, guidance, prompt_upsampling } = payload;
       return await $client.textToImage.generateImages.query(
         {
           folderId,
@@ -35,10 +35,23 @@ export default function useTextToImage() {
   }
 
   async function getFirstFolderId(payload: { projectId: string }) {
-    return useAsyncData(async () => {
+    const { projectId } = payload;
+    return useAsyncData(`firstFolder:${projectId}`, async () => {
       return await $client.textToImage.getFirstFolderId.query(
         {
-          projectId: payload.projectId,
+          projectId,
+        },
+        { signal: ac.signal },
+      );
+    });
+  }
+
+  async function getFolderImagesRuns(payload: { folderId: string }) {
+    const { folderId } = payload;
+    return useAsyncData(`folderImages:${folderId}`, async () => {
+      return await $client.textToImage.getFolderImagesRuns.query(
+        {
+          folderId,
         },
         { signal: ac.signal },
       );
@@ -46,7 +59,8 @@ export default function useTextToImage() {
   }
 
   return {
-    getFirstFolderId,
     generateImages,
+    getFirstFolderId,
+    getFolderImagesRuns,
   };
 }

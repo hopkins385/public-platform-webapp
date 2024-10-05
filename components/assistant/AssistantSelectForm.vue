@@ -37,12 +37,7 @@
 </script>
 
 <template>
-  <FormField
-    :value="assistantId"
-    v-slot="{ componentField }"
-    name="assistantId"
-    @update:model-value="() => onSubmit()"
-  >
+  <FormField v-slot="{ componentField }" :value="assistantId" name="assistantId" @update:model-value="() => onSubmit()">
     <FormItem>
       <Select v-bind="componentField">
         <FormControl>
@@ -52,12 +47,7 @@
         </FormControl>
         <SelectContent>
           <SelectGroup>
-            <SelectItem
-              v-for="assistant in assistants"
-              :key="assistant?.id"
-              :value="assistant?.id"
-              class="text-xs"
-            >
+            <SelectItem v-for="assistant in assistants" :key="assistant?.id" :value="assistant?.id" class="text-xs">
               {{ assistant?.title }}
             </SelectItem>
           </SelectGroup>

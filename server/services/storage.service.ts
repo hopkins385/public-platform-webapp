@@ -5,11 +5,12 @@ import { CreateMediaDto } from './dto/media.dto';
 import type { S3Client } from '@aws-sdk/client-s3';
 import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import type { UploadFiletDto } from './dto/file.dto';
+import { randomUUID } from 'crypto';
 
 export class StorageService {
   constructor(
     private readonly s3Client: S3Client,
-    private readonly bucket: string = 'ragna-app',
+    private readonly bucket: string,
   ) {}
 
   async uploadFile(payload: UploadFiletDto): Promise<CreateMediaDto> {
@@ -58,6 +59,65 @@ export class StorageService {
     return createMediaPayload;
   }
 
+  async uploadFileToBucketByUrl(payload: { fileName: string; fileUrl: string; bucketFolder: string }) {
+    const { fileName, fileUrl, bucketFolder } = payload;
+    const newPath = `https://static.ragna.app/uploads/${bucketFolder}/${fileName}`;
+
+    try {
+      const localFilePath = await this.downloadFileToTemp(fileUrl);
+      const fileBlob = await fs.readFile(localFilePath);
+
+      const mimeType = this.getFileExtension(fileName);
+
+      const putObjectCommand = new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: `uploads/${bucketFolder}/${fileName}`,
+        Body: fileBlob,
+        ContentType: mimeType,
+      });
+
+      await this.s3Client.send(putObjectCommand);
+
+      await this.deleteTempFile(localFilePath);
+
+      return {
+        filePath: newPath,
+        fileMime: mimeType,
+      };
+    } catch (error) {
+      console.error('Error uploading file to bucket', error);
+      throw error;
+    }
+  }
+
+  async uploadToImageBucketByUrl(payload: { fileName: string; fileMimeType: string; fileUrl: string; folder: string }) {
+    const { fileName, fileMimeType, fileUrl, folder } = payload;
+    const newfileUrl = `https://images.ragna.app/${folder}/${fileName}`;
+
+    try {
+      const localFilePath = await this.downloadFileToTemp(fileUrl);
+      const fileBlob = await fs.readFile(localFilePath);
+
+      const putObjectCommand = new PutObjectCommand({
+        Bucket: 'ragna-cloud-images',
+        Key: `${folder}/${fileName}`,
+        Body: fileBlob,
+        ContentType: fileMimeType,
+      });
+
+      await this.s3Client.send(putObjectCommand);
+
+      await this.deleteTempFile(localFilePath);
+
+      return {
+        storagefileUrl: newfileUrl,
+      };
+    } catch (error) {
+      console.error('Error uploading file to bucket', error);
+      throw error;
+    }
+  }
+
   async uploadFileToBucket(payload: UploadFiletDto): Promise<CreateMediaDto> {
     if (!payload.file.mimetype) {
       throw createError({
@@ -104,7 +164,7 @@ export class StorageService {
     return createMediaPayload;
   }
 
-  async downloadFile(path: string): Promise<Buffer> {
+  async downloadFileFromBucket(path: string): Promise<Buffer> {
     const getObjectCommand = new GetObjectCommand({
       Bucket: this.bucket,
       Key: path,
@@ -116,8 +176,8 @@ export class StorageService {
     return Buffer.from(file);
   }
 
-  async downloadFileToTemp(vpath: string): Promise<string> {
-    const buffer = await this.downloadFile(vpath);
+  async downloadFileFromBucketToTemp(vpath: string): Promise<string> {
+    const buffer = await this.downloadFileFromBucket(vpath);
     if (!buffer) throw new Error('File not found');
     const fpath = path.join(process.cwd(), 'temp', vpath);
     await fs.mkdir(path.dirname(fpath), { recursive: true });
@@ -125,16 +185,30 @@ export class StorageService {
     return fpath;
   }
 
-  async deleteTempFile(path: string): Promise<boolean> {
-    await fs.unlink(path);
+  async downloadFileToTemp(url: string): Promise<string> {
+    const response = await fetch(url);
+    const buffer = Buffer.from(await response.arrayBuffer());
+    const fpath = path.join(process.cwd(), 'temp', 'files', randomUUID(), path.basename(url));
+    await fs.mkdir(path.dirname(fpath), { recursive: true });
+    await fs.writeFile(fpath, buffer, 'binary');
+    return fpath;
+  }
+
+  async deleteTempFile(filePath: string): Promise<boolean> {
+    await fs.unlink(filePath);
+    // delete also the directory if it's empty
+    const dir = path.dirname(filePath);
+    const files = await fs.readdir(dir);
+    if (files.length === 0) {
+      await fs.rmdir(dir);
+    }
     return true;
   }
 
-  async deleteFile(path: string): Promise<boolean> {
-    // await fs.unlink(path);
+  async deleteFileFromBucket(filePath: string): Promise<boolean> {
     const deleteObjectCommand = new DeleteObjectCommand({
       Bucket: this.bucket,
-      Key: path,
+      Key: filePath,
     });
     await this.s3Client.send(deleteObjectCommand);
 

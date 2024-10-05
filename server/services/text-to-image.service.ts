@@ -1,9 +1,9 @@
 import type { ExtendedPrismaClient } from '~/server/prisma';
-import { StatusResponse, type FluxImageGenerator } from '../utils/fluxImageGen';
 import type { FluxProInputs } from '~/server/schemas/fluxPro.schema';
-import { join } from 'path';
-import fs from 'fs/promises';
-import { randomUUID } from 'crypto';
+import { StatusResponse, type FluxImageGenerator } from '../utils/fluxImageGen';
+import consola from 'consola';
+import type { StorageService } from './storage.service';
+import { UploadFiletDto } from './dto/file.dto';
 
 enum TextToImageRunStatus {
   PENDING = 'PENDING',
@@ -12,149 +12,42 @@ enum TextToImageRunStatus {
   FAILED = 'FAILED',
 }
 
-export class TextToImageService {
-  private readonly filePath: string;
+interface Run {
+  id: string;
+  // other properties...
+}
 
+interface ImageResult {
+  run: Run;
+  image: {
+    id: string;
+    imgUrl: string | null;
+    status: StatusResponse;
+  } | null;
+}
+
+interface ImageRunResult {
+  run: Run;
+  image: ImageResult;
+}
+
+const logger = consola.create({}).withTag('TextToImageService');
+
+export class TextToImageService {
   constructor(
     private readonly prisma: ExtendedPrismaClient,
     private readonly fluxImageGenerator: FluxImageGenerator,
-  ) {
-    this.filePath = join(process.cwd(), 'uploads', 'ai-images');
-  }
-
-  public async generateImages(payload: FluxProInputs): Promise<string[]> {
-    const imgCount = payload.imgCount ?? 1;
-
-    try {
-      // Create runs
-      const runs = await Promise.all(
-        Array.from({ length: imgCount }, () =>
-          this.#createRun({
-            folderId: payload.folderId,
-            prompt: payload.prompt,
-            settings: {},
-          }).catch((error) => {
-            console.error('Failed to create run:', error);
-            return null;
-          }),
-        ),
-      );
-
-      const validRuns = runs.filter((run): run is NonNullable<typeof run> => run !== null);
-
-      if (validRuns.length === 0) {
-        throw new Error('Failed to create any valid runs');
-      }
-
-      // Generate images
-      const imageResults = await Promise.all(
-        validRuns.map(async (run) => {
-          try {
-            const image = await this.fluxImageGenerator.generateImage(payload);
-            return { run, image };
-          } catch (error) {
-            console.error(`Failed to generate image for run ${run.id}:`, error);
-            await this.#updateRunStatus({ runId: run.id, status: TextToImageRunStatus.FAILED });
-            return { run, image: null };
-          }
-        }),
-      );
-
-      // Process results
-      const imageUrls = await Promise.all(
-        imageResults.map(async ({ run, image }) => {
-          if (!image) {
-            return '';
-          }
-
-          const { imgUrl, status } = image;
-          const castStatus = this.castStatus(status);
-
-          try {
-            await this.#updateRunStatus({ runId: run.id, status: castStatus });
-
-            if (castStatus !== TextToImageRunStatus.COMPLETED || !imgUrl) {
-              return '';
-            }
-
-            const textToImage = await this.#saveToDiskAndCreateTextToImage({
-              runId: run.id,
-              folderId: payload.folderId,
-              externalImageUrl: imgUrl,
-            });
-
-            // return textToImage.path; // TODO: Return path instead of URL
-            return imgUrl;
-          } catch (error) {
-            console.error(`Failed to process image for run ${run.id}:`, error);
-            await this.#updateRunStatus({ runId: run.id, status: TextToImageRunStatus.FAILED });
-            return '';
-          }
-        }),
-      );
-
-      return imageUrls.filter((url) => url !== '');
-    } catch (error) {
-      console.error('Error in generateImages:', error);
-      throw error;
-    }
-  }
-
-  castStatus(status: StatusResponse): TextToImageRunStatus {
-    switch (status) {
-      case StatusResponse.Pending:
-        return TextToImageRunStatus.PENDING;
-      case StatusResponse.Ready:
-        return TextToImageRunStatus.COMPLETED;
-      case StatusResponse.Error:
-        return TextToImageRunStatus.FAILED;
-      case StatusResponse.RequestModerated:
-      case StatusResponse.ContentModerated:
-        return TextToImageRunStatus.MODERATED;
-      default:
-        return TextToImageRunStatus.FAILED;
-    }
-  }
-
-  async #saveImageToDisk(payload: { folderId: string; imageId: string | undefined; externalUrl: string }) {
-    const id = payload.imageId ?? randomUUID();
-    // Save image to disk
-    const response = await fetch(payload.externalUrl);
-    const buffer = await response.arrayBuffer();
-    const bufferData = Buffer.from(buffer);
-    const fileName = `${id}.jpg`;
-    const filePath = join(this.filePath, payload.folderId, fileName);
-    try {
-      await fs.writeFile(filePath, bufferData);
-      return { fileName, filePath, mimeType: 'image/jpg' };
-    } catch (error) {
-      console.error('Error saving image to disk:', error);
-      throw error;
-    }
-  }
-
-  async #deleteImageFromDisk(filePath: string) {
-    try {
-      await fs.unlink(filePath);
-    } catch (error) {
-      console.error('Error deleting image from disk:', error);
-    }
-  }
-
-  async #deleteImagesFromDisk(filePaths: string[]) {
-    await Promise.all(filePaths.map(async (filePath) => this.#deleteImageFromDisk(filePath)));
-  }
+    private readonly storageService: StorageService,
+  ) {}
 
   public async createFolder(payload: { projectId: string; folderName: string }) {
     const { projectId, folderName } = payload;
-    const folder = await this.prisma.textToImageFolder.create({
+    return this.prisma.textToImageFolder.create({
       data: {
         projectId,
         name: folderName,
       },
     });
-    await this.#createFolderPathOnDisk(join(this.filePath, folder.id));
-    return folder;
   }
 
   public async findFolders(payload: { projectId: string }) {
@@ -175,19 +68,189 @@ export class TextToImageService {
     });
   }
 
-  async #createFolderPathOnDisk(path: string): Promise<void> {
-    fs.access(path)
-      .then(() => {
-        // Path exists, do nothing
-      })
-      .catch(async () => {
-        // Path does not exist, create it
-        try {
-          await fs.mkdir(path, { recursive: true });
-        } catch (error) {
-          console.error('Error creating folder:', error);
-        }
+  public async getFolderImages(folderId: string) {
+    const images = await this.prisma.textToImage.findMany({
+      select: {
+        id: true,
+        name: true,
+        path: true,
+        run: {
+          select: {
+            status: true,
+          },
+        },
+      },
+      where: {
+        run: {
+          folderId,
+        },
+        deletedAt: null,
+      },
+    });
+    return images;
+    /*return images.map((image) => {
+      return {
+        id: image.id,
+        name: image.name,
+        path: image.path,
+      };
+    });*/
+  }
+
+  public async getFolderImagesRuns(folderId: string) {
+    // get all images of a folder but group them by run
+    const images = await this.prisma.textToImageRun.findMany({
+      select: {
+        id: true,
+        status: true,
+        prompt: true,
+        settings: true,
+        images: {
+          select: {
+            id: true,
+            name: true,
+            path: true,
+          },
+        },
+      },
+      where: {
+        folderId,
+      },
+    });
+
+    return images;
+  }
+
+  public async getFolderImagesSliced(folderId: string, skip: number, take: number) {
+    const images = await this.prisma.textToImage.findMany({
+      select: {
+        id: true,
+        name: true,
+        path: true,
+      },
+      where: {
+        run: {
+          folderId,
+        },
+        deletedAt: null,
+      },
+      skip,
+      take,
+    });
+    return images.map((image) => {
+      return {
+        id: image.id,
+        name: image.name,
+        path: image.path,
+      };
+    });
+  }
+
+  public async generateImages(payload: FluxProInputs): Promise<string[]> {
+    const imgCount = payload.imgCount ?? 1;
+
+    try {
+      const validRuns = await this.#createValidRuns(1, payload); // TODO: check if multiple image gen runs required
+      const imageResults = await this.#generateImagesForRuns(validRuns, imgCount, payload);
+      return this.#processImageResults(imageResults, payload.folderId);
+    } catch (error) {
+      logger.error('Error in generateImages:', error);
+      throw new Error('Unable to generate images');
+    }
+  }
+
+  async #createValidRuns(count: number, payload: FluxProInputs): Promise<Run[]> {
+    const runs = await Promise.all(Array.from({ length: count }, () => this.#createSingleRun(payload)));
+
+    const validRuns = runs.filter((run): run is NonNullable<typeof run> => run !== null);
+
+    if (validRuns.length === 0) {
+      throw new Error('Failed to create any valid runs');
+    }
+
+    return validRuns;
+  }
+
+  async #createSingleRun(payload: FluxProInputs): Promise<Run | null> {
+    try {
+      return await this.#createRun({
+        folderId: payload.folderId,
+        prompt: payload.prompt,
+        settings: {},
       });
+    } catch (error) {
+      logger.error('Failed to create run:', error);
+      return null;
+    }
+  }
+
+  async #generateImagesForRuns(runs: Run[], count: number, payload: FluxProInputs): Promise<ImageResult[]> {
+    const imageRuns = runs.map((run) => Array.from({ length: count }, () => this.#generateSingleImage(run, payload)));
+    return Promise.all(imageRuns.flat()); // TODO: multiple image gen runs
+  }
+
+  async #generateSingleImage(run: Run, payload: FluxProInputs): Promise<ImageResult> {
+    try {
+      const image = await this.fluxImageGenerator.generateImage(payload);
+      return { run, image };
+    } catch (error) {
+      logger.error(`Failed to generate image for run ${run.id}:`, error);
+      await this.#updateRunStatus({ runId: run.id, status: TextToImageRunStatus.FAILED });
+      return { run, image: null };
+    }
+  }
+
+  async #processImageResults(results: ImageResult[], folderId: string): Promise<string[]> {
+    if (results.length === 0) return [];
+    const processedResults = await Promise.all(
+      results.map((result) => this.#processSingleImageResult(result, folderId)),
+    );
+    return processedResults.filter((url): url is string => url !== '');
+  }
+
+  async #processSingleImageResult(result: ImageResult, folderId: string): Promise<string> {
+    if (!result) return '';
+    const { run, image } = result;
+    if (!image) return '';
+
+    const { imgUrl, status } = image;
+    const castStatus = this.#castStatus(status);
+
+    try {
+      await this.#updateRunStatus({ runId: run.id, status: castStatus });
+
+      if (castStatus !== TextToImageRunStatus.COMPLETED || !imgUrl) {
+        return '';
+      }
+
+      const textToImage = await this.#storeFileAndCreateTextToImage({
+        runId: run.id,
+        folderId: folderId,
+        externalImageUrl: imgUrl,
+      });
+
+      return textToImage.path;
+    } catch (error) {
+      logger.error(`Failed to process image for run ${run.id}:`, error);
+      await this.#updateRunStatus({ runId: run.id, status: TextToImageRunStatus.FAILED });
+      return '';
+    }
+  }
+
+  #castStatus(status: StatusResponse): TextToImageRunStatus {
+    switch (status) {
+      case StatusResponse.Pending:
+        return TextToImageRunStatus.PENDING;
+      case StatusResponse.Ready:
+        return TextToImageRunStatus.COMPLETED;
+      case StatusResponse.Error:
+        return TextToImageRunStatus.FAILED;
+      case StatusResponse.RequestModerated:
+      case StatusResponse.ContentModerated:
+        return TextToImageRunStatus.MODERATED;
+      default:
+        return TextToImageRunStatus.FAILED;
+    }
   }
 
   async #createRun(payload: { folderId: string; prompt: string; settings: any }) {
@@ -212,14 +275,20 @@ export class TextToImageService {
     });
   }
 
-  async #saveToDiskAndCreateTextToImage(payload: { runId: string; folderId: string; externalImageUrl: string }) {
+  async #storeFileAndCreateTextToImage(payload: { runId: string; folderId: string; externalImageUrl: string }) {
     const { runId, folderId, externalImageUrl } = payload;
-    const { fileName, filePath, mimeType } = await this.#saveImageToDisk({
-      folderId,
-      imageId: runId,
-      externalUrl: externalImageUrl,
+    const fileName = `image-${runId}.jpg`;
+    const folder = `text-to-image/${folderId}`;
+    const mimeType = 'image/jpg';
+
+    const { storagefileUrl } = await this.storageService.uploadToImageBucketByUrl({
+      fileName,
+      fileMimeType: mimeType,
+      fileUrl: externalImageUrl,
+      folder,
     });
-    return this.#createTextToImage({ runId, fileName, filePath, mimeType });
+
+    return this.#createTextToImage({ runId, fileName, filePath: storagefileUrl, mimeType });
   }
 
   async #createTextToImage(payload: { runId: string; fileName: string; filePath: string; mimeType: string }) {

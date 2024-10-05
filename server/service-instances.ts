@@ -42,7 +42,7 @@ export const collectionService = new CollectionService(prisma);
 export const documentService = new DocumentService(prisma);
 export const documentItemService = new DocumentItemService(prisma);
 // Media
-export const storageService = new StorageService(s3Client);
+export const storageService = new StorageService(s3Client, config.cloudflare.bucket);
 export const mediaAbleService = new MediaAbleService(prisma);
 export const mediaService = new MediaService(prisma, mediaAbleService, storageService);
 // Project
@@ -61,7 +61,7 @@ export const workflowStepService = new WorkflowStepService(prisma);
 export const workflowService = new WorkflowService(prisma);
 // Image generation
 export const fluxImageGenerator = new FluxImageGenerator(config.flux.apiKey);
-export const textToImageService = new TextToImageService(prisma, fluxImageGenerator);
+export const textToImageService = new TextToImageService(prisma, fluxImageGenerator, storageService);
 
 // Actions
 export const createNewUserAction = new CreatesNewUserAction(prisma);
