@@ -36,6 +36,7 @@
 
   const chatMessagesContainerRef = ref<HTMLElement | null>(null);
   const chatBoxContainerRef = ref<HTMLDivElement | null>(null);
+  const chatInputFormRef = ref<HTMLFormElement | null>(null);
 
   const inputImages = ref<ChatImage[]>([]);
 
@@ -320,6 +321,23 @@
     activeTools.value = [];
   }
 
+  /**
+   * Adjusts the height of the textarea based on its content.
+   */
+  function adjustTextareaHeight() {
+    const textarea = chatInputFormRef.value?.querySelector('textarea');
+    if (textarea) {
+      // shall not exceed 364px
+      if (textarea.scrollHeight > 364) {
+        return;
+      }
+      // Reset height to auto to calculate the new height
+      textarea.style.height = 'auto';
+      // Set the height to match the scrollHeight
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  }
+
   const route = useRoute();
 
   // abort ongoing request when route changes
@@ -329,6 +347,7 @@
   );
 
   onMounted(() => {
+    adjustTextareaHeight();
     setModelFromAssistant();
     if (props.chatMessages && props.chatMessages.length > 0) {
       initMessages(props.chatMessages);
@@ -500,13 +519,19 @@
           </Button>
         </div>
         <!-- message input form -->
-        <form class="relative flex w-full items-center space-x-2 border-0" @submit.prevent="onSubmit">
+        <form
+          id="chatInputForm"
+          ref="chatInputFormRef"
+          class="relative flex w-full items-center space-x-2 border-0"
+          @submit.prevent="onSubmit"
+        >
           <div class="relative z-10 max-h-96 w-full">
             <Textarea
               v-model="inputMessage"
               :placeholder="$t('chat.placeholder')"
               class="resize-none rounded-2xl py-3 pr-14 focus:shadow-lg"
               @keydown.enter="onKeyDownEnter"
+              @input="adjustTextareaHeight"
             />
           </div>
           <Button

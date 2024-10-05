@@ -5,7 +5,7 @@ import { FluxProInputsSchema } from '~/server/schemas/fluxPro.schema';
 
 export const textToImageRouter = router({
   generateImages: protectedProcedure.input(FluxProInputsSchema).query(async ({ ctx: { user, services }, input }) => {
-    return await services.textToImageService.generateImages(input);
+    return await services.textToImageService.generateFluxProImages(input);
   }),
   getFirstFolderId: protectedProcedure
     .input(

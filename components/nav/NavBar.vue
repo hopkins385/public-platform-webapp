@@ -21,6 +21,7 @@
     type LucideProps,
     FolderIcon,
     PaintbrushVerticalIcon,
+    FoldersIcon,
   } from 'lucide-vue-next';
   import type { FunctionalComponent } from 'vue';
 
@@ -254,7 +255,7 @@
     },
     // Assets
     {
-      icon: ImageIcon,
+      icon: FoldersIcon,
       path: '/text-to-image/assets',
       label: 'Assets',
       hidden: false,
@@ -267,9 +268,9 @@
   const navItems: Ref<NavItem[]> = computed((): NavItem[] => {
     const items = [homeNavItem, spacerNavItem];
 
-    if (route.path.includes('/settings')) {
+    if (route.path.startsWith('/settings')) {
       items.push(...settingsRoutes);
-    } else if (route.path.includes('/text-to-image')) {
+    } else if (route.path.startsWith('/text-to-image')) {
       items.push(...imageGenRoutes);
     } else {
       items.push(...defaultRoutes.value);
@@ -324,7 +325,7 @@
       }"
     >
       <div class="flex justify-between pt-4">
-        <BrandLogo class="ml-[1.855rem]" :text-visible="navBar.isOpen" />
+        <BrandLogo class="ml-[1.455rem]" :text-visible="navBar.isOpen" />
       </div>
       <div id="spacer" class="h-4"></div>
       <div v-if="navBar.isOpen" class="px-4 pb-4">
@@ -382,7 +383,7 @@
   }
 
   .nav-item {
-    @apply flex min-h-8 flex-col justify-center border-0 px-4 py-0;
+    @apply flex min-h-8 flex-col justify-center border-0 px-2 py-0;
     @apply nav-text;
   }
 

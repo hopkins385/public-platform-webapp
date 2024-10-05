@@ -597,7 +597,7 @@ model TextToImageRun {
   folderId  String                   @map("folder_id")
   prompt    String
   settings  Json?
-  status    text_to_image_run_status
+  status    text_to_image_run_status @default(PENDING)
   createdAt DateTime                 @default(now()) @map("created_at")
   updatedAt DateTime                 @updatedAt @map("updated_at")
   deletedAt DateTime?                @map("deleted_at")
@@ -610,14 +610,15 @@ model TextToImageRun {
 }
 
 model TextToImage {
-  id        String    @id @default(cuid())
-  runId     String    @map("run_id")
+  id        String                   @id @default(cuid())
+  runId     String                   @map("run_id")
   name      String
-  path      String    @map("path")
-  mimeType  String    @map("mime_type")
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
+  path      String                   @map("path")
+  mimeType  String                   @map("mime_type")
+  status    text_to_image_run_status @default(PENDING)
+  createdAt DateTime                 @default(now()) @map("created_at")
+  updatedAt DateTime                 @updatedAt @map("updated_at")
+  deletedAt DateTime?                @map("deleted_at")
 
   run TextToImageRun @relation(fields: [runId], references: [id])
 

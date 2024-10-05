@@ -8,7 +8,7 @@ export const useNavBarStore = defineStore('nav-bar.store', {
     isOpen: true,
     width: 15.4,
     openWidth: 15.4,
-    closedWidth: 5.5,
+    closedWidth: 4.5,
   }),
   getters: {
     // navBarIsOpen: (state) => state.isOpen,
