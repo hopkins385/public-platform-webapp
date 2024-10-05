@@ -150,8 +150,8 @@ export class TextToImageService {
     const imgCount = payload.imgCount ?? 1;
 
     try {
-      const validRuns = await this.#createValidRuns(1, payload); // TODO: check if multiple image gen runs required
-      const imageResults = await this.#generateImagesForRuns(validRuns, imgCount, payload);
+      const validRuns = await this.#createValidRuns(imgCount, payload); // TODO: check if multiple image gen runs required
+      const imageResults = await this.#generateImagesForRuns(validRuns, payload);
       return this.#processImageResults(imageResults, payload.folderId);
     } catch (error) {
       logger.error('Error in generateImages:', error);
@@ -184,9 +184,8 @@ export class TextToImageService {
     }
   }
 
-  async #generateImagesForRuns(runs: Run[], count: number, payload: FluxProInputs): Promise<ImageResult[]> {
-    const imageRuns = runs.map((run) => Array.from({ length: count }, () => this.#generateSingleImage(run, payload)));
-    return Promise.all(imageRuns.flat()); // TODO: multiple image gen runs
+  async #generateImagesForRuns(runs: Run[], payload: FluxProInputs): Promise<ImageResult[]> {
+    return Promise.all(runs.map((run) => this.#generateSingleImage(run, payload)));
   }
 
   async #generateSingleImage(run: Run, payload: FluxProInputs): Promise<ImageResult> {
