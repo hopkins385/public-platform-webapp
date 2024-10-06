@@ -3,7 +3,6 @@ name: ragna_cloud
 volumes:
   postgres_data:
   redis_data:
-  qdrant_data:
   app_uploads:
 
 services:
@@ -43,28 +42,6 @@ services:
     command: 'redis-server --save 60 1 --loglevel warning --requirepass ${REDIS_PASSWORD}'
     volumes:
       - redis_data:/data
-    security_opt:
-      - no-new-privileges:true
-    networks:
-      - app_net
-
-  qdrant:
-    image: qdrant/qdrant:latest
-    container_name: qdrant
-    restart: unless-stopped
-    environment:
-      QDRANT__TELEMETRY_DISABLED: true
-    volumes:
-      - qdrant_data:/qdrant/storage
-    security_opt:
-      - no-new-privileges:true
-    networks:
-      - app_net
-
-  tika:
-    image: apache/tika:3.0.0.0-BETA2
-    container_name: tika
-    restart: unless-stopped
     security_opt:
       - no-new-privileges:true
     networks:
