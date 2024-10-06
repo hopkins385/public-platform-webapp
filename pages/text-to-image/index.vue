@@ -61,6 +61,20 @@
       });
   }
 
+  function reRun(prompt: string) {
+    usePrompt(prompt);
+    onSubmit();
+  }
+
+  function onEnter() {
+    if (!prompt.value.trim() || isLoading.value) {
+      return;
+    }
+    if (settings.getSubmitOnEnter) {
+      onSubmit();
+    }
+  }
+
   function usePrompt(value: string) {
     prompt.value = value;
     nextTick(() => {
@@ -155,7 +169,7 @@
 </script>
 
 <template>
-  <div id="sectionContainer" ref="el" class="bg-white">
+  <div id="sectionContainer" ref="el" class="min-h-screen bg-white">
     <SectionContainer class="sticky inset-0 z-10 !py-0">
       <div class="h-8 bg-white/95 backdrop-blur-sm"></div>
       <div class="w-full">
@@ -170,6 +184,7 @@
               class="min-h-[48px] resize-none rounded-2xl bg-white py-4 pl-4 pr-8 shadow-sm focus:shadow-lg"
               @input="adjustTextareaHeight"
               @paste="handlePaste"
+              @keydown.enter="onEnter"
             />
             <div class="absolute bottom-0 right-0 p-1">
               <Button
@@ -208,7 +223,7 @@
           </div>
         </div>
       </div>
-      <ImageAssetsList :refresh-data="refresh" @re-run="async (p) => await generateImage(p)" @use-prompt="usePrompt" />
+      <ImageAssetsList :refresh-data="refresh" @re-run="reRun" @use-prompt="usePrompt" />
     </SectionContainer>
   </div>
 </template>

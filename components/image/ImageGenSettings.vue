@@ -12,10 +12,10 @@
   <Popover v-model:open="show">
     <PopoverTrigger as-child>
       <Button variant="outline" size="icon" class="group">
-        <SlidersHorizontalIcon class="size-4 stroke-1.5 text-primary/70 group-hover:stroke-2" />
+        <SlidersHorizontalIcon class="size-5 stroke-1.5 text-primary/70 group-hover:stroke-2" />
       </Button>
     </PopoverTrigger>
-    <PopoverContent align="end" class="mt-1 w-80 text-sm">
+    <PopoverContent align="end" class="mt-1 w-72 text-sm">
       <div class="flex items-center justify-between">
         <span>Settings</span>
         <button @click="settings.resetSettings()">

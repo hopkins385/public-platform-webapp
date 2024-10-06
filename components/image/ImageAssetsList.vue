@@ -86,7 +86,7 @@
           <div
             v-for="image in run.images"
             :key="image.id"
-            class="mx-1 flex size-56 overflow-hidden rounded-sm border border-transparent hover:cursor-pointer hover:shadow-xl"
+            class="mx-1 flex size-56 overflow-hidden rounded-lg border border-transparent hover:cursor-pointer hover:shadow-xl"
             @click="previewImage(image.path, run.prompt)"
           >
             <img v-if="image.path" :src="image.path" alt="image" class="size-full object-contain" loading="lazy" />
@@ -100,6 +100,9 @@
             <p class="line-clamp-4 max-h-40 min-h-5 break-words text-sm opacity-75 hover:opacity-100">
               {{ run.prompt }}
             </p>
+          </div>
+          <div class="py-2 opacity-60">
+            <span class="text-xxs rounded-lg bg-stone-100 px-3 py-2">Flux 1.1 Pro</span>
           </div>
           <div class="hidden items-center space-x-1 py-2 group-hover:flex">
             <button

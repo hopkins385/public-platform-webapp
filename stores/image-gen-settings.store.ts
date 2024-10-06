@@ -34,6 +34,9 @@ export const useImgGenSettingsStore = defineStore('img-gen.store', {
     getPromptUpsampling(state) {
       return state.promptUpsampling;
     },
+    getSubmitOnEnter(state) {
+      return state.submitOnEnter;
+    },
   },
   actions: {
     setImageCount(imageCount: number[]) {
