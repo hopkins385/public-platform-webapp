@@ -66,6 +66,10 @@
       return defaultName;
     }
   }
+
+  function openImage(url: string): void {
+    window.open(url, '_blank');
+  }
 </script>
 
 <template>
@@ -77,7 +81,7 @@
           <DialogDescription> Click download image to store it on your local disk. </DialogDescription>
         </div>
         <div class="m-2">
-          <Button size="icon" variant="default" class="p-2" @click="async () => await downloadImage()">
+          <Button size="icon" variant="default" class="p-2" @click="() => openImage(imgUrl)">
             <DownloadIcon v-if="!isLoading" class="size-5" />
             <Loader2Icon v-else class="size-5 animate-spin" />
           </Button>

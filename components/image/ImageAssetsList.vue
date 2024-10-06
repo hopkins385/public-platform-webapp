@@ -1,13 +1,33 @@
 <script setup lang="ts">
+  import { ClipboardCheckIcon, ClipboardIcon, RepeatIcon, SquarePenIcon } from 'lucide-vue-next';
+  import { useClipboard } from '@vueuse/core';
+
+  const props = defineProps<{
+    refreshData: boolean;
+  }>();
+
+  const emit = defineEmits<{
+    reRun: [prompt: string];
+    usePrompt: [prompt: string];
+  }>();
+
   const runs = ref<any[] | null>(null);
   const showImagePreview = ref(false);
   const imgPreviewUrl = ref('');
   const imgPreviewName = ref('');
 
+  const promptCopy = ref('');
+
+  const {
+    copy: copyToClipboard,
+    copied: copiedToClipboard,
+    isSupported: copyToClipboardSupported,
+  } = useClipboard({ source: promptCopy });
+
   const projectStore = useProjectStore();
   const { getFirstFolderId, getFolderImagesRuns } = useTextToImage();
 
-  async function getImages() {
+  async function getImageRuns() {
     const projectId = projectStore.activeProjectId;
     const { data: firstFolder } = await getFirstFolderId({ projectId });
     if (!firstFolder.value?.folderId) {
@@ -20,13 +40,40 @@
     return runs.value;
   }
 
-  function openImage(imgName: string, url: string) {
+  function previewImage(imgName: string, url: string) {
+    if (!url) {
+      return;
+    }
     imgPreviewName.value = imgName;
     imgPreviewUrl.value = url;
     showImagePreview.value = true;
   }
 
-  runs.value = await getImages();
+  runs.value = await getImageRuns();
+
+  function reRun(prompt: string) {
+    console.log('Rerun:', prompt);
+    emit('reRun', prompt);
+  }
+
+  function usePrompt(prompt: string) {
+    console.log('prompt:', prompt);
+    emit('usePrompt', prompt);
+  }
+
+  function copyPromptToClipboard(prompt: string) {
+    promptCopy.value = prompt;
+    copyToClipboard();
+  }
+
+  watch(
+    () => props.refreshData,
+    async (value) => {
+      if (value) {
+        runs.value = await getImageRuns();
+      }
+    },
+  );
 </script>
 
 <template>
@@ -40,18 +87,49 @@
             v-for="image in run.images"
             :key="image.id"
             class="mx-1 flex size-56 overflow-hidden rounded-sm border border-transparent hover:cursor-pointer hover:shadow-xl"
-            @click="openImage(image.name, image.path)"
+            @click="previewImage(image.name, image.path)"
           >
-            <img :src="image.path" alt="image" class="size-full object-contain" />
+            <img v-if="image.path" :src="image.path" alt="image" class="size-full object-contain" />
+            <div v-else class="group size-full bg-stone-100 p-2">
+              <p class="hidden text-xs capitalize opacity-50 group-hover:block">{{ image.status }}</p>
+            </div>
           </div>
         </div>
-        <div class="group flex flex-col justify-between border-0 px-5">
+        <div class="group flex grow flex-col border-0 px-5">
           <div class="rounded-lg p-1 hover:bg-slate-100">
-            <p class="line-clamp-4 max-h-40 min-h-5 break-words text-sm">{{ run.prompt }}</p>
+            <p class="line-clamp-4 max-h-40 min-h-5 break-words text-sm opacity-75 hover:opacity-100">
+              {{ run.prompt }}
+            </p>
           </div>
-          <div class="group-hover:block">here</div>
+          <div class="hidden items-center space-x-1 py-2 group-hover:flex">
+            <button class="btn-sub" @click="reRun(run.id)">
+              <div>
+                <RepeatIcon class="size-4 stroke-1.5" />
+              </div>
+              <div>Rerun</div>
+            </button>
+            <button class="btn-sub" @click="usePrompt(run.prompt)">
+              <div>
+                <SquarePenIcon class="size-4 stroke-1.5" />
+              </div>
+              <div>Use</div>
+            </button>
+            <button class="btn-sub" :disabled="!copyToClipboardSupported" @click="copyPromptToClipboard(run.prompt)">
+              <div>
+                <ClipboardIcon v-if="!copiedToClipboard" class="size-4 stroke-1.5" />
+                <ClipboardCheckIcon v-else class="size-4 stroke-1.5" />
+              </div>
+              <div>Copy</div>
+            </button>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+  .btn-sub {
+    @apply flex items-center justify-center space-x-1 rounded-lg px-2 py-1 text-xs opacity-75 hover:bg-stone-100 hover:opacity-100;
+  }
+</style>

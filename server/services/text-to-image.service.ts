@@ -94,6 +94,7 @@ export class TextToImageService {
             id: true,
             name: true,
             path: true,
+            status: true,
           },
         },
       },
