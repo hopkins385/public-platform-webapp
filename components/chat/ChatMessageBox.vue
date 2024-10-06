@@ -15,11 +15,15 @@
 <template>
   <ChatMessageBoxWrapper :display-name="displayName">
     <div v-if="visionContents?.length">
-      <div v-for="(visionContent, index) in visionContents" :key="index" class="overflow-hidden rounded-lg">
+      <div
+        v-for="(visionContent, index) in visionContents"
+        :key="index"
+        class="max-h-96 max-w-xl overflow-hidden rounded-lg"
+      >
         <img
           v-if="visionContent.type === 'image'"
           :src="visionContent.url"
-          class="max-h-96 max-w-xl rounded-lg object-cover py-2"
+          class="size-full rounded-lg object-cover"
           crossorigin=""
         />
       </div>

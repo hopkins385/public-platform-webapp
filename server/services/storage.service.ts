@@ -152,7 +152,7 @@ export class StorageService {
     }
   }
 
-  async uploadFileToBucket(payload: UploadFiletDto): Promise<CreateMediaDto> {
+  async uploadFileToBucket(bucket: Bucket, payload: UploadFiletDto): Promise<CreateMediaDto> {
     if (!payload.file.mimetype) {
       throw createError({
         statusCode: 406,
@@ -170,12 +170,14 @@ export class StorageService {
     }
     const originalFilename = payload.file.originalFilename ?? 'Untitled';
     const fileName = `${Date.now()}-${payload.file.newFilename}.${mimeType}`;
-    const newPath = `https://static.ragna.app/uploads/${payload.userId}/${fileName}`;
+    const { bucket: Bucket, url } = this.getBucketSettings(bucket);
+    const filePath = `${payload.userId}/uploads/${bucket}/${fileName}`;
+    const bucketUrl = `${url}/${payload.userId}/uploads/${bucket}/${fileName}`;
     const fileBlob = await fs.readFile(payload.file.filepath);
 
     const putObjectCommand = new PutObjectCommand({
-      Bucket: 'ragna-public',
-      Key: `uploads/${payload.userId}/${fileName}`,
+      Bucket,
+      Key: filePath,
       Body: fileBlob,
       ContentType: payload.file.mimetype,
     });
@@ -189,7 +191,7 @@ export class StorageService {
       teamId: payload.teamId,
       name: originalFilename,
       fileName,
-      filePath: newPath,
+      filePath: bucketUrl,
       fileMime: payload.file.mimetype,
       fileSize: payload.file.size,
       model: { id: payload.userId, type: 'user' },

@@ -49,7 +49,7 @@ export default defineEventHandler(async (_event) => {
         teamId: user.teamId, // TODO: fix typescript error
       });
       if (vision) {
-        createMediaPayload = await storageService.uploadFileToBucket(uploadPayload);
+        createMediaPayload = await storageService.uploadFileToBucket('images', uploadPayload);
       } else {
         createMediaPayload = await storageService.uploadFile(uploadPayload);
       }
