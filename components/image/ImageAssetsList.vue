@@ -89,9 +89,9 @@
             class="mx-1 flex size-56 overflow-hidden rounded-sm border border-transparent hover:cursor-pointer hover:shadow-xl"
             @click="previewImage(image.name, image.path)"
           >
-            <img v-if="image.path" :src="image.path" alt="image" class="size-full object-contain" />
+            <img v-if="image.path" :src="image.path" alt="image" class="size-full object-contain" loading="lazy" />
             <div v-else class="group size-full bg-stone-100 p-2">
-              <p class="hidden text-xs capitalize opacity-50 group-hover:block">{{ image.status }}</p>
+              <p class="hidden text-xs lowercase opacity-50 group-hover:block">{{ image.status }}</p>
             </div>
           </div>
         </div>
@@ -102,19 +102,29 @@
             </p>
           </div>
           <div class="hidden items-center space-x-1 py-2 group-hover:flex">
-            <button class="btn-sub" @click="reRun(run.id)">
+            <button
+              class="flex items-center justify-center space-x-1 rounded-lg px-2 py-1 text-xs opacity-75 hover:bg-stone-100 hover:opacity-100"
+              @click="reRun(run.prompt)"
+            >
               <div>
                 <RepeatIcon class="size-4 stroke-1.5" />
               </div>
               <div>Rerun</div>
             </button>
-            <button class="btn-sub" @click="usePrompt(run.prompt)">
+            <button
+              class="flex items-center justify-center space-x-1 rounded-lg px-2 py-1 text-xs opacity-75 hover:bg-stone-100 hover:opacity-100"
+              @click="usePrompt(run.prompt)"
+            >
               <div>
                 <SquarePenIcon class="size-4 stroke-1.5" />
               </div>
               <div>Use</div>
             </button>
-            <button class="btn-sub" :disabled="!copyToClipboardSupported" @click="copyPromptToClipboard(run.prompt)">
+            <button
+              class="flex items-center justify-center space-x-1 rounded-lg px-2 py-1 text-xs opacity-75 hover:bg-stone-100 hover:opacity-100"
+              :disabled="!copyToClipboardSupported"
+              @click="copyPromptToClipboard(run.prompt)"
+            >
               <div>
                 <ClipboardIcon v-if="!copiedToClipboard" class="size-4 stroke-1.5" />
                 <ClipboardCheckIcon v-else class="size-4 stroke-1.5" />
@@ -127,9 +137,3 @@
     </div>
   </div>
 </template>
-
-<style scoped>
-  .btn-sub {
-    @apply flex items-center justify-center space-x-1 rounded-lg px-2 py-1 text-xs opacity-75 hover:bg-stone-100 hover:opacity-100;
-  }
-</style>

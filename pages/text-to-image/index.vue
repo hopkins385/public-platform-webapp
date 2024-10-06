@@ -38,9 +38,9 @@
       });
       return res.value;
     } finally {
-      isLoading.value = false;
-      loadingPrompt.value = '';
       await refreshData();
+      loadingPrompt.value = '';
+      isLoading.value = false;
     }
   }
 
@@ -151,23 +151,6 @@
       observer.disconnect();
     }
   });
-
-  /*
-
-          <div v-if="isLoading">Loading...</div>
-          <div v-else-if="imageUrls" class="grid w-fit grid-cols-2 gap-4 bg-black p-10">
-            <div v-for="(imageUrl, index) in imageUrls" :key="index" class="h-96 w-96 overflow-hidden">
-              <img
-                :src="imageUrl"
-                alt="Generated Image"
-                class="size-full hover:cursor-pointer"
-                @click="openImage('', imageUrl)"
-              />
-            </div>
-          </div>
-        </div>
-
-        */
 </script>
 
 <template>
@@ -216,7 +199,7 @@
           </div>
         </div>
       </div>
-      <ImageAssetsList :refresh-data="refresh" @re-run="generateImage" @use-prompt="usePrompt" />
+      <ImageAssetsList :refresh-data="refresh" @re-run="async (p) => await generateImage(p)" @use-prompt="usePrompt" />
     </SectionContainer>
   </div>
 </template>
