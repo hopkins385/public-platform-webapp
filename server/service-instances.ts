@@ -42,7 +42,7 @@ export const collectionService = new CollectionService(prisma);
 export const documentService = new DocumentService(prisma);
 export const documentItemService = new DocumentItemService(prisma);
 // Media
-export const storageService = new StorageService(s3Client, config.cloudflare.bucket);
+export const storageService = new StorageService(s3Client);
 export const mediaAbleService = new MediaAbleService(prisma);
 export const mediaService = new MediaService(prisma, mediaAbleService, storageService);
 // Project

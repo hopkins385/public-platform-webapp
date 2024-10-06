@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { ClipboardCheckIcon, ClipboardIcon, RepeatIcon, SquarePenIcon } from 'lucide-vue-next';
-  import { useClipboard } from '@vueuse/core';
+  import { useClipboard, useScroll } from '@vueuse/core';
 
   const props = defineProps<{
     refreshData: boolean;
@@ -14,7 +14,7 @@
   const runs = ref<any[] | null>(null);
   const showImagePreview = ref(false);
   const imgPreviewUrl = ref('');
-  const imgPreviewName = ref('');
+  const imgPreviewPrompt = ref<string | undefined>(undefined);
 
   const promptCopy = ref('');
 
@@ -40,11 +40,11 @@
     return runs.value;
   }
 
-  function previewImage(imgName: string, url: string) {
+  function previewImage(url: string, prompt?: string) {
     if (!url) {
       return;
     }
-    imgPreviewName.value = imgName;
+    imgPreviewPrompt.value = prompt;
     imgPreviewUrl.value = url;
     showImagePreview.value = true;
   }
@@ -78,7 +78,7 @@
 
 <template>
   <div>
-    <ImagePreviewDialog v-model:show="showImagePreview" :img-url="imgPreviewUrl" :img-name="imgPreviewName" />
+    <ImagePreviewDialog v-model:show="showImagePreview" :img-url="imgPreviewUrl" :prompt="imgPreviewPrompt" />
     <div v-if="runs">
       <div v-for="run in runs" :key="run.id" class="my-2 flex">
         <div class="grid shrink-0 grid-cols-4">
@@ -87,7 +87,7 @@
             v-for="image in run.images"
             :key="image.id"
             class="mx-1 flex size-56 overflow-hidden rounded-sm border border-transparent hover:cursor-pointer hover:shadow-xl"
-            @click="previewImage(image.name, image.path)"
+            @click="previewImage(image.path, run.prompt)"
           >
             <img v-if="image.path" :src="image.path" alt="image" class="size-full object-contain" loading="lazy" />
             <div v-else class="group size-full bg-stone-100 p-2">

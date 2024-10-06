@@ -84,7 +84,6 @@ export default defineNuxtConfig({
       accountId: process.env.CLOUDFLARE_ACCOUNT_ID,
       accessKeyId: process.env.CLOUDFLARE_ACCESS_KEY_ID,
       secretAccessKey: process.env.CLOUDFLARE_SECRET_ACCESS_KEY,
-      bucket: process.env.CLOUDFLARE_BUCKET,
     },
     stripe: {
       secretApiKey: process.env.STRIPE_SECRET_API_KEY,

@@ -1,8 +1,9 @@
-import consola from 'consola';
 import type { ExtendedPrismaClient } from '../prisma';
-import { StatusResponse, type FluxImageGenerator } from '../utils/fluxImageGen';
 import type { StorageService } from './storage.service';
 import type { FluxProInputs } from '~/server/schemas/fluxPro.schema';
+import type { SessionUser } from '../api/auth/[...]';
+import { StatusResponse, type FluxImageGenerator } from '../utils/fluxImageGen';
+import consola from 'consola';
 
 const logger = consola.create({}).withTag('TextToImageService');
 
@@ -132,13 +133,13 @@ export class TextToImageService {
     });
   }
 
-  public async generateFluxProImages(payload: FluxProInputs): Promise<string[]> {
+  public async generateFluxProImages(user: SessionUser, payload: FluxProInputs): Promise<string[]> {
     const imgCount = payload.imgCount ?? 1;
 
     try {
       const run = await this.#createSingleRun(payload);
       const genImageResults = await this.#generateImagesForRun(run, imgCount, payload);
-      return this.#processImageResults(genImageResults, payload);
+      return this.#processImageResults(user.id, genImageResults, payload);
     } catch (error) {
       logger.error('Failed to generate images:', error);
       throw new Error('Failed to generate images');
@@ -186,7 +187,7 @@ export class TextToImageService {
       };
     } catch (error) {
       logger.error(`Failed to generate image:`, error);
-      // await this.#updateRunStatus({ runId: run.id, status: TextToImageRunStatus.FAILED });
+      await this.#updateRunStatus({ runId: run.id, status: TextToImageRunStatus.FAILED });
       return {
         run,
         genImage: {
@@ -198,26 +199,33 @@ export class TextToImageService {
     }
   }
 
-  async #processImageResults(results: GenImageResult[], payload: FluxProInputs): Promise<string[]> {
-    return Promise.all(results.map((result) => this.#processSingleImageResult({ folderId: payload.folderId, result })));
+  async #processImageResults(userId: string, results: GenImageResult[], payload: FluxProInputs): Promise<string[]> {
+    return Promise.all(
+      results.map((result) => this.#processSingleImageResult({ userId, folderId: payload.folderId, result })),
+    );
   }
 
-  async #processSingleImageResult(payload: { folderId: string; result: GenImageResult }): Promise<string> {
+  async #processSingleImageResult(payload: {
+    userId: string;
+    folderId: string;
+    result: GenImageResult;
+  }): Promise<string> {
     const { genImage, run } = payload.result;
 
     const fileName = `image-${genImage.id}.jpg`;
-    const folder = `text-to-image/${payload.folderId}`;
+    const folder = `${payload.userId}/text-to-image/${payload.folderId}`;
     const mimeType = 'image/jpg';
 
     let newfileUrl: string = '';
 
     try {
       if (genImage.imgUrl) {
-        const { storagefileUrl } = await this.storageService.uploadToImageBucketByUrl({
+        const { storagefileUrl } = await this.storageService.uploadToBucketByUrl({
           fileName,
           fileMimeType: mimeType,
           fileUrl: genImage.imgUrl,
-          folder,
+          bucketFolder: folder,
+          bucket: 'images',
         });
         newfileUrl = storagefileUrl;
       }
@@ -250,6 +258,17 @@ export class TextToImageService {
         name: payload.fileName,
         path: payload.filePath,
         mimeType: payload.mimeType,
+        status: payload.status,
+      },
+    });
+  }
+
+  async #updateRunStatus(payload: { runId: string; status: TextToImageRunStatus }) {
+    return this.prisma.textToImageRun.update({
+      where: {
+        id: payload.runId,
+      },
+      data: {
         status: payload.status,
       },
     });

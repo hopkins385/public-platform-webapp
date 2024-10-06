@@ -7,11 +7,17 @@ import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sd
 import type { UploadFiletDto } from './dto/file.dto';
 import { randomUUID } from 'crypto';
 
+type Bucket = 'public' | 'images';
+
+type R2Bucket = 'ragna-public' | 'ragna-cloud-images';
+
+interface BucketSettings {
+  bucket: R2Bucket;
+  url: string;
+}
+
 export class StorageService {
-  constructor(
-    private readonly s3Client: S3Client,
-    private readonly bucket: string,
-  ) {}
+  constructor(private readonly s3Client: S3Client) {}
 
   async uploadFile(payload: UploadFiletDto): Promise<CreateMediaDto> {
     if (!payload.file.mimetype) {
@@ -59,9 +65,30 @@ export class StorageService {
     return createMediaPayload;
   }
 
-  async uploadFileToBucketByUrl(payload: { fileName: string; fileUrl: string; bucketFolder: string }) {
+  getBucketSettings(bucket: Bucket): BucketSettings {
+    switch (bucket) {
+      case 'public':
+        return {
+          bucket: 'ragna-public',
+          url: 'https://static.ragna.app',
+        };
+      case 'images':
+        return {
+          bucket: 'ragna-cloud-images',
+          url: 'https://images.ragna.app',
+        };
+      default:
+        return {
+          bucket: 'ragna-public',
+          url: 'https://static.ragna.app',
+        };
+    }
+  }
+
+  async uploadFileToBucketByUrl(payload: { fileName: string; fileUrl: string; bucket: Bucket; bucketFolder: string }) {
     const { fileName, fileUrl, bucketFolder } = payload;
-    const newPath = `https://static.ragna.app/uploads/${bucketFolder}/${fileName}`;
+    const { bucket, url } = this.getBucketSettings(payload.bucket);
+    const newPath = `${url}/uploads/${bucketFolder}/${fileName}`;
 
     try {
       const localFilePath = await this.downloadFileToTemp(fileUrl);
@@ -70,7 +97,7 @@ export class StorageService {
       const mimeType = this.getFileExtension(fileName);
 
       const putObjectCommand = new PutObjectCommand({
-        Bucket: this.bucket,
+        Bucket: bucket,
         Key: `uploads/${bucketFolder}/${fileName}`,
         Body: fileBlob,
         ContentType: mimeType,
@@ -90,17 +117,24 @@ export class StorageService {
     }
   }
 
-  async uploadToImageBucketByUrl(payload: { fileName: string; fileMimeType: string; fileUrl: string; folder: string }) {
-    const { fileName, fileMimeType, fileUrl, folder } = payload;
-    const newfileUrl = `https://images.ragna.app/${folder}/${fileName}`;
+  async uploadToBucketByUrl(payload: {
+    fileName: string;
+    fileMimeType: string;
+    fileUrl: string;
+    bucket: Bucket;
+    bucketFolder: string;
+  }) {
+    const { fileName, fileMimeType, fileUrl, bucketFolder } = payload;
+    const { bucket, url } = this.getBucketSettings(payload.bucket);
+    const newfileUrl = `${url}/${bucketFolder}/${fileName}`;
 
     try {
       const localFilePath = await this.downloadFileToTemp(fileUrl);
       const fileBlob = await fs.readFile(localFilePath);
 
       const putObjectCommand = new PutObjectCommand({
-        Bucket: 'ragna-cloud-images',
-        Key: `${folder}/${fileName}`,
+        Bucket: bucket,
+        Key: `${bucketFolder}/${fileName}`,
         Body: fileBlob,
         ContentType: fileMimeType,
       });
@@ -140,7 +174,7 @@ export class StorageService {
     const fileBlob = await fs.readFile(payload.file.filepath);
 
     const putObjectCommand = new PutObjectCommand({
-      Bucket: this.bucket,
+      Bucket: 'ragna-public',
       Key: `uploads/${payload.userId}/${fileName}`,
       Body: fileBlob,
       ContentType: payload.file.mimetype,
@@ -166,7 +200,7 @@ export class StorageService {
 
   async downloadFileFromBucket(path: string): Promise<Buffer> {
     const getObjectCommand = new GetObjectCommand({
-      Bucket: this.bucket,
+      Bucket: 'ragna-public',
       Key: path,
     });
     const { Body } = await this.s3Client.send(getObjectCommand);
@@ -207,7 +241,7 @@ export class StorageService {
 
   async deleteFileFromBucket(filePath: string): Promise<boolean> {
     const deleteObjectCommand = new DeleteObjectCommand({
-      Bucket: this.bucket,
+      Bucket: 'ragna-public',
       Key: filePath,
     });
     await this.s3Client.send(deleteObjectCommand);

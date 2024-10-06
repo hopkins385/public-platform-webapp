@@ -1,15 +1,11 @@
 <script setup lang="ts">
-  import { SendIcon } from 'lucide-vue-next';
+  import { Loader2Icon, SendIcon } from 'lucide-vue-next';
 
   const isLoading = ref(false);
   const refresh = ref(false);
   const prompt = ref('');
   const loadingPrompt = ref('');
   const imageUrls = ref<string[] | null>(null);
-
-  const showImagePreview = ref(false);
-  const imgPreviewUrl = ref('');
-  const imgPreviewName = ref('');
 
   const promptFormRef = ref<HTMLFormElement | null>(null);
 
@@ -38,9 +34,8 @@
       });
       return res.value;
     } finally {
-      await refreshData();
-      loadingPrompt.value = '';
       isLoading.value = false;
+      loadingPrompt.value = '';
     }
   }
 
@@ -52,19 +47,18 @@
     refresh.value = false;
   }
 
-  async function onSubmit() {
-    imageUrls.value = await generateImage(prompt.value);
-  }
-
-  function openImage(imgName: string, url: string) {
-    imgPreviewName.value = imgName;
-    imgPreviewUrl.value = url;
-    showImagePreview.value = true;
-  }
-
-  function selectText(event: MouseEvent) {
-    const target = event.target as HTMLInputElement;
-    target.select();
+  function onSubmit() {
+    if (!prompt.value || isLoading.value) {
+      return;
+    }
+    generateImage(prompt.value)
+      .then(async (res) => {
+        imageUrls.value = res;
+        await refreshData();
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   }
 
   function usePrompt(value: string) {
@@ -73,6 +67,13 @@
       adjustTextareaHeight();
     });
     promptFormRef.value?.querySelector('textarea')?.focus();
+  }
+
+  function scrollToTop() {
+    const section = document.getElementById('sectionContainer');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
   }
 
   /**
@@ -154,7 +155,7 @@
 </script>
 
 <template>
-  <div id="sectionContainer" class="bg-white">
+  <div id="sectionContainer" ref="el" class="bg-white">
     <SectionContainer class="sticky inset-0 z-10 !py-0">
       <div class="h-8 bg-white/95 backdrop-blur-sm"></div>
       <div class="w-full">
@@ -171,8 +172,16 @@
               @paste="handlePaste"
             />
             <div class="absolute bottom-0 right-0 p-1">
-              <Button class="z-10" type="submit" size="icon" variant="ghost">
-                <SendIcon class="size-5 stroke-1.5 opacity-75" />
+              <Button
+                class="z-10"
+                type="submit"
+                size="icon"
+                variant="ghost"
+                :disabled="!prompt || isLoading"
+                aria-label="Generate image"
+              >
+                <Loader2Icon v-if="isLoading" class="size-5 animate-spin stroke-1.5 opacity-75" />
+                <SendIcon v-else class="size-5 stroke-1.5 opacity-75" />
               </Button>
             </div>
           </form>
