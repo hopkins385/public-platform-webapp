@@ -3,4 +3,7 @@ export default defineAppConfig({
     successDuration: 2000,
     errorDuration: 4000,
   },
+  feature: {
+    collections: false,
+  },
 });

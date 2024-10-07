@@ -1,15 +1,8 @@
 <script setup lang="ts">
   defineProps<{
     to: string;
-    variant?:
-      | 'outline'
-      | 'default'
-      | 'link'
-      | 'destructive'
-      | 'secondary'
-      | 'ghost'
-      | null
-      | undefined;
+    variant?: 'outline' | 'default' | 'link' | 'destructive' | 'secondary' | 'ghost' | null | undefined;
+    disabled?: boolean;
   }>();
 </script>
 

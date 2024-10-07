@@ -9,11 +9,14 @@
       label: 'Collections',
     },
   });
+
+  const { feature } = useAppConfig();
+  const disabled = !feature.collections;
 </script>
 
 <template>
   <SectionContainer>
-    <SectionHeading title="Collections" subtitle="Create, edit, and manage collections" />
+    <SectionHeading title="Knowledge Collections" subtitle="Create, edit, and manage your knowledge collections" />
     <Heading>
       <template #top> </template>
       <template #bottom>
@@ -27,9 +30,12 @@
       </template>
     </Heading>
     <BoxContainer>
-      <Suspense>
+      <Suspense v-if="!disabled">
         <CollectionTable />
       </Suspense>
+      <div v-else>
+        <FeatureDisabled />
+      </div>
     </BoxContainer>
   </SectionContainer>
 </template>
