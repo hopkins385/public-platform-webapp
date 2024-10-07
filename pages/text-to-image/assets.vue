@@ -2,6 +2,6 @@
 
 <template>
   <SectionContainer class="bg-white">
-    <ImageAssetsList />
+    <ImageAssetsList :refresh-data="false" />
   </SectionContainer>
 </template>

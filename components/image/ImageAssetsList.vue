@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { ClipboardCheckIcon, ClipboardIcon, RepeatIcon, SquarePenIcon } from 'lucide-vue-next';
-  import { useClipboard, useScroll } from '@vueuse/core';
+  import { useClipboard, useInfiniteScroll, useScroll } from '@vueuse/core';
 
   const props = defineProps<{
     refreshData: boolean;
@@ -74,12 +74,25 @@
       }
     },
   );
+
+  /*const el = ref<HTMLElement | null>(null);
+  const data = ref([1, 2, 3, 4, 5, 6]);
+
+  const { reset } = useInfiniteScroll(
+    el,
+    () => {
+      // load more
+      data.value.push(1, 2, 3, 4, 5, 6);
+      console.log('load more');
+    },
+    { distance: 10 },
+  );*/
 </script>
 
 <template>
   <div>
     <ImagePreviewDialog v-model:show="showImagePreview" :img-url="imgPreviewUrl" :prompt="imgPreviewPrompt" />
-    <div v-if="runs">
+    <div ref="el">
       <div v-for="run in runs" :key="run.id" class="my-2 flex">
         <div class="grid shrink-0 grid-cols-4">
           <div v-if="run.status === 'FAILED'">FAILED</div>
@@ -102,7 +115,7 @@
             </p>
           </div>
           <div class="py-2 opacity-60">
-            <span class="text-xxs rounded-lg bg-stone-100 px-3 py-2">Flux 1.1 Pro</span>
+            <span class="rounded-lg bg-stone-100 px-3 py-2 text-xxs">Flux 1.1 Pro</span>
           </div>
           <div class="hidden items-center space-x-1 py-2 group-hover:flex">
             <button
