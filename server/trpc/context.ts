@@ -8,6 +8,7 @@ import {
   collectionAbleService,
   collectionService,
   createNewUserAction,
+  creditService,
   documentItemService,
   documentService,
   embeddingService,
@@ -27,6 +28,7 @@ import {
   workflowService,
   workflowStepService,
 } from '~/server/service-instances';
+import { useEvents } from '../events/useEvents';
 
 /**
  * Creates context for an incoming request
@@ -36,9 +38,11 @@ export async function createContext(_event: H3Event) {
   const session = await getServerSession(_event);
   // @ts-ignore
   const user: SessionUser = session?.user;
+  const { event } = useEvents();
 
   return {
     // prisma: _event.context.prisma,
+    emitEvent: event,
     user,
     services: {
       llmService,
@@ -58,6 +62,7 @@ export async function createContext(_event: H3Event) {
       providerAuthService,
       recordService,
       embeddingService,
+      creditService,
       stripeService,
       usageService,
       workflowExecService,

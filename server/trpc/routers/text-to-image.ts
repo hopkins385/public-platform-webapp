@@ -4,9 +4,18 @@ import { protectedProcedure, router } from '../trpc';
 import { FluxProInputsSchema } from '~/server/schemas/fluxPro.schema';
 
 export const textToImageRouter = router({
-  generateImages: protectedProcedure.input(FluxProInputsSchema).query(async ({ ctx: { user, services }, input }) => {
-    return await services.textToImageService.generateFluxProImages(user, input);
-  }),
+  generateImages: protectedProcedure
+    .input(FluxProInputsSchema)
+    .query(async ({ ctx: { user, services, emitEvent }, input }) => {
+      // has eniugh credits
+      const requiredCredits = input.imgCount * 15;
+      if (user.credits < requiredCredits) {
+        throw new Error('Not enough credits');
+      }
+      const imageUrls = await services.textToImageService.generateFluxProImages(user, input);
+      emitEvent(UsageEvent.UPDATE_CREDITS, { userId: user.id, credits: requiredCredits });
+      return imageUrls;
+    }),
   getFirstFolderId: protectedProcedure
     .input(
       z.object({

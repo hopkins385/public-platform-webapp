@@ -1,3 +1,4 @@
+import { CreditService } from './services/credit.service';
 import prisma from '~/server/prisma';
 import qdrant from './qdrant';
 import openai from './openai';
@@ -55,6 +56,7 @@ export const recordService = new RecordService(prisma, mediaService, embeddingSe
 // Usage
 export const usageService = new UsageService(prisma);
 export const stripeService = new StripeService();
+export const creditService = new CreditService(prisma);
 // Workflow
 export const workflowExecService = new WorkflowExecutionService(prisma);
 export const workflowStepService = new WorkflowStepService(prisma);

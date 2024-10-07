@@ -3,7 +3,7 @@ import type { ChatToolCallEventDto } from './dto/chatToolCallEvent.dto';
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import socket from '../socket';
 import consola from 'consola';
-import { chatService } from '../service-instances';
+import { chatService, creditService } from '../service-instances';
 
 const { queueAddJob } = useBullmq();
 

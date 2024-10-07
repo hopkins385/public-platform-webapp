@@ -23,10 +23,12 @@ declare module 'next-auth' {
 
 export interface SessionUser {
   id: string;
+  orgId: string;
   email: string;
   name: string;
   teamId: string;
   roles: string[];
+  credits: number;
   onboardingDone: boolean;
 }
 
@@ -75,7 +77,7 @@ export default NuxtAuthHandler({
     },
     async session({ session, token, user }) {
       const fullUser = await userService.getUserById(user.id);
-      // TODO: cache fullUser
+      // TODO: cache fullUser but not the credit amount
 
       if (!fullUser) {
         return session;
@@ -86,6 +88,7 @@ export default NuxtAuthHandler({
       session.user.orgId = orgId;
       session.user.roles = getRoles(fullUser);
       session.user.onboardingDone = fullUser.onboardedAt !== null;
+      session.user.credits = fullUser.credit[0].amount || 0;
 
       return session;
     },

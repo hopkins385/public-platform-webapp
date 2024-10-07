@@ -14,6 +14,7 @@ import {
 import { cellActiveEvent, cellCompletedEvent, rowCompletedEvent } from '~/server/events/workflow.events';
 import { UsageEvent } from '../utils/enums/usage-event.enum';
 import { trackTokensEvent } from '../events/track-tokens.event';
+import { updateCreditsEvent, type IUpdateCreditsEvent } from '../events/usage.events';
 
 const logger = consola.create({}).withTag('event-listener');
 
@@ -44,6 +45,7 @@ export default defineNitroPlugin(() => {
 
   // Usage
   eventEmitter.on(UsageEvent.TRACKTOKENS, async (data: TrackTokensDto) => await trackTokensEvent(data));
+  eventEmitter.on(UsageEvent.UPDATE_CREDITS, async (data: IUpdateCreditsEvent) => await updateCreditsEvent(data));
 
   logger.info('Event listeners loaded');
 });

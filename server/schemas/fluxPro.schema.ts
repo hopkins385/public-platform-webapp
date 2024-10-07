@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const FluxProInputsSchema = z.object({
   folderId: cuidRule(),
   prompt: z.string().min(1, 'Prompt is required'),
-  imgCount: z.number().int().min(1).max(10).default(1).optional().describe('Number of images to generate.'),
+  imgCount: z.number().int().min(1).max(10).default(1).describe('Number of images to generate.'),
   width: z
     .number()
     .int()
