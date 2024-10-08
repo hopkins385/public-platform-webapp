@@ -49,8 +49,6 @@
     showImagePreview.value = true;
   }
 
-  runs.value = await getImageRuns();
-
   function reRun(prompt: string) {
     console.log('Rerun:', prompt);
     emit('reRun', prompt);
@@ -75,6 +73,8 @@
     },
   );
 
+  runs.value = await getImageRuns();
+
   /*const el = ref<HTMLElement | null>(null);
   const data = ref([1, 2, 3, 4, 5, 6]);
 
@@ -87,15 +87,19 @@
     },
     { distance: 10 },
   );*/
+
+  // onMounted(async () => {
+  //   await nextTick();
+  //   runs.value = await getImageRuns();
+  // });
 </script>
 
 <template>
-  <div>
+  <div class="">
     <ImagePreviewDialog v-model:show="showImagePreview" :img-url="imgPreviewUrl" :prompt="imgPreviewPrompt" />
-    <div ref="el">
+    <div ref="el" class="bg-white">
       <div v-for="run in runs" :key="run.id" class="my-2 flex">
         <div class="grid shrink-0 grid-cols-4">
-          <div v-if="run.status === 'FAILED'">FAILED</div>
           <div
             v-for="image in run.images"
             :key="image.id"

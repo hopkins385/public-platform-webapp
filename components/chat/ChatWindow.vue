@@ -109,7 +109,9 @@
 
     // clear input
     inputMessage.value = '';
-    adjustTextareaHeight();
+    nextTick(() => {
+      adjustTextareaHeight();
+    });
 
     // send message to assistant
     isPending.value = true;

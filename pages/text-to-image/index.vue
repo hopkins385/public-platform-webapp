@@ -169,7 +169,7 @@
 </script>
 
 <template>
-  <div id="sectionContainer" ref="el" class="min-h-screen bg-white">
+  <div id="sectionContainer" ref="el" class="bg-white">
     <SectionContainer class="sticky inset-0 z-10 !py-0">
       <div class="h-8 bg-white/95 backdrop-blur-sm"></div>
       <div class="w-full">
@@ -181,7 +181,7 @@
               placeholder="Enter a prompt"
               rows="1"
               resize="none"
-              class="min-h-[48px] resize-none rounded-2xl bg-white py-4 pl-4 pr-8 shadow-sm focus:shadow-lg"
+              class="no-scrollbar min-h-[48px] resize-none rounded-2xl bg-white py-4 pl-4 pr-8 shadow-sm focus:shadow-lg"
               @input="adjustTextareaHeight"
               @paste="handlePaste"
               @keydown.enter="onEnter"
@@ -206,7 +206,7 @@
         </div>
       </div>
     </SectionContainer>
-    <SectionContainer>
+    <SectionContainer class="">
       <div v-if="isLoading" class="flex">
         <div class="grid shrink-0 grid-cols-4">
           <div
