@@ -182,6 +182,12 @@ export class UserService {
                     name: true,
                   },
                 },
+                projects: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
               },
             },
           },

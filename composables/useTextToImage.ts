@@ -46,11 +46,12 @@ export default function useTextToImage() {
     });
   }
 
-  async function getFolderImagesRuns(payload: { folderId: string }) {
-    const { folderId } = payload;
+  async function getFolderImagesRuns(payload: { projectId: string; folderId: string }) {
+    const { projectId, folderId } = payload;
     return useAsyncData(`folderImages:${folderId}`, async () => {
       return await $client.textToImage.getFolderImagesRuns.query(
         {
+          projectId,
           folderId,
         },
         { signal: ac.signal },

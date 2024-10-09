@@ -6,30 +6,24 @@ import { useEvents } from '~/server/events/useEvents';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from '~/server/prisma';
 import { userService } from '~/server/service-instances';
+import type { TeamUser } from '@prisma/client';
+
+export interface CustomSessionUserData {
+  id: string;
+  orgId: string;
+  teamId: string;
+  roles: string[];
+  projectIds: string[];
+  credits: number;
+  onboardingDone: boolean;
+}
+
+export type SessionUser = CustomSessionUserData & DefaultSession['user'];
 
 declare module 'next-auth' {
   interface Session {
-    user: {
-      id: string | null | undefined;
-      email: string | null | undefined;
-      name: string | null | undefined;
-      teamId: string | null | undefined;
-      orgId: string | null | undefined;
-      roles: string[];
-      onboardingDone: boolean;
-    } & DefaultSession['user'];
+    user: SessionUser;
   }
-}
-
-export interface SessionUser {
-  id: string;
-  orgId: string;
-  email: string;
-  name: string;
-  teamId: string;
-  roles: string[];
-  credits: number;
-  onboardingDone: boolean;
 }
 
 const { secret, auth0 } = useRuntimeConfig().auth;
@@ -55,6 +49,7 @@ function getFirstTeam(teams: any) {
   return {
     teamId: teams[0]?.teamId || null,
     orgId: teams[0]?.team.organisation.id || null,
+    projectIds: teams[0]?.team.projects?.map((p: any) => p.id) || [],
   };
 }
 
@@ -82,13 +77,14 @@ export default NuxtAuthHandler({
       if (!fullUser) {
         return session;
       }
-      const { teamId, orgId } = getFirstTeam(fullUser.teams);
+      const { teamId, orgId, projectIds } = getFirstTeam(fullUser.teams);
       session.user.id = fullUser.id;
       session.user.teamId = teamId;
       session.user.orgId = orgId;
       session.user.roles = getRoles(fullUser);
+      session.user.projectIds = projectIds;
+      session.user.credits = fullUser.credit?.[0]?.amount || 0;
       session.user.onboardingDone = fullUser.onboardedAt !== null;
-      session.user.credits = fullUser.credit[0].amount || 0;
 
       return session;
     },

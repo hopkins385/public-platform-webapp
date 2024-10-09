@@ -169,7 +169,7 @@
 </script>
 
 <template>
-  <div id="sectionContainer" ref="el" class="bg-white">
+  <div id="sectionContainer" ref="el" class="min-h-full bg-white">
     <SectionContainer class="sticky inset-0 z-10 !py-0">
       <div class="h-8 bg-white/95 backdrop-blur-sm"></div>
       <div class="w-full">

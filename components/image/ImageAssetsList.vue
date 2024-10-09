@@ -33,7 +33,10 @@
     if (!firstFolder.value?.folderId) {
       throw new Error('No folder found');
     }
-    const { data: runs } = await getFolderImagesRuns({ folderId: firstFolder.value.folderId });
+    const { data: runs } = await getFolderImagesRuns({
+      projectId: projectStore.activeProjectId,
+      folderId: firstFolder.value.folderId,
+    });
     if (!runs.value) {
       return null;
     }
@@ -92,12 +95,14 @@
   //   await nextTick();
   //   runs.value = await getImageRuns();
   // });
+
+  const hasRuns = computed(() => runs.value && runs.value.length > 0);
 </script>
 
 <template>
   <div class="">
     <ImagePreviewDialog v-model:show="showImagePreview" :img-url="imgPreviewUrl" :prompt="imgPreviewPrompt" />
-    <div ref="el" class="bg-white">
+    <div v-if="hasRuns" ref="el" class="bg-white">
       <div v-for="run in runs" :key="run.id" class="my-2 flex">
         <div class="grid shrink-0 grid-cols-4">
           <div
@@ -154,6 +159,9 @@
           </div>
         </div>
       </div>
+    </div>
+    <div v-else>
+      <p class="text-center text-sm opacity-50">Let your creativity flow.</p>
     </div>
   </div>
 </template>

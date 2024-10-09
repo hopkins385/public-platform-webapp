@@ -47,6 +47,7 @@
   }
 
   // const { data: auth } = useAuth();
+  // {{ auth }}
 </script>
 
 <template>
