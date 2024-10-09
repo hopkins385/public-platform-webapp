@@ -16,6 +16,9 @@
   async function generateImage(submitPrompt: string) {
     prompt.value = '';
     loadingPrompt.value = submitPrompt;
+    nextTick(() => {
+      adjustTextareaHeight();
+    });
     isLoading.value = true;
     try {
       const projectId = projectStore.activeProjectId;
