@@ -4,14 +4,21 @@ services:
       replicas: 3
     labels:
       - 'traefik.enable=true'
+      - 'traefik.docker.network=traefik_net'
+      # Common
+      - 'traefik.http.services.webapp.loadbalancer.server.port=3000'
+      - 'traefik.http.services.webapp.loadbalancer.sticky=true'
+      - 'traefik.http.services.webapp.loadbalancer.sticky.cookie.name=webapp'
+      - 'traefik.http.services.webapp.loadbalancer.sticky.cookie.secure=true'
+      - 'traefik.http.services.webapp.loadbalancer.sticky.cookie.httpOnly=true'
+      - 'traefik.http.services.webapp.loadbalancer.sticky.cookie.samesite=Strict'
+      # HTTP Routers
       - 'traefik.http.routers.webapp.rule=Host(`platform.ragna-ai.com`)'
       - 'traefik.http.routers.webapp.entrypoints=https'
-      - 'traefik.http.services.webapp.loadbalancer.server.port=3000'
       - 'traefik.http.routers.webapp.service=webapp'
       - 'traefik.http.routers.webapp.middlewares=crowdsec-bouncer@file,default@file' #,gzip@file
       - 'traefik.http.routers.webapp.tls=true'
       - 'traefik.http.routers.webapp.tls.certresolver=http'
-      - 'traefik.docker.network=traefik_net'
       # Websocket
       - 'traefik.http.routers.ws-webapp.rule=Host(`platform.ragna-ai.com`) && PathPrefix(`/socket.io`)'
       - 'traefik.http.routers.ws-webapp.service=ws-webapp'
