@@ -7,9 +7,9 @@ volumes:
 
 services:
   ragna_cloud_app:
-    cpus: 8
+    # cpus: 8
     image: ragna/cloud-platform
-    container_name: ragna_cloud_app
+    # container_name: ragna_cloud_app
     restart: unless-stopped
     working_dir: /app
     volumes:
@@ -24,7 +24,7 @@ services:
   postgres:
     cpus: 4
     image: postgres:17.0-alpine3.20
-    container_name: postgresql
+    container_name: ragna_postgresql
     restart: always
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -41,7 +41,7 @@ services:
   redis:
     cpus: 1
     image: redis:7.4.0-alpine3.20
-    container_name: redis
+    container_name: ragna_redis
     restart: always
     command: 'redis-server --save 60 1 --loglevel warning --requirepass ${REDIS_PASSWORD}'
     volumes:
