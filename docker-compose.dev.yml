@@ -1,5 +1,5 @@
 services:
-  ragna_cloud_app:
+  app:
     volumes:
       - /app/node_modules
     ports:

@@ -6,7 +6,7 @@ volumes:
   app_uploads:
 
 services:
-  ragna_cloud_app:
+  app:
     # cpus: 8
     image: ragna/cloud-platform
     # container_name: ragna_cloud_app

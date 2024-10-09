@@ -1,5 +1,5 @@
 services:
-  ragna_cloud_app:
+  app:
     # deploy:
     #   replicas: 3
     labels:
