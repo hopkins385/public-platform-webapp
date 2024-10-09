@@ -111,7 +111,13 @@
             class="mx-1 flex size-56 overflow-hidden rounded-lg border border-transparent hover:cursor-pointer hover:shadow-xl"
             @click="previewImage(image.path, run.prompt)"
           >
-            <img v-if="image.path" :src="image.path" alt="image" class="size-full object-contain" loading="lazy" />
+            <img
+              v-if="image.path"
+              :src="image.path"
+              alt="image"
+              class="size-full rounded-lg object-contain"
+              loading="lazy"
+            />
             <div v-else class="group size-full bg-stone-100 p-2">
               <p class="hidden text-xs lowercase opacity-50 group-hover:block">{{ image.status }}</p>
             </div>

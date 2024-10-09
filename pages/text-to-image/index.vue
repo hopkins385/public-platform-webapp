@@ -69,11 +69,12 @@
     onSubmit();
   }
 
-  function onEnter() {
+  function onEnter(event: KeyboardEvent) {
     if (!prompt.value.trim() || isLoading.value) {
       return;
     }
     if (settings.getSubmitOnEnter) {
+      event.preventDefault();
       onSubmit();
     }
   }
