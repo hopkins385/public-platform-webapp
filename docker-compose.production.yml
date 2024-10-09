@@ -1,7 +1,7 @@
 services:
   ragna_cloud_app:
-    deploy:
-      replicas: 3
+    # deploy:
+    #   replicas: 3
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.webapp.rule=Host(`platform.ragna-ai.com`)'
