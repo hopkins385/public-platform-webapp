@@ -26,6 +26,7 @@ export default function useTextToImage() {
           height,
           guidance,
           prompt_upsampling,
+          safety_tolerance: 4,
         },
         {
           signal: ac.signal,
