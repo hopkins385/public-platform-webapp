@@ -117,8 +117,8 @@ export default defineNuxtConfig({
     scrapeServer: {
       url: process.env.SCRAPE_SERVER_URL,
     },
-    fileReaderServer: {
-      url: process.env.FILE_READER_SERVER_URL,
+    embeddingServer: {
+      url: process.env.EMBEDDING_SERVER_URL,
     },
     openai: {
       // baseUrl: process.env.OPENAI_BASE_URL,
@@ -135,9 +135,6 @@ export default defineNuxtConfig({
     anthropic: {
       // baseUrl: process.env.ANTHROPIC_BASE_URL,
       apiKey: process.env.ANTHROPIC_API_KEY,
-    },
-    cohere: {
-      apiKey: process.env.COHERE_API_KEY,
     },
     serp: {
       apiKey: process.env.SERP_API_KEY,

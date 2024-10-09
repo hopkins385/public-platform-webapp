@@ -64,12 +64,9 @@ export enum StatusResponse {
 }
 
 export class FluxImageGenerator {
-  private readonly apiKey: string;
   private readonly baseUrl: string = 'https://api.bfl.ml/v1';
 
-  constructor(apiKey: string) {
-    this.apiKey = apiKey;
-  }
+  constructor(private readonly config: { apiKey: string }) {}
 
   public async generateImage(request: FluxProPlusInputs): Promise<PollingResult> {
     try {
@@ -91,7 +88,7 @@ export class FluxImageGenerator {
       method: 'POST',
       headers: {
         accept: 'application/json',
-        'x-key': this.apiKey,
+        'x-key': this.config.apiKey,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(request),
@@ -156,7 +153,7 @@ export class FluxImageGenerator {
       method: 'GET',
       headers: {
         accept: 'application/json',
-        'x-key': this.apiKey,
+        'x-key': this.config.apiKey,
       },
     });
 

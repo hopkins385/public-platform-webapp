@@ -9,9 +9,6 @@
       label: 'Collections',
     },
   });
-
-  const { feature } = useAppConfig();
-  const disabled = !feature.collections;
 </script>
 
 <template>
@@ -30,12 +27,9 @@
       </template>
     </Heading>
     <BoxContainer>
-      <Suspense v-if="!disabled">
+      <Suspense>
         <CollectionTable />
       </Suspense>
-      <div v-else>
-        <FeatureDisabled />
-      </div>
     </BoxContainer>
   </SectionContainer>
 </template>

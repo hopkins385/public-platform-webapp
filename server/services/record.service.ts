@@ -40,7 +40,7 @@ export class RecordService {
 
     // TODO: create new record and duplicate chunks but don't embed file again to vector store
     // for now, just create new record and embed file to vectorStore
-    return this.embedMedia(media, payload);
+    return this.#embedMedia(media, payload);
 
     /*
     if (!record) {
@@ -57,8 +57,9 @@ export class RecordService {
     */
   }
 
-  async embedMedia(media: Media, payload: CreateRecordDto) {
+  async #embedMedia(media: Media, payload: CreateRecordDto) {
     const { filePath, fileMime } = media;
+    const cleanedFilePath = filePath.replace(process.cwd(), '');
     // create record
     const newRecord = await this.prisma.record.create({
       data: {
@@ -69,15 +70,12 @@ export class RecordService {
 
     try {
       // store/embed file to vectorStore
-      const embedDocuments = await this.embeddingService.embedFile(
-        {
-          mediaId: media.id,
-          recordId: newRecord.id,
-          mimeType: fileMime,
-          path: filePath,
-        },
-        // { resetCollection: true }, // TODO: [IMPORTANT] resetCollection will delete all previous embeddings
-      );
+      const embedDocuments = await this.embeddingService.embedFile({
+        mediaId: media.id,
+        recordId: newRecord.id,
+        mimeType: fileMime,
+        filePath: cleanedFilePath,
+      });
 
       const chunksData = embedDocuments.map((doc) => ({
         recordId: newRecord.id,

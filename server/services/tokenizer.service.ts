@@ -1,5 +1,5 @@
-import type { TiktokenEncoding } from 'tiktoken';
-import { get_encoding as getEncoding, Tiktoken } from 'tiktoken';
+import type { TiktokenEncoding, Tiktoken } from 'tiktoken';
+import { get_encoding as getEncoding } from 'tiktoken';
 
 export class TokenizerService {
   private model: TiktokenEncoding;

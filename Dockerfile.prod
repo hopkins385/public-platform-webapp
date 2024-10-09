@@ -10,7 +10,7 @@ COPY --chown=node:node . .
 RUN npm ci
 
 # Set to production environment
-ENV NODE_ENV production
+ENV NODE_ENV=production
 #ENV GENERATE_SOURCEMAP=false
 #ENV NODE_OPTIONS=--max-old-space-size=16384
 

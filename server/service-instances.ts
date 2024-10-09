@@ -51,7 +51,7 @@ export const projectService = new ProjectService(prisma);
 // Provider Auth
 export const providerAuthService = new ProviderAuthService(prisma);
 // Embedding
-export const embeddingService = new EmbeddingService(qdrant, openai, cohere, config.fileReaderServer.url);
+export const embeddingService = new EmbeddingService({ embeddingServiceUrl: config.embeddingServer.url });
 export const recordService = new RecordService(prisma, mediaService, embeddingService);
 // Usage
 export const usageService = new UsageService(prisma);
@@ -62,7 +62,7 @@ export const workflowExecService = new WorkflowExecutionService(prisma);
 export const workflowStepService = new WorkflowStepService(prisma);
 export const workflowService = new WorkflowService(prisma);
 // Image generation
-export const fluxImageGenerator = new FluxImageGenerator(config.flux.apiKey);
+export const fluxImageGenerator = new FluxImageGenerator({ apiKey: config.flux.apiKey });
 export const textToImageService = new TextToImageService(prisma, fluxImageGenerator, storageService);
 
 // Actions

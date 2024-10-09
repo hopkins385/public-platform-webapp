@@ -406,8 +406,7 @@ async function getContextAwareSystemPrompt(payload: {
   lastMessageContent: string;
   assistantSystemPrompt: string;
 }) {
-  return payload.assistantSystemPrompt;
-  // INFO: Temp disable context aware system prompt
+  // return payload.assistantSystemPrompt;
   const collections = await collectionService.findAllWithRecordsFor(
     CollectionAbleDto.fromInput({
       id: payload.assistantId,
@@ -427,7 +426,7 @@ async function getContextAwareSystemPrompt(payload: {
 
   const context = res.map((r) => r?.text || '').join('\n\n');
 
-  // console.log('system prompt context:', context);
+  console.log('system prompt context:', context);
 
   return payload.assistantSystemPrompt + '\n\n<context>' + context + '</context>';
 }
