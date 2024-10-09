@@ -25,6 +25,7 @@ const tokenizerService = new TokenizerService();
 const logger = consola.create({}).withTag('conversation.post');
 
 export default defineEventHandler(async (_event) => {
+  const abortController = new AbortController();
   // Needs Auth
   const session = await getServerSession(_event);
   const user = getAuthUser(session); // throws error if user not found
@@ -79,23 +80,22 @@ export default defineEventHandler(async (_event) => {
 
   let gathered: string | undefined = undefined;
 
-  const gatherChunks = () => {
-    const transform = new Transform({
-      objectMode: true,
-      transform(chunk, encoding, callback) {
-        if (gathered === undefined) {
-          gathered = chunk;
-        } else {
-          gathered += chunk;
-        }
-        callback(null, chunk);
-      },
-    });
+  const gatherChunks = new Transform({
+    objectMode: true,
+    transform(chunk, encoding, callback) {
+      if (gathered === undefined) {
+        gathered = chunk;
+      } else {
+        gathered += chunk;
+      }
+      callback(null, chunk);
+    },
+    flush(callback) {
+      callback();
+    },
+  });
 
-    return transform;
-  };
-
-  const abortController = new AbortController();
+  setSSEHeaders(_event);
 
   // listen for response events
   _event.node.res.on(
@@ -104,13 +104,6 @@ export default defineEventHandler(async (_event) => {
   );
   _event.node.res.on('error', (error) => onResponseError(_event, error));
   _event.node.res.on('drain', () => logger.debug('Response drain'));
-
-  // set proper headers
-  _event.node.res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
-  _event.node.res.setHeader('Cache-Control', 'no-cache');
-  _event.node.res.setHeader('Connection', 'keep-alive');
-  _event.node.res.setHeader('Transfer-Encoding', 'chunked');
-  _event.node.res.setHeader('X-Accel-Buffering', 'no');
 
   // stream data
   const streamData = {
@@ -125,7 +118,7 @@ export default defineEventHandler(async (_event) => {
   };
 
   const generator = generateStream(_event, streamData);
-  const readableStream = Readable.from(generator).pipe(gatherChunks());
+  const readableStream = Readable.from(generator).pipe(gatherChunks);
   readableStream.on('error', (error) => onStreamError(_event, readableStream, error));
 
   return readableStream;
@@ -140,6 +133,17 @@ interface StreamPayload {
   messages: any[];
   systemPrompt: string;
   maxTokens: number;
+}
+
+function listenForResponseEvents(_event: H3Event) {}
+
+function setSSEHeaders(_event: H3Event) {
+  // set proper headers
+  _event.node.res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+  _event.node.res.setHeader('Cache-Control', 'no-cache');
+  _event.node.res.setHeader('Connection', 'keep-alive');
+  _event.node.res.setHeader('Transfer-Encoding', 'chunked');
+  _event.node.res.setHeader('X-Accel-Buffering', 'no');
 }
 
 function onStreamError(_event: H3Event, stream: any, error: any) {
