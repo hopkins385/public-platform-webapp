@@ -6,8 +6,9 @@ volumes:
   app_uploads:
 
 services:
-  app:
-    container_name: app
+  ragna_cloud_app:
+    cpus: 4
+    container_name: ragna_cloud_app
     restart: unless-stopped
     working_dir: /app
     volumes:
@@ -20,6 +21,7 @@ services:
       - app_net
 
   postgres:
+    cpus: 4
     image: postgres:17.0-alpine3.20
     container_name: postgresql
     restart: always
@@ -36,6 +38,7 @@ services:
       - app_net
 
   redis:
+    cpus: 1
     image: redis:7.4.0-alpine3.20
     container_name: redis
     restart: always

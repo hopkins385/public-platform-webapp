@@ -1,5 +1,5 @@
 services:
-  app:
+  ragna_cloud_app:
     image: ragna/cloud-platform-dev
     volumes:
       - /app/node_modules
