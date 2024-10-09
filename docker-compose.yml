@@ -7,7 +7,7 @@ volumes:
 
 services:
   ragna_cloud_app:
-    cpus: 4
+    cpus: 8
     container_name: ragna_cloud_app
     restart: unless-stopped
     working_dir: /app
