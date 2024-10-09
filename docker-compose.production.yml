@@ -1,7 +1,7 @@
 services:
   app:
-    # deploy:
-    #   replicas: 3
+    deploy:
+      replicas: 3
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.webapp.rule=Host(`platform.ragna-ai.com`)'
@@ -20,7 +20,7 @@ services:
       - 'traefik.http.routers.ws-webapp.tls=true'
     networks:
       traefik_net:
-        ipv4_address: 172.18.0.17
+      #  ipv4_address: 172.18.0.17
 
   postgres:
     networks:
