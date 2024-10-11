@@ -60,9 +60,21 @@ export default function useTextToImage() {
     });
   }
 
+  async function hideRun(payload: { runId: string; projectId: string }) {
+    const { runId, projectId } = payload;
+    return $client.textToImage.deleteRun.query(
+      {
+        runId,
+        projectId,
+      },
+      { signal: ac.signal },
+    );
+  }
+
   return {
     generateImages,
     getFirstFolderId,
     getFolderImagesRuns,
+    hideRun,
   };
 }

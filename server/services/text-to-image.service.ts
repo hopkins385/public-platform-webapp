@@ -97,10 +97,14 @@ export class TextToImageService {
             path: true,
             status: true,
           },
+          where: {
+            deletedAt: null,
+          },
         },
       },
       where: {
         folderId,
+        deletedAt: null,
       },
       orderBy: {
         createdAt: 'desc',
@@ -144,6 +148,17 @@ export class TextToImageService {
       logger.error('Failed to generate images:', error);
       throw new Error('Failed to generate images');
     }
+  }
+
+  public async softDeleteRun(runId: string) {
+    return this.prisma.textToImageRun.update({
+      where: {
+        id: runId,
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
   }
 
   async #createSingleRun(payload: FluxProInputs): Promise<Run> {

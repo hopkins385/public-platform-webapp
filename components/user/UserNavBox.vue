@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { useDebounceFn } from '@vueuse/core';
-  import { CircleUserIcon, SquareArrowOutUpRightIcon } from 'lucide-vue-next';
+  import { CircleUserIcon, LogOutIcon, SquareArrowOutUpRightIcon } from 'lucide-vue-next';
 
   const props = defineProps<{
     iconOnly?: boolean;
@@ -49,10 +49,15 @@
       <button class="w-full rounded-full bg-stone-200/60 px-4 py-2 font-semibold">Upgrade to Pro</button>
     </div>
   </div>
-  <div v-else class="pb-2">
+  <div v-else class="space-y-4 pb-1">
     <div class="mx-auto w-fit opacity-60">
-      <NuxtLinkLocale to="/user/profile" class="hover:underline">
-        <CircleUserIcon class="inline-block size-5 stroke-1" />
+      <NuxtLinkLocale to="/user/profile" class="group hover:underline">
+        <CircleUserIcon class="inline-block size-5 stroke-1.5 group-hover:stroke-2" />
+      </NuxtLinkLocale>
+    </div>
+    <div class="mx-auto w-fit opacity-60">
+      <NuxtLinkLocale to="/logout" class="group hover:underline">
+        <LogOutIcon class="inline-block size-5 stroke-1.5 group-hover:stroke-2" />
       </NuxtLinkLocale>
     </div>
   </div>

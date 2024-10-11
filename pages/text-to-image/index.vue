@@ -11,7 +11,7 @@
 
   const projectStore = useProjectStore();
   const settings = useImgGenSettingsStore();
-  const { generateImages, getFirstFolderId } = useTextToImage();
+  const { generateImages, getFirstFolderId, hideRun } = useTextToImage();
 
   async function generateImage(submitPrompt: string) {
     prompt.value = '';
@@ -87,11 +87,14 @@
     promptFormRef.value?.querySelector('textarea')?.focus();
   }
 
-  function scrollToTop() {
-    const section = document.getElementById('sectionContainer');
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
-    }
+  function onRunHide(runId: string) {
+    hideRun({ runId, projectId: projectStore.activeProjectId })
+      .then(() => {
+        refreshData();
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   }
 
   /**
@@ -227,7 +230,7 @@
           </div>
         </div>
       </div>
-      <ImageAssetsList :refresh-data="refresh" @re-run="reRun" @use-prompt="usePrompt" />
+      <ImageAssetsList :refresh-data="refresh" @re-run="reRun" @use-prompt="usePrompt" @hide="onRunHide" />
     </SectionContainer>
   </div>
 </template>

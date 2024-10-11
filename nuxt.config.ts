@@ -51,6 +51,10 @@ export default defineNuxtConfig({
         port: process.env.SOCKET_PORT,
         host: process.env.SOCKET_HOST,
       },
+      pusher: {
+        appKey: process.env.PUSHER_APP_KEY,
+        cluster: process.env.PUSHER_CLUSTER,
+      },
     },
     websocket: {
       port: process.env.WEBSOCKET_PORT,
@@ -84,6 +88,15 @@ export default defineNuxtConfig({
       accountId: process.env.CLOUDFLARE_ACCOUNT_ID,
       accessKeyId: process.env.CLOUDFLARE_ACCESS_KEY_ID,
       secretAccessKey: process.env.CLOUDFLARE_SECRET_ACCESS_KEY,
+    },
+    pusher: {
+      host: process.env.PUSHER_HOST,
+      port: process.env.PUSHER_PORT,
+      cluster: process.env.PUSHER_CLUSTER,
+      encrypted: process.env.PUSHER_ENCRYPTED,
+      appId: process.env.PUSHER_APP_ID,
+      appKey: process.env.PUSHER_KEY,
+      appSecret: process.env.PUSHER_SECRET,
     },
     stripe: {
       secretApiKey: process.env.STRIPE_SECRET_API_KEY,

@@ -1,7 +1,4 @@
 <script setup lang="ts">
-  import { ClipboardCheckIcon, ClipboardIcon, RepeatIcon, SquarePenIcon } from 'lucide-vue-next';
-  import { useClipboard, useInfiniteScroll, useScroll } from '@vueuse/core';
-
   const props = defineProps<{
     refreshData: boolean;
   }>();
@@ -9,20 +6,13 @@
   const emit = defineEmits<{
     reRun: [prompt: string];
     usePrompt: [prompt: string];
+    hide: [runId: string];
   }>();
 
   const runs = ref<any[] | null>(null);
   const showImagePreview = ref(false);
   const imgPreviewUrl = ref('');
   const imgPreviewPrompt = ref<string | undefined>(undefined);
-
-  const promptCopy = ref('');
-
-  const {
-    copy: copyToClipboard,
-    copied: copiedToClipboard,
-    isSupported: copyToClipboardSupported,
-  } = useClipboard({ source: promptCopy });
 
   const projectStore = useProjectStore();
   const { getFirstFolderId, getFolderImagesRuns } = useTextToImage();
@@ -52,20 +42,9 @@
     showImagePreview.value = true;
   }
 
-  function reRun(prompt: string) {
-    console.log('Rerun:', prompt);
-    emit('reRun', prompt);
-  }
-
-  function usePrompt(prompt: string) {
-    console.log('prompt:', prompt);
-    emit('usePrompt', prompt);
-  }
-
-  function copyPromptToClipboard(prompt: string) {
-    promptCopy.value = prompt;
-    copyToClipboard();
-  }
+  const reRun = (prompt: string) => emit('reRun', prompt);
+  const usePrompt = (prompt: string) => emit('usePrompt', prompt);
+  const hide = (runId: string) => emit('hide', runId);
 
   watch(
     () => props.refreshData,
@@ -123,47 +102,13 @@
             </div>
           </div>
         </div>
-        <div class="group flex grow flex-col border-0 px-5">
-          <div class="rounded-lg p-1 hover:bg-slate-100">
-            <p class="line-clamp-4 max-h-40 min-h-5 break-words text-sm opacity-75 hover:opacity-100">
-              {{ run.prompt }}
-            </p>
-          </div>
-          <div class="py-2 opacity-60">
-            <span class="rounded-lg bg-stone-100 px-3 py-2 text-xxs">Flux 1.1 Pro</span>
-          </div>
-          <div class="hidden items-center space-x-1 py-2 group-hover:flex">
-            <button
-              class="flex items-center justify-center space-x-1 rounded-lg px-2 py-1 text-xs opacity-75 hover:bg-stone-100 hover:opacity-100"
-              @click="reRun(run.prompt)"
-            >
-              <div>
-                <RepeatIcon class="size-4 stroke-1.5" />
-              </div>
-              <div>Rerun</div>
-            </button>
-            <button
-              class="flex items-center justify-center space-x-1 rounded-lg px-2 py-1 text-xs opacity-75 hover:bg-stone-100 hover:opacity-100"
-              @click="usePrompt(run.prompt)"
-            >
-              <div>
-                <SquarePenIcon class="size-4 stroke-1.5" />
-              </div>
-              <div>Use</div>
-            </button>
-            <button
-              class="flex items-center justify-center space-x-1 rounded-lg px-2 py-1 text-xs opacity-75 hover:bg-stone-100 hover:opacity-100"
-              :disabled="!copyToClipboardSupported"
-              @click="copyPromptToClipboard(run.prompt)"
-            >
-              <div>
-                <ClipboardIcon v-if="!copiedToClipboard" class="size-4 stroke-1.5" />
-                <ClipboardCheckIcon v-else class="size-4 stroke-1.5" />
-              </div>
-              <div>Copy</div>
-            </button>
-          </div>
-        </div>
+        <ImageAssetsOptionsBar
+          :prompt="run.prompt"
+          :run-id="run.id"
+          @re-run="reRun"
+          @use-prompt="usePrompt"
+          @hide="hide"
+        />
       </div>
     </div>
     <div v-else>

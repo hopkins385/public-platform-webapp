@@ -23,6 +23,7 @@ const canAccessProjectPolicy = (user: any, projectId: string) => {
 };
 
 export const textToImageRouter = router({
+  // generate images
   generateImages: protectedProcedure
     .input(FluxProInputsSchema)
     .query(async ({ ctx: { user, services, emitEvent }, input }) => {
@@ -34,6 +35,7 @@ export const textToImageRouter = router({
       emitEvent(UsageEvent.UPDATE_CREDITS, { userId: user.id, credits: requiredCredits });
       return imageUrls;
     }),
+  // get first folder in a project
   getFirstFolderId: protectedProcedure
     .input(
       z.object({
@@ -56,6 +58,7 @@ export const textToImageRouter = router({
       const folder = folders[0];
       return { folderId: folder.id };
     }),
+  // get all images in a folder
   getFolderImagesRuns: protectedProcedure
     .input(
       z.object({
@@ -67,5 +70,18 @@ export const textToImageRouter = router({
       // check if user has access to the project
       canAccessProjectPolicy(user, input.projectId);
       return await services.textToImageService.getFolderImagesRuns(input.folderId);
+    }),
+  deleteRun: protectedProcedure
+    .input(
+      z.object({
+        projectId: cuidRule(),
+        runId: cuidRule(),
+      }),
+    )
+    .query(async ({ ctx: { user, services }, input }) => {
+      // check if user has access to the project
+      canAccessProjectPolicy(user, input.projectId);
+      const res = await services.textToImageService.softDeleteRun(input.runId);
+      return { success: true, runId: input.runId };
     }),
 });
