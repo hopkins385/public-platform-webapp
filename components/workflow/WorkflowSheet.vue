@@ -8,8 +8,8 @@
     teleportTo: { x: number; y: number };
     contentId: string;
     content: string;
-    width?: string;
-    heigth?: string;
+    width?: number;
+    heigth?: number;
   }
 
   const props = defineProps<{
@@ -41,7 +41,7 @@
     heigth: undefined,
   });
 
-  const cellActive = ref<{ x: number; y: number }>({ x: 0, y: 0 });
+  const cellActive = ref<{ x: number; y: number; rowHeight: number }>({ x: 0, y: 0, rowHeight: 0 });
 
   const { resizeRowListener, resizeColumnListener, initSheetDimensions } = useResizeSheet();
   const { createWorkflowStep, updateInputSteps } = useManageWorkflowSteps();
@@ -116,18 +116,19 @@
     stepCard.workflowStepId = '';
   }
 
-  function toggleCellCard(x: number, y: number, content: string, id: string, width?: string, height?: string) {
+  function toggleCellCard(x: number, y: number, content: string, id: string, width?: number, height?: number) {
     // if click again on the same item, ignore
     if (cellCard.show && cellCard.teleportTo.x === x && cellCard.teleportTo.y === y) {
       return;
     }
+    const rowHeight = sheetRef.value?.querySelector(`#row_${y}`)?.clientHeight || 0;
     cellCard.teleportTo.x = Number(x);
     cellCard.teleportTo.y = Number(y);
     cellCard.content = content;
     cellCard.contentId = id;
     cellCard.show = true;
     cellCard.width = width;
-    cellCard.heigth = height;
+    cellCard.heigth = height || Number(rowHeight);
   }
 
   function onCloseCellCard() {
@@ -185,7 +186,8 @@
   }
 
   function setCellActive(columnIndex: number, rowIndex: number) {
-    cellActive.value = { x: columnIndex, y: rowIndex };
+    const rowHeight = sheetRef.value?.querySelector(`#row_${rowIndex}`)?.clientHeight;
+    cellActive.value = { x: columnIndex, y: rowIndex, rowHeight: rowHeight || 0 };
   }
 
   watch(
@@ -386,6 +388,7 @@
       :item-id="cellCard.contentId"
       :content="cellCard.content"
       :width="cellCard.width"
+      :height="cellCard.heigth"
       @close="() => onCloseCellCard()"
       @refresh="onRefresh"
     />

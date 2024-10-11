@@ -5,7 +5,8 @@
   const props = defineProps<{
     itemId: string | null | undefined;
     content: string | null | undefined;
-    width?: string;
+    width?: number;
+    height?: number;
   }>();
 
   const emits = defineEmits<{
@@ -75,14 +76,22 @@
       });
     }
   });
+
+  const widthCalc = computed(() => {
+    return props.width ? `${props.width}px` : undefined;
+  });
+
+  const heightCalc = computed(() => {
+    return props.height ? `${props.height}px` : undefined;
+  });
 </script>
 
 <template>
   <div
     ref="cellCardRef"
-    class="relative overflow-hidden rounded-2xl border bg-white shadow-md"
+    class="relative flex overflow-hidden rounded-2xl border bg-white shadow-md"
     :class="{ 'min-w-96': !width }"
-    :style="{ width }"
+    :style="{ width: widthCalc, 'min-height': heightCalc }"
   >
     <button
       class="absolute right-0 top-0 p-2 text-muted-foreground opacity-60 hover:opacity-100"
@@ -90,12 +99,12 @@
     >
       <XIcon class="size-3 cursor-pointer" />
     </button>
-    <div class="rounded-2xl border p-5">
+    <div class="grow rounded-2xl border-0 border-red-200 p-3">
       <Textarea
         id="item-card-textarea"
         v-model="text"
         class="text-xs"
-        style="resize: both; min-height: 12rem; width: 100%; border: 0; outline: 0"
+        style="resize: both; height: 100%"
         @keydown.enter="updateAndClose"
       />
     </div>
