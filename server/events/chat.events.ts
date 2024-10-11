@@ -1,7 +1,7 @@
 import type { FirstUserMessageEventDto, StreamFinishedEventDto } from '~/server/services/dto/event.dto';
 import type { ChatToolCallEventDto } from './dto/chatToolCallEvent.dto';
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
-import socket from '../socket';
+import socket from '~/server/socket';
 import consola from 'consola';
 import { chatService, creditService } from '../service-instances';
 
@@ -35,12 +35,10 @@ export async function firstUserMessageEvent(data: FirstUserMessageEventDto) {
 
 export function chatToolCallStartEvent(data: ChatToolCallEventDto) {
   const { userId, chatId, toolName, toolInfo } = data;
-
-  socket.io.to(`user:${userId}`).emit(`chat-${chatId}-tool-start-event`, { toolName, toolInfo });
+  socket.emitEvent({ room: `user:${userId}`, event: `chat-${chatId}-tool-start-event`, data: { toolName, toolInfo } });
 }
 
 export function chatToolCallEndEvent(data: ChatToolCallEventDto) {
   const { userId, chatId, toolName } = data;
-
-  socket.io.to(`user:${userId}`).emit(`chat-${chatId}-tool-end-event`, toolName);
+  socket.emitEvent({ room: `user:${userId}`, event: `chat-${chatId}-tool-end-event`, data: toolName });
 }

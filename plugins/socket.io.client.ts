@@ -15,10 +15,17 @@ export default defineNuxtPlugin(() => {
   // Initialize the socket.io client
   const socketSrv = io(url, {
     autoConnect: true,
-    transports: ['websocket', 'polling'],
+    transports: ['websocket'],
     // Provide authentication token in the connection options
     auth: (cb) => {
-      cb({ token: auth.value?.user.id });
+      $fetch('/api/socket/user-auth', { method: 'POST' })
+        .then((data) => {
+          cb({ token: data });
+        })
+        .catch((err) => {
+          console.error(err);
+          cb({ token: '' });
+        });
     },
   });
 

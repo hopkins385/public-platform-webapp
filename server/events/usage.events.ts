@@ -1,5 +1,5 @@
 import { creditService } from '../service-instances';
-import socket from '../socket';
+import socket from '~/server/socket';
 
 export interface IUpdateCreditsEvent {
   userId: string;
@@ -11,6 +11,9 @@ export async function updateCreditsEvent(data: IUpdateCreditsEvent) {
 
   await creditService.reduceCredit(userId, credits);
 
-  const room = `user:${userId}`;
-  socket.io.to(room).emit('usage', {});
+  socket.emitEvent({
+    room: `user:${userId}`,
+    event: 'credits',
+    data: {},
+  });
 }

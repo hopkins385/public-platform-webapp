@@ -1,6 +1,7 @@
 import type { User } from 'next-auth';
+import type { SessionUser } from '~/server/api/auth/[...]';
 
-export function getAuthUser(session: any): User {
+export function getAuthUser(session: any): SessionUser {
   if (!session) {
     throw createError({
       statusCode: 401,
@@ -8,7 +9,7 @@ export function getAuthUser(session: any): User {
     });
   }
 
-  const user = session?.user;
+  const user = session?.user as SessionUser;
 
   if (!user || !user?.id) {
     throw createError({

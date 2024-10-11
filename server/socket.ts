@@ -1,28 +1,36 @@
-import { Server as Engine } from 'engine.io';
-import { Server } from 'socket.io';
 import consola from 'consola';
+import jwt from 'jsonwebtoken';
 
 const logger = consola.create({}).withTag('socket-server');
 
 const socketSingleton = () => {
-  const { port, origin } = useRuntimeConfig().websocket;
-  const serverPort = port ? Number(port) : 3001;
-  const serverOrigin = origin || 'http://localhost';
-
-  logger.info('Creating new socket server at port %d with origin %s', serverPort, serverOrigin);
-  const engine = new Engine();
-  const io = new Server(serverPort, {
-    serveClient: false,
-    transports: ['websocket'],
-    cors: {
-      origin: serverOrigin,
-      methods: ['GET'],
-      // credentials: true,
+  const {
+    auth: { secret, appId },
+    public: {
+      socket: { host, port },
     },
-    // allowEIO3: true,
-  });
-  io.bind(engine);
-  return { io, engine };
+  } = useRuntimeConfig();
+  const jwtToken = jwt.sign({ appId }, secret);
+  const baseURL = `${host}:${port}`;
+
+  function emitEvent(payload: { room: string; event: string; data: any }): void {
+    // logger.info('Emitting event:', payload.event, 'to room:', payload.room);
+    $fetch(`/emit/${appId}`, {
+      baseURL,
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+      method: 'POST',
+      body: payload,
+    })
+      .then((res) => {})
+      .catch((err) => {
+        logger.error(err);
+        logger.error('Failed to emit event:', payload.event, 'to room:', payload.room);
+      });
+  }
+
+  return { emitEvent };
 };
 
 export type SocketServer = ReturnType<typeof socketSingleton>;

@@ -51,16 +51,9 @@ export default defineNuxtConfig({
         port: process.env.SOCKET_PORT,
         host: process.env.SOCKET_HOST,
       },
-      pusher: {
-        appKey: process.env.PUSHER_APP_KEY,
-        cluster: process.env.PUSHER_CLUSTER,
-      },
-    },
-    websocket: {
-      port: process.env.WEBSOCKET_PORT,
-      origin: process.env.WEBSOCKET_ORIGIN,
     },
     auth: {
+      appId: process.env.AUTH_APP_ID,
       origin: process.env.AUTH_ORIGIN,
       secret: process.env.AUTH_SECRET,
       auth0: {
