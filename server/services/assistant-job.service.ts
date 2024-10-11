@@ -8,6 +8,7 @@ import { AiModelFactory } from '../factories/aiModelFactory';
 import { generateText, type CoreMessage } from 'ai';
 import consola from 'consola';
 import type { ExtendedPrismaClient } from '../prisma';
+import type { IUpdateCreditsEvent } from '../events/usage.events';
 
 const { event } = useEvents();
 
@@ -136,5 +137,12 @@ export class AssistantJobService {
         },
       }),
     );
+
+    const updateCreditsData = {
+      userId,
+      credits: 1,
+    } satisfies IUpdateCreditsEvent;
+
+    this.event(UsageEvent.UPDATE_CREDITS, updateCreditsData);
   }
 }

@@ -13,6 +13,7 @@ import consola from 'consola';
 import { AiModelFactory } from '../factories/aiModelFactory';
 import { generateText, type CoreMessage } from 'ai';
 import prisma from '../prisma';
+import { TrackTokensDto } from '../services/dto/track-tokens.dto';
 
 interface WorkflowWorker {
   name: string;
