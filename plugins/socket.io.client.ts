@@ -7,7 +7,7 @@ export default defineNuxtPlugin(() => {
   } = useRuntimeConfig().public;
 
   // Construct the URL for the socket server
-  const url = `${host}:${port}`;
+  const url = port && port.length > 0 ? `${host}:${port}` : host;
 
   // Get authentication data using a custom hook
   const { data: auth } = useAuth();
