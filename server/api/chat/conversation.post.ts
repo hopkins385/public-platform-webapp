@@ -81,10 +81,13 @@ async function onResponseClose(payload: { chat: any; user: any; body: any; gathe
     return;
   }
 
-  const { tokenCount: inputTokenCount } = await tokenizerService.getTokens(
-    payload.body.messages[payload.body.messages.length - 1].content,
-  );
-  const { tokenCount: outputTokenCount } = await tokenizerService.getTokens(payload.gathered);
+  const [inputTokenResult, outputTokenResult] = await Promise.all([
+    tokenizerService.getTokens(payload.body.messages[payload.body.messages.length - 1].content),
+    tokenizerService.getTokens(payload.gathered),
+  ]);
+
+  const inputTokenCount = inputTokenResult.tokenCount;
+  const outputTokenCount = outputTokenResult.tokenCount;
 
   // creates the response message in the database
   event(
