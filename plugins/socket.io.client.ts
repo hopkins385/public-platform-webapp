@@ -19,13 +19,8 @@ export default defineNuxtPlugin(() => {
     // Provide authentication token in the connection options
     auth: (cb) => {
       $fetch('/api/socket/user-auth', { method: 'POST' })
-        .then((data) => {
-          cb({ token: data });
-        })
-        .catch((err) => {
-          console.error(err);
-          cb({ token: '' });
-        });
+        .then((data) => cb({ token: data }))
+        .catch((err) => cb({ token: '' }));
     },
   });
 

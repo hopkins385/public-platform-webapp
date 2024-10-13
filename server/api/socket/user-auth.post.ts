@@ -16,17 +16,23 @@ export default defineEventHandler(async (_event) => {
 async function getAuthJWT(user: SessionUser, secret: string): Promise<string> {
   const jwtPayload = {
     userId: user.id,
-    email: user.email,
     roles: user.roles,
   };
 
   return new Promise((resolve, reject) => {
-    jwt.sign(jwtPayload, secret, (err, token) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(token ?? '');
-      }
-    });
+    jwt.sign(
+      jwtPayload,
+      secret,
+      {
+        expiresIn: '1d',
+      },
+      (err, token) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(token ?? '');
+        }
+      },
+    );
   });
 }

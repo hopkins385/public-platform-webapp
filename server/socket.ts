@@ -19,7 +19,7 @@ const socketSingleton = () => {
   const baseURL = getBaseURL(host, port);
 
   function emitEvent(payload: { room: string; event: string; data: any }): void {
-    // logger.info('Emitting event:', payload.event, 'to room:', payload.room);
+    logger.info('Emitting event:', payload.event, 'to room:', payload.room);
     $fetch(`/emit/${appId}`, {
       baseURL,
       headers: {
@@ -27,12 +27,10 @@ const socketSingleton = () => {
       },
       method: 'POST',
       body: payload,
-    })
-      .then((res) => {})
-      .catch((err) => {
-        logger.error(err);
-        logger.error('Failed to emit event:', payload.event, 'to room:', payload.room);
-      });
+    }).catch((err) => {
+      logger.error(err);
+      logger.error('Failed to emit event:', payload.event, 'to room:', payload.room);
+    });
   }
 
   return { emitEvent };
