@@ -18,53 +18,57 @@ const logger = consola.create({}).withTag('conversation.post');
 
 export default defineEventHandler(async (_event) => {
   const abortController = new AbortController();
-
-  const user = await authService.getAuthUser(_event);
-  const validatedBody = await getConversationBody(_event);
-  const chat = await getChatForUser({ chatId: validatedBody.chatId, userId: user.id });
-  const message = await chatService.createMessage(user.id, chat.id, validatedBody.messages);
-  const systemPrompt = await chatService.getContextAwareSystemPrompt({
-    assistantId: chat.assistant.id,
-    lastMessageContent: message.content,
-    assistantSystemPrompt: chat.assistant.systemPrompt,
-  });
-
   const streamService = new StreamService(event);
   const chunkGatherer = streamService.createChunkGatherer();
 
-  streamService.setSSEHeaders(_event);
+  try {
+    const user = await authService.getAuthUser(_event);
+    const validatedBody = await getConversationBody(_event);
+    const chat = await getChatForUser({ chatId: validatedBody.chatId, userId: user.id });
+    const message = await chatService.createMessage(user.id, chat.id, validatedBody.messages);
+    const systemPrompt = await chatService.getContextAwareSystemPrompt({
+      assistantId: chat.assistant.id,
+      lastMessageContent: message.content,
+      assistantSystemPrompt: chat.assistant.systemPrompt,
+    });
 
-  // listen for response events
-  _event.node.res.on(
-    'close',
-    async () =>
-      await onResponseClose(_event, abortController, {
-        chat,
-        user,
-        body: validatedBody,
-        gathered: chunkGatherer.getGatheredContent(),
-      }),
-  );
-  _event.node.res.on('error', (error) => onResponseError(_event, error));
-  _event.node.res.on('drain', () => logger.debug('Response drain'));
+    streamService.setSSEHeaders(_event);
 
-  // stream data
-  const streamData = {
-    signal: abortController.signal,
-    userId: user.id,
-    chatId: chat.id,
-    model: validatedBody.model,
-    provider: validatedBody.provider,
-    messages: chatService.formatChatMessages(validatedBody.messages),
-    systemPrompt,
-    maxTokens: validatedBody.maxTokens,
-  };
+    // listen for response events
+    _event.node.res.on(
+      'close',
+      async () =>
+        await onResponseClose(_event, abortController, {
+          chat,
+          user,
+          body: validatedBody,
+          gathered: chunkGatherer.getGatheredContent(),
+        }),
+    );
+    _event.node.res.on('error', (error) => onResponseError(_event, error));
+    _event.node.res.on('drain', () => logger.debug('Response drain'));
 
-  const generator = streamService.generateStream(_event, abortController.signal, streamData);
-  const readableStream = Readable.from(generator).pipe(chunkGatherer);
-  readableStream.on('error', (error: any) => streamService.handleStreamError(_event, readableStream, error));
+    // stream data
+    const streamData = {
+      signal: abortController.signal,
+      userId: user.id,
+      chatId: chat.id,
+      model: validatedBody.model,
+      provider: validatedBody.provider,
+      messages: chatService.formatChatMessages(validatedBody.messages),
+      systemPrompt,
+      maxTokens: validatedBody.maxTokens,
+    };
 
-  return readableStream;
+    const generator = streamService.generateStream(_event, abortController.signal, streamData);
+    const readableStream = Readable.from(generator).pipe(chunkGatherer);
+    readableStream.on('error', (error: any) => streamService.handleStreamError(_event, readableStream, error));
+
+    return readableStream;
+  } catch (error) {
+    logger.error('Conversation error:', error);
+    throw error;
+  }
 });
 
 function listenForResponseEvents(_event: H3Event) {}
