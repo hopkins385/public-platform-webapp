@@ -19,7 +19,7 @@ const logger = consola.create({}).withTag('conversation.post');
 export default defineEventHandler(async (_event) => {
   const abortController = new AbortController();
   const streamService = new StreamService(event);
-  const chunkGatherer = streamService.createChunkGatherer();
+  const chunkGatherer = streamService.createChunkGatherer(10); // 10ms delay
 
   try {
     const user = await authService.getAuthUser(_event);
@@ -35,18 +35,20 @@ export default defineEventHandler(async (_event) => {
     streamService.setSSEHeaders(_event);
 
     // listen for response events
-    _event.node.res.on(
-      'close',
-      async () =>
-        await onResponseClose(_event, abortController, {
-          chat,
-          user,
-          body: validatedBody,
-          gathered: chunkGatherer.getGatheredContent(),
-        }),
-    );
-    _event.node.res.on('error', (error) => onResponseError(_event, error));
-    _event.node.res.on('drain', () => logger.debug('Response drain'));
+    _event.node.res.once('close', () => {
+      abortController.abort();
+      onResponseClose({
+        chat,
+        user,
+        body: validatedBody,
+        gathered: chunkGatherer.getGatheredContent(),
+      })
+        .then(() => {})
+        .catch((error) => onResponseError(_event, error))
+        .finally(() => _event.node.res.end());
+    });
+    _event.node.res.once('error', (error) => onResponseError(_event, error));
+    _event.node.res.once('drain', () => logger.debug('Response drain'));
 
     // stream data
     const streamData = {
@@ -60,7 +62,7 @@ export default defineEventHandler(async (_event) => {
       maxTokens: validatedBody.maxTokens,
     };
 
-    const generator = streamService.generateStream(_event, abortController.signal, streamData);
+    const generator = streamService.generateStream(_event, abortController, streamData);
     const readableStream = Readable.from(generator).pipe(chunkGatherer);
     readableStream.on('error', (error: any) => streamService.handleStreamError(_event, readableStream, error));
 
@@ -73,18 +75,7 @@ export default defineEventHandler(async (_event) => {
 
 function listenForResponseEvents(_event: H3Event) {}
 
-async function onResponseClose(
-  _event: H3Event,
-  controller: AbortController,
-  payload: {
-    chat: any;
-    user: any;
-    body: any;
-    gathered: string | undefined;
-  },
-) {
-  controller.abort();
-
+async function onResponseClose(payload: { chat: any; user: any; body: any; gathered: string | undefined }) {
   if (!payload.gathered || payload.gathered.length === 0) {
     logger.info('completion finished but gathered text empty. Aborting.');
     return;
@@ -122,8 +113,6 @@ async function onResponseClose(
       },
     }),
   );
-
-  _event.node.res.end();
 }
 
 function onResponseError(_event: H3Event, error: any) {

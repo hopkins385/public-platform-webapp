@@ -21,11 +21,11 @@ export class StreamService {
     _event.node.res.setHeader('X-Accel-Buffering', 'no');
   }
 
-  createChunkGatherer(): ChunkGatherer {
-    return new ChunkGatherer();
+  createChunkGatherer(delayMs: number = 0): ChunkGatherer {
+    return new ChunkGatherer(delayMs);
   }
 
-  async *generateStream(_event: H3Event, signal: AbortSignal, payload: StreamPayload) {
+  async *generateStream(_event: H3Event, abortController: AbortController, payload: StreamPayload) {
     const model = AiModelFactory.fromInput({ provider: payload.provider, model: payload.model });
     const availableTools = payload.provider !== 'groq' ? getTools(this.toolStartCallback(payload)) : undefined;
 
@@ -39,7 +39,7 @@ export class StreamService {
 
     try {
       const initialResult = await streamText({
-        abortSignal: signal,
+        abortSignal: abortController.signal,
         model,
         messages: payload.messages,
         ...(!isPreview && callSettings), // don't use system prompt and tools for o1-preview
@@ -47,14 +47,14 @@ export class StreamService {
 
       this.logWarnings(initialResult.warnings);
 
-      yield* this.handleStream(signal, initialResult, payload, model, availableTools);
+      yield* this.handleStream(abortController, initialResult, payload, model, availableTools);
     } catch (error) {
       this.handleStreamGeneratorError(_event, error);
     }
   }
 
   private async *handleStream(
-    signal: AbortSignal,
+    abortController: AbortController,
     initalResult: StreamTextResult<any>,
     payload: StreamPayload,
     model: LanguageModelV1,
@@ -62,7 +62,7 @@ export class StreamService {
   ) {
     const stream = initalResult.fullStream;
     for await (const chunk of stream) {
-      if (signal.aborted) return;
+      if (abortController.signal.aborted) return;
 
       if (chunk.type === 'error') {
         logger.error(`Chunk error: ${JSON.stringify(chunk.error)}`);
@@ -78,7 +78,7 @@ export class StreamService {
             this.onStreamStopLength();
             return;
           case 'tool-calls':
-            yield* this.handleToolCalls(signal, initalResult, payload, model, availableTools);
+            yield* this.handleToolCalls(abortController, initalResult, payload, model, availableTools);
             return;
         }
       }
@@ -90,7 +90,7 @@ export class StreamService {
   }
 
   private async *handleToolCalls(
-    signal: AbortSignal,
+    abortController: AbortController,
     initalResult: StreamTextResult<any>,
     payload: StreamPayload,
     model: any,
@@ -104,7 +104,7 @@ export class StreamService {
     ];
 
     const followUpResult = await streamText({
-      abortSignal: signal,
+      abortSignal: abortController.signal,
       model,
       system: payload.systemPrompt,
       messages: [...payload.messages, ...toolMessages],

@@ -358,6 +358,7 @@
   });
 
   onBeforeUnmount(() => {
+    abortChatRequest();
     socket.off(`chat-${props.chatId}-tool-start-event`, (d) => setActiveTool(d));
     socket.off(`chat-${props.chatId}-tool-end-event`, (toolName) => unsetActiveTool(toolName));
   });
