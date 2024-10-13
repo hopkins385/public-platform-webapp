@@ -1,9 +1,15 @@
-import type { ChatMessage } from '~/interfaces/chat.interfaces';
+import type { ChatMessage, VisionImageUrlContent } from '~/interfaces/chat.interfaces';
 import type { CreateChatMessageDto } from './dto/chat-message.dto';
 import { TRPCError } from '@trpc/server';
 import consola from 'consola';
 import type { GetAllChatsForUserDto } from './dto/chat.dto';
 import type { ExtendedPrismaClient } from '../prisma';
+import { FirstUserMessageEventDto } from './dto/event.dto';
+import type { UseEvents } from '../events/useEvents';
+import type { CollectionService } from './collection.service';
+import type { EmbeddingService } from './embedding.service';
+import { CollectionAbleDto } from './dto/collection-able.dto';
+import type { ChatMessage as PrismaChatMessage } from '@prisma/client';
 
 interface UpsertMessage extends ChatMessage {
   id: string;
@@ -25,9 +31,12 @@ function notLowerZero(value: number) {
 }
 
 export class ChatService {
-  private readonly prisma: ExtendedPrismaClient;
-
-  constructor(prisma: ExtendedPrismaClient) {
+  constructor(
+    private readonly prisma: ExtendedPrismaClient,
+    private readonly collectionService: CollectionService,
+    private readonly embeddingService: EmbeddingService,
+    private readonly event: UseEvents['event'],
+  ) {
     if (!prisma) {
       throw new Error('Prisma client not found');
     }
@@ -265,21 +274,30 @@ export class ChatService {
     });
   }
 
-  async createMessage(payload: CreateChatMessageDto) {
-    const tokenCount = getTokenCount(payload.message.content);
+  async createMessage(userId: string, chatId: string, messages: ChatMessage[]): Promise<PrismaChatMessage> {
+    const lastMessage = this.getLastChatMessage(messages);
+    const tokenCount = getTokenCount(lastMessage.content);
     try {
-      return await this.prisma.chatMessage.create({
+      const message = await this.prisma.chatMessage.create({
         data: {
-          chatId: payload.chatId,
-          type: payload.message.type,
-          role: payload.message.role,
-          content: payload.message.content,
-          visionContent: payload.message.visionContent,
+          chatId: chatId,
+          type: lastMessage.type,
+          role: lastMessage.role,
+          content: lastMessage.content,
+          visionContent: lastMessage.visionContent,
           tokenCount,
         },
       });
+
+      // Update chat title if it's the first message of the chat
+      if (messages.length === 1) {
+        this.emitFirstUserMessageEvent(chatId, userId, lastMessage);
+      }
+
+      return message;
     } catch (error) {
       logger.error(error);
+      throw error;
     }
   }
 
@@ -474,5 +492,96 @@ export class ChatService {
     }
 
     return true;
+  }
+
+  // EVENTS
+
+  emitFirstUserMessageEvent(chatId: string, userId: string, lastMessage: ChatMessage) {
+    this.event(
+      ChatEvent.FIRST_USERMESSAGE,
+      FirstUserMessageEventDto.fromInput({
+        chatId,
+        userId,
+        messageContent: lastMessage.content,
+      }),
+    );
+  }
+
+  // MISC
+
+  getLastChatMessage(messages: any[]) {
+    const lastMessage = messages[messages.length - 1];
+    if (!lastMessage) {
+      logger.error('No last message');
+      throw new Error('No last message');
+    }
+    return lastMessage;
+  }
+
+  getVisionMessages(vis: VisionImageUrlContent[] | null | undefined) {
+    if (!vis) {
+      return [];
+    }
+    return vis.map((v) => {
+      if (!v.url) throw new Error('VisionImageUrlContent url is required');
+      // this format is vercel ai sdk specific!
+      return {
+        type: 'image',
+        image: new URL(v.url),
+      };
+    });
+  }
+
+  formatChatMessages(messages: ChatMessage[] | null | undefined) {
+    if (!messages) {
+      return [];
+    }
+    return messages.map((message) => {
+      if (message.type === 'image' && message.visionContent) {
+        const text = {
+          type: 'text',
+          text: message.content,
+        };
+        return {
+          role: message.role,
+          content: [text, ...this.getVisionMessages(message.visionContent)],
+        };
+      }
+      return {
+        role: message.role,
+        content: message.content,
+      };
+    }); // satisfies CoreMessage[];
+  }
+
+  async getContextAwareSystemPrompt(payload: {
+    assistantId: string;
+    lastMessageContent: string;
+    assistantSystemPrompt: string;
+  }) {
+    const timestamp = '\n\n' + 'Timestamp now(): ' + new Date().toISOString();
+    // return payload.assistantSystemPrompt;
+    const collections = await this.collectionService.findAllWithRecordsFor(
+      CollectionAbleDto.fromInput({
+        id: payload.assistantId,
+        type: 'assistant',
+      }),
+    );
+
+    if (collections.length < 1) {
+      return payload.assistantSystemPrompt + timestamp;
+    }
+
+    const recordIds = collections.map((c) => c.records.map((r) => r.id)).flat();
+    const res = await this.embeddingService.searchDocsByQuery({
+      query: payload.lastMessageContent,
+      recordIds,
+    });
+
+    const context = res.map((r) => r?.text || '').join('\n\n');
+
+    console.log('system prompt context:', context);
+
+    return payload.assistantSystemPrompt + '\n\n<context>' + context + '</context>' + timestamp;
   }
 }

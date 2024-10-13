@@ -1,8 +1,6 @@
+import { AuthService } from './services/authService';
 import { CreditService } from './services/credit.service';
 import prisma from '~/server/prisma';
-import qdrant from './qdrant';
-import openai from './openai';
-import cohere from './cohere';
 import { s3Client } from '~/server/s3client';
 import { AssistantService } from '~/server/services/assistant.service';
 import { ChatService } from '~/server/services/chat.service';
@@ -27,13 +25,18 @@ import { WorkflowExecutionService } from './services/workflow-execution.service'
 import { WorkflowStepService } from './services/workflow-step.service';
 import { WorkflowService } from './services/workflow.service';
 import { TextToImageService } from './services/text-to-image.service';
+import { useEvents } from './events/useEvents';
+
+const { event } = useEvents();
 
 export const config = useRuntimeConfig();
+
+// auth
+export const authService = new AuthService();
+
 export const llmService = new LLMService(prisma);
 export const userService = new UserService(prisma);
 export const teamService = new TeamService(prisma);
-// Chat
-export const chatService = new ChatService(prisma);
 // Assistant
 export const assistantService = new AssistantService(prisma);
 // Collection
@@ -64,6 +67,9 @@ export const workflowService = new WorkflowService(prisma);
 // Image generation
 export const fluxImageGenerator = new FluxImageGenerator({ apiKey: config.flux.apiKey });
 export const textToImageService = new TextToImageService(prisma, fluxImageGenerator, storageService);
+
+// Chat
+export const chatService = new ChatService(prisma, collectionService, embeddingService, event);
 
 // Actions
 export const createNewUserAction = new CreatesNewUserAction(prisma);

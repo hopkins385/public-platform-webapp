@@ -1,0 +1,182 @@
+import type { H3Event } from 'h3';
+import type { UseEvents } from '../events/useEvents';
+import type { ToolInfoData } from '~/interfaces/tool.interfaces';
+import consola from 'consola';
+import { AiModelFactory } from '../factories/aiModelFactory';
+import { streamText, type LanguageModelV1, type StreamTextResult } from 'ai';
+import { ChatToolCallEventDto } from '../events/dto/chatToolCallEvent.dto';
+import { getTools } from '../chatTools/chatTools';
+import { ChunkGatherer } from './chunk-gatherer.service';
+
+const logger = consola.create({}).withTag('streamService');
+
+export class StreamService {
+  constructor(private readonly event: UseEvents['event']) {}
+
+  setSSEHeaders(_event: H3Event) {
+    _event.node.res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+    _event.node.res.setHeader('Cache-Control', 'no-cache');
+    _event.node.res.setHeader('Connection', 'keep-alive');
+    _event.node.res.setHeader('Transfer-Encoding', 'chunked');
+    _event.node.res.setHeader('X-Accel-Buffering', 'no');
+  }
+
+  createChunkGatherer(): ChunkGatherer {
+    return new ChunkGatherer();
+  }
+
+  async *generateStream(_event: H3Event, signal: AbortSignal, payload: StreamPayload) {
+    const model = AiModelFactory.fromInput({ provider: payload.provider, model: payload.model });
+    const availableTools = payload.provider !== 'groq' ? getTools(this.toolStartCallback(payload)) : undefined;
+
+    // TODO: refactor to createCallSettings function
+    const isPreview = payload.model.startsWith('o1-');
+    const callSettings = {
+      system: payload.systemPrompt,
+      tools: availableTools,
+      maxTokens: payload.maxTokens,
+    };
+
+    try {
+      const initialResult = await streamText({
+        abortSignal: signal,
+        model,
+        messages: payload.messages,
+        ...(!isPreview && callSettings), // don't use system prompt and tools for o1-preview
+      });
+
+      this.logWarnings(initialResult.warnings);
+
+      yield* this.handleStream(signal, initialResult, payload, model, availableTools);
+    } catch (error) {
+      this.handleStreamGeneratorError(_event, error);
+    }
+  }
+
+  private async *handleStream(
+    signal: AbortSignal,
+    initalResult: StreamTextResult<any>,
+    payload: StreamPayload,
+    model: LanguageModelV1,
+    availableTools: any,
+  ) {
+    const stream = initalResult.fullStream;
+    for await (const chunk of stream) {
+      if (signal.aborted) return;
+
+      if (chunk.type === 'error') {
+        logger.error(`Chunk error: ${JSON.stringify(chunk.error)}`);
+        yield chunk.error;
+        return;
+      }
+
+      if (chunk.type === 'finish') {
+        switch (chunk.finishReason) {
+          case 'error':
+            throw new Error(`Finish Error: ${JSON.stringify(initalResult.rawResponse)}`);
+          case 'length':
+            this.onStreamStopLength();
+            return;
+          case 'tool-calls':
+            yield* this.handleToolCalls(signal, initalResult, payload, model, availableTools);
+            return;
+        }
+      }
+
+      if (chunk.type === 'text-delta') {
+        yield chunk.textDelta;
+      }
+    }
+  }
+
+  private async *handleToolCalls(
+    signal: AbortSignal,
+    initalResult: StreamTextResult<any>,
+    payload: StreamPayload,
+    model: any,
+    availableTools: any,
+  ) {
+    const [toolCalls, toolResults] = await Promise.all([initalResult.toolCalls, initalResult.toolResults]);
+
+    const toolMessages = [
+      { role: 'assistant', content: toolCalls },
+      { role: 'tool', content: toolResults },
+    ];
+
+    const followUpResult = await streamText({
+      abortSignal: signal,
+      model,
+      system: payload.systemPrompt,
+      messages: [...payload.messages, ...toolMessages],
+      maxTokens: payload.maxTokens,
+      tools: availableTools,
+    });
+
+    //TODO: track token usage for tools
+
+    const toolName = toolResults[0]?.toolName || '';
+    this.onToolEndCall(
+      ChatToolCallEventDto.fromInput({
+        userId: payload.userId,
+        chatId: payload.chatId,
+        toolName,
+      }),
+    );
+
+    yield* followUpResult.textStream;
+  }
+
+  private handleStreamGeneratorError(_event: H3Event, error: any) {
+    if (error?.name === 'AbortError') return;
+    logger.error('handleStreamGeneratorError:', JSON.stringify(error));
+    _event.node.res.end();
+  }
+
+  handleStreamError(_event: H3Event, stream: any, error: any) {
+    logger.error('onStreamError:', JSON.stringify(error));
+    stream?.destroy();
+    _event.node.res.end();
+  }
+
+  private logWarnings(warnings: any[] | undefined) {
+    if (warnings?.length) {
+      logger.warn('Initial result warnings:', warnings);
+    }
+  }
+
+  private toolStartCallback(payload: StreamPayload) {
+    return (toolInfoData: ToolInfoData) =>
+      this.onToolStartCall(
+        ChatToolCallEventDto.fromInput({
+          userId: payload.userId,
+          chatId: payload.chatId,
+          toolName: toolInfoData.toolName,
+          toolInfo: toolInfoData.toolInfo,
+        }),
+      );
+  }
+
+  private onToolEndCall(payload: ChatToolCallEventDto) {
+    this.event(ChatEvent.TOOL_END_CALL, payload);
+  }
+
+  private onToolStartCall(payload: ChatToolCallEventDto) {
+    this.event(ChatEvent.TOOL_START_CALL, payload);
+  }
+
+  // TODO: stream stop event: show continue button
+  private onStreamStopLength() {
+    logger.debug('Stream stop length event');
+    // event(ChatEvent.STREAM_STOP_LENGTH, {});
+  }
+}
+
+interface StreamPayload {
+  userId: string;
+  chatId: string;
+  model: string;
+  provider: string;
+  messages: any[];
+  systemPrompt: string;
+  maxTokens: number;
+}
