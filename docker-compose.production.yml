@@ -20,11 +20,11 @@ services:
       - 'traefik.http.routers.webapp.tls=true'
       - 'traefik.http.routers.webapp.tls.certresolver=http'
       # Websocket
-      - 'traefik.http.routers.ws-webapp.rule=Host(`platform.ragna-ai.com`) && PathPrefix(`/socket.io`)'
-      - 'traefik.http.routers.ws-webapp.service=ws-webapp'
-      - 'traefik.http.services.ws-webapp.loadbalancer.server.port=3010'
-      - 'traefik.http.routers.ws-webapp.middlewares=crowdsec-bouncer@file,websocket@file'
-      - 'traefik.http.routers.ws-webapp.tls=true'
+      # - 'traefik.http.routers.ws-webapp.rule=Host(`platform.ragna-ai.com`) && PathPrefix(`/socket.io`)'
+      # - 'traefik.http.routers.ws-webapp.service=ws-webapp'
+      # - 'traefik.http.services.ws-webapp.loadbalancer.server.port=3010'
+      # - 'traefik.http.routers.ws-webapp.middlewares=crowdsec-bouncer@file,websocket@file'
+      # - 'traefik.http.routers.ws-webapp.tls=true'
     networks:
       traefik_net:
       #  ipv4_address: 172.18.0.17
