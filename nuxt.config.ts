@@ -82,15 +82,6 @@ export default defineNuxtConfig({
       accessKeyId: process.env.CLOUDFLARE_ACCESS_KEY_ID,
       secretAccessKey: process.env.CLOUDFLARE_SECRET_ACCESS_KEY,
     },
-    pusher: {
-      host: process.env.PUSHER_HOST,
-      port: process.env.PUSHER_PORT,
-      cluster: process.env.PUSHER_CLUSTER,
-      encrypted: process.env.PUSHER_ENCRYPTED,
-      appId: process.env.PUSHER_APP_ID,
-      appKey: process.env.PUSHER_KEY,
-      appSecret: process.env.PUSHER_SECRET,
-    },
     stripe: {
       secretApiKey: process.env.STRIPE_SECRET_API_KEY,
       webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,

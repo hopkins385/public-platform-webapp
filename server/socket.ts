@@ -3,6 +3,11 @@ import jwt from 'jsonwebtoken';
 
 const logger = consola.create({}).withTag('socket-server');
 
+function getBaseURL(host: string, port: string): string {
+  if (!port || port.length < 1 || port === '') return host;
+  return `${host}:${port}`;
+}
+
 const socketSingleton = () => {
   const {
     auth: { secret, appId },
@@ -11,7 +16,7 @@ const socketSingleton = () => {
     },
   } = useRuntimeConfig();
   const jwtToken = jwt.sign({ appId }, secret);
-  const baseURL = `${host}:${port}`;
+  const baseURL = getBaseURL(host, port);
 
   function emitEvent(payload: { room: string; event: string; data: any }): void {
     // logger.info('Emitting event:', payload.event, 'to room:', payload.room);
