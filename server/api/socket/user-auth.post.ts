@@ -10,7 +10,7 @@ export default defineEventHandler(async (_event) => {
 
   const jwt = await getAuthJWT(user, secret);
 
-  return jwt;
+  return { token: jwt };
 });
 
 async function getAuthJWT(user: SessionUser, secret: string): Promise<string> {

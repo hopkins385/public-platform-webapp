@@ -1,30 +1,28 @@
 import { io } from 'socket.io-client';
 
 export default defineNuxtPlugin(() => {
-  // Destructure the socket configuration variables from runtime config
   const {
     socket: { host, port },
   } = useRuntimeConfig().public;
 
-  // Construct the URL for the socket server
   const url = port && port.length > 0 ? `${host}:${port}` : host;
 
-  // Get authentication data using a custom hook
   const { data: auth } = useAuth();
 
-  // Initialize the socket.io client
   const socketSrv = io(url, {
     autoConnect: true,
     transports: ['websocket'],
-    // Provide authentication token in the connection options
-    auth: (cb) => {
-      $fetch('/api/socket/user-auth', { method: 'POST' })
-        .then((data) => cb({ token: data }))
-        .catch((err) => cb({ token: '' }));
+    auth: async (cb) => {
+      try {
+        const data = await $fetch('/api/socket/user-auth', { method: 'POST' });
+        cb({ token: data?.token ?? '' });
+      } catch (error) {
+        cb({ token: '' });
+      }
     },
   });
 
-  // Handle socket connection event
+  // Register listeners for socket events
   socketSrv.on('connect', () => {
     console.log('Socket connected:', socketSrv.connected);
 
@@ -34,9 +32,13 @@ export default defineNuxtPlugin(() => {
     }
   });
 
+  socketSrv.onAny((event, ...args) => {
+    console.log('Socket event:', event, args);
+  });
+
   // Handle socket disconnection event
   socketSrv.on('disconnect', () => {
-    console.log('Socket disconnected:', socketSrv.connected);
+    console.log('Socket disconnected');
   });
 
   return {
