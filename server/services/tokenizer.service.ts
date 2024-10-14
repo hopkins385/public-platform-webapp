@@ -29,14 +29,6 @@ export class TokenizerService {
         method: 'POST',
         body: { text: content },
         timeout: 3000, // 3 seconds
-        onRequestError: (error) => {
-          console.error('Failed to get tokens:', error);
-          throw error;
-        },
-        onResponseError: (error) => {
-          console.error('Failed to get tokens:', error);
-          throw error;
-        },
       });
       const { tokens, tokenCount, charCount } = response;
       return { tokens: new Uint32Array(tokens), tokenCount, charCount };
