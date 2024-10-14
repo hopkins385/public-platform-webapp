@@ -33,7 +33,7 @@ export class TokenizerService {
       const { tokens, tokenCount, charCount } = response;
       return { tokens: new Uint32Array(tokens), tokenCount, charCount };
     } catch (error) {
-      console.error('Failed to get tokens from rag server, falling back to local:', error);
+      console.error('Failed to get tokens from rag server, falling back to local');
       return this.getTokensLocal(content);
     }
   }

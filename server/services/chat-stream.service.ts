@@ -21,8 +21,8 @@ export class StreamService {
     _event.node.res.setHeader('X-Accel-Buffering', 'no');
   }
 
-  createChunkGatherer(delayMs: number = 0): ChunkGatherer {
-    return new ChunkGatherer({ processInterval: delayMs });
+  createChunkGatherer(processInterval: number = 0): ChunkGatherer {
+    return new ChunkGatherer({ processInterval });
   }
 
   createCallSettings(payload: StreamPayload) {
