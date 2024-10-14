@@ -1,21 +1,52 @@
 import type { TiktokenEncoding, Tiktoken } from 'tiktoken';
 import { get_encoding as getEncoding } from 'tiktoken';
 
-export class TokenizerService {
-  private model: TiktokenEncoding;
-  private encoder: Tiktoken;
+interface TokenizerResponse {
+  tokens: number[];
+  tokenCount: number;
+  charCount: number;
+}
 
-  constructor() {
+export class TokenizerService {
+  private readonly model: TiktokenEncoding;
+  private readonly encoder: Tiktoken;
+  private readonly url: string;
+
+  constructor(private readonly config: { ragServerUrl: string }) {
+    const apiVersion = 'v1';
+    const newUrl = new URL(`/api/${apiVersion}/tokenize/text`, this.config.ragServerUrl);
+    this.url = newUrl.toString();
+    // local
     this.model = 'cl100k_base';
     this.encoder = getEncoding(this.model);
   }
 
-  setModel(model: TiktokenEncoding) {
-    this.model = model;
-    this.encoder = getEncoding(this.model);
+  async getTokens(
+    content: string | undefined | null,
+  ): Promise<{ tokens: Uint32Array; tokenCount: number; charCount: number }> {
+    try {
+      const response = await $fetch<TokenizerResponse>(this.url, {
+        method: 'POST',
+        body: { text: content },
+        timeout: 3000, // 3 seconds
+        onRequestError: (error) => {
+          console.error('Failed to get tokens:', error);
+          throw error;
+        },
+        onResponseError: (error) => {
+          console.error('Failed to get tokens:', error);
+          throw error;
+        },
+      });
+      const { tokens, tokenCount, charCount } = response;
+      return { tokens: new Uint32Array(tokens), tokenCount, charCount };
+    } catch (error) {
+      console.error('Failed to get tokens from rag server, falling back to local:', error);
+      return this.getTokensLocal(content);
+    }
   }
 
-  async getTokens(
+  async getTokensLocal(
     content: string | undefined | null,
   ): Promise<{ tokens: Uint32Array; tokenCount: number; charCount: number }> {
     return new Promise((resolve, reject) => {

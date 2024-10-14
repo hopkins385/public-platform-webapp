@@ -26,6 +26,7 @@ import { WorkflowStepService } from './services/workflow-step.service';
 import { WorkflowService } from './services/workflow.service';
 import { TextToImageService } from './services/text-to-image.service';
 import { useEvents } from './events/useEvents';
+import { TokenizerService } from './services/tokenizer.service';
 
 const { event } = useEvents();
 
@@ -54,8 +55,9 @@ export const projectService = new ProjectService(prisma);
 // Provider Auth
 export const providerAuthService = new ProviderAuthService(prisma);
 // Embedding
-export const embeddingService = new EmbeddingService({ embeddingServiceUrl: config.embeddingServer.url });
+export const embeddingService = new EmbeddingService({ ragServerUrl: config.ragServer.url });
 export const recordService = new RecordService(prisma, mediaService, embeddingService);
+export const tokenizerService = new TokenizerService({ ragServerUrl: config.ragServer.url });
 // Usage
 export const usageService = new UsageService(prisma);
 export const stripeService = new StripeService();
@@ -69,7 +71,7 @@ export const fluxImageGenerator = new FluxImageGenerator({ apiKey: config.flux.a
 export const textToImageService = new TextToImageService(prisma, fluxImageGenerator, storageService);
 
 // Chat
-export const chatService = new ChatService(prisma, collectionService, embeddingService, event);
+export const chatService = new ChatService(prisma, collectionService, embeddingService, tokenizerService, event);
 
 // Actions
 export const createNewUserAction = new CreatesNewUserAction(prisma);

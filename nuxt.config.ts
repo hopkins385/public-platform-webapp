@@ -114,8 +114,8 @@ export default defineNuxtConfig({
     scrapeServer: {
       url: process.env.SCRAPE_SERVER_URL,
     },
-    embeddingServer: {
-      url: process.env.EMBEDDING_SERVER_URL,
+    ragServer: {
+      url: process.env.RAG_SERVER_URL,
     },
     openai: {
       // baseUrl: process.env.OPENAI_BASE_URL,

@@ -2,7 +2,6 @@ import { router } from '../trpc';
 import { getStripeCheckoutUrl } from './stripe';
 import { userMeRouter } from './user-me';
 import { assistantRouter } from './assistant';
-import { tokenizerRouter } from './tokenizer';
 import { chatRouter } from './chat';
 import { llmsRouter } from './llm-models';
 import { projectRouter } from './project';
@@ -31,7 +30,6 @@ export const appRouter = router({
   collection: collectionRouter,
   collectionAble: collectionAbleRouter,
   record: recordRouter,
-  tokenizer: tokenizerRouter,
   assistant: assistantRouter,
   me: userMeRouter,
   getStripeCheckoutUrl,

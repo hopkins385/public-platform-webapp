@@ -129,7 +129,7 @@
     "superjson": "^2.2.1",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
-    "tiktoken": "^1.0.16",
+    "tiktoken": "^1.0.17",
     "trpc-nuxt": "^0.10.22",
     "turndown": "^7.2.0",
     "vee-validate": "^4.13.2",

@@ -28,15 +28,24 @@ interface RagDocument {
 const logger = consola.create({}).withTag('EmbeddingService');
 
 export class EmbeddingService {
+  private readonly embedFileUrl: string;
+  private readonly searchVectorUrl: string;
+
   constructor(
     private readonly config: {
-      embeddingServiceUrl: string;
+      ragServerUrl: string;
     },
-  ) {}
+  ) {
+    const apiVersion = 'v1';
+    const newEmbedFileUrl = new URL(`/api/${apiVersion}/embed/file`, this.config.ragServerUrl);
+    const newSearchVectorUrl = new URL(`/api/${apiVersion}/search/vector`, this.config.ragServerUrl);
+    this.embedFileUrl = newEmbedFileUrl.toString();
+    this.searchVectorUrl = newSearchVectorUrl.toString();
+  }
 
   async embedFile(payload: IEmbedFilePayload, options: { resetCollection?: boolean } = {}): Promise<RagDocument[]> {
     try {
-      return await $fetch<RagDocument[]>(`${this.config.embeddingServiceUrl}/api/v1/embed/file`, {
+      return await $fetch<RagDocument[]>(this.embedFileUrl, {
         method: 'POST',
         body: payload,
         onRequestError: (error) => {
@@ -54,7 +63,7 @@ export class EmbeddingService {
 
   async searchDocsByQuery(payload: { query: string; recordIds: string[] }): Promise<SearchResultDocument[]> {
     try {
-      return await $fetch<SearchResultDocument[]>(`${this.config.embeddingServiceUrl}/api/v1/search/vector`, {
+      return await $fetch<SearchResultDocument[]>(this.searchVectorUrl, {
         method: 'POST',
         body: payload,
         onRequestError: (error) => {

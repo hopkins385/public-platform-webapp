@@ -22,7 +22,7 @@ export class StreamService {
   }
 
   createChunkGatherer(delayMs: number = 0): ChunkGatherer {
-    return new ChunkGatherer(delayMs);
+    return new ChunkGatherer({ processInterval: delayMs });
   }
 
   createCallSettings(payload: StreamPayload) {
@@ -68,8 +68,7 @@ export class StreamService {
     model: LanguageModelV1,
     availableTools: any,
   ) {
-    const stream = initalResult.fullStream;
-    for await (const chunk of stream) {
+    for await (const chunk of initalResult.fullStream) {
       if (abortController.signal.aborted) return;
 
       if (chunk.type === 'error') {
@@ -81,7 +80,7 @@ export class StreamService {
       if (chunk.type === 'finish') {
         switch (chunk.finishReason) {
           case 'error':
-            throw new Error(`Finish Error: ${JSON.stringify(initalResult.rawResponse)}`);
+            throw new Error(`Finish Error: ${JSON.stringify(initalResult.response)}`);
           case 'length':
             this.onStreamStopLength();
             return;

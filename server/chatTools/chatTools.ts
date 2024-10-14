@@ -20,8 +20,27 @@ interface ToolConfig {
   execute: (params: any, emitToolInfoData: EmitToolInfoData) => Promise<any>;
 }
 
+async function generateImage(imageDescription: string) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ imageUrl: 'https://via.placeholder.com/150' });
+    }, 1000);
+  });
+}
+
 // Define tool configurations
 const toolConfigs: ToolConfig[] = [
+  {
+    name: 'imageGenerator',
+    description: 'Generates an image by describing it',
+    parameters: {
+      imageDescription: z.string().min(1).max(4000).describe('The text to describe an image'),
+    },
+    execute: async ({ imageDescription }, emitToolInfoData) => {
+      emitToolInfoData({ toolName: 'imageGenerator', toolInfo: `${imageDescription}` });
+      return generateImage(imageDescription);
+    },
+  },
   {
     name: 'website',
     description: 'Get information about a website',

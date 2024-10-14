@@ -1,15 +1,16 @@
 import type { ChatMessage, VisionImageUrlContent } from '~/interfaces/chat.interfaces';
 import type { CreateChatMessageDto } from './dto/chat-message.dto';
-import { TRPCError } from '@trpc/server';
-import consola from 'consola';
 import type { GetAllChatsForUserDto } from './dto/chat.dto';
 import type { ExtendedPrismaClient } from '../prisma';
-import { FirstUserMessageEventDto } from './dto/event.dto';
 import type { UseEvents } from '../events/useEvents';
 import type { CollectionService } from './collection.service';
 import type { EmbeddingService } from './embedding.service';
-import { CollectionAbleDto } from './dto/collection-able.dto';
 import type { ChatMessage as PrismaChatMessage } from '@prisma/client';
+import type { TokenizerService } from './tokenizer.service';
+import { TRPCError } from '@trpc/server';
+import { FirstUserMessageEventDto } from './dto/event.dto';
+import { CollectionAbleDto } from './dto/collection-able.dto';
+import consola from 'consola';
 
 interface UpsertMessage extends ChatMessage {
   id: string;
@@ -35,6 +36,7 @@ export class ChatService {
     private readonly prisma: ExtendedPrismaClient,
     private readonly collectionService: CollectionService,
     private readonly embeddingService: EmbeddingService,
+    private readonly tokenizerService: TokenizerService,
     private readonly event: UseEvents['event'],
   ) {
     if (!prisma) {
@@ -64,10 +66,10 @@ export class ChatService {
     return messages;
   }
 
-  upsertMessages(payload: UpsertChatMessages) {
+  async upsertMessages(payload: UpsertChatMessages) {
     // update or create messages
-    const messages = payload.chatMessages.map((message) => {
-      const tokenCount = getTokenCount(message.content);
+    const messages = payload.chatMessages.map(async (message) => {
+      const { tokenCount } = await this.tokenizerService.getTokens(message.content);
       return this.prisma.chatMessage.upsert({
         where: {
           id: message.id,
@@ -276,7 +278,7 @@ export class ChatService {
 
   async createMessage(userId: string, chatId: string, messages: ChatMessage[]): Promise<PrismaChatMessage> {
     const lastMessage = this.getLastChatMessage(messages);
-    const tokenCount = getTokenCount(lastMessage.content);
+    const { tokenCount } = await this.tokenizerService.getTokens(lastMessage.content);
     try {
       const message = await this.prisma.chatMessage.create({
         data: {
@@ -302,7 +304,7 @@ export class ChatService {
   }
 
   async createMessageAndReduceCredit(payload: CreateChatMessageDto) {
-    const tokenCount = getTokenCount(payload.message.content);
+    const { tokenCount } = await this.tokenizerService.getTokens(payload.message.content);
     try {
       const res = await this.prisma.$transaction([
         // create message

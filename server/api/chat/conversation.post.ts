@@ -1,5 +1,4 @@
 import type { H3Event } from 'h3';
-import { TokenizerService } from '~/server/services/tokenizer.service';
 import { getConversationBody } from '~/server/utils/request/chatConversationBody';
 import { ChatEvent } from '~/server/utils/enums/chat-event.enum';
 import { UsageEvent } from '~/server/utils/enums/usage-event.enum';
@@ -8,17 +7,16 @@ import { StreamFinishedEventDto } from '~/server/services/dto/event.dto';
 import { useEvents } from '~/server/events/useEvents';
 import { Readable } from 'stream';
 import consola from 'consola';
-import { authService, chatService } from '~/server/service-instances';
+import { authService, chatService, tokenizerService } from '~/server/service-instances';
 import { StreamService } from '~/server/services/chat-stream.service';
 
 const { event } = useEvents();
-const tokenizerService = new TokenizerService();
+const streamService = new StreamService(event);
 
 const logger = consola.create({}).withTag('conversation.post');
 
 export default defineEventHandler(async (_event) => {
   const abortController = new AbortController();
-  const streamService = new StreamService(event);
   const chunkGatherer = streamService.createChunkGatherer(10); // 10ms delay
 
   try {
