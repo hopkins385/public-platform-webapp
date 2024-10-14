@@ -39,7 +39,7 @@ const toolConfigs: ToolConfig[] = [
     execute: async ({ url }, emitToolInfoData) => {
       const newUrl = new URL(url);
       emitToolInfoData({ toolName: 'website', toolInfo: `${newUrl.href}` });
-      return await scrapeWebsite(newUrl);
+      return scrapeWebsite(newUrl);
     },
   },
   {
@@ -50,7 +50,7 @@ const toolConfigs: ToolConfig[] = [
     },
     execute: async ({ urlOrId }, emitToolInfoData) => {
       emitToolInfoData({ toolName: 'youtubeTranscript', toolInfo: `${urlOrId}` });
-      return await scrapeYoutube(urlOrId);
+      return scrapeYoutube(urlOrId);
     },
   },
   {
@@ -61,7 +61,7 @@ const toolConfigs: ToolConfig[] = [
     },
     execute: async ({ query }, emitToolInfoData) => {
       emitToolInfoData({ toolName: 'searchWeb', toolInfo: `${query}` });
-      return await searchWeb(query);
+      return searchWeb(query);
     },
   },
 ];
@@ -71,7 +71,7 @@ function createTool(config: ToolConfig, emitToolInfoData: EmitToolInfoData) {
   return tool({
     description: config.description,
     parameters: z.object(config.parameters),
-    execute: async (params) => await config.execute(params, emitToolInfoData),
+    execute: async (params) => config.execute(params, emitToolInfoData),
   });
 }
 

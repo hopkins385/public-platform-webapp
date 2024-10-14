@@ -25,24 +25,32 @@ export class StreamService {
     return new ChunkGatherer(delayMs);
   }
 
+  createCallSettings(payload: StreamPayload) {
+    const isPreview = payload.model.startsWith('o1-');
+    const availableTools = payload.provider !== 'groq' ? getTools(this.toolStartCallback(payload)) : undefined;
+    return {
+      availableTools,
+      settings: isPreview
+        ? {}
+        : {
+            system: payload.systemPrompt,
+            tools: availableTools,
+            maxTokens: payload.maxTokens,
+          },
+    };
+  }
+
   async *generateStream(_event: H3Event, abortController: AbortController, payload: StreamPayload) {
     const model = AiModelFactory.fromInput({ provider: payload.provider, model: payload.model });
-    const availableTools = payload.provider !== 'groq' ? getTools(this.toolStartCallback(payload)) : undefined;
 
-    // TODO: refactor to createCallSettings function
-    const isPreview = payload.model.startsWith('o1-');
-    const callSettings = {
-      system: payload.systemPrompt,
-      tools: availableTools,
-      maxTokens: payload.maxTokens,
-    };
+    const { settings: callSettings, availableTools } = this.createCallSettings(payload);
 
     try {
       const initialResult = await streamText({
         abortSignal: abortController.signal,
         model,
         messages: payload.messages,
-        ...(!isPreview && callSettings), // don't use system prompt and tools for o1-preview
+        ...callSettings,
       });
 
       this.logWarnings(initialResult.warnings);
