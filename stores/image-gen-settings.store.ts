@@ -77,6 +77,8 @@ export const useImgGenSettingsStore = defineStore('img-gen.store', {
       this.imageHeight = [1024];
       this.imageGuidance = [2.5];
       this.promptUpsampling = false;
+      this.submitOnEnter = false;
+      this.showHidden = false;
     },
   },
   persist: true,
