@@ -20,7 +20,7 @@ const socketSingleton = () => {
 
   function emitEvent(payload: { room: string; event: string; data: any }): void {
     logger.info('Emitting event:', payload.event, 'to room:', payload.room);
-    $fetch(`/emit/${appId}`, {
+    $fetch(`/v1/socket/emit/${appId}`, {
       baseURL,
       headers: {
         Authorization: `Bearer ${jwtToken}`,
