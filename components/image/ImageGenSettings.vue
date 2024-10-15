@@ -88,8 +88,8 @@
         </div>
         <Switch
           class="-ml-2 mt-1 scale-75"
-          :checked="settings.promptUpsampling"
-          @update:checked="(val) => (settings.promptUpsampling = val)"
+          :checked="settings.getPromptUpsampling"
+          @update:checked="settings.setPromptUpsampling"
         />
       </div>
       <div class="flex flex-col">
@@ -102,8 +102,16 @@
         </div>
         <Switch
           class="-ml-2 mt-1 scale-75"
-          :checked="settings.submitOnEnter"
-          @update:checked="(val) => (settings.submitOnEnter = val)"
+          :checked="settings.getSubmitOnEnter"
+          @update:checked="settings.setSubmitOnEnter"
+        />
+      </div>
+      <div class="flex flex-col">
+        <div>Show Hidden</div>
+        <Switch
+          class="-ml-2 mt-1 scale-75"
+          :checked="settings.getShowHidden"
+          @update:checked="settings.setShowHidden"
         />
       </div>
     </PopoverContent>

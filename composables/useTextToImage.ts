@@ -1,6 +1,9 @@
 export default function useTextToImage() {
   const ac = new AbortController();
   const { $client } = useNuxtApp();
+  const settings = useImgGenSettingsStore();
+
+  const showDeletedRuns = computed(() => settings.getShowHidden);
 
   onScopeDispose(() => {
     ac.abort();
@@ -49,20 +52,27 @@ export default function useTextToImage() {
 
   async function getFolderImagesRuns(payload: { projectId: string; folderId: string }) {
     const { projectId, folderId } = payload;
-    return useAsyncData(`folderImages:${folderId}`, async () => {
-      return await $client.textToImage.getFolderImagesRuns.query(
-        {
-          projectId,
-          folderId,
-        },
-        { signal: ac.signal },
-      );
-    });
+    return useAsyncData(
+      `folderImages:${folderId}`,
+      async () => {
+        return await $client.textToImage.getFolderImagesRuns.query(
+          {
+            projectId,
+            folderId,
+            showDeleted: showDeletedRuns.value,
+          },
+          { signal: ac.signal },
+        );
+      },
+      {
+        watch: [showDeletedRuns],
+      },
+    );
   }
 
-  async function hideRun(payload: { runId: string; projectId: string }) {
+  async function toggleHideRun(payload: { runId: string; projectId: string }) {
     const { runId, projectId } = payload;
-    return $client.textToImage.deleteRun.query(
+    return $client.textToImage.toggleHideRun.query(
       {
         runId,
         projectId,
@@ -75,6 +85,6 @@ export default function useTextToImage() {
     generateImages,
     getFirstFolderId,
     getFolderImagesRuns,
-    hideRun,
+    toggleHideRun,
   };
 }

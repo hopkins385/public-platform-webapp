@@ -82,7 +82,7 @@ export class TextToImageService {
     });
   }
 
-  public async getFolderImagesRuns(folderId: string) {
+  public async getFolderImagesRuns(folderId: string, options: { showDeleted?: boolean }) {
     // get all images of a folder but group them by run
     return this.prisma.textToImageRun.findMany({
       select: {
@@ -90,6 +90,7 @@ export class TextToImageService {
         status: true,
         prompt: true,
         settings: true,
+        deletedAt: true,
         images: {
           select: {
             id: true,
@@ -104,7 +105,7 @@ export class TextToImageService {
       },
       where: {
         folderId,
-        deletedAt: null,
+        deletedAt: options.showDeleted ? undefined : null,
       },
       orderBy: {
         createdAt: 'desc',
@@ -159,6 +160,35 @@ export class TextToImageService {
         deletedAt: new Date(),
       },
     });
+  }
+
+  public async unDeleteRun(runId: string) {
+    return this.prisma.textToImageRun.update({
+      where: {
+        id: runId,
+      },
+      data: {
+        deletedAt: null,
+      },
+    });
+  }
+
+  public async toggleSoftDeleteRun(runId: string) {
+    const run = await this.prisma.textToImageRun.findUnique({
+      where: {
+        id: runId,
+      },
+    });
+
+    if (!run) {
+      throw new Error('Run not found');
+    }
+
+    if (run.deletedAt) {
+      return this.unDeleteRun(runId);
+    }
+
+    return this.softDeleteRun(runId);
   }
 
   async #createSingleRun(payload: FluxProInputs): Promise<Run> {

@@ -1,16 +1,17 @@
 <script setup lang="ts">
   import { useClipboard } from '@vueuse/core';
-  import { ClipboardCheckIcon, ClipboardIcon, EyeOffIcon, RepeatIcon, SquarePenIcon } from 'lucide-vue-next';
+  import { ClipboardCheckIcon, ClipboardIcon, EyeIcon, EyeOffIcon, RepeatIcon, SquarePenIcon } from 'lucide-vue-next';
 
   defineProps<{
     prompt: string;
     runId: string;
+    isHidden: boolean;
   }>();
 
-  const emit = defineEmits<{
+  defineEmits<{
     reRun: [prompt: string];
     usePrompt: [prompt: string];
-    hide: [runId: string];
+    toggleHide: [runId: string];
   }>();
 
   const promptCopy = ref('');
@@ -19,10 +20,6 @@
     copied: copiedToClipboard,
     isSupported: copyToClipboardSupported,
   } = useClipboard({ source: promptCopy });
-
-  const usePrompt = (prompt: string) => emit('usePrompt', prompt);
-  const reRun = (prompt: string) => emit('reRun', prompt);
-  const hide = (runId: string) => emit('hide', runId);
 </script>
 
 <template>
@@ -39,7 +36,7 @@
       <!--group-hover:flex -->
       <button
         class="flex items-center justify-center space-x-1 rounded-lg px-2 py-1 text-xs opacity-75 hover:bg-stone-100 hover:opacity-100"
-        @click="reRun(prompt)"
+        @click="() => $emit('reRun', prompt)"
       >
         <div>
           <RepeatIcon class="size-4 stroke-1.5" />
@@ -48,7 +45,7 @@
       </button>
       <button
         class="flex items-center justify-center space-x-1 rounded-lg px-2 py-1 text-xs opacity-75 hover:bg-stone-100 hover:opacity-100"
-        @click="usePrompt(prompt)"
+        @click="() => $emit('usePrompt', prompt)"
       >
         <div>
           <SquarePenIcon class="size-4 stroke-1.5" />
@@ -67,12 +64,13 @@
       </button>
       <button
         class="flex items-center justify-center space-x-1 rounded-lg px-2 py-1 text-xs opacity-75 hover:bg-stone-100 hover:opacity-100"
-        @click="hide(runId)"
+        @click="() => $emit('toggleHide', runId)"
       >
         <div>
-          <EyeOffIcon class="size-4 stroke-1.5" />
+          <EyeIcon v-if="isHidden" class="size-4 stroke-1.5" />
+          <EyeOffIcon v-else class="size-4 stroke-1.5" />
         </div>
-        <div>Hide</div>
+        <div>{{ isHidden ? 'Unhide' : 'Hide' }}</div>
       </button>
     </div>
   </div>

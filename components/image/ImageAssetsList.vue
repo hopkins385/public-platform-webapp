@@ -3,13 +3,12 @@
     refreshData: boolean;
   }>();
 
-  const emit = defineEmits<{
+  defineEmits<{
     reRun: [prompt: string];
     usePrompt: [prompt: string];
-    hide: [runId: string];
+    toggleHide: [runId: string];
   }>();
 
-  const runs = ref<any[] | null>(null);
   const showImagePreview = ref(false);
   const imgPreviewUrl = ref('');
   const imgPreviewPrompt = ref<string | undefined>(undefined);
@@ -17,21 +16,15 @@
   const projectStore = useProjectStore();
   const { getFirstFolderId, getFolderImagesRuns } = useTextToImage();
 
-  async function getImageRuns() {
-    const projectId = projectStore.activeProjectId;
-    const { data: firstFolder } = await getFirstFolderId({ projectId });
-    if (!firstFolder.value?.folderId) {
-      throw new Error('No folder found');
-    }
-    const { data: runs } = await getFolderImagesRuns({
-      projectId: projectStore.activeProjectId,
-      folderId: firstFolder.value.folderId,
-    });
-    if (!runs.value) {
-      return null;
-    }
-    return runs.value;
+  const projectId = projectStore.activeProjectId;
+  const { data: firstFolder } = await getFirstFolderId({ projectId });
+  if (!firstFolder.value?.folderId) {
+    throw new Error('No folder found');
   }
+  const { data: runs, refresh } = await getFolderImagesRuns({
+    projectId: projectStore.activeProjectId,
+    folderId: firstFolder.value.folderId,
+  });
 
   function previewImage(url: string, prompt?: string) {
     if (!url) {
@@ -42,38 +35,14 @@
     showImagePreview.value = true;
   }
 
-  const reRun = (prompt: string) => emit('reRun', prompt);
-  const usePrompt = (prompt: string) => emit('usePrompt', prompt);
-  const hide = (runId: string) => emit('hide', runId);
-
   watch(
     () => props.refreshData,
     async (value) => {
       if (value) {
-        runs.value = await getImageRuns();
+        await refresh();
       }
     },
   );
-
-  runs.value = await getImageRuns();
-
-  /*const el = ref<HTMLElement | null>(null);
-  const data = ref([1, 2, 3, 4, 5, 6]);
-
-  const { reset } = useInfiniteScroll(
-    el,
-    () => {
-      // load more
-      data.value.push(1, 2, 3, 4, 5, 6);
-      console.log('load more');
-    },
-    { distance: 10 },
-  );*/
-
-  // onMounted(async () => {
-  //   await nextTick();
-  //   runs.value = await getImageRuns();
-  // });
 
   const hasRuns = computed(() => runs.value && runs.value.length > 0);
 </script>
@@ -105,9 +74,10 @@
         <ImageAssetsOptionsBar
           :prompt="run.prompt"
           :run-id="run.id"
-          @re-run="reRun"
-          @use-prompt="usePrompt"
-          @hide="hide"
+          :is-hidden="run.deletedAt !== null"
+          @re-run="(val) => $emit('reRun', val)"
+          @use-prompt="(val) => $emit('usePrompt', val)"
+          @toggle-hide="(val) => $emit('toggleHide', val)"
         />
       </div>
     </div>

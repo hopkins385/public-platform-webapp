@@ -5,6 +5,7 @@ interface ImgGenSettings {
   imageGuidance: number[];
   promptUpsampling: boolean;
   submitOnEnter: boolean;
+  showHidden: boolean;
 }
 
 export const useImgGenSettingsStore = defineStore('img-gen.store', {
@@ -15,6 +16,7 @@ export const useImgGenSettingsStore = defineStore('img-gen.store', {
     imageGuidance: [2.5],
     promptUpsampling: false,
     submitOnEnter: false,
+    showHidden: false,
   }),
   getters: {
     getImageCount(state) {
@@ -37,6 +39,9 @@ export const useImgGenSettingsStore = defineStore('img-gen.store', {
     getSubmitOnEnter(state) {
       return state.submitOnEnter;
     },
+    getShowHidden(state) {
+      return state.showHidden;
+    },
   },
   actions: {
     setImageCount(imageCount: number[]) {
@@ -48,11 +53,23 @@ export const useImgGenSettingsStore = defineStore('img-gen.store', {
     setImageHeight(imageHeight: number[]) {
       this.imageHeight = imageHeight;
     },
+    setPromptUpsampling(promptUpsampling: boolean) {
+      this.promptUpsampling = Boolean(promptUpsampling);
+    },
+    setSubmitOnEnter(submitOnEnter: boolean) {
+      this.submitOnEnter = Boolean(submitOnEnter);
+    },
+    setShowHidden(showHidden: boolean) {
+      this.showHidden = Boolean(showHidden);
+    },
     togglePromptUpsampling() {
       this.promptUpsampling = !this.promptUpsampling;
     },
     toggleSubmitOnEnter() {
       this.submitOnEnter = !this.submitOnEnter;
+    },
+    toggleShowHidden() {
+      this.showHidden = !this.showHidden;
     },
     resetSettings() {
       this.imageCount = [4];

@@ -64,12 +64,13 @@ export const textToImageRouter = router({
       z.object({
         projectId: cuidRule(),
         folderId: cuidRule(),
+        showDeleted: z.boolean().optional(),
       }),
     )
     .query(async ({ ctx: { user, services }, input }) => {
       // check if user has access to the project
       canAccessProjectPolicy(user, input.projectId);
-      return await services.textToImageService.getFolderImagesRuns(input.folderId);
+      return await services.textToImageService.getFolderImagesRuns(input.folderId, { showDeleted: input.showDeleted });
     }),
   deleteRun: protectedProcedure
     .input(
@@ -82,6 +83,32 @@ export const textToImageRouter = router({
       // check if user has access to the project
       canAccessProjectPolicy(user, input.projectId);
       const res = await services.textToImageService.softDeleteRun(input.runId);
+      return { success: true, runId: input.runId };
+    }),
+  toggleHideRun: protectedProcedure
+    .input(
+      z.object({
+        projectId: cuidRule(),
+        runId: cuidRule(),
+      }),
+    )
+    .query(async ({ ctx: { user, services }, input }) => {
+      // check if user has access to the project
+      canAccessProjectPolicy(user, input.projectId);
+      const res = await services.textToImageService.toggleSoftDeleteRun(input.runId);
+      return { success: true, runId: input.runId };
+    }),
+  unDeleteRun: protectedProcedure
+    .input(
+      z.object({
+        projectId: cuidRule(),
+        runId: cuidRule(),
+      }),
+    )
+    .query(async ({ ctx: { user, services }, input }) => {
+      // check if user has access to the project
+      canAccessProjectPolicy(user, input.projectId);
+      const res = await services.textToImageService.unDeleteRun(input.runId);
       return { success: true, runId: input.runId };
     }),
 });

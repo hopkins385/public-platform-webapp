@@ -11,7 +11,7 @@
 
   const projectStore = useProjectStore();
   const settings = useImgGenSettingsStore();
-  const { generateImages, getFirstFolderId, hideRun } = useTextToImage();
+  const { generateImages, getFirstFolderId, toggleHideRun } = useTextToImage();
 
   async function generateImage(submitPrompt: string) {
     prompt.value = '';
@@ -87,8 +87,8 @@
     promptFormRef.value?.querySelector('textarea')?.focus();
   }
 
-  function onRunHide(runId: string) {
-    hideRun({ runId, projectId: projectStore.activeProjectId })
+  function onToggleHideRun(runId: string) {
+    toggleHideRun({ runId, projectId: projectStore.activeProjectId })
       .then(() => {
         refreshData();
       })
@@ -230,7 +230,7 @@
           </div>
         </div>
       </div>
-      <ImageAssetsList :refresh-data="refresh" @re-run="reRun" @use-prompt="usePrompt" @hide="onRunHide" />
+      <ImageAssetsList :refresh-data="refresh" @re-run="reRun" @use-prompt="usePrompt" @toggle-hide="onToggleHideRun" />
     </SectionContainer>
   </div>
 </template>
