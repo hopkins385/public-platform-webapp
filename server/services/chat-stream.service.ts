@@ -21,7 +21,7 @@ export class StreamService {
     _event.node.res.setHeader('X-Accel-Buffering', 'no');
   }
 
-  createChunkGatherer(options: { processInterval: number }): ChunkGatherer {
+  createChunkGatherer(options: { processInterval?: number } = {}): ChunkGatherer {
     return new ChunkGatherer({ processInterval: options.processInterval });
   }
 

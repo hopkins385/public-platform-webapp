@@ -17,7 +17,7 @@ const logger = consola.create({}).withTag('conversation.post');
 
 export default defineEventHandler(async (_event) => {
   const abortController = new AbortController();
-  const chunkGatherer = streamService.createChunkGatherer({ processInterval: 10 });
+  const chunkGatherer = streamService.createChunkGatherer();
 
   try {
     const user = await authService.getAuthUser(_event);
