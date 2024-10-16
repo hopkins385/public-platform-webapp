@@ -14,6 +14,61 @@ export class ChunkGatherer extends Transform {
     this.gatheredChunks.push(chunk);
 
     if (this.delayMs > 0) {
+      // Use setImmediate for a non-blocking delay
+      setImmediate(() => {
+        this.processChunkAfterDelay(chunk, callback);
+      });
+    } else {
+      callback(null, chunk);
+    }
+  }
+
+  private processChunkAfterDelay(chunk: any, callback: TransformCallback): void {
+    if (this.delayMs > 0) {
+      const startTime = Date.now();
+      this.simulateDelay(startTime, () => {
+        callback(null, chunk);
+      });
+    } else {
+      callback(null, chunk);
+    }
+  }
+
+  private simulateDelay(startTime: number, callback: () => void): void {
+    const elapsedTime = Date.now() - startTime;
+    if (elapsedTime >= this.delayMs) {
+      callback();
+    } else {
+      setImmediate(() => this.simulateDelay(startTime, callback));
+    }
+  }
+
+  override _flush(callback: TransformCallback): void {
+    callback();
+  }
+
+  getGatheredContent(): string {
+    return this.gatheredChunks.join('');
+  }
+
+  reset(): void {
+    this.gatheredChunks = [];
+  }
+}
+
+/*export class ChunkGatherer extends Transform {
+  private gatheredChunks: string[] = [];
+  private delayMs: number;
+
+  constructor(options: { maxBufferSize?: number; processInterval?: number } = {}) {
+    super({ objectMode: true });
+    this.delayMs = options.processInterval || 0;
+  }
+
+  override _transform(chunk: any, encoding: BufferEncoding, callback: TransformCallback): void {
+    this.gatheredChunks.push(chunk);
+
+    if (this.delayMs > 0) {
       // Use a Promise to await the delay, ensuring backpressure is maintained
       this.delay(this.delayMs)
         .then(() => {
@@ -42,7 +97,7 @@ export class ChunkGatherer extends Transform {
   private delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
-}
+}*/
 
 /*export class ChunkGatherer extends Transform {
   private gatheredChunks: string[] = [];
