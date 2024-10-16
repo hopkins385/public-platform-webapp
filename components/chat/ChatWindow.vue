@@ -23,7 +23,8 @@
   const messageChunk = ref('');
   const isPending = ref(false);
   const isStreaming = ref(false);
-  // const showShareDialog = ref(false);
+
+  const showAbortButton = computed(() => isStreaming.value || isPending.value);
 
   const socket = useWebsocketGlobal();
   const chatStore = useChatStore();
@@ -536,23 +537,23 @@
             />
           </div>
           <Button
-            v-if="!isStreaming"
-            class="absolute bottom-1 right-2 z-10"
-            type="submit"
-            size="icon"
-            variant="ghost"
-            :disabled="!inputMessage || isPending"
-          >
-            <SendIcon class="size-5 stroke-1.5" />
-          </Button>
-          <Button
-            v-if="isStreaming"
+            v-if="showAbortButton"
             variant="outline"
             size="icon"
             class="group absolute bottom-2 right-2 z-20 mr-1 size-8 rounded-full bg-slate-100"
             @click="() => onAbort()"
           >
             <SquareIcon class="size-3 text-slate-500 group-hover:text-slate-900" />
+          </Button>
+          <Button
+            v-else
+            class="absolute bottom-1 right-2 z-10"
+            type="submit"
+            size="icon"
+            variant="ghost"
+            :disabled="!inputMessage"
+          >
+            <SendIcon class="size-5 stroke-1.5" />
           </Button>
         </form>
         <div class="w-10"></div>

@@ -5,7 +5,7 @@ import { UsageEvent } from '~/server/utils/enums/usage-event.enum';
 import { TrackTokensDto } from '~/server/services/dto/track-tokens.dto';
 import { StreamFinishedEventDto } from '~/server/services/dto/event.dto';
 import { useEvents } from '~/server/events/useEvents';
-import { Readable } from 'stream';
+import { pipeline, Readable } from 'stream';
 import consola from 'consola';
 import { authService, chatService, tokenizerService } from '~/server/service-instances';
 import { StreamService } from '~/server/services/chat-stream.service';
@@ -17,7 +17,7 @@ const logger = consola.create({}).withTag('conversation.post');
 
 export default defineEventHandler(async (_event) => {
   const abortController = new AbortController();
-  const chunkGatherer = streamService.createChunkGatherer(10);
+  const chunkGatherer = streamService.createChunkGatherer({ processInterval: 10 });
 
   try {
     const user = await authService.getAuthUser(_event);

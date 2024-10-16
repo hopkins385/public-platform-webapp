@@ -10,19 +10,20 @@ export class ChunkGatherer extends Transform {
     this.delayMs = options.processInterval || 0;
   }
 
-  override _transform(chunk: any, encoding: string, callback: TransformCallback): void {
-    try {
-      if (this.delayMs > 0) {
-        setTimeout(() => {
-          this.gatheredChunks.push(chunk);
+  override _transform(chunk: any, encoding: BufferEncoding, callback: TransformCallback): void {
+    this.gatheredChunks.push(chunk);
+
+    if (this.delayMs > 0) {
+      // Use a Promise to await the delay, ensuring backpressure is maintained
+      this.delay(this.delayMs)
+        .then(() => {
           callback(null, chunk);
-        }, this.delayMs);
-      } else {
-        this.gatheredChunks.push(chunk);
-        callback(null, chunk);
-      }
-    } catch (error) {
-      callback(new Error('cannot transform chunk'), null);
+        })
+        .catch((error) => {
+          callback(new Error('cannot transform chunk'));
+        });
+    } else {
+      callback(null, chunk);
     }
   }
 
@@ -37,38 +38,11 @@ export class ChunkGatherer extends Transform {
   reset(): void {
     this.gatheredChunks = [];
   }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
 }
-
-/*export class ChunkGatherer extends Transform {
-  private gatheredChunks: string = '';
-  private delayMs: number;
-
-  constructor(options: { maxBufferSize?: number; processInterval?: number } = {}) {
-    super({ objectMode: true });
-    this.delayMs = options.processInterval || 0; // Default to immediate processing
-
-    this._transform = this.delayedTransform.bind(this);
-    this._flush = (callback: TransformCallback) => {
-      callback();
-    };
-  }
-
-  private async delayedTransform(chunk: any, encoding: string, callback: TransformCallback) {
-    if (this.delayMs > 0) {
-      await new Promise((resolve) => setTimeout(resolve, this.delayMs));
-    }
-    this.gatheredChunks += chunk;
-    callback(null, chunk);
-  }
-
-  getGatheredContent(): string {
-    return this.gatheredChunks;
-  }
-
-  reset(): void {
-    this.gatheredChunks = '';
-  }
-}*/
 
 /*export class ChunkGatherer extends Transform {
   private gatheredChunks: string[] = [];
