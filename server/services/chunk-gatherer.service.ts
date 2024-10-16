@@ -2,6 +2,44 @@ import type { TransformCallback } from 'stream';
 import { Transform } from 'stream';
 
 export class ChunkGatherer extends Transform {
+  private gatheredChunks: string[] = [];
+  private delayMs: number;
+
+  constructor(options: { maxBufferSize?: number; processInterval?: number } = {}) {
+    super({ objectMode: true });
+    this.delayMs = options.processInterval || 0;
+  }
+
+  override _transform(chunk: any, encoding: string, callback: TransformCallback): void {
+    try {
+      if (this.delayMs > 0) {
+        setTimeout(() => {
+          this.gatheredChunks.push(chunk);
+          callback(null, chunk);
+        }, this.delayMs);
+      } else {
+        this.gatheredChunks.push(chunk);
+        callback(null, chunk);
+      }
+    } catch (error) {
+      callback(new Error('cannot transform chunk'), null);
+    }
+  }
+
+  override _flush(callback: TransformCallback): void {
+    callback();
+  }
+
+  getGatheredContent(): string {
+    return this.gatheredChunks.join('');
+  }
+
+  reset(): void {
+    this.gatheredChunks = [];
+  }
+}
+
+/*export class ChunkGatherer extends Transform {
   private gatheredChunks: string = '';
   private delayMs: number;
 
@@ -30,7 +68,7 @@ export class ChunkGatherer extends Transform {
   reset(): void {
     this.gatheredChunks = '';
   }
-}
+}*/
 
 /*export class ChunkGatherer extends Transform {
   private gatheredChunks: string[] = [];
