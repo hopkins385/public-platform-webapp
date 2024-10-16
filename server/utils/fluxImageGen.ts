@@ -71,19 +71,19 @@ export class FluxImageGenerator {
   public async generateImage(request: FluxProPlusInputs): Promise<PollingResult> {
     try {
       // Step 1: Create the generation request
-      const generationResponse = await this.#createRequest(request);
+      const generationResponse = await this.createRequest(request);
 
       // Step 2: Poll for the result
-      const result = await this.#pollForResult(generationResponse.id);
-
-      return result;
+      return new Promise((resolve, reject) => {
+        this.pollForResult(generationResponse.id, resolve).catch(reject);
+      });
     } catch (error) {
       console.error('Error generating image:', error);
       throw error;
     }
   }
 
-  async #createRequest(request: FluxProPlusInputs): Promise<GenerationResponse> {
+  private async createRequest(request: FluxProPlusInputs): Promise<GenerationResponse> {
     const response = await fetch(`${this.baseUrl}/flux-pro-1.1`, {
       method: 'POST',
       headers: {
@@ -105,47 +105,59 @@ export class FluxImageGenerator {
     return response.json();
   }
 
-  async #pollForResult(requestId: string): Promise<PollingResult> {
-    const maxAttempts = 60; // Adjust as needed
+  private async pollForResult(requestId: string, successResponse: (result: PollingResult) => void): Promise<void> {
+    const maxPollingDuration = 10000; // 3s
     const pollingInterval = 500; // 500ms
+    const startTime = Date.now();
 
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      const res = await this.#getResult(requestId);
+    const makeRequest = async () => {
+      try {
+        const res = await this.getResult(requestId);
+        const status = res.status;
+        const elapsedTime = Date.now() - startTime;
 
-      switch (res.status) {
-        case StatusResponse.Ready:
-          if (res.result) {
-            return {
+        switch (status) {
+          case StatusResponse.Ready:
+            if (res.result) {
+              successResponse({
+                id: requestId,
+                imgUrl: res.result.sample,
+                status,
+              });
+            } else {
+              throw new Error('Result is missing');
+            }
+            break;
+          case StatusResponse.Pending:
+            if (elapsedTime < maxPollingDuration) {
+              setTimeout(makeRequest, pollingInterval);
+            } else {
+              throw new Error('Timeout: Image generation took too long');
+            }
+            break;
+          case StatusResponse.Error:
+          case StatusResponse.TaskNotFound:
+          case StatusResponse.RequestModerated:
+          case StatusResponse.ContentModerated:
+            successResponse({
               id: requestId,
-              imgUrl: res.result.sample,
-              status: res.status,
-            };
-          } else {
-            throw new Error('Result is missing');
-          }
-          break;
-        case StatusResponse.Pending:
-          break;
-        case StatusResponse.Error:
-        case StatusResponse.TaskNotFound:
-        case StatusResponse.RequestModerated:
-        case StatusResponse.ContentModerated:
-          return {
-            id: requestId,
-            imgUrl: null,
-            status: res.status,
-          };
-        default:
-          throw new Error(`Unexpected response status: ${res.status}`);
+              imgUrl: null,
+              status,
+            });
+            break;
+          default:
+            throw new Error(`Unexpected response status: ${res.status}`);
+        }
+      } catch (error) {
+        console.error('Error generating image:', error);
+        throw error;
       }
+    };
 
-      await this.#sleep(pollingInterval);
-    }
-
-    throw new Error('Timeout: Image generation took too long');
+    makeRequest();
   }
 
-  async #getResult(requestId: string): Promise<ResultResponse> {
+  private async getResult(requestId: string): Promise<ResultResponse> {
     const url = new URL(`${this.baseUrl}/get_result`);
     url.searchParams.append('id', requestId);
 
@@ -166,9 +178,5 @@ export class FluxImageGenerator {
     }
 
     return response.json();
-  }
-
-  #sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

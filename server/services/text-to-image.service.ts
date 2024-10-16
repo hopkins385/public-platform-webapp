@@ -142,9 +142,9 @@ export class TextToImageService {
     const imgCount = payload.imgCount ?? 1;
 
     try {
-      const run = await this.#createSingleRun(payload);
-      const genImageResults = await this.#generateImagesForRun(run, imgCount, payload);
-      return this.#processImageResults(user.id, genImageResults, payload);
+      const run = await this.createSingleRun(payload);
+      const genImageResults = await this.generateImagesForRun(run, imgCount, payload);
+      return this.processImageResults(user.id, genImageResults, payload);
     } catch (error) {
       logger.error('Failed to generate images:', error);
       throw new Error('Failed to generate images');
@@ -191,9 +191,9 @@ export class TextToImageService {
     return this.softDeleteRun(runId);
   }
 
-  async #createSingleRun(payload: FluxProInputs): Promise<Run> {
+  private async createSingleRun(payload: FluxProInputs): Promise<Run> {
     try {
-      return await this.#createRun({
+      return await this.createRun({
         folderId: payload.folderId,
         prompt: payload.prompt,
         settings: {},
@@ -204,7 +204,7 @@ export class TextToImageService {
     }
   }
 
-  async #createRun(payload: { folderId: string; prompt: string; settings: any }): Promise<Run> {
+  private async createRun(payload: { folderId: string; prompt: string; settings: any }): Promise<Run> {
     const run = await this.prisma.textToImageRun.create({
       data: {
         folderId: payload.folderId,
@@ -219,11 +219,11 @@ export class TextToImageService {
     };
   }
 
-  async #generateImagesForRun(run: Run, imageCount: number, payload: FluxProInputs): Promise<GenImageResult[]> {
-    return Promise.all(Array.from({ length: imageCount }, () => this.#generateSingleImage(run, payload)));
+  private async generateImagesForRun(run: Run, imageCount: number, payload: FluxProInputs): Promise<GenImageResult[]> {
+    return Promise.all(Array.from({ length: imageCount }, () => this.generateSingleImage(run, payload)));
   }
 
-  async #generateSingleImage(run: Run, payload: FluxProInputs): Promise<GenImageResult> {
+  private async generateSingleImage(run: Run, payload: FluxProInputs): Promise<GenImageResult> {
     try {
       const genImage = await this.fluxImageGenerator.generateImage(payload);
       return {
@@ -232,7 +232,7 @@ export class TextToImageService {
       };
     } catch (error) {
       logger.error(`Failed to generate image:`, error);
-      await this.#updateRunStatus({ runId: run.id, status: TextToImageRunStatus.FAILED });
+      await this.updateRunStatus({ runId: run.id, status: TextToImageRunStatus.FAILED });
       return {
         run,
         genImage: {
@@ -244,13 +244,17 @@ export class TextToImageService {
     }
   }
 
-  async #processImageResults(userId: string, results: GenImageResult[], payload: FluxProInputs): Promise<string[]> {
+  private async processImageResults(
+    userId: string,
+    results: GenImageResult[],
+    payload: FluxProInputs,
+  ): Promise<string[]> {
     return Promise.all(
-      results.map((result) => this.#processSingleImageResult({ userId, folderId: payload.folderId, result })),
+      results.map((result) => this.processSingleImageResult({ userId, folderId: payload.folderId, result })),
     );
   }
 
-  async #processSingleImageResult(payload: {
+  private async processSingleImageResult(payload: {
     userId: string;
     folderId: string;
     result: GenImageResult;
@@ -275,12 +279,12 @@ export class TextToImageService {
         newfileUrl = storagefileUrl;
       }
 
-      const textToImage = await this.#createTextToImage({
+      const textToImage = await this.createTextToImage({
         runId: run.id,
         fileName,
         filePath: newfileUrl,
         mimeType,
-        status: this.#castStatus(genImage.status),
+        status: this.castStatus(genImage.status),
       });
 
       return textToImage.path;
@@ -290,7 +294,7 @@ export class TextToImageService {
     }
   }
 
-  async #createTextToImage(payload: {
+  private async createTextToImage(payload: {
     runId: string;
     fileName: string;
     filePath: string;
@@ -308,7 +312,7 @@ export class TextToImageService {
     });
   }
 
-  async #updateRunStatus(payload: { runId: string; status: TextToImageRunStatus }) {
+  private async updateRunStatus(payload: { runId: string; status: TextToImageRunStatus }) {
     return this.prisma.textToImageRun.update({
       where: {
         id: payload.runId,
@@ -319,7 +323,7 @@ export class TextToImageService {
     });
   }
 
-  #castStatus(status: StatusResponse): TextToImageRunStatus {
+  private castStatus(status: StatusResponse): TextToImageRunStatus {
     switch (status) {
       case StatusResponse.Pending:
         return TextToImageRunStatus.PENDING;

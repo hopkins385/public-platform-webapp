@@ -3,6 +3,8 @@ import type { ChatConversation } from './../interfaces/chat.interfaces';
 export default function useChatConversation() {
   const ac = new AbortController();
   const chatSettings = useChatSettingsStore();
+
+  const isPending = ref(false);
   const hasError = ref(false);
   const errorMessage = ref('');
 
@@ -44,10 +46,30 @@ export default function useChatConversation() {
         maxTokens: chatSettings.getMaxTokens,
       },
       responseType: 'stream',
+      onRequest: () => {
+        clearError();
+        isPending.value = true;
+      },
+      onRequestError: (e) => {
+        isPending.value = false;
+        if (e.error.name === 'AbortError') return;
+        console.error('[chat req.err] ', e.error.message);
+        setError('Cannot process message');
+      },
+      onResponse: () => {
+        isPending.value = false;
+      },
+      onResponseError: (e) => {
+        isPending.value = false;
+        if (e.error?.name === 'AbortError') return;
+        console.error('[chat res.err] ', e.error?.message);
+        setError('Cannot process message');
+      },
     });
   }
 
   return {
+    isPending,
     hasError,
     errorMessage,
     setError,

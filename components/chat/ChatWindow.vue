@@ -21,17 +21,14 @@
 
   const inputMessage = ref<any>('');
   const messageChunk = ref('');
-  const isPending = ref(false);
   const isStreaming = ref(false);
-
-  const showAbortButton = computed(() => isStreaming.value || isPending.value);
 
   const socket = useWebsocketGlobal();
   const chatStore = useChatStore();
   const settings = useChatSettingsStore();
   const { $client } = useNuxtApp();
   const { locale } = useI18n();
-  const { postConversation, hasError, errorMessage, setError, clearError } = useChatConversation();
+  const { postConversation, isPending, hasError, errorMessage, setError, clearError } = useChatConversation();
   const { messages, hasMessages, addMessageToChat, getFormattedMessages, clearMessages, initMessages } =
     useChatMessages();
 
@@ -40,6 +37,8 @@
   const chatInputFormRef = ref<HTMLFormElement | null>(null);
 
   const inputImages = ref<ChatImage[]>([]);
+
+  const showAbortButton = computed(() => isStreaming.value);
 
   let ac: AbortController;
 
@@ -97,7 +96,6 @@
     const msgType = hasImages ? 'image' : 'text';
     const visionContent = getVisionContent(inputImages.value);
 
-    clearError();
     clearVisionContent();
 
     // add user message to chat
@@ -115,10 +113,10 @@
     });
 
     // send message to assistant
-    isPending.value = true;
     messageChunk.value = '';
 
     ac = new AbortController();
+
     try {
       const stream = await postConversation(ac.signal, {
         model: chatStore.model,
@@ -127,8 +125,6 @@
         messages: getFormattedMessages(),
         chatId: props.chatId,
       });
-
-      isPending.value = false;
 
       if (!(stream instanceof ReadableStream)) {
         setError('Invalid response from server');
@@ -149,20 +145,20 @@
         });
       }
       isStreaming.value = false;
-
-      addMessageToChat({
-        type: 'text',
-        role: 'assistant',
-        content: messageChunk.value,
-      });
-      messageChunk.value = '';
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
+    } catch (err: any) {
+      if (err?.name === 'AbortError') {
         return;
       }
-      console.error('[stream assistant] ', error);
-      setError('Cannot process message');
+      console.error(err);
+      setError('Ups, something went wrong');
     }
+
+    addMessageToChat({
+      type: 'text',
+      role: 'assistant',
+      content: messageChunk.value,
+    });
+    messageChunk.value = '';
   }
 
   /**
@@ -348,7 +344,7 @@
   );
 
   onMounted(() => {
-    adjustTextareaHeight();
+    // adjustTextareaHeight();
     setModelFromAssistant();
     if (props.chatMessages && props.chatMessages.length > 0) {
       initMessages(props.chatMessages);
@@ -531,7 +527,9 @@
             <Textarea
               v-model="inputMessage"
               :placeholder="$t('chat.placeholder')"
-              class="resize-none rounded-2xl py-3 pr-14 focus:shadow-lg"
+              rows="1"
+              resize="none"
+              class="no-scrollbar min-h-[52px] resize-none rounded-2xl py-4 pr-14 focus:shadow-lg"
               @keydown.enter="onKeyDownEnter"
               @input="adjustTextareaHeight"
             />
@@ -540,14 +538,14 @@
             v-if="showAbortButton"
             variant="outline"
             size="icon"
-            class="group absolute bottom-2 right-2 z-20 mr-1 size-8 rounded-full bg-slate-100"
+            class="group absolute bottom-3 right-3 z-20 mr-1 size-8 rounded-full bg-slate-100"
             @click="() => onAbort()"
           >
             <SquareIcon class="size-3 text-slate-500 group-hover:text-slate-900" />
           </Button>
           <Button
             v-else
-            class="absolute bottom-1 right-2 z-10"
+            class="absolute bottom-[0.4rem] right-2 z-10"
             type="submit"
             size="icon"
             variant="ghost"

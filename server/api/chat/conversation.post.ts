@@ -47,6 +47,7 @@ export default defineEventHandler(async (_event) => {
     });
     _event.node.res.once('error', (error) => onResponseError(_event, error));
     _event.node.res.once('drain', () => logger.debug('Response drain'));
+    _event.node.res.once('finish', () => logger.debug('Response finish'));
 
     // stream data
     const streamData = {

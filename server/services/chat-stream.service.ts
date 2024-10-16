@@ -142,7 +142,10 @@ export class StreamService {
   handleStreamError(_event: H3Event, stream: any, error: any) {
     logger.error('onStreamError:', JSON.stringify(error));
     stream?.destroy();
-    _event.node.res.end();
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal Server Error',
+    });
   }
 
   private logWarnings(warnings: any[] | undefined) {
