@@ -1,7 +1,7 @@
 services:
   app:
     deploy:
-      replicas: 1
+      replicas: 3
     labels:
       - 'traefik.enable=true'
       - 'traefik.docker.network=traefik_net'
