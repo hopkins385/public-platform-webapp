@@ -1,7 +1,19 @@
 import consola from 'consola';
 import jwt from 'jsonwebtoken';
 
-const logger = consola.create({}).withTag('socket-server');
+export enum SocketEvent {
+  JOIN = 'join',
+  LEAVE = 'leave',
+  CREDITS = 'credits',
+  USAGE = 'usage',
+  CHAT = 'chat',
+}
+
+const logger = consola
+  .create({
+    level: process.env.NODE_ENV === 'production' ? 3 : 0,
+  })
+  .withTag('socket-server');
 
 function getBaseURL(host: string, port: string): string {
   if (!port || port.length < 1 || port === '') return host;
@@ -27,10 +39,12 @@ const socketSingleton = () => {
       },
       method: 'POST',
       body: payload,
-    }).catch((err) => {
-      logger.error(err);
-      logger.error('Failed to emit event:', payload.event, 'to room:', payload.room);
-    });
+    })
+      .then((res) => {})
+      .catch((err) => {
+        logger.error('Failed to emit event:', payload.event, 'to room:', payload.room);
+        logger.error(err);
+      });
   }
 
   return { emitEvent };

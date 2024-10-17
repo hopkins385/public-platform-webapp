@@ -1,9 +1,9 @@
 import type { FirstUserMessageEventDto, StreamFinishedEventDto } from '~/server/services/dto/event.dto';
 import type { ChatToolCallEventDto } from './dto/chatToolCallEvent.dto';
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
-import socket from '~/server/socket';
+import socket, { SocketEvent } from '~/server/socket';
 import consola from 'consola';
-import { chatService, creditService } from '../service-instances';
+import { chatService } from '../service-instances';
 
 const { queueAddJob } = useBullmq();
 
@@ -24,6 +24,8 @@ export async function chatStreamFinishedEvent(data: StreamFinishedEventDto) {
       message: { type: 'text', role: 'assistant', content: messageContent },
     }),
   );
+
+  socket.emitEvent({ room: `user:${userId}`, event: SocketEvent.CREDITS, data: { credits: 1 } });
 }
 
 export async function firstUserMessageEvent(data: FirstUserMessageEventDto) {

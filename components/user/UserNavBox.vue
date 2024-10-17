@@ -17,12 +17,12 @@
   }, 1000);
 
   onMounted(async () => {
-    socket.on('usage', creditsChangedListener);
+    socket.on('credits', creditsChangedListener);
     await refresh();
   });
 
   onBeforeUnmount(() => {
-    socket.off('usage', creditsChangedListener);
+    socket.off('credits', creditsChangedListener);
   });
 </script>
 

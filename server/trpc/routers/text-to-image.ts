@@ -4,13 +4,9 @@ import { protectedProcedure, router } from '../trpc';
 import { FluxProInputsSchema } from '~/server/schemas/fluxPro.schema';
 import { TRPCError } from '@trpc/server';
 
-const enoughCreditsPolicy = (user: any, requiredCredits: number) => {
-  if (user.credits < requiredCredits) {
-    throw new TRPCError({
-      code: 'FORBIDDEN',
-      message: 'You do not have enough credits',
-    });
-  }
+const enoughCreditsPolicy = (user: any, requiredCredits: number): boolean => {
+  if (!user || !user?.credits) return false;
+  return user.credits > requiredCredits;
 };
 
 const canAccessProjectPolicy = (user: any, projectId: string) => {
@@ -29,7 +25,14 @@ export const textToImageRouter = router({
     .query(async ({ ctx: { user, services, emitEvent }, input }) => {
       // has enough credits
       const requiredCredits = input.imgCount * 15;
-      enoughCreditsPolicy(user, requiredCredits);
+      const enoughCredits = enoughCreditsPolicy(user, requiredCredits);
+
+      if (!enoughCredits) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'You do not have enough credits',
+        });
+      }
 
       const imageUrls = await services.textToImageService.generateFluxProImages(user, input);
       emitEvent(UsageEvent.UPDATE_CREDITS, { userId: user.id, credits: requiredCredits });

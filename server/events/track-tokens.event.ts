@@ -1,6 +1,5 @@
 import consola from 'consola';
 import type { TrackTokensDto } from '~/server/services/dto/track-tokens.dto';
-import socket from '~/server/socket';
 import prisma from '../prisma';
 
 const logger = consola.create({}).withTag('track-tokens.worker');
@@ -21,7 +20,7 @@ export async function trackTokensEvent(payload: TrackTokensDto) {
     return Math.round(num);
   }
 
-  logger.info('Tracking token usage for user %s', userId);
+  // logger.info('Tracking token usage for user %s', userId);
 
   try {
     await prisma.tokenUsage.create({
@@ -36,10 +35,10 @@ export async function trackTokensEvent(payload: TrackTokensDto) {
       },
     });
   } catch (error) {
-    logger.error('Error saving usage data: %o', error);
+    logger.error('Error saving token usage data: %o', error);
   }
 
-  socket.emitEvent({
+  /*socket.emitEvent({
     room: `user:${userId}`,
     event: 'usage',
     data: {
@@ -47,5 +46,5 @@ export async function trackTokensEvent(payload: TrackTokensDto) {
       completionTokens: usage.completionTokens,
       totalTokens: usage.totalTokens,
     },
-  });
+  });*/
 }
