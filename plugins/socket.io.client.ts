@@ -32,9 +32,9 @@ export default defineNuxtPlugin(() => {
     }
   });
 
-  socketSrv.onAny((event, ...args) => {
-    console.log('Socket event:', event, args);
-  });
+  // socketSrv.onAny((event, ...args) => {
+  //   console.log('Socket event:', event, args);
+  // });
 
   // Handle socket disconnection event
   socketSrv.on('disconnect', () => {
