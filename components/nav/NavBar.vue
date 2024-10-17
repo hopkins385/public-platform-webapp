@@ -256,13 +256,13 @@
       children: [],
     },
     // Assets
-    {
+    /*{
       icon: FoldersIcon,
       path: '/text-to-image/assets',
       label: 'Assets',
       hidden: false,
       children: [],
-    },
+    },*/
   ];
 
   const isAdmin = computed(() => auth.value?.user.roles?.includes(UserRoles.ADMIN) ?? false);

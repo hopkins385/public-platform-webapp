@@ -72,6 +72,23 @@ export const textToImageRouter = router({
       canAccessProjectPolicy(user, input.projectId);
       return await services.textToImageService.getFolderImagesRuns(input.folderId, { showDeleted: input.showDeleted });
     }),
+  getFolderImagesRunsPaginated: protectedProcedure
+    .input(
+      z.object({
+        projectId: cuidRule(),
+        folderId: cuidRule(),
+        page: z.number(),
+        showDeleted: z.boolean().optional(),
+      }),
+    )
+    .query(async ({ ctx: { user, services }, input }) => {
+      // check if user has access to the project
+      canAccessProjectPolicy(user, input.projectId);
+      return await services.textToImageService.getFolderImagesRunsPaginated(input.folderId, {
+        page: input.page,
+        showDeleted: input.showDeleted,
+      });
+    }),
   deleteRun: protectedProcedure
     .input(
       z.object({

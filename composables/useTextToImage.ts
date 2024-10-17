@@ -3,11 +3,21 @@ export default function useTextToImage() {
   const { $client } = useNuxtApp();
   const settings = useImgGenSettingsStore();
 
-  const showDeletedRuns = computed(() => settings.getShowHidden);
+  const page = ref(1);
+
+  // const showDeletedRuns = computed(() => settings.getShowHidden);
 
   onScopeDispose(() => {
     ac.abort();
   });
+
+  function setPage(value: number) {
+    page.value = value;
+  }
+
+  function getPage() {
+    return page.value;
+  }
 
   async function generateImages(payload: {
     folderId: string;
@@ -50,7 +60,7 @@ export default function useTextToImage() {
     });
   }
 
-  async function getFolderImagesRuns(payload: { projectId: string; folderId: string }) {
+  /*async function getFolderImagesRuns(payload: { projectId: string; folderId: string }) {
     const { projectId, folderId } = payload;
     return useAsyncData(
       `folderImages:${folderId}`,
@@ -68,6 +78,28 @@ export default function useTextToImage() {
         watch: [showDeletedRuns],
       },
     );
+  }*/
+
+  async function getFolderImagesRunsPaginated(payload: { projectId: string; folderId: string }) {
+    const { projectId, folderId } = payload;
+    return useAsyncData(
+      `folderImagesPaginated:${folderId}-page:${page.value}-showDeleted:${settings.getShowHidden}`,
+      async () => {
+        const [runs, meta] = await $client.textToImage.getFolderImagesRunsPaginated.query(
+          {
+            projectId,
+            folderId,
+            page: page.value,
+            showDeleted: settings.getShowHidden,
+          },
+          { signal: ac.signal },
+        );
+        return { runs, meta };
+      },
+      {
+        watch: [page],
+      },
+    );
   }
 
   async function toggleHideRun(payload: { runId: string; projectId: string }) {
@@ -82,9 +114,12 @@ export default function useTextToImage() {
   }
 
   return {
+    getPage,
+    setPage,
     generateImages,
     getFirstFolderId,
-    getFolderImagesRuns,
+    // getFolderImagesRuns,
+    getFolderImagesRunsPaginated,
     toggleHideRun,
   };
 }

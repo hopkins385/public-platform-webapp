@@ -113,6 +113,42 @@ export class TextToImageService {
     });
   }
 
+  async getFolderImagesRunsPaginated(folderId: string, options: { page: number; showDeleted?: boolean }) {
+    return this.prisma.textToImageRun
+      .paginate({
+        select: {
+          id: true,
+          status: true,
+          prompt: true,
+          settings: true,
+          deletedAt: true,
+          images: {
+            select: {
+              id: true,
+              name: true,
+              path: true,
+              status: true,
+            },
+            where: {
+              deletedAt: null,
+            },
+          },
+        },
+        where: {
+          folderId,
+          deletedAt: options.showDeleted ? undefined : null,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      })
+      .withPages({
+        limit: 10,
+        page: options.page,
+        includePageCount: true,
+      });
+  }
+
   public async getFolderImagesSliced(folderId: string, skip: number, take: number) {
     const images = await this.prisma.textToImage.findMany({
       select: {

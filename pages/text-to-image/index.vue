@@ -176,7 +176,7 @@
 </script>
 
 <template>
-  <div id="sectionContainer" ref="el" class="min-h-full bg-white">
+  <div id="sectionContainer" class="min-h-full bg-white">
     <SectionContainer class="sticky inset-0 z-10 !py-0">
       <div class="h-8 bg-white/95 backdrop-blur-sm"></div>
       <div class="w-full">
@@ -213,7 +213,7 @@
         </div>
       </div>
     </SectionContainer>
-    <SectionContainer class="">
+    <SectionContainer class="bg-white">
       <div v-if="isLoading" class="flex">
         <div class="grid shrink-0 grid-cols-4">
           <div
@@ -230,7 +230,17 @@
           </div>
         </div>
       </div>
-      <ImageAssetsList :refresh-data="refresh" @re-run="reRun" @use-prompt="usePrompt" @toggle-hide="onToggleHideRun" />
+      <Suspense>
+        <ImageAssetsList
+          :refresh-data="refresh"
+          @re-run="reRun"
+          @use-prompt="usePrompt"
+          @toggle-hide="onToggleHideRun"
+        />
+        <template #fallback>
+          <p class="animate-pulse text-center text-sm opacity-50">Loading ...</p>
+        </template>
+      </Suspense>
     </SectionContainer>
   </div>
 </template>

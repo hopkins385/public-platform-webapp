@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { useInfiniteScroll } from '@vueuse/core';
+
   const props = defineProps<{
     refreshData: boolean;
   }>();
@@ -13,18 +15,24 @@
   const imgPreviewUrl = ref('');
   const imgPreviewPrompt = ref<string | undefined>(undefined);
 
+  const settings = useImgGenSettingsStore();
+
   const projectStore = useProjectStore();
-  const { getFirstFolderId, getFolderImagesRuns } = useTextToImage();
+  const { getFirstFolderId, getFolderImagesRunsPaginated, setPage } = useTextToImage();
 
   const projectId = projectStore.activeProjectId;
   const { data: firstFolder } = await getFirstFolderId({ projectId });
   if (!firstFolder.value?.folderId) {
     throw new Error('No folder found');
   }
-  const { data: runs, refresh } = await getFolderImagesRuns({
+  const { data, refresh, status } = await getFolderImagesRunsPaginated({
     projectId: projectStore.activeProjectId,
     folderId: firstFolder.value.folderId,
   });
+
+  const runs = ref(data.value?.runs || []);
+  const hasRuns = computed(() => runs.value && runs.value.length > 0);
+  const meta = computed(() => data.value?.meta);
 
   function previewImage(url: string, prompt?: string) {
     if (!url) {
@@ -35,22 +43,56 @@
     showImagePreview.value = true;
   }
 
+  async function resetPageData() {
+    console.log('refreshing');
+    setPage(1);
+    await refresh();
+    runs.value = data.value?.runs || [];
+  }
+
+  function initInfiniteScroll() {
+    const mainContainer = document.getElementById('main');
+    if (!mainContainer) return;
+    const { reset } = useInfiniteScroll(
+      mainContainer,
+      () => {
+        if (!hasRuns.value || status.value === 'pending' || !meta.value?.nextPage) return;
+        setPage(meta.value.nextPage);
+      },
+      { distance: 100 },
+    );
+  }
+
   watch(
     () => props.refreshData,
     async (value) => {
       if (value) {
-        await refresh();
+        await resetPageData();
       }
     },
   );
 
-  const hasRuns = computed(() => runs.value && runs.value.length > 0);
+  watch(
+    () => data.value,
+    (result) => {
+      runs.value?.push(...(result?.runs || []));
+    },
+  );
+
+  watch(
+    () => settings.getShowHidden,
+    async () => await resetPageData(),
+  );
+
+  onMounted(() => {
+    initInfiniteScroll();
+  });
 </script>
 
 <template>
-  <div class="">
+  <div class="bg-white">
     <ImagePreviewDialog v-model:show="showImagePreview" :img-url="imgPreviewUrl" :prompt="imgPreviewPrompt" />
-    <div v-if="hasRuns" ref="el" class="bg-white">
+    <div v-if="hasRuns" id="runContainer" class="">
       <div v-for="run in runs" :key="run.id" class="my-2 flex">
         <div class="grid shrink-0 grid-cols-4">
           <div
