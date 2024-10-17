@@ -63,6 +63,7 @@ export default defineEventHandler(async (_event) => {
 
     const generator = streamService.generateStream(_event, abortController, streamData);
     const readableStream = Readable.from(generator).pipe(chunkGatherer);
+    chunkGatherer.on('error', (error: any) => streamService.handleStreamError(_event, readableStream, error));
     readableStream.on('error', (error: any) => streamService.handleStreamError(_event, readableStream, error));
 
     return readableStream;

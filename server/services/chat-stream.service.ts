@@ -137,14 +137,19 @@ export class StreamService {
     if (error?.name === 'AbortError') return;
     logger.error('handleStreamGeneratorError:', JSON.stringify(error));
     _event.node.res.end();
+    throw createError({
+      statusCode: 500,
+      statusMessage: error?.message || 'Internal Server Error',
+    });
   }
 
   handleStreamError(_event: H3Event, stream: any, error: any) {
     logger.error('onStreamError:', JSON.stringify(error));
     stream?.destroy();
+    _event.node.res.end();
     throw createError({
       statusCode: 500,
-      statusMessage: 'Internal Server Error',
+      statusMessage: error?.message || 'Internal Server Error',
     });
   }
 

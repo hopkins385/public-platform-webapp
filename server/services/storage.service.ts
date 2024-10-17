@@ -6,6 +6,7 @@ import type { S3Client } from '@aws-sdk/client-s3';
 import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import type { UploadFiletDto } from './dto/file.dto';
 import { randomUUID } from 'crypto';
+import axios from 'axios';
 
 type Bucket = 'public' | 'images';
 
@@ -129,19 +130,23 @@ export class StorageService {
     const newfileUrl = `${url}/${bucketFolder}/${fileName}`;
 
     try {
-      const localFilePath = await this.downloadFileToTemp(fileUrl);
-      const fileBlob = await fs.readFile(localFilePath);
+      const response = await axios({
+        url: fileUrl,
+        method: 'GET',
+        responseType: 'stream',
+      });
+
+      const contentLength = response.headers['content-length'];
 
       const putObjectCommand = new PutObjectCommand({
         Bucket: bucket,
         Key: `${bucketFolder}/${fileName}`,
-        Body: fileBlob,
+        Body: response.data,
         ContentType: fileMimeType,
+        ContentLength: contentLength ? parseInt(contentLength) : undefined,
       });
 
       await this.s3Client.send(putObjectCommand);
-
-      await this.deleteTempFile(localFilePath);
 
       return {
         storagefileUrl: newfileUrl,

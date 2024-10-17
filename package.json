@@ -97,6 +97,7 @@
     "@vueuse/components": "^11.1.0",
     "@vueuse/core": "^11.1.0",
     "ai": "^3.4.8",
+    "axios": "^1.7.7",
     "bcrypt": "^5.1.1",
     "bullmq": "^5.13.2",
     "class-variance-authority": "^0.7.0",
