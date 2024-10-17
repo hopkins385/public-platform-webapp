@@ -7,6 +7,7 @@ import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sd
 import type { UploadFiletDto } from './dto/file.dto';
 import { randomUUID } from 'crypto';
 import axios from 'axios';
+import { PassThrough } from 'stream';
 
 type Bucket = 'public' | 'images';
 
@@ -138,10 +139,13 @@ export class StorageService {
 
       const contentLength = response.headers['content-length'];
 
+      const passThroughStream = new PassThrough();
+      response.data.pipe(passThroughStream);
+
       const putObjectCommand = new PutObjectCommand({
         Bucket: bucket,
         Key: `${bucketFolder}/${fileName}`,
-        Body: response.data,
+        Body: passThroughStream,
         ContentType: fileMimeType,
         ContentLength: contentLength ? parseInt(contentLength) : undefined,
       });
