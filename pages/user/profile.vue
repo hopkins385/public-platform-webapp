@@ -81,7 +81,7 @@
           <h2 class="pb-2 font-semibold">Plan</h2>
           <p>Preview</p>
           <h2 class="mt-2 py-2 font-semibold">Credits</h2>
-          <p>{{ user?.credit[0]?.amount }} / 1000</p>
+          <p>{{ user?.credit[0]?.amount }}</p>
         </BoxContainer>
       </div>
     </div>

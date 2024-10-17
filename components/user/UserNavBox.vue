@@ -42,7 +42,7 @@
       </div>
       <div class="shrink-0 whitespace-nowrap">
         <div class="opacity-50">Credits</div>
-        <div class="opacity-75">{{ user?.credit[0]?.amount }} / 1000</div>
+        <div class="opacity-75">{{ user?.credit[0]?.amount }}</div>
       </div>
     </div>
     <div class="hidden">
