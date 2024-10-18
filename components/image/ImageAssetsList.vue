@@ -51,7 +51,7 @@
   }
 
   function handleNextScroll() {
-    if (!hasRuns.value || status.value === 'pending' || !meta.value?.nextPage) return;
+    if (hasRuns.value !== true || status.value !== 'success' || !meta.value?.nextPage) return;
     setPage(meta.value.nextPage);
   }
 

@@ -9,14 +9,14 @@
   const meta = computed(() => data.value?.meta);
 
   const handleNextScroll = async () => {
-    if (!hasRuns.value || status.value === 'pending' || !meta.value?.nextPage) return;
+    if (hasRuns.value !== true || status.value !== 'success' || !meta.value?.nextPage) return;
     setPage(meta.value.nextPage);
   };
 
   function initInfiniteScroll() {
     const mainContainer = document.getElementById('main');
     if (!mainContainer) return;
-    const { reset } = useInfiniteScroll(mainContainer, handleNextScroll, { distance: 100 });
+    const { reset } = useInfiniteScroll(mainContainer, handleNextScroll, { distance: 300 });
   }
 
   watch(
