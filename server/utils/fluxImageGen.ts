@@ -16,6 +16,8 @@
   interval?: number; // min: 1, max: 4, default: 2
 }*/
 
+import { waitFor } from './waitFor';
+
 export interface FluxProPlusInputs {
   prompt: string;
   width?: number; // default: 1024, min: 256, max: 1440, multiple of 32
@@ -106,11 +108,12 @@ export class FluxImageGenerator {
   }
 
   private async pollForResult(requestId: string, successResponse: (result: PollingResult) => void): Promise<void> {
-    const maxPollingDuration = 10000; // 3s
+    const maxPollingDuration = 10000; // 10s
     const pollingInterval = 500; // 500ms
-    const startTime = Date.now();
 
-    const makeRequest = async () => {
+    //const startTime = Date.now();
+    // OPTION A: Using a recursive function
+    /*const makeRequest = async () => {
       try {
         const res = await this.getResult(requestId);
         const status = res.status;
@@ -130,6 +133,8 @@ export class FluxImageGenerator {
             break;
           case StatusResponse.Pending:
             if (elapsedTime < maxPollingDuration) {
+              const date = new Date();
+              console.log('Polling for result...', elapsedTime, date.toLocaleTimeString());
               setTimeout(makeRequest, pollingInterval);
             } else {
               throw new Error('Timeout: Image generation took too long');
@@ -153,8 +158,43 @@ export class FluxImageGenerator {
         throw error;
       }
     };
-
     makeRequest();
+    */
+
+    const getSuccessResponse = async () => {
+      const res = await this.getResult(requestId);
+      const { status, result } = res;
+
+      switch (status) {
+        case StatusResponse.Ready:
+          if (!result) {
+            throw new Error('Result is missing');
+          }
+          successResponse({
+            id: requestId,
+            imgUrl: result.sample,
+            status,
+          });
+          return true;
+        case StatusResponse.Pending:
+          return false;
+        case StatusResponse.Error:
+        case StatusResponse.TaskNotFound:
+        case StatusResponse.RequestModerated:
+        case StatusResponse.ContentModerated:
+          successResponse({
+            id: requestId,
+            imgUrl: null,
+            status,
+          });
+          return true;
+        default:
+          throw new Error(`Unexpected response status: ${status}`);
+      }
+    };
+
+    // OPTION B: Using waitFor utility function
+    await waitFor(getSuccessResponse, pollingInterval, maxPollingDuration);
   }
 
   private async getResult(requestId: string): Promise<ResultResponse> {

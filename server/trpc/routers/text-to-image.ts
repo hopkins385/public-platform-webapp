@@ -100,8 +100,9 @@ export const textToImageRouter = router({
       }),
     )
     .query(async ({ ctx: { user, services }, input }) => {
+      const { page } = input;
       return await services.textToImageService.getRandomImagesPaginated({
-        page: input.page,
+        page,
       });
     }),
   deleteRun: protectedProcedure

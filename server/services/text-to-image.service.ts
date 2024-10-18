@@ -150,6 +150,7 @@ export class TextToImageService {
   }
 
   async getRandomImagesPaginated(options: { page: number }) {
+    const { page } = options;
     return this.prisma.textToImageRun
       .paginate({
         select: {
@@ -176,8 +177,8 @@ export class TextToImageService {
         },
       })
       .withPages({
-        limit: 20,
-        page: options.page,
+        limit: 30,
+        page,
         includePageCount: true,
       });
   }

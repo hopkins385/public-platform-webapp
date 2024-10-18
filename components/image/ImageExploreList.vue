@@ -2,13 +2,13 @@
   import { useInfiniteScroll } from '@vueuse/core';
   const { setPage, getRandomImagesPaginated } = useTextToImage();
 
-  const { data, refresh, status } = await getRandomImagesPaginated();
+  const { data, status } = await getRandomImagesPaginated();
 
   const runs = ref(data.value?.runs || []);
   const hasRuns = computed(() => runs.value && runs.value.length > 0);
   const meta = computed(() => data.value?.meta);
 
-  const handleNextScroll = () => {
+  const handleNextScroll = async () => {
     if (!hasRuns.value || status.value === 'pending' || !meta.value?.nextPage) return;
     setPage(meta.value.nextPage);
   };
@@ -18,6 +18,13 @@
     if (!mainContainer) return;
     const { reset } = useInfiniteScroll(mainContainer, handleNextScroll, { distance: 100 });
   }
+
+  watch(
+    () => data.value,
+    (result) => {
+      runs.value?.push(...(result?.runs || []));
+    },
+  );
 
   onMounted(() => {
     initInfiniteScroll();
