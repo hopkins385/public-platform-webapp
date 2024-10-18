@@ -50,17 +50,15 @@
     runs.value = data.value?.runs || [];
   }
 
+  function handleNextScroll() {
+    if (!hasRuns.value || status.value === 'pending' || !meta.value?.nextPage) return;
+    setPage(meta.value.nextPage);
+  }
+
   function initInfiniteScroll() {
     const mainContainer = document.getElementById('main');
     if (!mainContainer) return;
-    const { reset } = useInfiniteScroll(
-      mainContainer,
-      () => {
-        if (!hasRuns.value || status.value === 'pending' || !meta.value?.nextPage) return;
-        setPage(meta.value.nextPage);
-      },
-      { distance: 100 },
-    );
+    const { reset } = useInfiniteScroll(mainContainer, handleNextScroll, { distance: 100 });
   }
 
   watch(

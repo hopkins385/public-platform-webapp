@@ -113,6 +113,24 @@ export default function useTextToImage() {
     );
   }
 
+  async function getRandomImagesPaginated() {
+    return useAsyncData(
+      `randomImagesPaginated:page:${page.value}`,
+      async () => {
+        const [runs, meta] = await $client.textToImage.getRandomImagesPaginated.query(
+          {
+            page: page.value,
+          },
+          { signal: ac.signal },
+        );
+        return { runs, meta };
+      },
+      {
+        watch: [page],
+      },
+    );
+  }
+
   return {
     getPage,
     setPage,
@@ -120,6 +138,7 @@ export default function useTextToImage() {
     getFirstFolderId,
     // getFolderImagesRuns,
     getFolderImagesRunsPaginated,
+    getRandomImagesPaginated,
     toggleHideRun,
   };
 }

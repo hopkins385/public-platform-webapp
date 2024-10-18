@@ -22,6 +22,8 @@
     FolderIcon,
     PaintbrushVerticalIcon,
     FoldersIcon,
+    ImagesIcon,
+    CompassIcon,
   } from 'lucide-vue-next';
   import type { FunctionalComponent } from 'vue';
 
@@ -252,6 +254,14 @@
       icon: PaintbrushVerticalIcon,
       path: '/text-to-image',
       label: 'Create',
+      hidden: false,
+      children: [],
+    },
+    // Explore
+    {
+      icon: CompassIcon,
+      path: '/text-to-image/explore',
+      label: 'Explore',
       hidden: false,
       children: [],
     },

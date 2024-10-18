@@ -149,6 +149,39 @@ export class TextToImageService {
       });
   }
 
+  async getRandomImagesPaginated(options: { page: number }) {
+    return this.prisma.textToImageRun
+      .paginate({
+        select: {
+          id: true,
+          prompt: true,
+          images: {
+            select: {
+              id: true,
+              name: true,
+              path: true,
+              status: true,
+            },
+            where: {
+              deletedAt: null,
+            },
+            take: 1,
+          },
+        },
+        where: {
+          deletedAt: null,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      })
+      .withPages({
+        limit: 20,
+        page: options.page,
+        includePageCount: true,
+      });
+  }
+
   public async getFolderImagesSliced(folderId: string, skip: number, take: number) {
     const images = await this.prisma.textToImage.findMany({
       select: {

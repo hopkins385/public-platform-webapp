@@ -92,6 +92,18 @@ export const textToImageRouter = router({
         showDeleted: input.showDeleted,
       });
     }),
+
+  getRandomImagesPaginated: protectedProcedure
+    .input(
+      z.object({
+        page: z.number(),
+      }),
+    )
+    .query(async ({ ctx: { user, services }, input }) => {
+      return await services.textToImageService.getRandomImagesPaginated({
+        page: input.page,
+      });
+    }),
   deleteRun: protectedProcedure
     .input(
       z.object({
