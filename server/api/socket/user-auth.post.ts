@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import type { SessionUser } from '~/server/schemas/loginSchema';
-import { services } from '~/server/service-instances';
+import { services } from '~/server/services';
 
 export default defineEventHandler(async (_event) => {
   const { secret } = useRuntimeConfig().auth;

@@ -1,4 +1,4 @@
-import { services } from '~/server/service-instances';
+import { services } from '~/server/services';
 import { EditorService } from './../../services/editor.service';
 import { getEditorCompletionBody } from '~/server/utils/request/editorCompletionBody';
 

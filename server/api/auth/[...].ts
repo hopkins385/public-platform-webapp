@@ -1,4 +1,4 @@
-import { services } from './../../service-instances';
+import { services } from '../../services';
 import { NuxtAuthHandler } from '#auth';
 import Auth0Provider from 'next-auth/providers/auth0';
 import { AuthEvent } from '~/server/utils/enums/auth-event.enum';

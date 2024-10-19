@@ -1,4 +1,4 @@
-import { services } from './../service-instances';
+import { services } from '../services';
 import type { FirstUserMessageEventDto, StreamFinishedEventDto } from '~/server/services/dto/event.dto';
 import type { ChatToolCallEventDto } from './dto/chatToolCallEvent.dto';
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';

@@ -1,4 +1,4 @@
-import { services } from '~/server/service-instances';
+import { services } from '~/server/services';
 
 export default defineEventHandler(async (_event) => {
   // Needs Auth

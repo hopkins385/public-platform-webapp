@@ -1,4 +1,4 @@
-import { services } from '../service-instances';
+import { services } from '../services';
 import { generateText, type CoreMessage } from 'ai';
 import type { FirstUserMessageEventDto } from '../services/dto/event.dto';
 import { AiModelFactory } from '../factories/aiModelFactory';
@@ -59,7 +59,6 @@ export async function handleWorkflowRowCompleted(job: Job) {
 }
 
 export async function handleWorkflowJob(job: Job<AssistantJobDto>) {
-  throw new Error('Not implemented');
   const { data } = job;
   await services.assistantJobService.processJob(data);
 }

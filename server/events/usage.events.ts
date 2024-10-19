@@ -1,4 +1,4 @@
-import { services } from './../service-instances';
+import { services } from '../services';
 import socket, { SocketEvent } from '~/server/socket';
 
 export interface IUpdateCreditsEvent {

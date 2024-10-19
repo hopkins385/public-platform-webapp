@@ -2,7 +2,7 @@ import type { inferAsyncReturnType } from '@trpc/server';
 import type { H3Event } from 'h3';
 import { getServerSession } from '#auth';
 import { useEvents } from '../events/useEvents';
-import { actions, services } from '../service-instances';
+import { actions, services } from '../services';
 import type { SessionUser } from '../schemas/loginSchema';
 
 /**

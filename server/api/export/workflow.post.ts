@@ -1,5 +1,5 @@
 import consola from 'consola';
-import { services } from '~/server/service-instances';
+import { services } from '~/server/services';
 
 const logger = consola.create({}).withTag('api.export.workflow.post');
 

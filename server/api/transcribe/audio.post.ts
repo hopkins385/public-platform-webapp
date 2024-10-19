@@ -4,7 +4,7 @@ import consola from 'consola';
 import Groq from 'groq-sdk';
 import { createReadStream } from 'fs';
 import { basename, extname } from 'path';
-import { services } from '~/server/service-instances';
+import { services } from '~/server/services';
 
 const logger = consola.create({}).withTag('api.transcribe');
 

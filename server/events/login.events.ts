@@ -1,4 +1,4 @@
-import { services } from './../service-instances';
+import { services } from '../services';
 import { LastLoginDto } from '~/server/services/dto/last-login.dto';
 
 export async function updateLastLogin(user: any) {

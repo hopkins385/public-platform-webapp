@@ -2,7 +2,7 @@ import { readFiles } from 'h3-formidable';
 import type { Options as FormidableOptions } from 'formidable';
 import consola from 'consola';
 import { UploadFiletDto } from '~/server/services/dto/file.dto';
-import { services } from '~/server/service-instances';
+import { services } from '~/server/services';
 
 const logger = consola.create({}).withTag('api.upload.post');
 

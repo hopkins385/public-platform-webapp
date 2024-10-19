@@ -1,4 +1,4 @@
-import { services } from './../../service-instances';
+import { services } from '../../services';
 import type { H3Event } from 'h3';
 import { getConversationBody } from '~/server/utils/request/chatConversationBody';
 import { ChatEvent } from '~/server/utils/enums/chat-event.enum';
