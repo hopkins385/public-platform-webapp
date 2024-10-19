@@ -1,11 +1,8 @@
 import { TRPCError } from '@trpc/server';
 import type { CreateProjectDto, UpdateProjectDto } from './dto/project.dto';
 import type { ExtendedPrismaClient } from '../prisma';
-
-interface UserProjectPolicyPayload {
-  project: any;
-  user: any;
-}
+import type { Project } from '@prisma/client';
+import type { SessionUser } from '../schemas/loginSchema';
 
 export class ProjectService {
   private readonly prisma: ExtendedPrismaClient;
@@ -28,19 +25,12 @@ export class ProjectService {
     return true;
   }
 
-  canAccessProjectPolicy(payload: UserProjectPolicyPayload) {
-    if (!payload.project) {
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'Project not found',
-      });
-    }
+  canAccessProjectPolicy(user: SessionUser, project: Project) {
+    const { teamId: userTeamId } = user;
+    const { teamId: projectTeamId } = project;
 
-    if (payload.project.teamId !== payload.user.teamId) {
-      throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'You do not have access to this project',
-      });
+    if (projectTeamId !== userTeamId) {
+      return false;
     }
 
     return true;

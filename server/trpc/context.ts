@@ -1,9 +1,9 @@
 import type { inferAsyncReturnType } from '@trpc/server';
 import type { H3Event } from 'h3';
-import type { SessionUser } from '../api/auth/[...]';
 import { getServerSession } from '#auth';
 import { useEvents } from '../events/useEvents';
 import { actions, services } from '../service-instances';
+import type { SessionUser } from '../schemas/loginSchema';
 
 /**
  * Creates context for an incoming request

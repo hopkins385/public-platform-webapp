@@ -1,9 +1,9 @@
 import type { ExtendedPrismaClient } from '../prisma';
 import type { StorageService } from './storage.service';
 import type { FluxProInputs } from '~/server/schemas/fluxPro.schema';
-import type { SessionUser } from '../api/auth/[...]';
 import { StatusResponse, type FluxImageGenerator } from '../utils/fluxImageGen';
 import consola from 'consola';
+import type { SessionUser } from '../schemas/loginSchema';
 
 const logger = consola.create({}).withTag('TextToImageService');
 

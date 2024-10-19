@@ -1,12 +1,11 @@
-import { getServerSession } from '#auth';
 import jwt from 'jsonwebtoken';
-import type { SessionUser } from '../auth/[...]';
+import type { SessionUser } from '~/server/schemas/loginSchema';
+import { services } from '~/server/service-instances';
 
 export default defineEventHandler(async (_event) => {
   const { secret } = useRuntimeConfig().auth;
   // Needs Auth
-  const session = await getServerSession(_event);
-  const user = getAuthUser(session); // throws error if not authenticated
+  const user = await services.authService.getAuthUser(_event);
 
   const jwt = await getAuthJWT(user, secret);
 

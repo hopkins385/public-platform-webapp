@@ -2,7 +2,7 @@
 
 import type { H3Event } from 'h3';
 import { getServerSession } from '#auth';
-import type { SessionUser } from '../api/auth/[...]';
+import type { SessionUser } from '../schemas/loginSchema';
 
 export class AuthService {
   async getAuthUser(_event: H3Event): Promise<SessionUser> {

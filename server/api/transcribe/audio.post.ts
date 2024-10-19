@@ -1,10 +1,10 @@
 import type { Options as FormidableOptions, File as FormidableFile } from 'formidable';
 import { readFiles } from 'h3-formidable';
-import { getServerSession } from '#auth';
 import consola from 'consola';
 import Groq from 'groq-sdk';
 import { createReadStream } from 'fs';
 import { basename, extname } from 'path';
+import { services } from '~/server/service-instances';
 
 const logger = consola.create({}).withTag('api.transcribe');
 
@@ -24,8 +24,7 @@ const groq = new Groq({
 
 export default defineEventHandler(async (_event) => {
   // Needs Auth
-  const session = await getServerSession(_event);
-  const user = getAuthUser(session); // throws error if not authenticated
+  const user = await services.authService.getAuthUser(_event);
 
   const { files } = await readFiles(_event, options);
 

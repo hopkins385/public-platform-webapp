@@ -1,15 +1,15 @@
-import { getServerSession } from '#auth';
+import { services } from '~/server/service-instances';
 import { EditorService } from './../../services/editor.service';
-import { getAuthUser } from '~/server/utils/auth/permission';
 import { getEditorCompletionBody } from '~/server/utils/request/editorCompletionBody';
 
 const config = useRuntimeConfig();
 const editorService = new EditorService(config.openai.apiKey);
 
-export default defineEventHandler(async (event) => {
-  const session = await getServerSession(event);
-  const user = getAuthUser(session); // do not remove this line
-  const body = await getEditorCompletionBody(event);
+export default defineEventHandler(async (_event) => {
+  // Needs Auth
+  const user = await services.authService.getAuthUser(_event);
+
+  const body = await getEditorCompletionBody(_event);
 
   const completion = await editorService.fetchCompletion({
     lang: body.lang,

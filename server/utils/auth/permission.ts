@@ -1,5 +1,4 @@
-import type { User } from 'next-auth';
-import type { SessionUser } from '~/server/api/auth/[...]';
+import type { SessionUser } from '~/server/schemas/loginSchema';
 
 export function getAuthUser(session: any): SessionUser {
   if (!session) {

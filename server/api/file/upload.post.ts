@@ -1,7 +1,5 @@
 import { readFiles } from 'h3-formidable';
 import type { Options as FormidableOptions } from 'formidable';
-import { getServerSession } from '#auth';
-import { getAuthUser } from '~/server/utils/auth/permission';
 import consola from 'consola';
 import { UploadFiletDto } from '~/server/services/dto/file.dto';
 import { services } from '~/server/service-instances';
@@ -10,8 +8,7 @@ const logger = consola.create({}).withTag('api.upload.post');
 
 export default defineEventHandler(async (_event) => {
   // Needs Auth
-  const session = await getServerSession(_event);
-  const user = getAuthUser(session); // do not remove this line
+  const user = await services.authService.getAuthUser(_event);
 
   const options = {
     includeFields: true,

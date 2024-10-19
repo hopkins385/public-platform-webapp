@@ -1,12 +1,11 @@
-import { getServerSession } from '#auth';
 import consola from 'consola';
 import { services } from '~/server/service-instances';
 
 const logger = consola.create({}).withTag('api.export.workflow.post');
 
 export default defineEventHandler(async (_event) => {
-  const session = await getServerSession(_event);
-  const user = getAuthUser(session); // do not remove this line
+  // Needs Auth
+  const user = await services.authService.getAuthUser(_event);
 
   const body = await readBody(_event); // TODO: validate body
   const { workflowId } = body;

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
 import { CreateProjectDto, UpdateProjectDto } from '~/server/services/dto/project.dto';
+import { ForbiddenError } from '../errors/forbiddenError';
 
 export const projectRouter = router({
   // create project
@@ -34,10 +35,11 @@ export const projectRouter = router({
       const project = await services.projectService.findFirst(input.id);
 
       // policy check
-      services.projectService.canAccessProjectPolicy({
-        project,
-        user,
-      });
+      const allowed = services.projectService.canAccessProjectPolicy(user, project);
+
+      if (!allowed) {
+        throw new ForbiddenError();
+      }
 
       return project;
     }),

@@ -1,23 +1,11 @@
 import { services } from './../../service-instances';
-import type { DefaultSession } from 'next-auth';
 import { NuxtAuthHandler } from '#auth';
 import Auth0Provider from 'next-auth/providers/auth0';
 import { AuthEvent } from '~/server/utils/enums/auth-event.enum';
 import { useEvents } from '~/server/events/useEvents';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from '~/server/prisma';
-
-export interface CustomSessionUserData {
-  id: string;
-  orgId: string;
-  teamId: string;
-  roles: string[];
-  projectIds: string[];
-  credits: number;
-  onboardingDone: boolean;
-}
-
-export type SessionUser = CustomSessionUserData & DefaultSession['user'];
+import type { SessionUser } from '~/server/schemas/loginSchema';
 
 declare module 'next-auth' {
   interface Session {

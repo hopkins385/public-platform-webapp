@@ -6,7 +6,7 @@ import { UsageEvent } from '~/server/utils/enums/usage-event.enum';
 import { TrackTokensDto } from '~/server/services/dto/track-tokens.dto';
 import { StreamFinishedEventDto } from '~/server/services/dto/event.dto';
 import { useEvents } from '~/server/events/useEvents';
-import { pipeline, Readable } from 'stream';
+import { Readable } from 'stream';
 import consola from 'consola';
 import { StreamService } from '~/server/services/chat-stream.service';
 
@@ -19,8 +19,10 @@ export default defineEventHandler(async (_event) => {
   const abortController = new AbortController();
   const chunkGatherer = streamService.createChunkGatherer({ processInterval: 10 });
 
+  // Needs Auth
+  const user = await services.authService.getAuthUser(_event);
+
   try {
-    const user = await services.authService.getAuthUser(_event);
     const validatedBody = await getConversationBody(_event);
     const chat = await getChatForUser({ chatId: validatedBody.chatId, userId: user.id });
     const message = await services.chatService.createMessage(user.id, chat.id, validatedBody.messages);
