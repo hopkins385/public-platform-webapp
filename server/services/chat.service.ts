@@ -5,12 +5,13 @@ import type { ExtendedPrismaClient } from '../prisma';
 import type { UseEvents } from '../events/useEvents';
 import type { CollectionService } from './collection.service';
 import type { EmbeddingService } from './embedding.service';
-import type { ChatMessage as PrismaChatMessage } from '@prisma/client';
+import type { Assistant, Chat, ChatMessage as PrismaChatMessage } from '@prisma/client';
 import type { TokenizerService } from './tokenizer.service';
 import { TRPCError } from '@trpc/server';
 import { FirstUserMessageEventDto } from './dto/event.dto';
 import { CollectionAbleDto } from './dto/collection-able.dto';
 import consola from 'consola';
+import type { SessionUser } from '../schemas/loginSchema';
 
 interface UpsertMessage extends ChatMessage {
   id: string;
@@ -409,18 +410,7 @@ export class ChatService {
 
   // POLICIES
 
-  async canAccessChatPolicy(chat: any, user: any) {
-    if (chat.user.id !== user.id) {
-      throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'You do not have access to this chat',
-      });
-    }
-
-    return true;
-  }
-
-  canCreateChatPolicy(user: any, assistant: any): boolean {
+  canCreateChatPolicy(user: SessionUser, assistant: any): boolean {
     const { teamId: userTeamId } = user;
     const {
       team: { id: assistantTeamId },
@@ -433,28 +423,7 @@ export class ChatService {
     return true;
   }
 
-  async canCreateMessagePolicy(payload: CreateChatMessageDto) {
-    // get the chat
-    const chat = await this.getFirst(payload.chatId);
-    if (!chat) {
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'Chat not found',
-      });
-    }
-
-    // check if the user is the owner of the chat
-    if (chat.userId !== payload.userId) {
-      throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'You do not have access to this chat',
-      });
-    }
-
-    return true;
-  }
-
-  canClearMessagesPolicy(user: any, chat: any) {
+  canClearMessagesPolicy(user: SessionUser, chat: any) {
     const { id: userId } = user;
     const { userId: chatUserId } = chat;
 
@@ -466,7 +435,7 @@ export class ChatService {
     return true;
   }
 
-  async canDeletePolicy(user: any, chat: any) {
+  async canDeletePolicy(user: SessionUser, chat: any) {
     const { id: userId } = user;
     const { userId: chatUserId } = chat;
 

@@ -1,4 +1,3 @@
-import { TRPCError } from '@trpc/server';
 import type {
   FindAllAssistantsDto,
   FindAssistantDto,
@@ -7,7 +6,7 @@ import type {
   DeleteAssistantDto,
 } from './dto/assistant.dto';
 import type { ExtendedPrismaClient } from '../prisma';
-import { ForbiddenError } from '../trpc/errors/forbiddenError';
+import type { SessionUser } from '../schemas/loginSchema';
 
 export class AssistantService {
   private readonly prisma: ExtendedPrismaClient;
@@ -188,7 +187,7 @@ export class AssistantService {
 
   // POLICIES
 
-  canCreateAssistantPolicy(user: any, teamId: string): boolean {
+  canCreateAssistantPolicy(user: SessionUser, teamId: string): boolean {
     if (user.teamId !== teamId) {
       return false;
     }
@@ -196,7 +195,7 @@ export class AssistantService {
     return true;
   }
 
-  canAccessAssistantPolicy(user: any, assistant: any): boolean {
+  canAccessAssistantPolicy(user: SessionUser, assistant: any): boolean {
     const { teamId: userTeamId, orgId: userOrgId } = user;
     const {
       isShared,
@@ -213,7 +212,7 @@ export class AssistantService {
     return true;
   }
 
-  canUpdateAssistantPolicy(user: any, assistant: any): boolean {
+  canUpdateAssistantPolicy(user: SessionUser, assistant: any): boolean {
     const { teamId: userTeamId } = user;
     const {
       team: { id: assistantTeamId },
@@ -226,7 +225,7 @@ export class AssistantService {
     return true;
   }
 
-  canDeleteAssistantPolicy(user: any, assistant: any) {
+  canDeleteAssistantPolicy(user: SessionUser, assistant: any) {
     const { teamId: userTeamId } = user;
     const {
       team: { id: assistantTeamId },
