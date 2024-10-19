@@ -27,8 +27,9 @@ import { WorkflowService } from './services/workflow.service';
 import { TextToImageService } from './services/text-to-image.service';
 import { useEvents } from './events/useEvents';
 import { TokenizerService } from './services/tokenizer.service';
+import { AssistantJobService } from './services/assistant-job.service';
 
-const { event } = useEvents();
+/*const { event } = useEvents();
 
 export const config = useRuntimeConfig();
 
@@ -40,6 +41,7 @@ export const userService = new UserService(prisma);
 export const teamService = new TeamService(prisma);
 // Assistant
 export const assistantService = new AssistantService(prisma);
+export const assistantJobService = new AssistantJobService(prisma);
 // Collection
 export const collectionAbleService = new CollectionAbleService(prisma);
 export const collectionService = new CollectionService(prisma);
@@ -75,3 +77,46 @@ export const chatService = new ChatService(prisma, collectionService, embeddingS
 
 // Actions
 export const createNewUserAction = new CreatesNewUserAction(prisma);
+*/
+
+const { event } = useEvents();
+
+export const config = useRuntimeConfig();
+
+class ServiceContainer {
+  authService = new AuthService();
+  llmService = new LLMService(prisma);
+  userService = new UserService(prisma);
+  teamService = new TeamService(prisma);
+  assistantService = new AssistantService(prisma);
+  assistantJobService = new AssistantJobService(prisma);
+  collectionAbleService = new CollectionAbleService(prisma);
+  collectionService = new CollectionService(prisma);
+  documentService = new DocumentService(prisma);
+  documentItemService = new DocumentItemService(prisma);
+  storageService = new StorageService(s3Client);
+  mediaAbleService = new MediaAbleService(prisma);
+  mediaService = new MediaService(prisma, this.mediaAbleService, this.storageService);
+  projectService = new ProjectService(prisma);
+  providerAuthService = new ProviderAuthService(prisma);
+  embeddingService = new EmbeddingService({ ragServerUrl: config.ragServer.url });
+  recordService = new RecordService(prisma, this.mediaService, this.embeddingService);
+  tokenizerService = new TokenizerService({ ragServerUrl: config.ragServer.url });
+  usageService = new UsageService(prisma);
+  stripeService = new StripeService();
+  creditService = new CreditService(prisma);
+  workflowExecService = new WorkflowExecutionService(prisma);
+  workflowStepService = new WorkflowStepService(prisma);
+  workflowService = new WorkflowService(prisma);
+  fluxImageGenerator = new FluxImageGenerator({ apiKey: config.flux.apiKey });
+  textToImageService = new TextToImageService(prisma, this.fluxImageGenerator, this.storageService);
+  chatService = new ChatService(prisma, this.collectionService, this.embeddingService, this.tokenizerService, event);
+}
+
+class ActionContainer {
+  createNewUserAction = new CreatesNewUserAction(prisma);
+}
+
+export const actions = new ActionContainer();
+
+export const services = new ServiceContainer();

@@ -1,3 +1,4 @@
+import { services } from './../../service-instances';
 import type { H3Event } from 'h3';
 import { getConversationBody } from '~/server/utils/request/chatConversationBody';
 import { ChatEvent } from '~/server/utils/enums/chat-event.enum';
@@ -7,7 +8,6 @@ import { StreamFinishedEventDto } from '~/server/services/dto/event.dto';
 import { useEvents } from '~/server/events/useEvents';
 import { pipeline, Readable } from 'stream';
 import consola from 'consola';
-import { authService, chatService, tokenizerService } from '~/server/service-instances';
 import { StreamService } from '~/server/services/chat-stream.service';
 
 const { event } = useEvents();
@@ -20,11 +20,11 @@ export default defineEventHandler(async (_event) => {
   const chunkGatherer = streamService.createChunkGatherer({ processInterval: 10 });
 
   try {
-    const user = await authService.getAuthUser(_event);
+    const user = await services.authService.getAuthUser(_event);
     const validatedBody = await getConversationBody(_event);
     const chat = await getChatForUser({ chatId: validatedBody.chatId, userId: user.id });
-    const message = await chatService.createMessage(user.id, chat.id, validatedBody.messages);
-    const systemPrompt = await chatService.getContextAwareSystemPrompt({
+    const message = await services.chatService.createMessage(user.id, chat.id, validatedBody.messages);
+    const systemPrompt = await services.chatService.getContextAwareSystemPrompt({
       assistantId: chat.assistant.id,
       lastMessageContent: message.content,
       assistantSystemPrompt: chat.assistant.systemPrompt,
@@ -56,7 +56,7 @@ export default defineEventHandler(async (_event) => {
       chatId: chat.id,
       model: validatedBody.model,
       provider: validatedBody.provider,
-      messages: chatService.formatChatMessages(validatedBody.messages),
+      messages: services.chatService.formatChatMessages(validatedBody.messages),
       systemPrompt,
       maxTokens: validatedBody.maxTokens,
     };
@@ -82,8 +82,8 @@ async function onResponseClose(payload: { chat: any; user: any; body: any; gathe
   }
 
   const [inputTokenResult, outputTokenResult] = await Promise.all([
-    tokenizerService.getTokens(payload.body.messages[payload.body.messages.length - 1].content),
-    tokenizerService.getTokens(payload.gathered),
+    services.tokenizerService.getTokens(payload.body.messages[payload.body.messages.length - 1].content),
+    services.tokenizerService.getTokens(payload.gathered),
   ]);
 
   const inputTokenCount = inputTokenResult.tokenCount;
@@ -124,7 +124,7 @@ function onResponseError(_event: H3Event, error: any) {
 }
 
 async function getChatForUser(payload: { chatId: string; userId: string }) {
-  const chat = await chatService.getChatAndCreditsForUser(payload.chatId, payload.userId);
+  const chat = await services.chatService.getChatAndCreditsForUser(payload.chatId, payload.userId);
   if (!chat) {
     throw createError({
       statusCode: 404,

@@ -1,6 +1,6 @@
 import { AssistantJobDto } from './dto/job.dto';
 import { WorkflowService } from './workflow.service';
-import { QueueEnum } from '../utils/enums/queue.enum';
+import { Queue } from '../utils/enums/queue.enum';
 import type { FlowJob, JobsOptions } from 'bullmq';
 import type { ExtendedPrismaClient } from '../prisma';
 
@@ -91,7 +91,7 @@ export class WorkflowExecutionService {
     for (let i = 0; i < rowCount; i++) {
       const job = {
         name: 'Final Step',
-        queueName: QueueEnum.WORKFLOW_ROW_COMLETED,
+        queueName: Queue.WORKFLOW_ROW_COMLETED,
         data: { row: i, userId: payload.userId, workflowId: payload.workflowId },
         opts: defaultJobOpts,
         children: [jobChild(startStepIndex, i)],

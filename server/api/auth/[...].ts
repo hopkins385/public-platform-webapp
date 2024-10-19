@@ -1,3 +1,4 @@
+import { services } from './../../service-instances';
 import type { DefaultSession } from 'next-auth';
 import { NuxtAuthHandler } from '#auth';
 import Auth0Provider from 'next-auth/providers/auth0';
@@ -5,8 +6,6 @@ import { AuthEvent } from '~/server/utils/enums/auth-event.enum';
 import { useEvents } from '~/server/events/useEvents';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from '~/server/prisma';
-import { userService } from '~/server/service-instances';
-import type { TeamUser } from '@prisma/client';
 
 export interface CustomSessionUserData {
   id: string;
@@ -71,7 +70,7 @@ export default NuxtAuthHandler({
       return true;
     },
     async session({ session, token, user }) {
-      const fullUser = await userService.getUserById(user.id);
+      const fullUser = await services.userService.getUserById(user.id);
       // TODO: cache fullUser but not the credit amount
 
       if (!fullUser) {

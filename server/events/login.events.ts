@@ -1,5 +1,5 @@
+import { services } from './../service-instances';
 import { LastLoginDto } from '~/server/services/dto/last-login.dto';
-import { userService } from '../service-instances';
 
 export async function updateLastLogin(user: any) {
   const payload = LastLoginDto.fromInput({
@@ -7,7 +7,7 @@ export async function updateLastLogin(user: any) {
     lastLoginAt: new Date(),
   });
   try {
-    return await userService.updateLastLogin(payload);
+    return await services.userService.updateLastLogin(payload);
   } catch (error) {
     // console.error('Error updating last login', error);
     // silently fail

@@ -1,6 +1,6 @@
 import { getServerSession } from '#auth';
 import consola from 'consola';
-import { workflowService } from '~/server/service-instances';
+import { services } from '~/server/service-instances';
 
 const logger = consola.create({}).withTag('api.export.workflow.post');
 
@@ -25,7 +25,7 @@ export default defineEventHandler(async (_event) => {
   await new Promise((resolve) => setTimeout(resolve, 500));
 
   try {
-    const buffer = await workflowService.export(workflowId, type);
+    const buffer = await services.workflowService.export(workflowId, type);
     return buffer;
     //
   } catch (error) {

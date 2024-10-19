@@ -4,7 +4,7 @@ import { getServerSession } from '#auth';
 import { getAuthUser } from '~/server/utils/auth/permission';
 import consola from 'consola';
 import { UploadFiletDto } from '~/server/services/dto/file.dto';
-import { mediaService, storageService } from '~/server/service-instances';
+import { services } from '~/server/service-instances';
 
 const logger = consola.create({}).withTag('api.upload.post');
 
@@ -49,11 +49,11 @@ export default defineEventHandler(async (_event) => {
         teamId: user.teamId, // TODO: fix typescript error
       });
       if (vision) {
-        createMediaPayload = await storageService.uploadFileToBucket('images', uploadPayload);
+        createMediaPayload = await services.storageService.uploadFileToBucket('images', uploadPayload);
       } else {
-        createMediaPayload = await storageService.uploadFile(uploadPayload);
+        createMediaPayload = await services.storageService.uploadFile(uploadPayload);
       }
-      const media = await mediaService.create(createMediaPayload);
+      const media = await services.mediaService.create(createMediaPayload);
       medias.push(media);
     }
 

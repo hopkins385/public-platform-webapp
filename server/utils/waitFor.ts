@@ -1,25 +1,30 @@
 export async function waitFor(
   condition: () => Promise<boolean> | boolean,
   pollInterval: number = 500,
+  maxAttempts: number = 1000,
   timeoutAfter?: number,
 ): Promise<boolean> {
-  // Track the start time for timeout purposes
   const startTime = Date.now();
+  let attempts = 0;
 
-  while (true) {
-    // Check for timeout, bail if too much time passed
+  while (attempts < maxAttempts) {
     if (typeof timeoutAfter === 'number' && Date.now() > startTime + timeoutAfter) {
       throw new Error('Condition not met before timeout');
     }
 
-    // Check for condition immediately
-    const result = await condition();
-
-    if (result) {
-      return result;
+    try {
+      const result = await condition();
+      if (result) {
+        return result;
+      }
+    } catch (error) {
+      console.error('Error occurred while checking condition:', error);
+      throw error; // or handle it differently based on requirements
     }
 
-    // Otherwise wait and check after pollInterval
-    await new Promise((resolve) => setTimeout(resolve, pollInterval));
+    await new Promise((r) => setTimeout(r, pollInterval));
+    attempts++;
   }
+
+  throw new Error('Maximum number of attempts reached');
 }
