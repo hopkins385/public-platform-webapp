@@ -36,7 +36,7 @@ export const projectRouter = router({
       // policy check
       services.projectService.canAccessProjectPolicy({
         project,
-        user: user,
+        user,
       });
 
       return project;

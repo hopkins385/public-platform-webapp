@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
-import { TRPCError } from '@trpc/server';
 import {
   CreateAssistantDto,
   DeleteAssistantDto,
@@ -9,6 +8,8 @@ import {
   UpdateAssistantDto,
 } from '~/server/services/dto/assistant.dto';
 import { idSchema, cuidRule } from '~/server/utils/validation/ulid.rule';
+import { AssistantNotFoundError } from '../errors/assistantNotFoundError';
+import { ForbiddenError } from '../errors/forbiddenError';
 
 export const assistantRouter = router({
   // create assistant
@@ -25,12 +26,14 @@ export const assistantRouter = router({
       }),
     )
     .mutation(async ({ ctx: { user, services }, input }) => {
-      const payload = CreateAssistantDto.fromInput(input);
-
       // policy check
-      services.assistantService.canCreateAssistantPolicy(payload, user);
+      const allowed = services.assistantService.canCreateAssistantPolicy(user, input.teamId);
 
-      return await services.assistantService.create(payload);
+      if (!allowed) {
+        throw new ForbiddenError();
+      }
+
+      return await services.assistantService.create(CreateAssistantDto.fromInput(input));
     }),
   // get assistant by id
   one: protectedProcedure.input(idSchema).query(async ({ ctx: { user, services }, input }) => {
@@ -38,16 +41,15 @@ export const assistantRouter = router({
     const assistant = await services.assistantService.findFirst(payload);
 
     if (!assistant) {
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'Assistant not found',
-      });
+      throw new AssistantNotFoundError();
     }
 
-    // console.log(assistant);
-
     // policy check
-    services.assistantService.canAccessAssistantPolicy(assistant, user);
+    const allowed = services.assistantService.canAccessAssistantPolicy(user, assistant);
+
+    if (!allowed) {
+      throw new ForbiddenError();
+    }
 
     return assistant;
   }),
@@ -59,10 +61,10 @@ export const assistantRouter = router({
         searchQuery: z.string().max(255).optional(),
       }),
     )
-    .query(({ ctx: { user, services }, input }) => {
+    .query(async ({ ctx: { user, services }, input }) => {
       const payload = FindAllAssistantsDto.fromInput(user.teamId, input.page, input.searchQuery);
 
-      return services.assistantService.findAll(payload);
+      return await services.assistantService.findAll(payload);
     }),
   // update assistant by id
   update: protectedProcedure
@@ -79,12 +81,21 @@ export const assistantRouter = router({
       }),
     )
     .mutation(async ({ ctx: { user, services }, input }) => {
-      const payload = UpdateAssistantDto.fromInput(input);
+      const payloadF = FindAssistantDto.fromInput(input);
+      const assistant = await services.assistantService.findFirst(payloadF);
+
+      if (!assistant) {
+        throw new AssistantNotFoundError();
+      }
 
       // policy check
-      await services.assistantService.canUpdateAssistantPolicy(payload, user);
+      const allowed = services.assistantService.canUpdateAssistantPolicy(user, assistant);
 
-      return await services.assistantService.update(payload);
+      if (!allowed) {
+        throw new ForbiddenError();
+      }
+
+      return await services.assistantService.update(UpdateAssistantDto.fromInput(input));
     }),
   // delete assistant by id
   delete: protectedProcedure
@@ -95,11 +106,20 @@ export const assistantRouter = router({
       }),
     )
     .mutation(async ({ ctx: { user, services }, input }) => {
-      const deletePayload = DeleteAssistantDto.fromInput(input);
+      const payloadF = FindAssistantDto.fromInput(input);
+      const assistant = await services.assistantService.findFirst(payloadF);
+
+      if (!assistant) {
+        throw new AssistantNotFoundError();
+      }
 
       // policy check
-      await services.assistantService.canDeleteAssistantPolicy(deletePayload, user);
+      const allowed = services.assistantService.canDeleteAssistantPolicy(user, assistant);
 
-      return await services.assistantService.softDelete(deletePayload);
+      if (!allowed) {
+        throw new ForbiddenError();
+      }
+
+      return await services.assistantService.softDelete(DeleteAssistantDto.fromInput(input));
     }),
 });

@@ -100,6 +100,11 @@ export class ChatService {
       return null;
     }
     return this.prisma.chat.findFirst({
+      select: {
+        id: true,
+        title: true,
+        userId: true,
+      },
       where: {
         id: chatId.toLowerCase(),
       },
@@ -350,7 +355,7 @@ export class ChatService {
   clearMessages(chatId: string) {
     return this.prisma.chatMessage.deleteMany({
       where: {
-        chatId,
+        chatId: chatId.toLowerCase(),
       },
     });
   }
@@ -358,7 +363,7 @@ export class ChatService {
   getChatMessages(chatId: string) {
     return this.prisma.chatMessage.findMany({
       where: {
-        chatId,
+        chatId: chatId.toLowerCase(),
       },
       orderBy: {
         createdAt: 'asc',
@@ -382,7 +387,7 @@ export class ChatService {
     return this.prisma.chat.update({
       where: {
         id: chatId.toLowerCase(),
-        userId,
+        userId: userId.toLowerCase(),
       },
       data: {
         deletedAt: new Date(),
@@ -415,20 +420,14 @@ export class ChatService {
     return true;
   }
 
-  async canCreateChatPolicy(assistantId: string, teamId: string) {
-    // find the assistant by id
-    const assistant = await this.prisma.assistant.findFirst({
-      where: {
-        id: assistantId.toLowerCase(),
-        teamId: teamId.toLowerCase(),
-      },
-    });
+  canCreateChatPolicy(user: any, assistant: any): boolean {
+    const { teamId: userTeamId } = user;
+    const {
+      team: { id: assistantTeamId },
+    } = assistant;
 
-    if (!assistant) {
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'Assistant not found',
-      });
+    if (assistantTeamId !== userTeamId) {
+      return false;
     }
 
     return true;
@@ -455,43 +454,25 @@ export class ChatService {
     return true;
   }
 
-  async canClearMessagesPolicy(chatId: string, userId: string) {
-    // get the chat
-    const chat = await this.getFirst(chatId);
-    if (!chat) {
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'Chat not found',
-      });
-    }
+  canClearMessagesPolicy(user: any, chat: any) {
+    const { id: userId } = user;
+    const { userId: chatUserId } = chat;
 
     // check if the user is the owner of the chat
-    if (chat.userId !== userId) {
-      throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'You do not have access to this chat',
-      });
+    if (chatUserId !== userId) {
+      return false;
     }
 
     return true;
   }
 
-  async canDeletePolicy(chatId: string, userId: string) {
-    // get the chat
-    const chat = await this.getFirst(chatId);
-    if (!chat) {
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'Chat not found',
-      });
-    }
+  async canDeletePolicy(user: any, chat: any) {
+    const { id: userId } = user;
+    const { userId: chatUserId } = chat;
 
     // check if the user is the owner of the chat
-    if (chat.userId !== userId) {
-      throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'You do not have access to this chat',
-      });
+    if (chatUserId !== userId) {
+      return false;
     }
 
     return true;

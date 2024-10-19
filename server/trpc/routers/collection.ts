@@ -3,6 +3,7 @@ import { protectedProcedure, router } from '../trpc';
 import { CreateCollectionDto } from '~/server/services/dto/collection.dto';
 import { collectionAbleRule } from '~/server/utils/validation/collection-able.rule';
 import { CollectionAbleDto } from '~/server/services/dto/collection-able.dto';
+import { CollectionNotFoundError } from '../errors/collectionNotFoundError';
 
 export const collectionRouter = router({
   create: protectedProcedure
@@ -13,12 +14,13 @@ export const collectionRouter = router({
       }),
     )
     .mutation(async ({ input, ctx: { user, services } }) => {
-      const payload = CreateCollectionDto.fromInput({
-        teamId: user.teamId,
-        name: input.name,
-        description: input.description,
-      });
-      return await services.collectionService.createCollection(payload);
+      return await services.collectionService.createCollection(
+        CreateCollectionDto.fromInput({
+          teamId: user.teamId,
+          name: input.name,
+          description: input.description,
+        }),
+      );
     }),
 
   findFirst: protectedProcedure
@@ -61,12 +63,22 @@ export const collectionRouter = router({
       }),
     )
     .mutation(async ({ input, ctx: { user, services } }) => {
-      const payload = CreateCollectionDto.fromInput({
-        teamId: user.teamId,
-        name: input.name,
-        description: input.description,
-      });
-      return await services.collectionService.update(user.teamId, input.id, payload);
+      // find the collection
+      const collection = await services.collectionService.findFirst(user.teamId, input.id);
+
+      if (!collection) {
+        throw new CollectionNotFoundError();
+      }
+
+      return await services.collectionService.update(
+        user.teamId,
+        input.id,
+        CreateCollectionDto.fromInput({
+          teamId: user.teamId,
+          name: input.name,
+          description: input.description,
+        }),
+      );
     }),
 
   delete: protectedProcedure
@@ -76,6 +88,13 @@ export const collectionRouter = router({
       }),
     )
     .mutation(async ({ input, ctx: { user, services } }) => {
+      // find the collection
+      const collection = await services.collectionService.findFirst(user.teamId, input.id);
+
+      if (!collection) {
+        throw new CollectionNotFoundError();
+      }
+
       return await services.collectionService.softDelete(user.teamId, input.id);
     }),
 });

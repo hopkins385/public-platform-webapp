@@ -4,6 +4,10 @@ import { cuidRule } from '~/server/utils/validation/ulid.rule';
 import { CreateChatMessageDto } from '~/server/services/dto/chat-message.dto';
 import { ChatMessageRule } from '~/server/utils/validation/chat-message.rule';
 import { GetAllChatsForUserDto } from '~/server/services/dto/chat.dto';
+import { FindAssistantDto } from '~/server/services/dto/assistant.dto';
+import { ForbiddenError } from '../errors/forbiddenError';
+import { AssistantNotFoundError } from '../errors/assistantNotFoundError';
+import { ChatNotFoundError } from '../errors/chatNotFoundError';
 
 export const chatRouter = router({
   // create a chat
@@ -14,8 +18,19 @@ export const chatRouter = router({
       }),
     )
     .query(async ({ ctx: { user, services }, input }) => {
+      const payload = FindAssistantDto.fromInput({ id: input.assistantId });
+      const assistant = await services.assistantService.findFirst(payload);
+
+      if (!assistant) {
+        throw new AssistantNotFoundError();
+      }
+
       // policy check
-      await services.chatService.canCreateChatPolicy(input.assistantId, user.teamId);
+      const allowed = services.chatService.canCreateChatPolicy(user, assistant);
+
+      if (!allowed) {
+        throw new ForbiddenError();
+      }
 
       return await services.chatService.create(input.assistantId, user.id);
     }),
@@ -35,9 +50,6 @@ export const chatRouter = router({
         chatId: input.chatId,
         message: input.message,
       });
-
-      // policy check
-      await services.chatService.canCreateMessagePolicy(payload);
     }),
 
   allForUser: protectedProcedure.query(async ({ ctx: { user, services } }) => {
@@ -71,9 +83,20 @@ export const chatRouter = router({
       }),
     )
     .query(async ({ ctx: { user, services }, input }) => {
+      // find chat
+      const chat = await services.chatService.getFirst(input.chatId);
+      if (!chat) {
+        throw new ChatNotFoundError();
+      }
+
       // policy check
-      await services.chatService.canClearMessagesPolicy(input.chatId, user.id);
-      return await services.chatService.clearMessages(input.chatId.toLowerCase());
+      const allowed = services.chatService.canClearMessagesPolicy(user, chat);
+
+      if (!allowed) {
+        throw new ForbiddenError();
+      }
+
+      return await services.chatService.clearMessages(input.chatId);
     }),
 
   forUser: protectedProcedure
@@ -93,8 +116,20 @@ export const chatRouter = router({
       }),
     )
     .query(async ({ ctx: { user, services }, input }) => {
+      // find chat
+      const chat = await services.chatService.getFirst(input.chatId);
+
+      if (!chat) {
+        throw new ChatNotFoundError();
+      }
+
       // policy check
-      await services.chatService.canDeletePolicy(input.chatId, user.id);
-      return await services.chatService.softDelete(user.id, input.chatId.toLowerCase());
+      const allowed = services.chatService.canDeletePolicy(user, chat);
+
+      if (!allowed) {
+        throw new ForbiddenError();
+      }
+
+      return await services.chatService.softDelete(user.id, input.chatId);
     }),
 });

@@ -7,6 +7,7 @@ import type {
   DeleteAssistantDto,
 } from './dto/assistant.dto';
 import type { ExtendedPrismaClient } from '../prisma';
+import { ForbiddenError } from '../trpc/errors/forbiddenError';
 
 export class AssistantService {
   private readonly prisma: ExtendedPrismaClient;
@@ -187,93 +188,52 @@ export class AssistantService {
 
   // POLICIES
 
-  canCreateAssistantPolicy(payload: CreateAssistantDto, user: any) {
-    if (user.teamId !== payload.teamId) {
-      throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'You do not have access to this team',
-      });
+  canCreateAssistantPolicy(user: any, teamId: string): boolean {
+    if (user.teamId !== teamId) {
+      return false;
     }
 
     return true;
   }
 
-  canAccessAssistantPolicy(assistant: any, user: any) {
-    if (assistant.isShared !== true) {
-      if (!assistant.team) {
-        throw new Error('Assistant does not have a team, team is:', assistant.team);
-      }
-      if (!assistant.team.id) {
-        throw new Error('Assistant does not have a team id, team id is:', assistant.team.id);
-      }
-      if (assistant.team.id !== user.teamId) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'You do not have access to this assistant',
-        });
-      }
-    } else {
-      if (!assistant.team.organisation) {
-        throw new Error('Assistant does not have an organisation, organisation is:', assistant.team.organisation);
-      }
-      if (assistant.team.organisation.id !== user.orgId) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'You do not have access to this assistant',
-        });
-      }
-    }
-
-    return true;
-  }
-
-  async canUpdateAssistantPolicy(payload: UpdateAssistantDto, user: any) {
-    const assistant = await this.prisma.assistant.findFirst({
-      where: {
-        id: payload.assistantId,
-        teamId: payload.teamId,
-        deletedAt: null,
+  canAccessAssistantPolicy(user: any, assistant: any): boolean {
+    const { teamId: userTeamId, orgId: userOrgId } = user;
+    const {
+      isShared,
+      team: {
+        id: assistantTeamId,
+        organisation: { id: assistantOrgId },
       },
-    });
+    } = assistant;
 
-    if (!assistant) {
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'Assistant not found',
-      });
-    }
-
-    if (assistant.teamId !== user.teamId) {
-      throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'You do not have access to this assistant',
-      });
+    if ((!isShared && assistantTeamId !== userTeamId) || assistantOrgId !== userOrgId) {
+      return false;
     }
 
     return true;
   }
 
-  async canDeleteAssistantPolicy(payload: DeleteAssistantDto, user: any) {
-    const assistant = await this.prisma.assistant.findFirst({
-      where: {
-        id: payload.assistantId,
-        teamId: payload.teamId,
-        deletedAt: null,
-      },
-    });
+  canUpdateAssistantPolicy(user: any, assistant: any): boolean {
+    const { teamId: userTeamId } = user;
+    const {
+      team: { id: assistantTeamId },
+    } = assistant;
 
-    if (!assistant) {
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'Assistant not found',
-      });
+    if (assistantTeamId !== userTeamId) {
+      return false;
     }
 
-    if (assistant.teamId !== user.teamId) {
-      throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'You do not have access to this assistant',
-      });
+    return true;
+  }
+
+  canDeleteAssistantPolicy(user: any, assistant: any) {
+    const { teamId: userTeamId } = user;
+    const {
+      team: { id: assistantTeamId },
+    } = assistant;
+
+    if (assistantTeamId !== userTeamId) {
+      return false;
     }
 
     return true;
