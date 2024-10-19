@@ -1,8 +1,7 @@
 import type { inferAsyncReturnType } from '@trpc/server';
 import type { H3Event } from 'h3';
-import { getServerSession } from '#auth';
 import type { SessionUser } from '../api/auth/[...]';
-
+import { getServerSession } from '#auth';
 import { useEvents } from '../events/useEvents';
 import { actions, services } from '../service-instances';
 
@@ -17,7 +16,6 @@ export async function createContext(_event: H3Event) {
   const { event } = useEvents();
 
   return {
-    // prisma: _event.context.prisma,
     emitEvent: event,
     user,
     services,

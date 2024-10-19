@@ -40,6 +40,9 @@ export default defineNitroPlugin(() => {
    */
   const workflowRowCompletion = createWorker(Queue.WORKFLOW_ROW_COMLETED, handleWorkflowRowCompleted);
 
+  /**
+   * Workflow workers
+   */
   const rateLimitDuration = 60 * 1000; // 1 minute // Time in milliseconds. During this time, a maximum of max jobs will be processed.
   const workerConcurrency = 10;
   const groqReqPerMin = 30;

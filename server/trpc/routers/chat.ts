@@ -14,14 +14,10 @@ export const chatRouter = router({
       }),
     )
     .query(async ({ ctx: { user, services }, input }) => {
-      const userId = user.id;
-      const teamId = user.teamId;
-      const assistantId = input.assistantId.toLowerCase();
-
       // policy check
-      await services.chatService.canCreateChatPolicy(assistantId, teamId, userId);
+      await services.chatService.canCreateChatPolicy(input.assistantId, user.teamId);
 
-      return await services.chatService.create(assistantId, userId);
+      return await services.chatService.create(input.assistantId, user.id);
     }),
 
   // create a message
@@ -33,6 +29,7 @@ export const chatRouter = router({
       }),
     )
     .query(async ({ ctx: { user, services }, input }) => {
+      throw new Error('Not implemented');
       const payload = CreateChatMessageDto.fromInput({
         userId: user.id,
         chatId: input.chatId,
@@ -41,8 +38,6 @@ export const chatRouter = router({
 
       // policy check
       await services.chatService.canCreateMessagePolicy(payload);
-
-      return await services.chatService.createMessage(payload);
     }),
 
   allForUser: protectedProcedure.query(async ({ ctx: { user, services } }) => {

@@ -29,56 +29,6 @@ import { useEvents } from './events/useEvents';
 import { TokenizerService } from './services/tokenizer.service';
 import { AssistantJobService } from './services/assistant-job.service';
 
-/*const { event } = useEvents();
-
-export const config = useRuntimeConfig();
-
-// auth
-export const authService = new AuthService();
-
-export const llmService = new LLMService(prisma);
-export const userService = new UserService(prisma);
-export const teamService = new TeamService(prisma);
-// Assistant
-export const assistantService = new AssistantService(prisma);
-export const assistantJobService = new AssistantJobService(prisma);
-// Collection
-export const collectionAbleService = new CollectionAbleService(prisma);
-export const collectionService = new CollectionService(prisma);
-// Document
-export const documentService = new DocumentService(prisma);
-export const documentItemService = new DocumentItemService(prisma);
-// Media
-export const storageService = new StorageService(s3Client);
-export const mediaAbleService = new MediaAbleService(prisma);
-export const mediaService = new MediaService(prisma, mediaAbleService, storageService);
-// Project
-export const projectService = new ProjectService(prisma);
-// Provider Auth
-export const providerAuthService = new ProviderAuthService(prisma);
-// Embedding
-export const embeddingService = new EmbeddingService({ ragServerUrl: config.ragServer.url });
-export const recordService = new RecordService(prisma, mediaService, embeddingService);
-export const tokenizerService = new TokenizerService({ ragServerUrl: config.ragServer.url });
-// Usage
-export const usageService = new UsageService(prisma);
-export const stripeService = new StripeService();
-export const creditService = new CreditService(prisma);
-// Workflow
-export const workflowExecService = new WorkflowExecutionService(prisma);
-export const workflowStepService = new WorkflowStepService(prisma);
-export const workflowService = new WorkflowService(prisma);
-// Image generation
-export const fluxImageGenerator = new FluxImageGenerator({ apiKey: config.flux.apiKey });
-export const textToImageService = new TextToImageService(prisma, fluxImageGenerator, storageService);
-
-// Chat
-export const chatService = new ChatService(prisma, collectionService, embeddingService, tokenizerService, event);
-
-// Actions
-export const createNewUserAction = new CreatesNewUserAction(prisma);
-*/
-
 const { event } = useEvents();
 
 export const config = useRuntimeConfig();

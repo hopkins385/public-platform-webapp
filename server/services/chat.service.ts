@@ -67,8 +67,9 @@ export class ChatService {
   }
 
   async upsertMessages(payload: UpsertChatMessages) {
+    throw new Error('Method not implemented.');
     // update or create messages
-    const messages = payload.chatMessages.map(async (message) => {
+    /*const messages = payload.chatMessages.map(async (message) => {
       const { tokenCount } = await this.tokenizerService.getTokens(message.content);
       return this.prisma.chatMessage.upsert({
         where: {
@@ -87,7 +88,7 @@ export class ChatService {
         },
       });
     });
-    return messages;
+    return messages;*/
   }
 
   upsert(payload: UpsertChat) {
@@ -414,7 +415,7 @@ export class ChatService {
     return true;
   }
 
-  async canCreateChatPolicy(assistantId: string, teamId: string, userId: string) {
+  async canCreateChatPolicy(assistantId: string, teamId: string) {
     // find the assistant by id
     const assistant = await this.prisma.assistant.findFirst({
       where: {
