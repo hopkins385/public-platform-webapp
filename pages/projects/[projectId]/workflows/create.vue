@@ -4,7 +4,7 @@
    * Route: /projects/${projectId}/workflows/create
    */
   import { toTypedSchema } from '@vee-validate/zod';
-  import { useForm } from 'vee-validate';
+  import { useForm, configure } from 'vee-validate';
   import * as z from 'zod';
 
   definePageMeta({
@@ -32,6 +32,8 @@
 
   const acceptMimeTypes = allowedMimeTypes.join(',');
   const maxFileSize = 1 * 1024 * 1024; // 1MB
+
+  const isLoading = ref(false);
 
   const errorAlert = reactive({
     show: false,
@@ -90,6 +92,7 @@
   const { uploadManyFiles, attachMediaTo } = useManageMedia();
 
   const onSubmit = handleSubmit(async (values, { resetForm }) => {
+    isLoading.value = true;
     const file = values.file;
     try {
       const workflow = await createWorkflow({
@@ -126,13 +129,22 @@
     } catch (error: any) {
       errorAlert.show = true;
       errorAlert.message = error.message;
+    } finally {
+      isLoading.value = false;
     }
+  });
+
+  configure({
+    validateOnBlur: true,
+    validateOnChange: false,
+    validateOnInput: false,
+    validateOnModelUpdate: false,
   });
 </script>
 
 <template>
   <SectionContainer>
-    <ErrorAlert :message="errorAlert.message" v-model="errorAlert.show" />
+    <ErrorAlert v-model="errorAlert.show" :message="errorAlert.message" />
     <SectionHeading title="Create Workflow" />
     <div class="rounded-lg border bg-white p-10">
       <form class="space-y-8" @submit="onSubmit">
@@ -194,7 +206,7 @@
           </FormItem>
         </FormField>
         <div class="pt-5">
-          <Button type="submit">Create Workflow</Button>
+          <LoadingButton :is-loading="isLoading" type="submit">Create Workflow</LoadingButton>
         </div>
       </form>
     </div>

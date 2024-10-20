@@ -239,6 +239,7 @@ export default defineNuxtConfig({
   zodI18n: {
     localeCodesMapping: {
       'en-GB': 'en',
+      'en-UK': 'en',
       // 'de-DE': 'de',
     },
   },

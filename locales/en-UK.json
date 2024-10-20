@@ -197,5 +197,12 @@
         "description": "Send the message when the enter key is pressed."
       }
     }
+  },
+  "zodI18n": {
+    "errors": {
+      "invalid_string": {
+        "cuid2": "Please select a valid option."
+      }
+    }
   }
 }
