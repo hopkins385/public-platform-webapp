@@ -117,7 +117,7 @@ export class WorkflowService {
       throw new Error('No data found in the file');
     }
 
-    let newStepsCount = firstSheet.data?.[0].length - 1;
+    let newStepsCount = firstSheet.data?.[0].length;
 
     if (!newStepsCount || newStepsCount < 1) {
       throw new Error('No columns found in the file');
@@ -144,7 +144,7 @@ export class WorkflowService {
       });
     });
 
-    let newRowsCount = newData?.[0].length - 1;
+    let newRowsCount = newData?.[0].length;
 
     const newRowsCountLimit = 20;
     if (newRowsCount > newRowsCountLimit) {
