@@ -79,7 +79,6 @@ export class StreamService {
       });
 
       clearTimeout(timeoutId);
-
       this.logWarnings(initialResult.warnings);
 
       yield* this.handleStream(abortController, initialResult, payload, model, availableTools);

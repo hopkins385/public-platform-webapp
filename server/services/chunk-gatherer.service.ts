@@ -16,12 +16,8 @@ export class ChunkGatherer extends Transform {
     if (this.delayMs > 0) {
       // Use a Promise to await the delay, ensuring backpressure is maintained
       this.delay(this.delayMs)
-        .then(() => {
-          callback(null, chunk);
-        })
-        .catch((error) => {
-          callback(new Error('cannot transform chunk'));
-        });
+        .then(() => callback(null, chunk))
+        .catch(() => callback(new Error('cannot transform chunk')));
     } else {
       callback(null, chunk);
     }

@@ -71,8 +71,6 @@ export default defineEventHandler(async (_event) => {
   return readableStream;
 });
 
-function listenForResponseEvents(_event: H3Event) {}
-
 async function onResponseClose(payload: { chat: any; user: any; body: any; gathered: string | undefined }) {
   if (!payload.gathered || payload.gathered.length === 0) {
     logger.info('completion finished but gathered text empty. Aborting.');
