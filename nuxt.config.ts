@@ -133,6 +133,9 @@ export default defineNuxtConfig({
       // baseUrl: process.env.ANTHROPIC_BASE_URL,
       apiKey: process.env.ANTHROPIC_API_KEY,
     },
+    nvidia: {
+      apiKey: process.env.NVIDIA_API_KEY,
+    },
     serp: {
       apiKey: process.env.SERP_API_KEY,
     },

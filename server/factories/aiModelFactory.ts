@@ -43,6 +43,17 @@ class MistralProvider extends AiModelProvider {
   }
 }
 
+class NvidiaProvider extends AiModelProvider {
+  createModel() {
+    const nvidia = createOpenAI({
+      compatibility: 'compatible',
+      baseURL: 'https://integrate.api.nvidia.com/v1',
+      apiKey: this.apiKey,
+    });
+    return nvidia(this.model);
+  }
+}
+
 export class AiModelFactory {
   private constructor(
     private readonly provider: string,
@@ -52,7 +63,7 @@ export class AiModelFactory {
 
   static fromInput(payload: { provider: string; model: string }) {
     const config = useRuntimeConfig();
-    return new AiModelFactory(payload.provider, payload.model, config).getModel();
+    return new AiModelFactory(payload.provider, payload.model.toString(), config).getModel();
   }
 
   getModel() {
@@ -65,6 +76,8 @@ export class AiModelFactory {
         return new GroqProvider(this.model, this.config.groq.apiKey).createModel();
       case 'mistral':
         return new MistralProvider(this.model, this.config.mistral.apiKey).createModel();
+      case 'nvidia':
+        return new NvidiaProvider(this.model, this.config.nvidia.apiKey).createModel();
       default:
         throw new Error('Provider not supported');
     }

@@ -8,6 +8,10 @@ import { ChatToolCallEventDto } from '../events/dto/chatToolCallEvent.dto';
 import { getTools } from '../chatTools/chatTools';
 import { ChunkGatherer } from './chunk-gatherer.service';
 
+interface GenerateStreamOptions {
+  timeoutDuration?: number; // in milliseconds
+}
+
 const logger = consola.create({}).withTag('streamService');
 
 export class StreamService {
@@ -27,23 +31,44 @@ export class StreamService {
 
   createCallSettings(payload: StreamPayload) {
     const isPreview = payload.model.startsWith('o1-');
-    const availableTools = payload.provider !== 'groq' ? getTools(this.toolStartCallback(payload)) : undefined;
+    // const availableTools = payload.provider !== 'groq' ? getTools(this.toolStartCallback(payload)) : undefined;
+    const availableTools = () => {
+      switch (payload.provider) {
+        case ChatModelProviderEnum.GROQ:
+        case ChatModelProviderEnum.NVIDIA:
+          return undefined;
+        default:
+          return getTools(this.toolStartCallback(payload));
+      }
+    };
     return {
-      availableTools,
+      availableTools: availableTools(),
       settings: isPreview
         ? {}
         : {
             system: payload.systemPrompt,
-            tools: availableTools,
+            tools: availableTools(),
             maxTokens: payload.maxTokens,
           },
     };
   }
 
-  async *generateStream(_event: H3Event, abortController: AbortController, payload: StreamPayload) {
+  async *generateStream(
+    _event: H3Event,
+    abortController: AbortController,
+    payload: StreamPayload,
+    options: GenerateStreamOptions = {},
+  ) {
+    const timeoutDuration = options.timeoutDuration ?? 180000; // Default to 3 mins
     const model = AiModelFactory.fromInput({ provider: payload.provider, model: payload.model });
 
     const { settings: callSettings, availableTools } = this.createCallSettings(payload);
+
+    // Set up a timeout to abort the request after the specified duration
+    const timeoutId = setTimeout(() => {
+      abortController.abort();
+      logger.warn(`Request aborted after ${timeoutDuration}ms due to timeout.`);
+    }, timeoutDuration);
 
     try {
       const initialResult = await streamText({
@@ -53,11 +78,15 @@ export class StreamService {
         ...callSettings,
       });
 
+      clearTimeout(timeoutId);
+
       this.logWarnings(initialResult.warnings);
 
       yield* this.handleStream(abortController, initialResult, payload, model, availableTools);
     } catch (error) {
       this.handleStreamGeneratorError(_event, error);
+    } finally {
+      clearTimeout(timeoutId);
     }
   }
 
@@ -135,22 +164,16 @@ export class StreamService {
 
   private handleStreamGeneratorError(_event: H3Event, error: any) {
     if (error?.name === 'AbortError') return;
-    logger.error('handleStreamGeneratorError:', JSON.stringify(error));
+    logger.error('streamGeneratorError:', JSON.stringify(error));
+    _event.node.res.statusCode = 503;
     _event.node.res.end();
-    throw createError({
-      statusCode: 500,
-      statusMessage: error?.message || 'Internal Server Error',
-    });
   }
 
   handleStreamError(_event: H3Event, stream: any, error: any) {
-    logger.error('onStreamError:', JSON.stringify(error));
+    logger.error('streamError:', JSON.stringify(error));
     stream?.destroy();
+    _event.node.res.statusCode = 503;
     _event.node.res.end();
-    throw createError({
-      statusCode: 500,
-      statusMessage: error?.message || 'Internal Server Error',
-    });
   }
 
   private logWarnings(warnings: any[] | undefined) {
