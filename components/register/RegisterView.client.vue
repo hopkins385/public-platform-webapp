@@ -1,14 +1,7 @@
 <script setup lang="ts">
-  import { useForm, configure } from 'vee-validate';
+  import { useForm } from 'vee-validate';
   import { toTypedSchema } from '@vee-validate/zod';
   import * as z from 'zod';
-
-  configure({
-    validateOnBlur: false,
-    validateOnChange: false,
-    validateOnInput: false,
-    validateOnModelUpdate: false,
-  });
 
   const localePath = useLocalePath();
   const { register } = useRegister();
@@ -57,9 +50,7 @@
 </script>
 
 <template>
-  <div
-    class="flex h-full flex-col items-center justify-center space-y-8 p-10 lg:px-28"
-  >
+  <div class="flex h-full flex-col items-center justify-center space-y-8 p-10 lg:px-28">
     <h2 class="text-2xl font-bold">{{ $t('auth.register') }}</h2>
     <div v-if="formError" class="text-sm text-destructive">{{ formError }}</div>
     <form class="w-full space-y-3 lg:max-w-sm" @submit="onSubmit">
@@ -92,12 +83,7 @@
       <FormField v-slot="{ componentField }" name="email">
         <FormItem>
           <FormControl>
-            <Input
-              type="email"
-              autocomplete="username"
-              :placeholder="$t('register.email')"
-              v-bind="componentField"
-            />
+            <Input type="email" autocomplete="username" :placeholder="$t('register.email')" v-bind="componentField" />
           </FormControl>
           <FormMessage />
         </FormItem>

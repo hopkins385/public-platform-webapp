@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { useForm, configure } from 'vee-validate';
+  import { useForm } from 'vee-validate';
   import { assistantFormSchema } from '~/schemas/assistant.form';
 
   definePageMeta({
@@ -45,13 +45,6 @@
           description: 'Failed to create assistant',
         });
       });
-  });
-
-  configure({
-    validateOnBlur: true,
-    validateOnChange: false,
-    validateOnInput: false,
-    validateOnModelUpdate: false,
   });
 </script>
 

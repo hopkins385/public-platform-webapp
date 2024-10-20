@@ -4,7 +4,7 @@
    * Route: /projects/${projectId}/workflows/create
    */
   import { toTypedSchema } from '@vee-validate/zod';
-  import { useForm, configure } from 'vee-validate';
+  import { useForm } from 'vee-validate';
   import * as z from 'zod';
 
   definePageMeta({
@@ -132,13 +132,6 @@
     } finally {
       isLoading.value = false;
     }
-  });
-
-  configure({
-    validateOnBlur: true,
-    validateOnChange: false,
-    validateOnInput: false,
-    validateOnModelUpdate: false,
   });
 </script>
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { toTypedSchema } from '@vee-validate/zod';
-  import { useForm, configure } from 'vee-validate';
+  import { useForm } from 'vee-validate';
   import { Trash2Icon } from 'lucide-vue-next';
   import * as z from 'zod';
 
@@ -9,13 +9,6 @@
   const open = ref(false);
   const showConfirm = ref(false);
   const isLoading = ref(false);
-
-  configure({
-    validateOnBlur: false,
-    validateOnChange: false,
-    validateOnInput: false,
-    validateOnModelUpdate: false,
-  });
 
   const passwordSchema = toTypedSchema(
     z.object({
@@ -87,12 +80,7 @@
               <FormControl>
                 <div class="flex">
                   <div class="relative w-full">
-                    <Input
-                      type="password"
-                      placeholder=""
-                      v-bind="componentField"
-                      autocomplete="off"
-                    />
+                    <Input type="password" placeholder="" v-bind="componentField" autocomplete="off" />
                   </div>
                 </div>
               </FormControl>
@@ -103,18 +91,12 @@
       </div>
 
       <DialogFooter as-child>
-        <div class="space-x-2" v-if="!showConfirm">
+        <div v-if="!showConfirm" class="space-x-2">
           <Button variant="outline" @click="onCancel">Cancel</Button>
           <Button variant="outline" @click="onDelete">Delete</Button>
         </div>
         <div v-else class="space-x-2">
-          <LoadingButton
-            variant="outline"
-            @click="onSubmit"
-            :is-loading="isLoading"
-          >
-            Delete Account
-          </LoadingButton>
+          <LoadingButton variant="outline" :is-loading="isLoading" @click="onSubmit"> Delete Account </LoadingButton>
           <Button variant="outline" @click="onCancel">Cancel</Button>
         </div>
       </DialogFooter>

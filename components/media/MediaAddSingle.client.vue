@@ -1,14 +1,7 @@
 <script setup lang="ts">
   import { toTypedSchema } from '@vee-validate/zod';
-  import { useForm, configure } from 'vee-validate';
+  import { useForm } from 'vee-validate';
   import * as z from 'zod';
-
-  configure({
-    validateOnBlur: false,
-    // validateOnChange: false,
-    // validateOnInput: false,
-    // validateOnModelUpdate: true,
-  });
 
   const props = defineProps<{
     id: string;
@@ -71,9 +64,7 @@
         <FormControl>
           <Input type="file" @change="handleChange" @blur="handleBlur" />
         </FormControl>
-        <FormDescription>
-          PDF, TXT or MS Word. Max. 1000 Words.
-        </FormDescription>
+        <FormDescription> PDF, TXT or MS Word. Max. 1000 Words. </FormDescription>
         <FormMessage />
       </FormItem>
     </FormField>

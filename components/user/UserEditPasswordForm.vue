@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import { toTypedSchema } from '@vee-validate/zod';
   import { LoaderCircleIcon } from 'lucide-vue-next';
-  import { useForm, configure } from 'vee-validate';
+  import { useForm } from 'vee-validate';
   import * as z from 'zod';
 
   const emit = defineEmits<{
@@ -53,71 +53,45 @@
         isLoading.value = false;
       });
   });
-
-  configure({
-    validateOnBlur: false,
-  });
 </script>
 
 <template>
   <form class="mt-3 space-y-5" @submit="onSubmit">
-    <div class="text-sm text-destructive" v-if="error !== ''">
-      Error: {{ error }}
-    </div>
-    <FormField name="password" v-slot="{ componentField }">
+    <div v-if="error !== ''" class="text-sm text-destructive">Error: {{ error }}</div>
+    <FormField v-slot="{ componentField }" name="password">
       <FormItem>
         <FormLabel>Current Password</FormLabel>
         <FormControl>
-          <Input
-            type="password"
-            autocomplete="current-password"
-            v-bind="componentField"
-          />
+          <Input type="password" autocomplete="current-password" v-bind="componentField" />
         </FormControl>
         <FormMessage />
       </FormItem>
     </FormField>
-    <FormField name="newPassword" v-slot="{ componentField }">
+    <FormField v-slot="{ componentField }" name="newPassword">
       <FormItem>
         <FormLabel>New Password</FormLabel>
         <FormControl>
-          <Input
-            type="password"
-            autocomplete="new-password"
-            v-bind="componentField"
-          />
+          <Input type="password" autocomplete="new-password" v-bind="componentField" />
         </FormControl>
         <FormMessage />
       </FormItem>
     </FormField>
-    <FormField name="newPasswordConfirm" v-slot="{ componentField }">
+    <FormField v-slot="{ componentField }" name="newPasswordConfirm">
       <FormItem>
         <FormLabel>Confirm New Password</FormLabel>
         <FormControl>
-          <Input
-            type="password"
-            autocomplete="new-password"
-            v-bind="componentField"
-          />
+          <Input type="password" autocomplete="new-password" v-bind="componentField" />
         </FormControl>
         <FormMessage />
       </FormItem>
     </FormField>
     <div class="flex space-x-4 pt-3">
       <div class="w-full"></div>
-      <Button
-        class="whitespace-nowrap"
-        variant="ghost"
-        :disabled="isLoading"
-        @click="emit('closeModal')"
-      >
+      <Button class="whitespace-nowrap" variant="ghost" :disabled="isLoading" @click="emit('closeModal')">
         Cancel
       </Button>
       <Button class="whitespace-nowrap" variant="outline" :disabled="isLoading">
-        <LoaderCircleIcon
-          v-if="isLoading"
-          class="mr-2 size-4 animate-spin opacity-80"
-        />
+        <LoaderCircleIcon v-if="isLoading" class="mr-2 size-4 animate-spin opacity-80" />
         Save Password
       </Button>
     </div>
