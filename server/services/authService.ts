@@ -3,12 +3,13 @@
 import type { H3Event } from 'h3';
 import { getServerSession } from '#auth';
 import type { SessionUser } from '../schemas/loginSchema';
+import { UnauthorizedError } from '../errors/UnauthorizedError';
 
 export class AuthService {
   async getAuthUser(_event: H3Event): Promise<SessionUser> {
     const session = await getServerSession(_event);
     if (!session || !session.user) {
-      throw new Error('User not authenticated');
+      throw UnauthorizedError();
     }
     return session.user as SessionUser;
   }
