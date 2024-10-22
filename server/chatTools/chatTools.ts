@@ -3,6 +3,7 @@ import { tool } from 'ai';
 import { scrapeWebsite } from '~/server/utils/scrapeWebsite';
 import { scrapeYoutube } from '~/server/utils/scrapeYoutube';
 import { searchWeb } from '~/server/utils/searchWeb';
+import { getGoogleMapsDirections } from '../utils/getDirections';
 
 export interface ToolInfoData {
   toolName: string;
@@ -21,9 +22,10 @@ interface ToolConfig {
 }
 
 async function generateImage(imageDescription: string) {
+  const imgUrl = `https://via.placeholder.com/500?text=${encodeURIComponent(imageDescription)}`;
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve({ imageUrl: 'https://via.placeholder.com/150' });
+      resolve({ imageUrl: imgUrl });
     }, 1000);
   });
 }
@@ -31,16 +33,29 @@ async function generateImage(imageDescription: string) {
 // Define tool configurations
 const toolConfigs: ToolConfig[] = [
   {
-    name: 'imageGenerator',
-    description: 'Generates an image by describing it',
+    name: 'directions',
+    description: 'Get directions between two or more locations and optional including waypoints',
     parameters: {
-      imageDescription: z.string().min(1).max(4000).describe('The text to describe an image'),
+      start: z.string().min(1).max(100).describe('The starting location'),
+      destination: z.string().min(1).max(100).describe('The destination location'),
+      waypoints: z.array(z.string().min(1).max(100)).optional().describe('The waypoints to visit along the way'),
     },
-    execute: async ({ imageDescription }, emitToolInfoData) => {
-      emitToolInfoData({ toolName: 'imageGenerator', toolInfo: `${imageDescription}` });
-      return generateImage(imageDescription);
+    execute: async ({ start, destination, waypoints }, emitToolInfoData) => {
+      emitToolInfoData({ toolName: 'directions', toolInfo: `${start} to ${destination}` });
+      return await getGoogleMapsDirections(start, destination, waypoints);
     },
   },
+  // {
+  //   name: 'imageGenerator',
+  //   description: 'Generates an image by describing it',
+  //   parameters: {
+  //     imageDescription: z.string().min(1).max(4000).describe('The text to describe an image'),
+  //   },
+  //   execute: async ({ imageDescription }, emitToolInfoData) => {
+  //     emitToolInfoData({ toolName: 'imageGenerator', toolInfo: `${imageDescription}` });
+  //     return await generateImage(imageDescription);
+  //   },
+  // },
   {
     name: 'website',
     description: 'Get information about a website',

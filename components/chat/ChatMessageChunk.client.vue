@@ -8,9 +8,7 @@
 </script>
 
 <template>
-  <ChatMessageBoxWrapper
-    :displayName="assistantName ?? $t('assistant.placeholder')"
-  >
+  <ChatMessageBoxWrapper :display-name="assistantName ?? $t('assistant.placeholder')">
     <div v-dompurify-html="parseMarkdown(chunk)" class="w-full pr-10"></div>
   </ChatMessageBoxWrapper>
 </template>
