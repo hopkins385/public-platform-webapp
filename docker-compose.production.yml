@@ -13,7 +13,7 @@ services:
       - 'traefik.http.services.webapp.loadbalancer.sticky.cookie.httpOnly=true'
       - 'traefik.http.services.webapp.loadbalancer.sticky.cookie.samesite=Strict'
       # HTTP Routers
-      - 'traefik.http.routers.webapp.rule=Host(`platform.ragna-ai.com`)'
+      - 'traefik.http.routers.webapp.rule=Host(`platform.ragna.app`)'
       - 'traefik.http.routers.webapp.entrypoints=https'
       - 'traefik.http.routers.webapp.service=webapp'
       - 'traefik.http.routers.webapp.middlewares=crowdsec-bouncer@file,default@file' #,gzip@file
