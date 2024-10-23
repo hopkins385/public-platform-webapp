@@ -15,6 +15,7 @@
 
   const props = defineProps<{
     chatId: string;
+    chatTitle?: string;
     assistant?: any;
     chatMessages?: ChatMessage[];
   }>();
@@ -350,14 +351,14 @@
       initMessages(props.chatMessages);
       scrollToBottom({ instant: true });
     }
-    socket.on(`chat-${props.chatId}-tool-start-event`, (data: ToolInfoData) => setActiveTool(data));
-    socket.on(`chat-${props.chatId}-tool-end-event`, (toolName) => unsetActiveTool(toolName));
+    socket.on(`chat-${props.chatId}-tool-start-event`, setActiveTool);
+    socket.on(`chat-${props.chatId}-tool-end-event`, unsetActiveTool);
   });
 
   onBeforeUnmount(() => {
     abortChatRequest();
-    socket.off(`chat-${props.chatId}-tool-start-event`, (d) => setActiveTool(d));
-    socket.off(`chat-${props.chatId}-tool-end-event`, (toolName) => unsetActiveTool(toolName));
+    socket.off(`chat-${props.chatId}-tool-start-event`, setActiveTool);
+    socket.off(`chat-${props.chatId}-tool-end-event`, unsetActiveTool);
   });
 </script>
 
@@ -365,20 +366,29 @@
   <BoxContainer
     id="chatWrapper"
     ref="chatBoxContainerRef"
-    class="relative flex size-full flex-col border-0 px-10 pb-10 pt-20"
+    class="relative flex size-full flex-col border-0 px-10 pb-10 pt-16"
     :class="{
       'md:px-20 2xl:px-40': !settings.sideBarOpen,
     }"
   >
     <!-- chat header -->
-    <div id="chatHeader" class="pointer-events-none absolute left-0 top-0 z-10 flex w-full justify-between px-8 py-5">
+    <div
+      id="chatHeader"
+      class="pointer-events-none absolute left-0 top-0 z-10 flex w-full justify-between border-0 bg-white px-8 py-4"
+    >
       <!-- chat model selector -->
       <div class="pointer-events-auto flex items-center space-x-4 text-muted-foreground">
         <ChatModelSelector />
       </div>
       <!-- active assistant -->
       <div class="flex shrink items-center 2xl:pr-8">
-        <AssistantDetailsActive :key="assistant?.id" :assistant="assistant" />
+        <ChatWindowHeader
+          :key="assistant?.id"
+          :is-hidden="settings.sideBarOpen"
+          :chat-id="chatId"
+          :assistant-title="assistant?.title"
+          :chat-title="chatTitle"
+        />
       </div>
       <!-- chat actions -->
       <div class="pointer-events-auto flex shrink-0 space-x-3">
@@ -495,7 +505,7 @@
       </!-->
     </div>
     <!-- Input wrapper -->
-    <div id="chatInputWrapper" class="relative shrink-0 pt-5">
+    <div id="chatInputWrapper" class="relative shrink-0 pt-1">
       <!-- Image input -->
       <ChatImageInput v-model:input-images="inputImages" />
       <div class="flex space-x-1">

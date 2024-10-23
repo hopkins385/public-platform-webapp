@@ -7,6 +7,7 @@ import { trackTokensEvent } from '../events/track-tokens.event';
 import { useEvents } from '../events/useEvents';
 import type { AssistantJobDto } from '../services/dto/job.dto';
 import consola from 'consola';
+import socket from '../socket';
 
 const logger = consola.create({}).withTag('bullmq-workers');
 
@@ -41,6 +42,10 @@ You always only respond with the chat title.`,
 
   await services.chatService.updateChatTitle(payload.chatId, chatTitle);
   //
+  // send socket event to user
+  const event = `chat-${payload.chatId}-update-title-event`;
+  const data = { chatId: payload.chatId, chatTitle };
+  socket.emitEvent({ room: `user:${payload.userId}`, event, data });
 }
 
 export async function handleTokenUsage(job: Job) {

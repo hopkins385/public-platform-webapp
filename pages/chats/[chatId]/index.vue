@@ -36,6 +36,7 @@
         <ChatWindow
           v-if="chat"
           :chat-id="chat?.id"
+          :chat-title="chat?.title"
           :chat-messages="chat?.messages"
           :assistant="chat?.assistant"
           :class="chatSettings.sideBarOpen ? 'w-1/2' : 'w-full'"
