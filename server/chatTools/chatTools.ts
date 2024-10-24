@@ -47,18 +47,18 @@ const toolConfigs: ToolConfig[] = [
       return await getGoogleMapsDirections(start, destination, waypoints);
     },
   },
-  {
-    id: 2,
-    name: 'imageGenerator',
-    description: 'Generates an image by describing it',
-    parameters: {
-      imageDescription: z.string().min(1).max(4000).describe('The text to describe an image'),
-    },
-    execute: async ({ imageDescription }, emitToolInfoData) => {
-      emitToolInfoData({ toolName: 'imageGenerator', toolInfo: `${imageDescription}` });
-      return await generateImage(imageDescription);
-    },
-  },
+  // {
+  //   id: 2,
+  //   name: 'imageGenerator',
+  //   description: 'Generates an image by describing it',
+  //   parameters: {
+  //     imageDescription: z.string().min(1).max(4000).describe('The text to describe an image'),
+  //   },
+  //   execute: async ({ imageDescription }, emitToolInfoData) => {
+  //     emitToolInfoData({ toolName: 'imageGenerator', toolInfo: `${imageDescription}` });
+  //     return await generateImage(imageDescription);
+  //   },
+  // },
   {
     id: 3,
     name: 'website',

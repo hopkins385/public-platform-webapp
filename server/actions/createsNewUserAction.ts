@@ -146,11 +146,29 @@ export class CreatesNewUserAction {
     });
   }
 
+  async getAllTools() {
+    return this.prisma.tool.findMany();
+  }
+
   async createAssistant(payload: NewAssistantDto) {
     const llm = await this.findSuitableLLM();
 
     if (!llm) {
       throw new Error('No suitable LLM found');
+    }
+
+    const date = new Date();
+
+    const tools = await this.getAllTools().then((tools) =>
+      tools.map((tool) => ({
+        toolId: tool.id,
+        createdAt: date,
+        updatedAt: date,
+      })),
+    );
+
+    if (!tools.length) {
+      throw new Error('No tools found');
     }
 
     return this.prisma.assistant.create({
@@ -162,8 +180,13 @@ export class CreatesNewUserAction {
         systemPrompt: 'You are a friendly and helpful assistant\n',
         isShared: false,
         systemPromptTokenCount: 10,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: date,
+        updatedAt: date,
+        tools: {
+          createMany: {
+            data: tools,
+          },
+        },
       },
     });
   }
