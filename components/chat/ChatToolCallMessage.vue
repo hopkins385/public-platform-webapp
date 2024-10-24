@@ -9,7 +9,7 @@
 
 <template>
   <div class="chatbox__text-box rounded-lg bg-white px-10 py-3 text-sm">
-    <div class="flex space-x-3">
+    <div class="flex items-center justify-start space-x-3">
       <div class="size-6 shrink-0 rounded-full bg-slate-200"></div>
       <!-- tool -->
       <div class="space-y-4">

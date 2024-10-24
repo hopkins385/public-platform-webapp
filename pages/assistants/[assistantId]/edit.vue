@@ -19,6 +19,7 @@
   const { assistantId } = useRoute().params;
   const { data: auth } = useAuth();
   const toast = useToast();
+  const router = useRouter();
 
   const assistantModel = ref({
     type: 'assistant',
@@ -71,26 +72,24 @@
     },
   });
 
-  const onSubmit = handleSubmit((values) => {
+  const onSubmit = handleSubmit(async (values) => {
     if (!assistant.value) {
       throw new Error('Assistant not found');
     }
-    console.log('values', values);
-    updateAssistant({
+    await updateAssistant({
       id: assistant.value.id,
       ...values,
       systemPromptTokenCount: 1, // TODO: calculate token count
     })
-      .then(async () => {
-        await refresh();
+      .then(() => {
         toast.success({
           description: 'Assistant updated successfully',
         });
-        // navigateTo('/assistants');
+        router.back();
       })
       .catch((error: any) => {
         toast.error({
-          description: error.message,
+          description: 'Failed to update assistant',
         });
       });
   });

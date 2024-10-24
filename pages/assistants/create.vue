@@ -15,9 +15,6 @@
   const { data: auth } = useAuth();
   const toast = useToast();
 
-  // const { getAllTools } = useAssistantTools();
-  // const { data: tools } = await getAllTools();
-
   const { handleSubmit } = useForm({
     validationSchema: assistantFormSchema,
     initialValues: {
@@ -31,8 +28,8 @@
     },
   });
 
-  const onSubmit = handleSubmit((values, { resetForm }) => {
-    createAssistant({
+  const onSubmit = handleSubmit(async (values, { resetForm }) => {
+    await createAssistant({
       ...values,
       systemPromptTokenCount: 1,
     })
