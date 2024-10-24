@@ -22,8 +22,8 @@ export async function getGoogleMapsDirections(
     const encodedOrigin = encodeURIComponent(origin);
     const encodedDestination = encodeURIComponent(destination);
 
-    logger.info(`Encoded origin: ${encodedOrigin}`);
-    logger.info(`Encoded destination: ${encodedDestination}`);
+    // logger.info(`Encoded origin: ${encodedOrigin}`);
+    // logger.info(`Encoded destination: ${encodedDestination}`);
 
     // Create a Google Maps URL with the route
     let mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodedOrigin}&destination=${encodedDestination}`;
@@ -35,7 +35,7 @@ export async function getGoogleMapsDirections(
       logger.info(`Encoded waypoints: ${encodedWaypoints}`);
     }
 
-    logger.info(`Generated Google Maps URL: ${mapsUrl}`);
+    // logger.info(`Generated Google Maps URL: ${mapsUrl}`);
 
     const waypointsStr = waypoints.length > 0 ? ` via ${waypoints.join(', ')}` : '';
     const result = {
@@ -45,7 +45,7 @@ export async function getGoogleMapsDirections(
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    logger.info(`Returning result: ${JSON.stringify(result)}`);
+    // logger.info(`Returning result: ${JSON.stringify(result)}`);
 
     return result;
   } catch (e: any) {

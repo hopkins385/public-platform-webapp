@@ -8,7 +8,7 @@ export const assistantSchema = z.object({
   description: z.string().min(3).max(255),
   systemPrompt: z.string().min(3).max(6000),
   isShared: z.boolean().default(false),
-  functions: z.array(z.string()),
+  tools: z.array(z.string().cuid2()),
 });
 
 export const assistantFormSchema = toTypedSchema(assistantSchema);

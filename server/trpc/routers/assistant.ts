@@ -23,6 +23,7 @@ export const assistantRouter = router({
         systemPrompt: z.string(),
         isShared: z.boolean().default(false).optional(),
         systemPromptTokenCount: z.number(),
+        tools: z.array(z.string().cuid2()),
       }),
     )
     .mutation(async ({ ctx: { user, services }, input }) => {
@@ -78,6 +79,7 @@ export const assistantRouter = router({
         systemPrompt: z.string(),
         isShared: z.boolean().optional(),
         systemPromptTokenCount: z.number(),
+        tools: z.array(z.string().cuid2()),
       }),
     )
     .mutation(async ({ ctx: { user, services }, input }) => {
@@ -95,7 +97,19 @@ export const assistantRouter = router({
         throw new ForbiddenError();
       }
 
-      return await services.assistantService.update(UpdateAssistantDto.fromInput(input));
+      return await services.assistantService.update(
+        UpdateAssistantDto.fromInput({
+          id: input.id,
+          teamId: input.teamId,
+          llmId: input.llmId,
+          title: input.title,
+          description: input.description,
+          systemPrompt: input.systemPrompt,
+          isShared: input.isShared,
+          systemPromptTokenCount: input.systemPromptTokenCount,
+          tools: input.tools,
+        }),
+      );
     }),
   // delete assistant by id
   delete: protectedProcedure

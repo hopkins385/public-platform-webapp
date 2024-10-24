@@ -32,22 +32,15 @@ export class StreamService {
   createCallSettings(payload: StreamPayload) {
     const isPreview = payload.model.startsWith('o1-');
     // const availableTools = payload.provider !== 'groq' ? getTools(this.toolStartCallback(payload)) : undefined;
-    const availableTools = () => {
-      switch (payload.provider) {
-        case ChatModelProviderEnum.GROQ:
-        case ChatModelProviderEnum.NVIDIA:
-          return undefined;
-        default:
-          return getTools(this.toolStartCallback(payload));
-      }
-    };
+    const availableTools = getTools(payload.functionIds, this.toolStartCallback(payload));
+
     return {
-      availableTools: availableTools(),
+      availableTools,
       settings: isPreview
         ? {}
         : {
             system: payload.systemPrompt,
-            tools: availableTools(),
+            tools: availableTools,
             maxTokens: payload.maxTokens,
           },
     };
@@ -211,6 +204,7 @@ export class StreamService {
 interface StreamPayload {
   userId: string;
   chatId: string;
+  functionIds: number[];
   model: string;
   provider: string;
   messages: any[];

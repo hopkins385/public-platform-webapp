@@ -1,5 +1,6 @@
 <script setup lang="ts">
   import { useForm } from 'vee-validate';
+  import useAssistantTools from '~/composables/useAssistantTools';
   import { assistantFormSchema } from '~/schemas/assistant.form';
 
   definePageMeta({
@@ -29,6 +30,9 @@
 
   const { findAllFor } = useManageCollections();
   const { data: collections, refresh: refreshCollections } = await findAllFor(assistantModel.value, { lazy: false });
+
+  const { getAllTools } = useAssistantTools();
+  const { data: tools } = await getAllTools();
 
   async function updateCollection(collectionId: string) {
     const { replaceCollectionTo } = useManageCollectionAbles();
@@ -63,7 +67,7 @@
       description: assistant.value?.description || '',
       systemPrompt: assistant.value?.systemPrompt || '',
       isShared: assistant.value?.isShared || false,
-      functions: ['webSearch', 'website', 'ytTranscript'],
+      tools: assistant.value?.tools?.map((tool) => tool.toolId) || [],
     },
   });
 
@@ -71,16 +75,18 @@
     if (!assistant.value) {
       throw new Error('Assistant not found');
     }
+    console.log('values', values);
     updateAssistant({
       id: assistant.value.id,
       ...values,
       systemPromptTokenCount: 1, // TODO: calculate token count
     })
-      .then(() => {
+      .then(async () => {
+        await refresh();
         toast.success({
           description: 'Assistant updated successfully',
         });
-        navigateTo('/assistants');
+        // navigateTo('/assistants');
       })
       .catch((error: any) => {
         toast.error({
@@ -91,24 +97,6 @@
 
   const initialAssistantName = computed(() => assistant.value?.llm.displayName ?? 'Select AI Model');
   const initialCollectionName = computed(() => collections.value[0]?.name ?? 'Select Knowledge Collection');
-
-  const availableFunctions = [
-    {
-      id: 'webSearch',
-      label: 'Web Search',
-      disabled: true,
-    },
-    {
-      id: 'website',
-      label: 'Website Scraper',
-      disabled: true,
-    },
-    {
-      id: 'ytTranscript',
-      label: 'YouTube Transcript',
-      disabled: true,
-    },
-  ];
 </script>
 
 <template>
@@ -202,7 +190,7 @@
           </FormItem>
         </FormField>
 
-        <FormField name="functions">
+        <FormField name="tools">
           <FormItem>
             <div class="mb-4 space-y-2">
               <FormLabel> Functions (optional)</FormLabel>
@@ -210,25 +198,19 @@
             </div>
 
             <FormField
-              v-for="item in availableFunctions"
+              v-for="item in tools"
               v-slot="{ value, handleChange }"
               :key="item.id"
               type="checkbox"
               :value="item.id"
               :unchecked-value="false"
-              name="functions"
+              name="tools"
             >
               <FormItem class="flex flex-row items-start space-x-3 space-y-0">
                 <FormControl>
-                  <Checkbox
-                    :checked="value?.includes(item.id)"
-                    :disabled="item.disabled"
-                    @update:checked="handleChange"
-                  />
+                  <Checkbox :checked="value?.includes(item.id)" @update:checked="handleChange" />
                 </FormControl>
-                <FormLabel class="font-normal">
-                  {{ item.label }}
-                </FormLabel>
+                <FormLabel class="font-normal"> {{ item.name }} </FormLabel>
               </FormItem>
             </FormField>
             <FormMessage />

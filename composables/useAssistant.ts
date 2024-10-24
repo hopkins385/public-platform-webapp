@@ -27,6 +27,7 @@ export default function useManageAssistants() {
   }
 
   function getAssistantDetails() {
+    throw new Error('Function not implemented.');
     return useAsyncData(`assistantDetail:${assistantId}`, async () => {
       if (!assistantId) return;
       const assistant = await $client.assistant.details.query(

@@ -20,6 +20,7 @@ import { adminRouter } from './admin';
 import { usageRouter } from './usage';
 import { onboardingRouter } from './onboarding';
 import { textToImageRouter } from './text-to-image';
+import { toolRouter } from './tool';
 
 export const appRouter = router({
   onboarding: onboardingRouter,
@@ -27,6 +28,7 @@ export const appRouter = router({
   usage: usageRouter,
   llms: llmsRouter,
   chat: chatRouter,
+  tool: toolRouter,
   collection: collectionRouter,
   collectionAble: collectionAbleRouter,
   record: recordRouter,

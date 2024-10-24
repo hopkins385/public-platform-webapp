@@ -34,6 +34,7 @@ export class CreateAssistantDto {
   readonly systemPrompt: string;
   readonly isShared: boolean | undefined;
   readonly systemPromptTokenCount: number;
+  readonly tools: string[];
 
   constructor(
     teamId: string,
@@ -43,6 +44,7 @@ export class CreateAssistantDto {
     systemPrompt: string,
     isShared: boolean | undefined,
     systemPromptTokenCount: number,
+    tools: string[],
   ) {
     this.teamId = teamId.toLowerCase();
     this.llmId = llmId.toLowerCase();
@@ -51,6 +53,7 @@ export class CreateAssistantDto {
     this.systemPrompt = systemPrompt.toString();
     this.isShared = Boolean(isShared);
     this.systemPromptTokenCount = Number(systemPromptTokenCount);
+    this.tools = tools;
   }
 
   static fromInput(input: {
@@ -61,6 +64,7 @@ export class CreateAssistantDto {
     systemPrompt: string;
     isShared?: boolean | undefined;
     systemPromptTokenCount: number;
+    tools: string[];
   }): CreateAssistantDto {
     return new CreateAssistantDto(
       input.teamId,
@@ -70,6 +74,7 @@ export class CreateAssistantDto {
       input.systemPrompt,
       input.isShared || false,
       input.systemPromptTokenCount,
+      input.tools,
     );
   }
 }
@@ -83,6 +88,7 @@ export class UpdateAssistantDto {
   readonly systemPrompt: string;
   readonly isShared: boolean | undefined;
   readonly systemPromptTokenCount: number;
+  readonly tools: string[];
 
   constructor(
     teamId: string,
@@ -93,6 +99,7 @@ export class UpdateAssistantDto {
     systemPrompt: string,
     isShared: boolean | undefined,
     systemPromptTokenCount: number,
+    tools: string[],
   ) {
     this.teamId = teamId.toLowerCase();
     this.llmId = llmId.toLowerCase();
@@ -102,6 +109,7 @@ export class UpdateAssistantDto {
     this.systemPrompt = systemPrompt.toString();
     this.isShared = Boolean(isShared);
     this.systemPromptTokenCount = Number(systemPromptTokenCount);
+    this.tools = tools;
   }
 
   static fromInput(input: {
@@ -113,6 +121,7 @@ export class UpdateAssistantDto {
     systemPrompt: string;
     isShared?: boolean | undefined;
     systemPromptTokenCount: number;
+    tools: string[];
   }): UpdateAssistantDto {
     return new UpdateAssistantDto(
       input.teamId,
@@ -123,6 +132,7 @@ export class UpdateAssistantDto {
       input.systemPrompt,
       input.isShared || false,
       input.systemPromptTokenCount,
+      input.tools,
     );
   }
 }

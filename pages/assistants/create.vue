@@ -15,6 +15,9 @@
   const { data: auth } = useAuth();
   const toast = useToast();
 
+  // const { getAllTools } = useAssistantTools();
+  // const { data: tools } = await getAllTools();
+
   const { handleSubmit } = useForm({
     validationSchema: assistantFormSchema,
     initialValues: {
@@ -24,7 +27,7 @@
       description: '',
       systemPrompt: '',
       isShared: false,
-      functions: [],
+      tools: [],
     },
   });
 
@@ -106,7 +109,8 @@
           </FormItem>
         </FormField>
 
-        <div class="hidden text-sm">Capababilities<br />tbd</div>
+        <AssistantToolsFormField />
+
         <div class="hidden text-sm">Knowledge Base<br />tbd</div>
 
         <FormField v-slot="{ handleChange, value }" type="checkbox" name="isShared">

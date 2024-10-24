@@ -195,18 +195,19 @@ model ChatMessage {
 }
 
 model Assistant {
-  id                     String         @id @default(cuid())
-  teamId                 String         @map("team_id")
-  llmId                  String         @map("llm_id")
+  id                     String          @id @default(cuid())
+  teamId                 String          @map("team_id")
+  llmId                  String          @map("llm_id")
   title                  String
   description            String
-  systemPrompt           String         @map("system_prompt") @db.Text
-  systemPromptTokenCount Int            @map("system_prompt_token_count")
-  isShared               Boolean        @default(false) @map("is_shared")
-  createdAt              DateTime       @default(now()) @map("created_at")
-  updatedAt              DateTime       @updatedAt @map("updated_at")
-  deletedAt              DateTime?      @map("deleted_at")
+  systemPrompt           String          @map("system_prompt") @db.Text
+  systemPromptTokenCount Int             @map("system_prompt_token_count")
+  isShared               Boolean         @default(false) @map("is_shared")
+  createdAt              DateTime        @default(now()) @map("created_at")
+  updatedAt              DateTime        @updatedAt @map("updated_at")
+  deletedAt              DateTime?       @map("deleted_at")
   chats                  Chat[]
+  tools                  AssistantTool[]
   workflowSteps          WorkflowStep[]
 
   team Team           @relation(fields: [teamId], references: [id])
@@ -214,6 +215,35 @@ model Assistant {
 
   @@index([teamId, llmId], name: "assistants_team_id_llm_id_index")
   @@map("assistants")
+}
+
+model Tool {
+  id           String          @id @default(cuid())
+  functionId   Int             @unique @map("function_id") @db.SmallInt
+  functionName String          @map("function_name")
+  name         String
+  description  String?
+  createdAt    DateTime        @default(now()) @map("created_at")
+  updatedAt    DateTime        @updatedAt @map("updated_at")
+  deletedAt    DateTime?       @map("deleted_at")
+  assistants   AssistantTool[]
+
+  @@map("tools")
+}
+
+model AssistantTool {
+  id          String    @id @default(cuid())
+  assistantId String    @map("assistant_id")
+  toolId      String    @map("tool_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  assistant Assistant @relation(fields: [assistantId], references: [id])
+  tool      Tool      @relation(fields: [toolId], references: [id])
+
+  @@index([assistantId, toolId], name: "assistant_tools_assistant_id_tool_id_index")
+  @@map("assistant_tools")
 }
 
 model LargeLangModel {

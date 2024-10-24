@@ -1,3 +1,4 @@
+import type { AssistantToolService } from './assistant-tool.service';
 import type {
   FindAllAssistantsDto,
   FindAssistantDto,
@@ -9,10 +10,11 @@ import type { ExtendedPrismaClient } from '../prisma';
 import type { SessionUser } from '../schemas/loginSchema';
 
 export class AssistantService {
-  private readonly prisma: ExtendedPrismaClient;
-  private defaultSystemPrompt: Record<string, string>;
-
-  constructor(prisma: ExtendedPrismaClient) {
+  constructor(
+    private readonly prisma: ExtendedPrismaClient,
+    private readonly assistantToolService: AssistantToolService,
+    private defaultSystemPrompt: Record<string, string>,
+  ) {
     if (!prisma) {
       throw new Error('Prisma client not found');
     }
@@ -43,7 +45,7 @@ export class AssistantService {
     }
   }
 
-  create(payload: CreateAssistantDto) {
+  async create(payload: CreateAssistantDto) {
     return this.prisma.assistant.create({
       data: {
         teamId: payload.teamId,
@@ -55,11 +57,18 @@ export class AssistantService {
         systemPromptTokenCount: payload.systemPromptTokenCount,
         createdAt: new Date(),
         updatedAt: new Date(),
+        tools: {
+          createMany: {
+            data: payload.tools.map((toolId) => ({
+              toolId,
+            })),
+          },
+        },
       },
     });
   }
 
-  findFirst(payload: FindAssistantDto) {
+  async findFirst(payload: FindAssistantDto) {
     return this.prisma.assistant.findFirst({
       where: {
         id: payload.assistantId,
@@ -95,11 +104,16 @@ export class AssistantService {
             },
           },
         },
+        tools: {
+          select: {
+            toolId: true,
+          },
+        },
       },
     });
   }
 
-  getDetails(payload: FindAssistantDto) {
+  async getDetails(payload: FindAssistantDto) {
     return this.prisma.assistant.findFirst({
       where: {
         id: payload.assistantId,
@@ -116,7 +130,7 @@ export class AssistantService {
     });
   }
 
-  findAll(payload: FindAllAssistantsDto) {
+  async findAll(payload: FindAllAssistantsDto) {
     return this.prisma.assistant
       .paginate({
         where: {
@@ -146,8 +160,8 @@ export class AssistantService {
       });
   }
 
-  update(payload: UpdateAssistantDto) {
-    return this.prisma.assistant.update({
+  async update(payload: UpdateAssistantDto) {
+    const assistant = await this.prisma.assistant.update({
       where: {
         teamId: payload.teamId,
         id: payload.assistantId,
@@ -162,9 +176,13 @@ export class AssistantService {
         updatedAt: new Date(),
       },
     });
+
+    await this.assistantToolService.updateMany(payload.assistantId, payload.tools || []);
+
+    return assistant;
   }
 
-  softDelete(payload: DeleteAssistantDto) {
+  async softDelete(payload: DeleteAssistantDto) {
     return this.prisma.assistant.update({
       where: {
         teamId: payload.teamId,

@@ -55,6 +55,7 @@ export default defineEventHandler(async (_event) => {
     signal: abortController.signal,
     userId: user.id,
     chatId: chat.id,
+    functionIds: chat.assistant.tools?.map((t) => t.tool.functionId) || [],
     model: validatedBody.model,
     provider: validatedBody.provider,
     messages: services.chatService.formatChatMessages(validatedBody.messages),

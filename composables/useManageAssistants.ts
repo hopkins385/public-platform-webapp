@@ -9,6 +9,7 @@ class AssistantDto {
   systemPrompt: string = '';
   isShared: boolean = false;
   systemPromptTokenCount: number = 0;
+  tools: string[] = [];
 }
 
 class UpdateAssistantDto extends AssistantDto {

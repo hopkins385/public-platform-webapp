@@ -28,6 +28,8 @@ import { TextToImageService } from './text-to-image.service';
 import { useEvents } from '../events/useEvents';
 import { TokenizerService } from './tokenizer.service';
 import { AssistantJobService } from './assistant-job.service';
+import { AssistantToolService } from './assistant-tool.service';
+import { ToolService } from './tool.service';
 
 const { event } = useEvents();
 
@@ -38,7 +40,9 @@ class ServiceContainer {
   llmService = new LLMService(prisma);
   userService = new UserService(prisma);
   teamService = new TeamService(prisma);
-  assistantService = new AssistantService(prisma);
+  toolService = new ToolService(prisma);
+  assistantToolService = new AssistantToolService(prisma);
+  assistantService = new AssistantService(prisma, this.assistantToolService, {});
   assistantJobService = new AssistantJobService(prisma);
   collectionAbleService = new CollectionAbleService(prisma);
   collectionService = new CollectionService(prisma);

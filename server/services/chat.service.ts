@@ -254,6 +254,19 @@ export class ChatService {
           select: {
             id: true,
             systemPrompt: true,
+            tools: {
+              select: {
+                toolId: true,
+                tool: {
+                  select: {
+                    functionId: true,
+                  },
+                },
+              },
+              where: {
+                deletedAt: null,
+              },
+            },
           },
         },
       },

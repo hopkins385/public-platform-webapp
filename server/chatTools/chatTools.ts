@@ -15,6 +15,7 @@ type EmitToolInfoData = (toolInfoData: ToolInfoData) => void;
 
 // Define a type for the tool configuration
 interface ToolConfig {
+  id: number;
   name: string;
   description: string;
   parameters: Record<string, z.ZodType<any, any>>;
@@ -33,6 +34,7 @@ async function generateImage(imageDescription: string) {
 // Define tool configurations
 const toolConfigs: ToolConfig[] = [
   {
+    id: 1,
     name: 'directions',
     description: 'Get directions between two or more locations and optional including waypoints',
     parameters: {
@@ -45,18 +47,20 @@ const toolConfigs: ToolConfig[] = [
       return await getGoogleMapsDirections(start, destination, waypoints);
     },
   },
-  // {
-  //   name: 'imageGenerator',
-  //   description: 'Generates an image by describing it',
-  //   parameters: {
-  //     imageDescription: z.string().min(1).max(4000).describe('The text to describe an image'),
-  //   },
-  //   execute: async ({ imageDescription }, emitToolInfoData) => {
-  //     emitToolInfoData({ toolName: 'imageGenerator', toolInfo: `${imageDescription}` });
-  //     return await generateImage(imageDescription);
-  //   },
-  // },
   {
+    id: 2,
+    name: 'imageGenerator',
+    description: 'Generates an image by describing it',
+    parameters: {
+      imageDescription: z.string().min(1).max(4000).describe('The text to describe an image'),
+    },
+    execute: async ({ imageDescription }, emitToolInfoData) => {
+      emitToolInfoData({ toolName: 'imageGenerator', toolInfo: `${imageDescription}` });
+      return await generateImage(imageDescription);
+    },
+  },
+  {
+    id: 3,
     name: 'website',
     description: 'Get information about a website',
     parameters: {
@@ -77,6 +81,7 @@ const toolConfigs: ToolConfig[] = [
     },
   },
   {
+    id: 4,
     name: 'youtubeTranscript',
     description: 'Get the transcript of a youtube video',
     parameters: {
@@ -88,6 +93,7 @@ const toolConfigs: ToolConfig[] = [
     },
   },
   {
+    id: 5,
     name: 'searchWeb',
     description: 'Search the web',
     parameters: {
@@ -112,10 +118,16 @@ function createTool(config: ToolConfig, emitToolInfoData: EmitToolInfoData) {
 // Define a type for the tools object
 type Tools = Record<string, ReturnType<typeof createTool>>;
 
-export function getTools(emitToolInfoData: EmitToolInfoData): Tools {
+export function getTools(functionIds: number[] | null, emitToolInfoData: EmitToolInfoData): Tools | undefined {
   const tools: Tools = {};
 
-  for (const config of toolConfigs) {
+  if (!functionIds || functionIds.length < 1) {
+    return undefined;
+  }
+
+  const filteredConfigs = toolConfigs.filter((config) => functionIds.includes(config.id));
+
+  for (const config of filteredConfigs) {
     tools[config.name] = createTool(config, emitToolInfoData);
   }
 
