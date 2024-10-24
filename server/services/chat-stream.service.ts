@@ -7,6 +7,7 @@ import { streamText, type LanguageModelV1, type StreamTextResult } from 'ai';
 import { ChatToolCallEventDto } from '../events/dto/chatToolCallEvent.dto';
 import { getTools } from '../chatTools/chatTools';
 import { ChunkGatherer } from './chunk-gatherer.service';
+import { retryWithExponentialBackoff } from '../utils/backoff/exponentialBackoff';
 
 interface GenerateStreamOptions {
   timeoutDuration?: number; // in milliseconds
@@ -31,7 +32,6 @@ export class StreamService {
 
   createCallSettings(payload: StreamPayload) {
     const isPreview = payload.model.startsWith('o1-');
-    // const availableTools = payload.provider !== 'groq' ? getTools(this.toolStartCallback(payload)) : undefined;
     const availableTools = getTools(payload.functionIds, this.toolStartCallback(payload));
 
     return {
@@ -64,12 +64,20 @@ export class StreamService {
     }, timeoutDuration);
 
     try {
-      const initialResult = await streamText({
-        abortSignal: abortController.signal,
-        model,
-        messages: payload.messages,
-        ...callSettings,
-      });
+      const initialResult = await retryWithExponentialBackoff(
+        () =>
+          streamText({
+            abortSignal: abortController.signal,
+            model,
+            messages: payload.messages,
+            ...callSettings,
+          }),
+        {
+          retries: 3,
+          delay: 1000,
+          factor: 2,
+        },
+      );
 
       clearTimeout(timeoutId);
       this.logWarnings(initialResult.warnings);
@@ -123,7 +131,7 @@ export class StreamService {
     payload: StreamPayload,
     model: any,
     availableTools: any,
-  ) {
+  ): AsyncGenerator<any, void, any> {
     const [toolCalls, toolResults] = await Promise.all([initalResult.toolCalls, initalResult.toolResults]);
 
     const toolMessages = [
@@ -131,14 +139,22 @@ export class StreamService {
       { role: 'tool', content: toolResults },
     ];
 
-    const followUpResult = await streamText({
-      abortSignal: abortController.signal,
-      model,
-      system: payload.systemPrompt,
-      messages: [...payload.messages, ...toolMessages],
-      maxTokens: payload.maxTokens,
-      tools: availableTools,
-    });
+    const followUpResult = await retryWithExponentialBackoff(
+      () =>
+        streamText({
+          abortSignal: abortController.signal,
+          model,
+          system: payload.systemPrompt,
+          messages: [...payload.messages, ...toolMessages],
+          maxTokens: payload.maxTokens,
+          tools: availableTools,
+        }),
+      {
+        retries: 3,
+        delay: 1000,
+        factor: 2,
+      },
+    );
 
     //TODO: track token usage for tools
 
@@ -151,7 +167,8 @@ export class StreamService {
       }),
     );
 
-    yield* followUpResult.textStream;
+    // yield* followUpResult.textStream;
+    yield* this.handleStream(abortController, followUpResult, payload, model, availableTools);
   }
 
   private handleStreamGeneratorError(_event: H3Event, error: any) {

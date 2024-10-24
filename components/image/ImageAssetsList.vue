@@ -44,7 +44,6 @@
   }
 
   async function resetPageData() {
-    console.log('refreshing');
     setPage(1);
     await refresh();
     runs.value = data.value?.runs || [];
