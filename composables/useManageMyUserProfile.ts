@@ -22,20 +22,20 @@ export default function useManageMyUserProfile() {
     );
   }
 
-  function updateMe(data: any) {
+  function updateMe({ firstName, lastName }: { firstName: string; lastName: string }) {
     return $client.me.update.mutate(
-      { data },
+      { firstName, lastName },
       {
         signal: ac.signal,
       },
     );
   }
 
-  function deleteMe(payload: { userId: string; password: string }) {
+  function deleteMe({ userId, userName }: { userId: string; userName: string }) {
     return $client.me.delete.mutate(
       {
-        userId: payload.userId,
-        password: payload.password,
+        userId,
+        userName,
       },
       {
         signal: ac.signal,

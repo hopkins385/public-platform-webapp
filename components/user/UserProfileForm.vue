@@ -33,24 +33,25 @@
 
   const isLoading = ref(false);
 
-  const onSubmit = handleSubmit(async (values, { resetForm }) => {
+  const onSubmit = handleSubmit(async ({ firstName, lastName }) => {
     const toast = useToast();
     isLoading.value = true;
     try {
       await updateMe({
-        ...values,
+        firstName,
+        lastName,
       });
       toast.success({
         description: 'Your profile has been updated', // TODO: translate
       });
-      // resetForm();
       emits('refresh');
     } catch (error) {
       toast.error({
         description: 'Ups, something went wrong.', // TODO: translate
       });
+    } finally {
+      isLoading.value = false;
     }
-    isLoading.value = false;
   });
 </script>
 

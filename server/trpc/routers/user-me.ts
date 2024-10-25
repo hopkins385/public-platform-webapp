@@ -10,16 +10,19 @@ export const userMeRouter = router({
   update: protectedProcedure
     .input(
       z.object({
-        data: z.object({
-          firstName: z.string().trim().min(2).max(100),
-          lastName: z.string().trim().min(2).max(100),
-        }),
+        firstName: z.string().trim().min(2).max(100),
+        lastName: z.string().trim().min(2).max(100),
       }),
     )
     .mutation(async ({ ctx: { user, services }, input }) => {
-      const { data } = input;
-      return await services.userService.updateUserName({ userId: user.id, ...data });
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      return await services.userService.updateUserName({
+        userId: user.id,
+        firstName: input.firstName,
+        lastName: input.lastName,
+      });
     }),
+  // update password
   updatePassword: protectedProcedure
     .input(
       z.object({
@@ -28,19 +31,24 @@ export const userMeRouter = router({
       }),
     )
     .mutation(async ({ ctx: { user, services }, input }) => {
-      return await services.userService.updatePassword(user.id, input.currentPassword, input.newPassword);
+      throw new Error('Not implemented');
+      // return await services.userService.updatePassword(user.id, input.currentPassword, input.newPassword);
     }),
+  // delete me
   delete: protectedProcedure
     .input(
       z.object({
         userId: cuidRule(),
-        password: z.string().trim().min(6).max(100),
+        userName: z.string().trim().min(2).max(100),
       }),
     )
     .mutation(async ({ ctx: { user, services }, input }) => {
       if (user.id !== input.userId.toLowerCase()) {
         throw new Error('Invalid user');
       }
-      return await services.userService.softDelete(user.id, input.password);
+      if (user.name !== input.userName) {
+        throw new Error('Invalid user');
+      }
+      return await services.deletesUserAction.runPipeline({ usrId: input.userId });
     }),
 });

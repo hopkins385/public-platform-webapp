@@ -45,21 +45,33 @@ export class AssistantService {
     }
   }
 
-  async create(payload: CreateAssistantDto) {
+  async create({
+    teamId,
+    llmId,
+    title,
+    description,
+    systemPrompt,
+    isShared,
+    systemPromptTokenCount,
+    tools,
+  }: CreateAssistantDto) {
+    if (!teamId) {
+      throw new Error('Team ID is required');
+    }
     return this.prisma.assistant.create({
       data: {
-        teamId: payload.teamId,
-        llmId: payload.llmId,
-        title: payload.title,
-        description: payload.description,
-        systemPrompt: payload.systemPrompt,
-        isShared: payload.isShared || false,
-        systemPromptTokenCount: payload.systemPromptTokenCount,
+        teamId,
+        llmId,
+        title,
+        description,
+        systemPrompt,
+        isShared,
+        systemPromptTokenCount,
         createdAt: new Date(),
         updatedAt: new Date(),
         tools: {
           createMany: {
-            data: payload.tools.map((toolId) => ({
+            data: tools.map((toolId) => ({
               toolId,
             })),
           },
@@ -68,10 +80,13 @@ export class AssistantService {
     });
   }
 
-  async findFirst(payload: FindAssistantDto) {
+  async findFirst({ assistantId }: FindAssistantDto) {
+    if (!assistantId) {
+      throw new Error('Assistant ID is required');
+    }
     return this.prisma.assistant.findFirst({
       where: {
-        id: payload.assistantId,
+        id: assistantId,
         deletedAt: null,
       },
       select: {
@@ -113,10 +128,13 @@ export class AssistantService {
     });
   }
 
-  async getDetails(payload: FindAssistantDto) {
+  async getDetails({ assistantId }: FindAssistantDto) {
+    if (!assistantId) {
+      throw new Error('Assistant ID is required');
+    }
     return this.prisma.assistant.findFirst({
       where: {
-        id: payload.assistantId,
+        id: assistantId,
         deletedAt: null,
       },
       select: {
@@ -130,13 +148,16 @@ export class AssistantService {
     });
   }
 
-  async findAll(payload: FindAllAssistantsDto) {
+  async findAll({ teamId, searchQuery, page }: FindAllAssistantsDto) {
+    if (!teamId) {
+      throw new Error('Team ID is required');
+    }
     return this.prisma.assistant
       .paginate({
         where: {
-          teamId: payload.teamId,
+          teamId,
           title: {
-            contains: payload.searchQuery,
+            contains: searchQuery,
             mode: 'insensitive',
           },
           deletedAt: null,
@@ -155,38 +176,54 @@ export class AssistantService {
       })
       .withPages({
         limit: 10,
-        page: payload.page,
+        page,
         includePageCount: true,
       });
   }
 
-  async update(payload: UpdateAssistantDto) {
+  async update({
+    teamId,
+    assistantId,
+    title,
+    llmId,
+    description,
+    systemPrompt,
+    isShared,
+    systemPromptTokenCount,
+    tools,
+  }: UpdateAssistantDto) {
+    if (!teamId) {
+      throw new Error('Team ID is required');
+    }
     const assistant = await this.prisma.assistant.update({
       where: {
-        teamId: payload.teamId,
-        id: payload.assistantId,
+        teamId,
+        id: assistantId,
       },
       data: {
-        title: payload.title,
-        llmId: payload.llmId,
-        description: payload.description,
-        systemPrompt: payload.systemPrompt,
-        isShared: payload.isShared || false,
-        systemPromptTokenCount: payload.systemPromptTokenCount,
+        title,
+        llmId,
+        description,
+        systemPrompt,
+        isShared: isShared || false,
+        systemPromptTokenCount,
         updatedAt: new Date(),
       },
     });
 
-    await this.assistantToolService.updateMany(payload.assistantId, payload.tools || []);
+    await this.assistantToolService.updateMany(assistantId, tools || []);
 
     return assistant;
   }
 
-  async softDelete(payload: DeleteAssistantDto) {
+  async softDelete({ teamId, assistantId }: DeleteAssistantDto) {
+    if (!teamId) {
+      throw new Error('Team ID is required');
+    }
     return this.prisma.assistant.update({
       where: {
-        teamId: payload.teamId,
-        id: payload.assistantId,
+        teamId,
+        id: assistantId,
       },
       data: {
         deletedAt: new Date(),
@@ -194,11 +231,11 @@ export class AssistantService {
     });
   }
 
-  async delete(payload: DeleteAssistantDto) {
+  async delete({ teamId, assistantId }: DeleteAssistantDto) {
     await this.prisma.assistant.delete({
       where: {
-        teamId: payload.teamId,
-        id: payload.assistantId,
+        teamId,
+        id: assistantId,
       },
     });
   }
