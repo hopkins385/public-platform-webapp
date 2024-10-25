@@ -76,7 +76,8 @@ const adminUsersRouter = router({
     }),
 
   delete: adminProcedure.input(idSchema).mutation(async ({ ctx: { user, services }, input }) => {
-    return await services.userService.softDeleteUser(input.id, user.orgId);
+    // return await services.userService.softDeleteUser(input.id, user.orgId);
+    return await services.deletesUserAction.runPipeline({ usrId: input.id });
   }),
 });
 

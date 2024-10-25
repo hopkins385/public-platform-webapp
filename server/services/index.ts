@@ -30,6 +30,7 @@ import { TokenizerService } from './tokenizer.service';
 import { AssistantJobService } from './assistant-job.service';
 import { AssistantToolService } from './assistant-tool.service';
 import { ToolService } from './tool.service';
+import { DeletesUserAction } from '../actions/deletesUserAction';
 
 const { event } = useEvents();
 
@@ -65,12 +66,10 @@ class ServiceContainer {
   fluxImageGenerator = new FluxImageGenerator({ apiKey: this.config.flux.apiKey });
   textToImageService = new TextToImageService(prisma, this.fluxImageGenerator, this.storageService);
   chatService = new ChatService(prisma, this.collectionService, this.embeddingService, this.tokenizerService, event);
-}
 
-class ActionContainer {
+  // actions
   createNewUserAction = new CreatesNewUserAction(prisma);
+  deletesUserAction = new DeletesUserAction(prisma, this.userService, this.chatService, this.documentService);
 }
-
-export const actions = new ActionContainer();
 
 export const services = new ServiceContainer();

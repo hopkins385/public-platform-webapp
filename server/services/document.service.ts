@@ -114,6 +114,17 @@ export class DocumentService {
     });
   }
 
+  softDelete(documentId: string) {
+    return this.prisma.document.update({
+      where: {
+        id: documentId.toLowerCase(),
+      },
+      data: {
+        deletedAt: new Date(),
+      },
+    });
+  }
+
   delete(documentId: string) {
     return this.prisma.document.delete({
       where: {
@@ -122,13 +133,10 @@ export class DocumentService {
     });
   }
 
-  softDelete(documentId: string) {
-    return this.prisma.document.update({
+  async deleteAllDocumentsByProjectId(projectId: string) {
+    return this.prisma.document.deleteMany({
       where: {
-        id: documentId.toLowerCase(),
-      },
-      data: {
-        deletedAt: new Date(),
+        projectId: projectId.toLowerCase(),
       },
     });
   }
@@ -164,15 +172,16 @@ export class DocumentService {
   }
 
   async parse(documentId: string) {
+    throw new Error('Method not implemented.');
     // first get the document
-    const document = await this.findFirst(documentId);
+    /*const document = await this.findFirst(documentId);
     if (!document || !document.filePath || !document.fileName || !document.fileExtension) {
       throw new Error('Document not found or missing file path, name or extension');
     }
     const path = `${document.filePath}/${document.fileName}`;
     const parser = new FileParserFactory(document.fileExtension, path);
     const data = await parser.loadData();
-    return data;
+    return data;*/
   }
 
   addWorkflow(documentId: string, workflowId: string) {

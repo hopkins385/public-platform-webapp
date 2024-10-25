@@ -7,7 +7,7 @@ import { streamText, type LanguageModelV1, type StreamTextResult } from 'ai';
 import { ChatToolCallEventDto } from '../events/dto/chatToolCallEvent.dto';
 import { getTools } from '../chatTools/chatTools';
 import { ChunkGatherer } from './chunk-gatherer.service';
-import { retryWithExponentialBackoff } from '../utils/backoff/exponentialBackoff';
+import { Semaphore } from 'async-mutex';
 
 interface GenerateStreamOptions {
   timeoutDuration?: number; // in milliseconds
@@ -15,8 +15,13 @@ interface GenerateStreamOptions {
 
 const logger = consola.create({}).withTag('streamService');
 
+const MAX_PARALLEL_TOOL_CALLS = 5; // Adjust this number as needed
+
 export class StreamService {
-  constructor(private readonly event: UseEvents['event']) {}
+  constructor(
+    private readonly event: UseEvents['event'],
+    private readonly semaphore: Semaphore = new Semaphore(MAX_PARALLEL_TOOL_CALLS),
+  ) {}
 
   setSSEHeaders(_event: H3Event) {
     _event.node.res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
@@ -32,7 +37,17 @@ export class StreamService {
 
   createCallSettings(payload: StreamPayload) {
     const isPreview = payload.model.startsWith('o1-');
-    const availableTools = getTools(payload.functionIds, this.toolStartCallback(payload));
+    const filterTools = () => {
+      switch (payload.provider) {
+        case ChatModelProviderEnum.GROQ:
+        case ChatModelProviderEnum.MISTRAL:
+          return undefined;
+        default:
+          return getTools(payload.functionIds, this.toolStartCallback(payload));
+      }
+    };
+
+    const availableTools = filterTools();
 
     return {
       availableTools,
@@ -64,26 +79,20 @@ export class StreamService {
     }, timeoutDuration);
 
     try {
-      const initialResult = await retryWithExponentialBackoff(
-        () =>
-          streamText({
-            abortSignal: abortController.signal,
-            model,
-            messages: payload.messages,
-            ...callSettings,
-          }),
-        {
-          retries: 3,
-          delay: 1000,
-          factor: 2,
-        },
-      );
+      const initialResult = await streamText({
+        abortSignal: abortController.signal,
+        model,
+        messages: payload.messages,
+        maxSteps: 1,
+        maxRetries: 3,
+        ...callSettings,
+      });
 
       clearTimeout(timeoutId);
       this.logWarnings(initialResult.warnings);
 
       yield* this.handleStream(abortController, initialResult, payload, model, availableTools);
-    } catch (error) {
+    } catch (error: any) {
       this.handleStreamGeneratorError(_event, error);
     } finally {
       clearTimeout(timeoutId);
@@ -92,29 +101,27 @@ export class StreamService {
 
   private async *handleStream(
     abortController: AbortController,
-    initalResult: StreamTextResult<any>,
+    result: StreamTextResult<any>,
     payload: StreamPayload,
     model: LanguageModelV1,
     availableTools: any,
-  ) {
-    for await (const chunk of initalResult.fullStream) {
+  ): AsyncGenerator<any, void, any> {
+    for await (const chunk of result.fullStream) {
       if (abortController.signal.aborted) return;
 
       if (chunk.type === 'error') {
-        logger.error(`Chunk error: ${JSON.stringify(chunk.error)}`);
-        yield chunk.error;
-        return;
+        throw chunk.error;
       }
 
       if (chunk.type === 'finish') {
         switch (chunk.finishReason) {
           case 'error':
-            throw new Error(`Finish Error: ${JSON.stringify(initalResult.response)}`);
+            throw new Error(`Finish Error: ${JSON.stringify(result.response)}`);
           case 'length':
             this.onStreamStopLength();
             return;
           case 'tool-calls':
-            yield* this.handleToolCalls(abortController, initalResult, payload, model, availableTools);
+            yield* this.handleToolCalls(abortController, result, payload, model, availableTools);
             return;
         }
       }
@@ -134,54 +141,59 @@ export class StreamService {
   ): AsyncGenerator<any, void, any> {
     const [toolCalls, toolResults] = await Promise.all([initalResult.toolCalls, initalResult.toolResults]);
 
+    // Ensure toolResults is not empty to avoid infinite loop
+    if (!toolResults || toolResults.length === 0) {
+      logger.warn('No tool results, exiting generator.');
+      return;
+    }
+
     const toolMessages = [
       { role: 'assistant', content: toolCalls },
       { role: 'tool', content: toolResults },
     ];
 
-    const followUpResult = await retryWithExponentialBackoff(
-      () =>
-        streamText({
-          abortSignal: abortController.signal,
-          model,
-          system: payload.systemPrompt,
-          messages: [...payload.messages, ...toolMessages],
-          maxTokens: payload.maxTokens,
-          tools: availableTools,
+    try {
+      const { textStream } = await streamText({
+        abortSignal: abortController.signal,
+        model,
+        system: payload.systemPrompt,
+        messages: [...payload.messages, ...toolMessages],
+        maxTokens: payload.maxTokens,
+        tools: availableTools,
+        maxSteps: 1,
+        maxRetries: 3,
+      });
+
+      //TODO: track token usage for tools
+
+      const toolName = toolResults[0]?.toolName || '';
+      this.onToolEndCall(
+        ChatToolCallEventDto.fromInput({
+          userId: payload.userId,
+          chatId: payload.chatId,
+          toolName,
         }),
-      {
-        retries: 3,
-        delay: 1000,
-        factor: 2,
-      },
-    );
+      );
 
-    //TODO: track token usage for tools
-
-    const toolName = toolResults[0]?.toolName || '';
-    this.onToolEndCall(
-      ChatToolCallEventDto.fromInput({
-        userId: payload.userId,
-        chatId: payload.chatId,
-        toolName,
-      }),
-    );
-
-    // yield* followUpResult.textStream;
-    yield* this.handleStream(abortController, followUpResult, payload, model, availableTools);
+      yield* textStream;
+      // yield* this.handleStream(abortController, followUpResult, payload, model, availableTools);
+    } catch (error) {
+      logger.error('handleToolCalls error:', JSON.stringify(error));
+      yield '';
+    }
   }
 
   private handleStreamGeneratorError(_event: H3Event, error: any) {
     if (error?.name === 'AbortError') return;
-    logger.error('streamGeneratorError:', JSON.stringify(error));
-    _event.node.res.statusCode = 503;
+    logger.error('streamGeneratorError:', error?.message ?? error);
+    _event.node.res.statusCode = 422;
     _event.node.res.end();
   }
 
   handleStreamError(_event: H3Event, stream: any, error: any) {
     logger.error('streamError:', JSON.stringify(error));
     stream?.destroy();
-    _event.node.res.statusCode = 503;
+    _event.node.res.statusCode = 422;
     _event.node.res.end();
   }
 

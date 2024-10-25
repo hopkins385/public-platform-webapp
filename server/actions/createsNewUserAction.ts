@@ -1,16 +1,19 @@
 import type { LargeLangModel } from '@prisma/client';
 import type { ExtendedPrismaClient } from '~/server/prisma';
+import { Pipe } from '../pipe/pipeline';
 
 interface NewOrganizationDto {
   name: string;
 }
 
 interface NewTeamDto {
+  userId: string;
   name: string;
   organisationId: string;
 }
 
 interface NewCreditsDto {
+  userId: string;
   amount: number;
 }
 
@@ -28,36 +31,31 @@ interface RunPayload {
 }
 
 export class CreatesNewUserAction {
-  private userId: string;
   private readonly prisma: ExtendedPrismaClient;
 
   constructor(prisma: ExtendedPrismaClient) {
     this.prisma = prisma;
-    this.userId = '';
   }
 
-  setUserId(userId: string) {
-    if (!userId) {
-      throw new Error('User ID is required');
-    }
-    this.userId = userId;
-  }
-
-  async updateUserName(pay: { firstName: string; lastName: string }) {
-    return this.prisma.user.update({
-      where: { id: this.userId },
+  async updateUserName(pay: { userId: string; orgName: string; firstName: string; lastName: string }) {
+    const user = await this.prisma.user.update({
+      where: { id: pay.userId },
       data: { firstName: pay.firstName, lastName: pay.lastName, name: `${pay.firstName} ${pay.lastName}` },
     });
+
+    return { userId: user.id, orgName: pay.orgName };
   }
 
-  async createOrganization(payload: NewOrganizationDto) {
-    return this.prisma.organisation.create({
+  async createOrganization(userId: string, orgName: string) {
+    const org = await this.prisma.organisation.create({
       data: {
-        name: payload.name,
+        name: orgName,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
     });
+
+    return { id: org.id, userId };
   }
 
   async createTeam(payload: NewTeamDto) {
@@ -74,7 +72,7 @@ export class CreatesNewUserAction {
     await this.prisma.teamUser.create({
       data: {
         teamId: team.id,
-        userId: this.userId,
+        userId: payload.userId,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -86,7 +84,7 @@ export class CreatesNewUserAction {
   async createCredits(payload: NewCreditsDto) {
     return this.prisma.credit.create({
       data: {
-        userId: this.userId,
+        userId: payload.userId,
         amount: payload.amount,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -106,7 +104,7 @@ export class CreatesNewUserAction {
     });
   }
 
-  async assignAdminRoleToUser() {
+  async assignAdminRoleToUser(userId: string) {
     // get the admin role
     const adminRole = await this.prisma.role.findFirst({
       where: { name: 'admin' },
@@ -119,7 +117,7 @@ export class CreatesNewUserAction {
     // assign the admin role to the user
     return this.prisma.userRole.create({
       data: {
-        userId: this.userId,
+        userId,
         roleId: adminRole.id,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -191,14 +189,14 @@ export class CreatesNewUserAction {
     });
   }
 
-  async updateUserOnboardingStatus() {
+  async updateUserOnboardingStatus(userId: string) {
     return this.prisma.user.update({
-      where: { id: this.userId },
+      where: { id: userId },
       data: { onboardedAt: new Date() },
     });
   }
 
-  async run({ userId, orgName }: RunPayload): Promise<void> {
+  /*async run({ userId, orgName }: RunPayload): Promise<void> {
     if (!userId || !orgName) {
       throw new Error('User ID and organization name are required');
     }
@@ -232,5 +230,30 @@ export class CreatesNewUserAction {
       console.error('Error in run function:', error);
       throw error; // Re-throw the error if you want calling code to handle it
     }
+  }*/
+
+  async runPipeline({ userId, orgName }: RunPayload): Promise<void> {
+    const maxRetries = 3;
+    const line = Pipe.create(maxRetries, async (p) => {
+      p.addStep(async ({ userId, orgName }) =>
+        this.updateUserName({ userId, orgName, firstName: 'User', lastName: 'Name' }),
+      );
+      p.addStep(async ({ userId, orgName }) => this.createOrganization(userId, orgName));
+      p.addStep(async ({ id: organisationId, userId }) =>
+        this.createTeam({ userId, name: 'Default Team', organisationId }),
+      );
+      p.addStep(async ({ id: teamId }) =>
+        Promise.all([this.createDefaultProject({ teamId }), this.createAssistant({ teamId })]),
+      );
+      p.addStep(async () => this.createCredits({ userId: userId, amount: 1000 }));
+      p.addStep(async () => this.assignAdminRoleToUser(userId));
+      p.addStep(async () => this.updateUserOnboardingStatus(userId));
+    });
+
+    line.finally(() => {
+      console.log('Successfully completed new user action pipeline');
+    });
+
+    await line.run({ userId, orgName });
   }
 }

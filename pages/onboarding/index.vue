@@ -28,10 +28,13 @@
     projectStore.setActiveProjectId(id);
   }
 
-  function onSubmit() {
+  async function onSubmit() {
     isLoading.value = true;
-    onboardUser({ orgName: orgName.value })
-      .then(async () => {
+    await onboardUser({ orgName: orgName.value })
+      .then(async (res) => {
+        if (res.success !== true) {
+          throw new Error('Failed to onboard user');
+        }
         // refresh session
         await getSession();
         // init store with first project

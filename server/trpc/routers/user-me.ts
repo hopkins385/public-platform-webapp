@@ -11,8 +11,8 @@ export const userMeRouter = router({
     .input(
       z.object({
         data: z.object({
-          firstName: z.string().min(1).max(100),
-          lastName: z.string().min(1).max(100),
+          firstName: z.string().trim().min(2).max(100),
+          lastName: z.string().trim().min(2).max(100),
         }),
       }),
     )
@@ -23,8 +23,8 @@ export const userMeRouter = router({
   updatePassword: protectedProcedure
     .input(
       z.object({
-        currentPassword: z.string().min(6).max(100),
-        newPassword: z.string().min(6).max(100),
+        currentPassword: z.string().trim().min(6).max(100),
+        newPassword: z.string().trim().min(6).max(100),
       }),
     )
     .mutation(async ({ ctx: { user, services }, input }) => {
@@ -34,7 +34,7 @@ export const userMeRouter = router({
     .input(
       z.object({
         userId: cuidRule(),
-        password: z.string().min(6).max(100),
+        password: z.string().trim().min(6).max(100),
       }),
     )
     .mutation(async ({ ctx: { user, services }, input }) => {

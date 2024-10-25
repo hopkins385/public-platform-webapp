@@ -5,12 +5,12 @@ export const onboardingRouter = router({
   newUserAction: protectedProcedure
     .input(
       z.object({
-        orgName: z.string().min(3).max(100),
+        orgName: z.string().trim().min(3).max(100),
       }),
     )
-    .mutation(async ({ ctx: { user, actions }, input }) => {
+    .mutation(async ({ ctx: { user, services }, input }) => {
       try {
-        const result = await actions.createNewUserAction.run({
+        await services.createNewUserAction.runPipeline({
           userId: user.id,
           orgName: input.orgName,
         });

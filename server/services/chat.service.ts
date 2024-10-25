@@ -421,6 +421,24 @@ export class ChatService {
     });
   }
 
+  deleteAllChatsByUserId(userId: string) {
+    return this.prisma.chat.deleteMany({
+      where: {
+        userId,
+      },
+    });
+  }
+
+  async deleteChatMessagesByUserId(userId: string) {
+    return this.prisma.chatMessage.deleteMany({
+      where: {
+        chat: {
+          userId,
+        },
+      },
+    });
+  }
+
   // POLICIES
 
   canCreateChatPolicy(user: SessionUser, assistant: any): boolean {
