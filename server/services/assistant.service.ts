@@ -85,6 +85,7 @@ export class AssistantService {
       throw new Error('Assistant ID is required');
     }
     return this.prisma.assistant.findFirst({
+      relationLoadStrategy: 'join',
       where: {
         id: assistantId,
         deletedAt: null,
@@ -123,6 +124,9 @@ export class AssistantService {
           select: {
             toolId: true,
           },
+          where: {
+            deletedAt: null,
+          },
         },
       },
     });
@@ -154,14 +158,6 @@ export class AssistantService {
     }
     return this.prisma.assistant
       .paginate({
-        where: {
-          teamId,
-          title: {
-            contains: searchQuery,
-            mode: 'insensitive',
-          },
-          deletedAt: null,
-        },
         select: {
           id: true,
           title: true,
@@ -172,6 +168,14 @@ export class AssistantService {
               displayName: true,
             },
           },
+        },
+        where: {
+          teamId,
+          title: {
+            contains: searchQuery,
+            mode: 'insensitive',
+          },
+          deletedAt: null,
         },
       })
       .withPages({
@@ -205,7 +209,7 @@ export class AssistantService {
         llmId,
         description,
         systemPrompt,
-        isShared: isShared || false,
+        isShared,
         systemPromptTokenCount,
         updatedAt: new Date(),
       },

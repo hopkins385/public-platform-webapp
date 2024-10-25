@@ -13,7 +13,7 @@
   const passwordSchema = toTypedSchema(
     z.object({
       userId: z.string(),
-      password: z.string().min(6).max(100),
+      username: z.string().trim().min(3).max(100),
     }),
   );
 
@@ -21,24 +21,27 @@
     validationSchema: passwordSchema,
     initialValues: {
       userId: props.userId,
-      password: '',
+      username: '',
     },
   });
 
   const { deleteMe } = useManageMyUserProfile();
   const { signOut } = useAuth();
 
-  const onSubmit = handleSubmit(async (values, { resetForm }) => {
+  const onSubmit = handleSubmit(async ({ userId, username }, { resetForm }) => {
     isLoading.value = true;
     try {
-      await deleteMe(values);
+      await deleteMe({
+        userId,
+        userName: username,
+      });
+      await signOut();
     } catch (error) {
-      isLoading.value = false;
-      setErrors({ password: 'Password wrong' });
+      setErrors({ username: 'Invalid username' });
       return;
+    } finally {
+      isLoading.value = false;
     }
-    await signOut();
-    await navigateTo('/login');
   });
 
   function onCancel() {
@@ -72,15 +75,15 @@
 
       <div v-show="showConfirm">
         <form @submit.prevent="onSubmit">
-          <FormField v-slot="{ componentField }" name="password">
+          <FormField v-slot="{ componentField }" name="username">
             <FormItem>
               <FormLabel>
-                <div class="flex items-center">Please enter your password</div>
+                <div class="flex items-center">Please enter your full name</div>
               </FormLabel>
               <FormControl>
                 <div class="flex">
                   <div class="relative w-full">
-                    <Input type="password" placeholder="" v-bind="componentField" autocomplete="off" />
+                    <Input type="text" placeholder="" v-bind="componentField" autocomplete="off" />
                   </div>
                 </div>
               </FormControl>
