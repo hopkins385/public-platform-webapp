@@ -7,6 +7,8 @@
   const showConfirmDialog = ref(false);
   const deleteUserId = ref('');
 
+  const { data: auth, signOut } = useAuth();
+
   const { deleteUser, getUsersAllPaginated, setPage } = useAdminUsersSharedComp();
   const { data, refresh } = await getUsersAllPaginated();
 
@@ -26,9 +28,13 @@
   async function handleDelete() {
     try {
       await deleteUser(deleteUserId.value);
+      if (auth.value?.user.id === deleteUserId.value) {
+        await signOut();
+        return;
+      }
       showConfirmDialog.value = false;
-      await refresh();
       toast.success({ description: 'User deleted successfully' });
+      await refresh();
     } catch (error) {
       errorAlert.value.show = true;
       errorAlert.value.message = error?.message || 'An error occurred';

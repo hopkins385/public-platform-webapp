@@ -14,24 +14,24 @@ export class DeletesUserAction {
     private readonly mediaService: MediaService,
   ) {}
 
-  async findUser(userId: string) {
+  private async findUser(userId: string) {
     return this.userService.getUserById(userId);
   }
 
-  async deleteAllChatsByUserId(userId: string, projectId: string) {
+  private async deleteUserChats(userId: string, projectId: string) {
     await this.chatService.deleteAllChatsByUserId(userId);
     return { userId, projectId };
   }
 
-  async deleteAllDocumentsByProjectId(projectId: string) {
+  private async deleteAllDocumentsByProjectId(projectId: string) {
     return this.documentService.deleteAllDocumentsByProjectId(projectId);
   }
 
-  async deleteAllMediaByProjectId(projectId: string) {
+  private async deleteAllMediaByProjectId(projectId: string) {
     // return this.mediaService.deleteAllMediaByProjectId(projectId);
   }
 
-  async deleteUserTeams(userId: string) {
+  private async deleteUserTeams(userId: string) {
     const res = await this.prisma.teamUser.deleteMany({
       where: {
         userId,
@@ -40,7 +40,7 @@ export class DeletesUserAction {
     return { userId };
   }
 
-  async deleteUserRoles(userId: string) {
+  private async deleteUserRoles(userId: string) {
     const res = await this.prisma.userRole.deleteMany({
       where: {
         userId,
@@ -49,7 +49,7 @@ export class DeletesUserAction {
     return { userId };
   }
 
-  async deleteUserAccounts(userId: string) {
+  private async deleteUserAccounts(userId: string) {
     const res = await this.prisma.account.deleteMany({
       where: {
         userId,
@@ -58,7 +58,7 @@ export class DeletesUserAction {
     return { userId };
   }
 
-  async deleteUserSessions(userId: string) {
+  private async deleteUserSessions(userId: string) {
     const res = await this.prisma.session.deleteMany({
       where: {
         userId,
@@ -67,14 +67,15 @@ export class DeletesUserAction {
     return { userId };
   }
 
-  async deleteUser(userId: string) {
+  private async deleteUser(userId: string) {
     return this.userService.deleteUser(userId);
   }
 
-  async runPipeline({ usrId }: { usrId: string }): Promise<void> {
-    const pipe = Pipe.create(3, (p) => {
+  private createPipeline() {
+    const maxRetries = 3;
+    const pipeLine = Pipe.create(maxRetries, (p) => {
       p.addStep(async ({ usrId }) => this.findUser(usrId));
-      p.addStep(async ({ id: userId, projectId }) => this.deleteAllChatsByUserId(userId, projectId));
+      p.addStep(async ({ id: userId, projectId }) => this.deleteUserChats(userId, projectId));
       // p.addStep(async ({ projectId }) => await this.deleteAllDocumentsByProjectId(projectId));
       // p.addStep(async ({ projectId }) => await this.deleteAllMediaByProjectId(projectId));
       p.addStep(async ({ userId }) => this.deleteUserSessions(userId));
@@ -84,10 +85,21 @@ export class DeletesUserAction {
       p.addStep(async ({ userId }) => this.deleteUser(userId));
     });
 
-    pipe.finally(async () => {
+    return pipeLine;
+  }
+
+  public async runPipeline(payload: { usrId: string }): Promise<void> {
+    const pipeLine = this.createPipeline();
+
+    pipeLine.lastStep(async () => {
       console.log('User fully hard deleted');
     });
 
-    await pipe.run({ usrId });
+    try {
+      await pipeLine.run(payload);
+    } catch (error) {
+      console.error('Error in runPipeline:', error);
+      throw new Error('Failed to delete user');
+    }
   }
 }

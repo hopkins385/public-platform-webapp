@@ -7,7 +7,6 @@ import { streamText, type LanguageModelV1, type StreamTextResult } from 'ai';
 import { ChatToolCallEventDto } from '../events/dto/chatToolCallEvent.dto';
 import { getTools } from '../chatTools/chatTools';
 import { ChunkGatherer } from './chunk-gatherer.service';
-import { Semaphore } from 'async-mutex';
 
 interface GenerateStreamOptions {
   timeoutDuration?: number; // in milliseconds
@@ -15,13 +14,8 @@ interface GenerateStreamOptions {
 
 const logger = consola.create({}).withTag('streamService');
 
-const MAX_PARALLEL_TOOL_CALLS = 5; // Adjust this number as needed
-
 export class StreamService {
-  constructor(
-    private readonly event: UseEvents['event'],
-    private readonly semaphore: Semaphore = new Semaphore(MAX_PARALLEL_TOOL_CALLS),
-  ) {}
+  constructor(private readonly event: UseEvents['event']) {}
 
   setSSEHeaders(_event: H3Event) {
     _event.node.res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');

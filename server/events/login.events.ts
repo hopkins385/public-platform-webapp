@@ -2,14 +2,14 @@ import { services } from '../services';
 import { LastLoginDto } from '~/server/services/dto/last-login.dto';
 
 export async function updateLastLogin(user: any) {
-  const payload = LastLoginDto.fromInput({
-    email: user.email,
-    lastLoginAt: new Date(),
-  });
   try {
-    return await services.userService.updateLastLogin(payload);
+    return await services.userService.updateLastLogin(
+      LastLoginDto.fromInput({
+        email: user.email,
+        lastLoginAt: new Date(),
+      }),
+    );
   } catch (error) {
-    // console.error('Error updating last login', error);
     // silently fail
   }
 }

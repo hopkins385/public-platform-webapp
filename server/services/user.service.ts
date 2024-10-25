@@ -300,10 +300,10 @@ export class UserService {
     });
   }
 
-  async updateLastLogin(data: LastLoginDto) {
+  async updateLastLogin({ email, lastLoginAt }: LastLoginDto) {
     return this.prisma.user.update({
-      where: { email: data.email, deletedAt: null },
-      data: { lastLoginAt: data.lastLoginAt },
+      where: { email, deletedAt: null },
+      data: { lastLoginAt },
     });
   }
 

@@ -3,6 +3,7 @@ import type { ExtendedPrismaClient } from '~/server/prisma';
 import { Pipe } from '../pipe/pipeline';
 
 interface NewOrganizationDto {
+  userId: string;
   name: string;
 }
 
@@ -18,10 +19,12 @@ interface NewCreditsDto {
 }
 
 interface NewProjectDto {
+  userId: string;
   teamId: string;
 }
 
 interface NewAssistantDto {
+  userId: string;
   teamId: string;
 }
 
@@ -78,11 +81,11 @@ export class CreatesNewUserAction {
       },
     });
 
-    return team;
+    return { teamId: team.id, userId: payload.userId };
   }
 
   async createCredits(payload: NewCreditsDto) {
-    return this.prisma.credit.create({
+    const result = await this.prisma.credit.create({
       data: {
         userId: payload.userId,
         amount: payload.amount,
@@ -90,10 +93,11 @@ export class CreatesNewUserAction {
         updatedAt: new Date(),
       },
     });
+    return { userId: payload.userId };
   }
 
   async createDefaultProject(payload: NewProjectDto) {
-    return this.prisma.project.create({
+    const project = await this.prisma.project.create({
       data: {
         name: 'My First Project',
         description: 'This is my first project',
@@ -102,6 +106,7 @@ export class CreatesNewUserAction {
         updatedAt: new Date(),
       },
     });
+    return { teamId: payload.teamId, userId: payload.userId, projectId: project.id };
   }
 
   async assignAdminRoleToUser(userId: string) {
@@ -115,7 +120,7 @@ export class CreatesNewUserAction {
     }
 
     // assign the admin role to the user
-    return this.prisma.userRole.create({
+    const role = await this.prisma.userRole.create({
       data: {
         userId,
         roleId: adminRole.id,
@@ -123,6 +128,8 @@ export class CreatesNewUserAction {
         updatedAt: new Date(),
       },
     });
+
+    return { userId };
   }
 
   private async findSuitableLLM(): Promise<LargeLangModel | null> {
@@ -157,8 +164,8 @@ export class CreatesNewUserAction {
 
     const date = new Date();
 
-    const tools = await this.getAllTools().then((tools) =>
-      tools.map((tool) => ({
+    const tools = await this.getAllTools().then((t) =>
+      t.map((tool) => ({
         toolId: tool.id,
         createdAt: date,
         updatedAt: date,
@@ -169,7 +176,7 @@ export class CreatesNewUserAction {
       throw new Error('No tools found');
     }
 
-    return this.prisma.assistant.create({
+    const assistant = await this.prisma.assistant.create({
       data: {
         teamId: payload.teamId,
         llmId: llm.id,
@@ -187,73 +194,50 @@ export class CreatesNewUserAction {
         },
       },
     });
+
+    return { userId: payload.userId, teamId: payload.teamId, assistantId: assistant.id };
   }
 
   async updateUserOnboardingStatus(userId: string) {
-    return this.prisma.user.update({
+    const user = await this.prisma.user.update({
       where: { id: userId },
       data: { onboardedAt: new Date() },
     });
+    return { userId: user.id };
   }
 
-  /*async run({ userId, orgName }: RunPayload): Promise<void> {
-    if (!userId || !orgName) {
-      throw new Error('User ID and organization name are required');
-    }
-    try {
-      this.setUserId(userId);
-
-      await this.updateUserName({ firstName: 'User', lastName: 'Name' }); // TODO: Update with actual user name
-
-      const org = await this.createOrganization({ name: orgName });
-
-      const team = await this.createTeam({
-        name: 'Default Team',
-        organisationId: org.id,
-      });
-
-      console.log('Successfully created organization and team', team);
-
-      const [project, assistant] = await Promise.all([
-        this.createDefaultProject({ teamId: team.id }),
-        this.createAssistant({ teamId: team.id }),
-      ]);
-
-      await Promise.all([
-        this.createCredits({ amount: 1000 }),
-        this.assignAdminRoleToUser(),
-        this.updateUserOnboardingStatus(),
-      ]);
-
-      console.log('Successfully completed new user action');
-    } catch (error) {
-      console.error('Error in run function:', error);
-      throw error; // Re-throw the error if you want calling code to handle it
-    }
-  }*/
-
-  async runPipeline({ userId, orgName }: RunPayload): Promise<void> {
+  private createPipeline() {
     const maxRetries = 3;
-    const line = Pipe.create(maxRetries, async (p) => {
+    const pipeLine = Pipe.create(maxRetries, async (p) => {
       p.addStep(async ({ userId, orgName }) =>
         this.updateUserName({ userId, orgName, firstName: 'User', lastName: 'Name' }),
       );
       p.addStep(async ({ userId, orgName }) => this.createOrganization(userId, orgName));
-      p.addStep(async ({ id: organisationId, userId }) =>
+      p.addStep(async ({ userId, id: organisationId }) =>
         this.createTeam({ userId, name: 'Default Team', organisationId }),
       );
-      p.addStep(async ({ id: teamId }) =>
-        Promise.all([this.createDefaultProject({ teamId }), this.createAssistant({ teamId })]),
-      );
-      p.addStep(async () => this.createCredits({ userId: userId, amount: 1000 }));
-      p.addStep(async () => this.assignAdminRoleToUser(userId));
-      p.addStep(async () => this.updateUserOnboardingStatus(userId));
+      p.addStep(async ({ userId, teamId }) => this.createDefaultProject({ userId, teamId }));
+      p.addStep(async ({ userId, teamId }) => this.createAssistant({ userId, teamId }));
+      p.addStep(async ({ userId }) => this.createCredits({ userId, amount: 1000 }));
+      p.addStep(async ({ userId }) => this.assignAdminRoleToUser(userId));
+      p.addStep(async ({ userId }) => this.updateUserOnboardingStatus(userId));
     });
 
-    line.finally(() => {
+    return pipeLine;
+  }
+
+  async runPipeline(payload: RunPayload): Promise<void> {
+    const pipeLine = this.createPipeline();
+
+    pipeLine.lastStep(() => {
       console.log('Successfully completed new user action pipeline');
     });
 
-    await line.run({ userId, orgName });
+    try {
+      await pipeLine.run(payload);
+    } catch (error) {
+      console.error('Error in runPipeline:', error);
+      throw new Error('Failed to create new user');
+    }
   }
 }
