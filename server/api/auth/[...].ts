@@ -62,8 +62,9 @@ export default NuxtAuthHandler({
       // TODO: cache fullUser but not the credit amount
 
       if (!fullUser) {
-        return session;
+        throw new Error('User not found');
       }
+
       const { teamId, orgId, projectIds } = getFirstTeam(fullUser.teams);
       session.user.id = fullUser.id;
       session.user.teamId = teamId;

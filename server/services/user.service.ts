@@ -155,7 +155,7 @@ export class UserService {
   async getUserById(id: string) {
     return this.prisma.user.findFirst({
       relationLoadStrategy: 'join', // or 'query'
-      where: { id: id.toLowerCase() },
+      where: { id: id.toLowerCase(), deletedAt: null },
       select: {
         id: true,
         name: true,

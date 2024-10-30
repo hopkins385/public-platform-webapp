@@ -49,6 +49,7 @@ export const userMeRouter = router({
       if (user.name !== input.userName) {
         throw new Error('Invalid user');
       }
-      return await services.deletesUserAction.runPipeline({ usrId: input.userId });
+      // return await services.deletesUserAction.runPipeline({ usrId: input.userId });
+      return await services.userService.softDeleteUser(user.id, user.orgId);
     }),
 });
