@@ -61,6 +61,7 @@ export default defineEventHandler(async (_event) => {
     messages: services.chatService.formatChatMessages(validatedBody.messages),
     systemPrompt,
     maxTokens: validatedBody.maxTokens,
+    toolCallRecursion: 0,
   };
 
   const generator = streamService.generateStream(_event, abortController, streamData);

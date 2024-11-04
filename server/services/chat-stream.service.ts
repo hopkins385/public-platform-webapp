@@ -15,7 +15,10 @@ interface GenerateStreamOptions {
 const logger = consola.create({}).withTag('streamService');
 
 export class StreamService {
-  constructor(private readonly event: UseEvents['event']) {}
+  constructor(
+    private readonly event: UseEvents['event'],
+    private readonly maxToolCallDepth = 3,
+  ) {}
 
   setSSEHeaders(_event: H3Event) {
     _event.node.res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
@@ -115,6 +118,7 @@ export class StreamService {
             this.onStreamStopLength();
             return;
           case 'tool-calls':
+            payload.toolCallRecursion++;
             yield* this.handleToolCalls(abortController, result, payload, model, availableTools);
             return;
         }
@@ -133,6 +137,10 @@ export class StreamService {
     model: any,
     availableTools: any,
   ): AsyncGenerator<any, void, any> {
+    if (payload.toolCallRecursion >= this.maxToolCallDepth) {
+      throw new Error('Tool call depth exceeded');
+    }
+
     const [toolCalls, toolResults] = await Promise.all([initalResult.toolCalls, initalResult.toolResults]);
 
     // Ensure toolResults is not empty to avoid infinite loop
@@ -147,7 +155,7 @@ export class StreamService {
     ];
 
     try {
-      const { textStream } = await streamText({
+      const result = await streamText({
         abortSignal: abortController.signal,
         model,
         system: payload.systemPrompt,
@@ -169,7 +177,33 @@ export class StreamService {
         }),
       );
 
-      yield* textStream;
+      for await (const chunk of result.fullStream) {
+        if (abortController.signal.aborted) return;
+
+        if (chunk.type === 'error') {
+          throw chunk.error;
+        }
+
+        if (chunk.type === 'finish') {
+          switch (chunk.finishReason) {
+            case 'error':
+              throw new Error(`Finish Error: ${JSON.stringify(result.response)}`);
+            case 'length':
+              this.onStreamStopLength();
+              return;
+            case 'tool-calls':
+              payload.toolCallRecursion++;
+              yield* this.handleToolCalls(abortController, result, payload, model, availableTools);
+              return;
+          }
+        }
+
+        if (chunk.type === 'text-delta') {
+          yield chunk.textDelta;
+        }
+      }
+
+      // yield* textStream;
       // yield* this.handleStream(abortController, followUpResult, payload, model, availableTools);
     } catch (error) {
       logger.error('handleToolCalls error:', JSON.stringify(error));
@@ -233,4 +267,5 @@ interface StreamPayload {
   messages: any[];
   systemPrompt: string;
   maxTokens: number;
+  toolCallRecursion: number;
 }
