@@ -132,23 +132,31 @@ export class CreatesNewUserAction {
     return { userId };
   }
 
-  private async findSuitableLLM(): Promise<LargeLangModel | null> {
+  private async findSuitableLLM(): Promise<LargeLangModel> {
     const claude = await this.prisma.largeLangModel.findFirst({
       where: {
-        apiName: { equals: 'claude-3-5-sonnet-20240620' },
+        apiName: { equals: 'claude-3-5-sonnet-latest' },
       },
     });
+
     if (!claude) {
       console.error('claude-3-5-sonnet not found');
-    }
-    if (claude) return claude;
 
-    return this.prisma.largeLangModel.findFirst({
-      where: {
-        deletedAt: null,
-      },
-      orderBy: { createdAt: 'asc' },
-    });
+      const model = await this.prisma.largeLangModel.findFirst({
+        where: {
+          deletedAt: null,
+        },
+        orderBy: { createdAt: 'asc' },
+      });
+
+      if (!model) {
+        throw new Error('No suitable LLM found');
+      }
+
+      return model;
+    }
+
+    return claude;
   }
 
   async getAllTools() {
@@ -156,11 +164,8 @@ export class CreatesNewUserAction {
   }
 
   async createAssistant(payload: NewAssistantDto) {
-    const llm = await this.findSuitableLLM();
-
-    if (!llm) {
-      throw new Error('No suitable LLM found');
-    }
+    const { userId, teamId } = payload;
+    const { id: llmId } = await this.findSuitableLLM();
 
     const date = new Date();
 
@@ -178,8 +183,8 @@ export class CreatesNewUserAction {
 
     const assistant = await this.prisma.assistant.create({
       data: {
-        teamId: payload.teamId,
-        llmId: llm.id,
+        teamId,
+        llmId,
         title: 'RAGNA Assistant',
         description: 'RAGNA Assistant',
         systemPrompt: 'You are a friendly and helpful assistant\n',
@@ -195,7 +200,7 @@ export class CreatesNewUserAction {
       },
     });
 
-    return { userId: payload.userId, teamId: payload.teamId, assistantId: assistant.id };
+    return { userId, teamId, assistantId: assistant.id };
   }
 
   async updateUserOnboardingStatus(userId: string) {
