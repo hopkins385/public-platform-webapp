@@ -76,6 +76,10 @@ export default defineNitroPlugin(() => {
       options: { concurrency: workerConcurrency, limiter: { max: openaiReqPerMin, duration: rateLimitDuration } },
     },
     {
+      name: 'anthropic-claude-3-5-sonnet-latest',
+      options: { concurrency: workerConcurrency, limiter: { max: claudeReqPerMin, duration: rateLimitDuration } },
+    },
+    {
       name: 'anthropic-claude-3-5-sonnet-20240620',
       options: { concurrency: workerConcurrency, limiter: { max: claudeReqPerMin, duration: rateLimitDuration } },
     },
