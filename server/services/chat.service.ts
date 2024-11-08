@@ -508,7 +508,6 @@ export class ChatService {
     }
     return vis.map((v) => {
       if (!v.url) throw new Error('VisionImageUrlContent url is required');
-      // this format is vercel ai sdk specific!
       return {
         type: 'image',
         image: new URL(v.url),
@@ -535,7 +534,7 @@ export class ChatService {
         role: message.role,
         content: message.content,
       };
-    }); // satisfies CoreMessage[];
+    });
   }
 
   async getContextAwareSystemPrompt(payload: {
@@ -544,7 +543,7 @@ export class ChatService {
     assistantSystemPrompt: string;
   }) {
     const timestamp = '\n\n' + 'Timestamp now(): ' + new Date().toISOString();
-    // return payload.assistantSystemPrompt;
+
     const collections = await this.collectionService.findAllWithRecordsFor(
       CollectionAbleDto.fromInput({
         id: payload.assistantId,
@@ -563,8 +562,6 @@ export class ChatService {
     });
 
     const context = res.map((r) => r?.text || '').join('\n\n');
-
-    console.log('system prompt context:', context);
 
     return payload.assistantSystemPrompt + '\n\n<context>' + context + '</context>' + timestamp;
   }
