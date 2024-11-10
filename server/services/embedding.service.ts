@@ -61,6 +61,24 @@ export class EmbeddingService {
     }
   }
 
+  async deleteEmbeddings(payload: { mediaId: string; recordIds: string[] }): Promise<void> {
+    try {
+      await $fetch<void>(this.embedFileUrl, {
+        method: 'DELETE',
+        body: payload,
+        onRequestError: (error) => {
+          logger.error('[delete embedding] Request Error: ', error);
+        },
+        onResponseError: (error) => {
+          logger.error('[delete embedding] Response Error: ', error);
+        },
+      });
+    } catch (error) {
+      logger.error('Error deleting embeddings:', error);
+      throw new Error('Sorry this service is currently unavailable');
+    }
+  }
+
   async searchDocsByQuery(payload: { query: string; recordIds: string[] }): Promise<SearchResultDocument[]> {
     try {
       return await $fetch<SearchResultDocument[]>(this.searchVectorUrl, {

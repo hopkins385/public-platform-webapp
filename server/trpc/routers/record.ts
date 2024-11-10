@@ -35,4 +35,17 @@ export const recordRouter = router({
       });
       return await services.recordService.findAllPaginated(payload, input.page, input.limit);
     }),
+
+  delete: protectedProcedure
+    .input(
+      z.object({
+        recordId: cuidRule(),
+      }),
+    )
+    .mutation(async ({ input, ctx: { user, services } }) => {
+      return await services.recordService.delete({
+        teamId: user.teamId,
+        recordId: input.recordId,
+      });
+    }),
 });

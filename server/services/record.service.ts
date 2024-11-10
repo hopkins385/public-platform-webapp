@@ -21,7 +21,7 @@ export class RecordService {
     }
 
     // find record
-    /*
+
     const record = await this.prisma.record.findFirst({
       select: {
         id: true,
@@ -36,25 +36,64 @@ export class RecordService {
         mediaId: media.id,
       },
     });
-    */
 
     // TODO: create new record and duplicate chunks but don't embed file again to vector store
     // for now, just create new record and embed file to vectorStore
-    return this.#embedMedia(media, payload);
+    // return this.#embedMedia(media, payload);
 
-    /*
     if (!record) {
       // create record and embed file to vectorStore
-      return this.embedMedia(media, payload);
+      // return this.#embedMedia(media, payload);
     }
 
-    if (record.collectionId === payload.collectionId) {
+    if (record?.collectionId === payload.collectionId) {
       throw new Error('Record already exists in this collection');
     }
 
-    // for now, just throw an error
-    throw new Error('Record already exists in another collection');
-    */
+    //throw new Error('Record already exists in another collection');
+
+    return this.#embedMedia(media, payload);
+  }
+
+  async delete(payload: { teamId: string; recordId: string }) {
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // find record
+    const record = await this.prisma.record.findFirst({
+      select: {
+        id: true,
+        mediaId: true,
+        chunks: {
+          select: {
+            id: true,
+          },
+        },
+      },
+      where: {
+        id: payload.recordId,
+        deletedAt: null,
+      },
+    });
+
+    if (!record || !record.mediaId) {
+      throw new Error('Record not found');
+    }
+
+    // delete Embeddings
+    await this.embeddingService.deleteEmbeddings({
+      mediaId: record.mediaId,
+      recordIds: [record.id],
+    });
+
+    // delete record and chunks
+    return this.prisma.record.delete({
+      where: {
+        id: record.id,
+      },
+    });
+  }
+
+  async deleteEmbeddings(payload: { mediaId: string; recordIds: string[] }) {
+    return this.embeddingService.deleteEmbeddings(payload);
   }
 
   async #embedMedia(media: Media, payload: CreateRecordDto) {

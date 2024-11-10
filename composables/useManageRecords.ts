@@ -60,9 +60,19 @@ export default function useManageRecords() {
     );
   }
 
+  function deleteRecord(recordId: string) {
+    return $client.record.delete.mutate(
+      { recordId },
+      {
+        signal: ac.signal,
+      },
+    );
+  }
+
   return {
     setPage,
     createRecord,
     findAllPaginated,
+    deleteRecord,
   };
 }
