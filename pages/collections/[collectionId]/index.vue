@@ -59,7 +59,7 @@
     </Heading>
     <BoxContainer>
       <Suspense>
-        <RecordAllTable :collectionId="collectionId" :refresh="refresh" />
+        <RecordAllTable :collection-id="collectionId" :refresh="refresh" />
       </Suspense>
     </BoxContainer>
   </SectionContainer>

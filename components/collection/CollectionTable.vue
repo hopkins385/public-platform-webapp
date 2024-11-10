@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import {
     FileEditIcon,
+    FilePlusIcon,
     FilesIcon,
     SettingsIcon,
     SquareArrowOutUpRightIcon,
@@ -80,7 +81,7 @@
           </TableCell>
           <TableCell class="space-x-2 text-right">
             <LinkButton class="group" variant="outline" size="icon" :to="`/collections/${collection.id}`">
-              <FilesIcon class="size-4 stroke-1.5 text-primary group-hover:stroke-2" />
+              <FilePlusIcon class="size-4 stroke-1.5 text-primary group-hover:stroke-2" />
             </LinkButton>
             <Button class="group" variant="outline" size="icon" @click="onDelete(collection.id)">
               <Trash2Icon class="size-4 stroke-1.5 text-destructive group-hover:stroke-2" />

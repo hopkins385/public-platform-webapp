@@ -43,10 +43,10 @@
       pendingUpdateId.value = null;
       toast.success({ description: 'Record created successfully' });
       emits('success');
-    } catch (error) {
+    } catch (error: any) {
       pendingUpdateId.value = null;
       errorAlert.show = true;
-      errorAlert.message = error.message;
+      errorAlert.message = error?.message || 'An error occurred';
     }
   }
 </script>
@@ -84,7 +84,7 @@
             {{ getFileSizeForHumans(item.fileSize) }}
           </TableCell>
           <TableCell class="space-x-2 text-right">
-            <Button variant="outline" size="icon" @click="onAdd(item.id)" :disabled="pendingUpdateId == item.id">
+            <Button variant="outline" size="icon" :disabled="pendingUpdateId == item.id" @click="onAdd(item.id)">
               <span v-if="pendingUpdateId == item.id" class="animate-spin">
                 <Loader2Icon class="size-4" />
               </span>
