@@ -12,7 +12,7 @@
 
   const { signIn } = useAuth();
 
-  function onSubmit() {
+  async function onSubmit() {
     isLoading.value = true;
     signIn('auth0', {
       redirect: true,
@@ -29,7 +29,7 @@
       });
   }
 
-  // onBeforeMount(() => onSubmit());
+  onMounted(async () => await onSubmit());
 </script>
 
 <template>
