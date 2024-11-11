@@ -1,11 +1,21 @@
 import type { ExtendedPrismaClient } from '../prisma';
 import type { CollectionAbleDto } from './dto/collection-able.dto';
 import type { CreateCollectionDto } from './dto/collection.dto';
+import { MediaAbleDto } from './dto/media-able.dto';
+import type { MediaService } from './media.service';
+
+export class CollectionNotFoundError extends Error {
+  constructor() {
+    super('Collection not found');
+    this.name = 'CollectionNotFoundError';
+  }
+}
 
 export class CollectionService {
-  private readonly prisma: ExtendedPrismaClient;
-
-  constructor(prisma: ExtendedPrismaClient) {
+  constructor(
+    private readonly prisma: ExtendedPrismaClient,
+    private readonly mediaService: MediaService,
+  ) {
     if (!prisma) {
       throw new Error('Prisma client not found');
     }

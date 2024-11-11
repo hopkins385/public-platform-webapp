@@ -30,7 +30,14 @@ export const collectionRouter = router({
       }),
     )
     .query(async ({ input, ctx: { user, services } }) => {
-      return await services.collectionService.findFirst(user.teamId, input.id);
+      const collectionId = input.id;
+      try {
+        return await services.collectionService.findFirst(user.teamId, collectionId);
+      } catch (error) {
+        return {
+          collection: null,
+        };
+      }
     }),
 
   findAll: protectedProcedure.query(async ({ ctx: { user, services } }) => {

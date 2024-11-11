@@ -20,17 +20,9 @@
 
   const refresh = ref(false);
 
-  const { collectionId } = useRoute().params;
+  const collectionId = useRoute().params?.collectionId.toString() || '';
   const { findFirst } = useManageCollections();
   const { data: collection } = await findFirst(collectionId);
-
-  if (!collection.value) {
-    await navigateTo('/404');
-  }
-
-  // set meta label
-  // const route = useRoute();
-  // route.meta.breadcrumb.label = collection.value?.name || '...';
 
   async function onRefresh() {
     refresh.value = true;
@@ -48,7 +40,7 @@
         <div class="flex w-full justify-between px-3 pb-2 pt-14">
           <div></div>
           <div class="flex flex-col space-y-2">
-            <RecordCreateModal :collection-id="collection?.id" @refresh="onRefresh" />
+            <RecordCreateModal :collection-id="collection.id" @refresh="onRefresh" />
             <LinkButton class="self-end" :to="`/collections/${collectionId}/edit`">
               Collection Settings
               <SettingsIcon class="ml-2 size-4 stroke-2" />

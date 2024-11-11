@@ -45,13 +45,13 @@ class ServiceContainer {
   assistantToolService = new AssistantToolService(prisma);
   assistantService = new AssistantService(prisma, this.assistantToolService, {});
   assistantJobService = new AssistantJobService(prisma);
-  collectionAbleService = new CollectionAbleService(prisma);
-  collectionService = new CollectionService(prisma);
   documentService = new DocumentService(prisma);
   documentItemService = new DocumentItemService(prisma);
   storageService = new StorageService(s3Client);
   mediaAbleService = new MediaAbleService(prisma);
   mediaService = new MediaService(prisma, this.mediaAbleService, this.storageService);
+  collectionAbleService = new CollectionAbleService(prisma);
+  collectionService = new CollectionService(prisma, this.mediaService);
   projectService = new ProjectService(prisma);
   providerAuthService = new ProviderAuthService(prisma);
   embeddingService = new EmbeddingService({ ragServerUrl: this.config.ragServer.url });

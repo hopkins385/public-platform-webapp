@@ -140,8 +140,30 @@ export class RecordService {
     }
   }
 
+  async findAll(payload: FindRecordsDto) {
+    return this.prisma.record.findMany({
+      select: {
+        id: true,
+        createdAt: true,
+        media: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      where: {
+        collection: {
+          id: payload.collectionId,
+          teamId: payload.teamId,
+        },
+        deletedAt: null,
+      },
+    });
+  }
+
   async findAllPaginated(payload: FindRecordsDto, page: number = 1, limit = 10) {
-    return await this.prisma.record
+    return this.prisma.record
       .paginate({
         select: {
           id: true,

@@ -2,7 +2,7 @@
   import { FileIcon, LoaderIcon, Trash2Icon } from 'lucide-vue-next';
 
   const props = defineProps<{
-    collectionId: any;
+    collectionId: string | undefined;
     refresh: boolean;
   }>();
 

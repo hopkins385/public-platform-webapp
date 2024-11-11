@@ -1,8 +1,8 @@
 <script setup lang="ts">
-  import { FileIcon, PlusIcon, Loader2Icon } from 'lucide-vue-next';
+  import { FileIcon, PlusIcon, Loader2Icon, Trash2Icon, CheckIcon } from 'lucide-vue-next';
 
   const props = defineProps<{
-    collectionId: string | string[];
+    collectionId: string | undefined;
   }>();
 
   const emits = defineEmits<{
@@ -13,6 +13,7 @@
   const pendingUpdateId = ref<string | null>(null);
 
   const { findPaginateAllMediaFor, setPage } = useManageMedia();
+  const { findAll } = useManageRecords();
 
   const { data: auth } = useAuth();
   const { data: allMediaPaginated } = await findPaginateAllMediaFor({
@@ -28,9 +29,15 @@
     };
   });
 
+  const { data: records, refresh: refreshAllRecords } = await findAll(props.collectionId);
+  const mediaIds = computed(() => records.value?.map((record) => record.media?.id) || []);
+
   const { getFileSizeForHumans } = useForHumans();
 
   async function onAdd(id: string) {
+    if (!props.collectionId) {
+      return;
+    }
     const { createRecord } = useManageRecords();
     const toast = useToast();
     pendingUpdateId.value = id;
@@ -43,6 +50,7 @@
       pendingUpdateId.value = null;
       toast.success({ description: 'Record created successfully' });
       emits('success');
+      await refreshAllRecords();
     } catch (error: any) {
       pendingUpdateId.value = null;
       errorAlert.show = true;
@@ -84,11 +92,19 @@
             {{ getFileSizeForHumans(item.fileSize) }}
           </TableCell>
           <TableCell class="space-x-2 text-right">
-            <Button variant="outline" size="icon" :disabled="pendingUpdateId == item.id" @click="onAdd(item.id)">
+            <Button
+              variant="outline"
+              size="icon"
+              :disabled="pendingUpdateId == item.id || mediaIds.includes(item.id)"
+              @click="onAdd(item.id)"
+            >
               <span v-if="pendingUpdateId == item.id" class="animate-spin">
                 <Loader2Icon class="size-4" />
               </span>
-              <PlusIcon v-else class="size-4" />
+              <span v-else>
+                <CheckIcon v-if="mediaIds.includes(item.id)" class="size-4" />
+                <PlusIcon v-else class="size-4" />
+              </span>
             </Button>
           </TableCell>
         </TableRow>

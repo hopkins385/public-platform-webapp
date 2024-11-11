@@ -11,7 +11,6 @@ export class DeletesUserAction {
     private readonly userService: UserService,
     private readonly chatService: ChatService,
     private readonly documentService: DocumentService,
-    private readonly mediaService: MediaService,
   ) {}
 
   private async findUser(userId: string) {

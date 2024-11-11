@@ -36,6 +36,21 @@ export default function useManageRecords() {
     );
   }
 
+  function findAll(id: string | string[] | undefined | null) {
+    const cuid = id?.toString() ?? null;
+    const collectionId = cuid ?? '';
+    return useAsyncData(`allRecords:${collectionId}`, async () => {
+      return await $client.record.findAll.query(
+        {
+          collectionId,
+        },
+        {
+          signal: ac.signal,
+        },
+      );
+    });
+  }
+
   function findAllPaginated(id: string | string[] | undefined | null, options: AsyncDataOptions<any> = {}) {
     setCollectionId(id);
     return useAsyncData(
@@ -72,6 +87,7 @@ export default function useManageRecords() {
   return {
     setPage,
     createRecord,
+    findAll,
     findAllPaginated,
     deleteRecord,
   };

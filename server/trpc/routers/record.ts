@@ -20,6 +20,20 @@ export const recordRouter = router({
       return await services.recordService.create(payload);
     }),
 
+  findAll: protectedProcedure
+    .input(
+      z.object({
+        collectionId: cuidRule(),
+      }),
+    )
+    .query(async ({ input, ctx: { user, services } }) => {
+      const payload = FindRecordsDto.fromInput({
+        collectionId: input.collectionId,
+        teamId: user.teamId,
+      });
+      return await services.recordService.findAll(payload);
+    }),
+
   findAllPaginated: protectedProcedure
     .input(
       z.object({

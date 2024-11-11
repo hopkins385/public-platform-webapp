@@ -2,7 +2,7 @@
   import { PlusIcon } from 'lucide-vue-next';
 
   defineProps<{
-    collectionId: string | string[];
+    collectionId: string | undefined;
   }>();
 
   const emits = defineEmits<{
@@ -13,7 +13,6 @@
 
   function onSuccess() {
     emits('refresh');
-    // open.value = true;
   }
 </script>
 
@@ -31,10 +30,11 @@
         <DialogDescription> Choose a file to add to collection. </DialogDescription>
       </DialogHeader>
       <Suspense>
-        <RecordAddMediaTable :collection-id="collectionId" @success="() => onSuccess()" />
+        <RecordAddMediaTable :collection-id="collectionId" @success="onSuccess" />
       </Suspense>
       <DialogFooter>
         <Button variant="outline" @click="open = false">Cancel</Button>
+        <Button @click="open = false">Done</Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>
