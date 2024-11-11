@@ -95,13 +95,6 @@ export const collectionRouter = router({
       }),
     )
     .mutation(async ({ input, ctx: { user, services } }) => {
-      // find the collection
-      const collection = await services.collectionService.findFirst(user.teamId, input.id);
-
-      if (!collection) {
-        throw new CollectionNotFoundError();
-      }
-
-      return await services.collectionService.softDelete(user.teamId, input.id);
+      return await services.collectionService.delete(user.teamId, input.id);
     }),
 });

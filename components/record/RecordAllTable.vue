@@ -41,7 +41,7 @@
     try {
       await deleteRecord(deleteRecordId.value);
       toast.success({
-        description: 'Record has been deleted successfully.',
+        description: 'Record deleted.',
       });
       await refresh();
     } catch (error: any) {

@@ -50,13 +50,13 @@ class ServiceContainer {
   storageService = new StorageService(s3Client);
   mediaAbleService = new MediaAbleService(prisma);
   mediaService = new MediaService(prisma, this.mediaAbleService, this.storageService);
-  collectionAbleService = new CollectionAbleService(prisma);
-  collectionService = new CollectionService(prisma, this.mediaService);
   projectService = new ProjectService(prisma);
   providerAuthService = new ProviderAuthService(prisma);
   embeddingService = new EmbeddingService({ ragServerUrl: this.config.ragServer.url });
   recordService = new RecordService(prisma, this.mediaService, this.embeddingService);
   tokenizerService = new TokenizerService({ ragServerUrl: this.config.ragServer.url });
+  collectionAbleService = new CollectionAbleService(prisma);
+  collectionService = new CollectionService(prisma, this.embeddingService);
   usageService = new UsageService(prisma);
   stripeService = new StripeService();
   creditService = new CreditService(prisma);

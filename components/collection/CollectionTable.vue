@@ -30,7 +30,7 @@
       await deleteCollection(deleteCollectionId.value);
       deleteCollectionId.value = '';
       toast.success({
-        description: 'Collection has been deleted successfully.',
+        description: 'Collection deleted.',
       });
       await refresh();
     } catch (error: any) {

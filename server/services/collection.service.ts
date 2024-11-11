@@ -1,8 +1,7 @@
 import type { ExtendedPrismaClient } from '../prisma';
 import type { CollectionAbleDto } from './dto/collection-able.dto';
 import type { CreateCollectionDto } from './dto/collection.dto';
-import { MediaAbleDto } from './dto/media-able.dto';
-import type { MediaService } from './media.service';
+import type { EmbeddingService } from './embedding.service';
 
 export class CollectionNotFoundError extends Error {
   constructor() {
@@ -14,7 +13,7 @@ export class CollectionNotFoundError extends Error {
 export class CollectionService {
   constructor(
     private readonly prisma: ExtendedPrismaClient,
-    private readonly mediaService: MediaService,
+    private readonly embeddingService: EmbeddingService,
   ) {
     if (!prisma) {
       throw new Error('Prisma client not found');
@@ -40,6 +39,30 @@ export class CollectionService {
         id: true,
         name: true,
         description: true,
+      },
+      where: {
+        id: collectionId.toLowerCase(),
+        teamId: teamId.toLowerCase(),
+        deletedAt: null,
+      },
+    });
+  }
+
+  async findFirstWithRecords(teamId: string, collectionId: string) {
+    return this.prisma.collection.findFirst({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        records: {
+          select: {
+            id: true,
+            mediaId: true,
+          },
+          where: {
+            deletedAt: null,
+          },
+        },
       },
       where: {
         id: collectionId.toLowerCase(),
@@ -198,6 +221,28 @@ export class CollectionService {
   }
 
   async delete(teamId: string, collectionId: string) {
+    // find the collection
+    const collection = await this.findFirstWithRecords(teamId, collectionId);
+
+    if (!collection) {
+      throw new CollectionNotFoundError();
+    }
+
+    // delete embeddings
+    const records = collection.records
+      .filter((record) => record && record.mediaId)
+      .map((record) => ({
+        mediaId: record.mediaId!,
+        recordId: record.id,
+      }));
+
+    for (const record of records) {
+      await this.embeddingService.deleteEmbeddings({
+        mediaId: record.mediaId,
+        recordIds: [record.recordId],
+      });
+    }
+
     return await this.prisma.$transaction([
       // delete all collectionables
       this.prisma.collectionAble.deleteMany({

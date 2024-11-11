@@ -32,13 +32,13 @@
   const onSubmit = handleSubmit(async (values, { resetForm }) => {
     const toast = useToast();
     try {
-      await createCollection(values);
+      const collection = await createCollection(values);
       toast.success({
         description: 'Collection created successfully',
       });
       resetForm();
       await refreshNuxtData('allCollections');
-      return await navigateTo('/collections');
+      return await navigateTo(`/collections/${collection.id}`);
     } catch (error: any) {
       toast.error({
         description: 'Ups, something went wrong.',
