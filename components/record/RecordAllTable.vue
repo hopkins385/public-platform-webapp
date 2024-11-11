@@ -90,13 +90,22 @@
         <TableCell class="truncate">{{ record?.media?.name }}</TableCell>
         <TableCell> {{ record?.chunks?.length ?? 0 }} </TableCell>
         <TableCell class="space-x-2 text-right">
-          <Button class="group" variant="outline" size="icon" @click="onDelete(record.id)">
-            <LoaderIcon
-              v-if="isLoadingIds.includes(record.id)"
-              class="size-4 animate-spin stroke-1.5 text-primary group-hover:stroke-2"
-            />
-            <Trash2Icon v-else class="size-4 stroke-1.5 text-destructive group-hover:stroke-2" />
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger as-child>
+                <Button class="group" variant="outline" size="icon" @click="onDelete(record.id)">
+                  <LoaderIcon
+                    v-if="isLoadingIds.includes(record.id)"
+                    class="size-4 animate-spin stroke-1.5 text-primary group-hover:stroke-2"
+                  />
+                  <Trash2Icon v-else class="size-4 stroke-1.5 text-destructive group-hover:stroke-2" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p class="max-w-xs text-sm">Remove File from Collection</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </TableCell>
       </TableRow>
     </TableBody>
