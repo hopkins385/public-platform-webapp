@@ -29,6 +29,7 @@
     <SectionHeading title="File Manager" subtitle="Connect your cloud storage or upload files" />
     <BoxContainer>
       <ul class="max-w-sm space-y-5">
+        <!--
         <li class="group flex cursor-pointer items-center space-x-10 rounded-lg" @click="navigateTo('/media/onedrive')">
           <div class="size-20 rounded-lg border p-5 group-hover:shadow-md">
             <LogoMicrosoftOnedrive class="size-full" />
@@ -41,6 +42,7 @@
           </div>
           <p class="pt-2 text-sm">Google Drive</p>
         </li>
+        -->
         <li class="group flex cursor-pointer items-center space-x-10 rounded-lg" @click="navigateTo('/media/uploads')">
           <div class="size-20 rounded-lg border p-5 group-hover:shadow-md">
             <FluentEmojiFlatFileFolder class="size-full" />
