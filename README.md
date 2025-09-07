@@ -1,88 +1,119 @@
-# RAGNA - Cloud Platform
+# RAGNA Cloud Platform
 
-## ToDo's
+An intelligent AI-powered cloud platform built with Nuxt 3, providing advanced document processing, conversational AI, and workflow automation capabilities.
 
-- [ ] proper access & api policy
-- [ ] roles & permissions
+## 🚀 Features
 
-## Introduction
+- **AI-Powered Conversations**: Multi-LLM support (OpenAI, Anthropic, Mistral, Groq)
+- **Document Processing**: Advanced RAG (Retrieval-Augmented Generation) capabilities
+- **Multi-Provider Authentication**: Support for Google, Azure, Auth0
+- **Real-time Collaboration**: WebSocket-based real-time features
+- **Admin Dashboard**: Comprehensive user and team management
+- **File Management**: Integration with Google Drive and OneDrive
+- **Extensible Architecture**: Plugin-based system for custom integrations
 
-This is a [sidebase merino](https://sidebase.io/) app created by running `npm create sidebase@latest`. This project uses the following packages:
+## 🛠️ Tech Stack
 
-- [TypeScript](https://www.typescriptlang.org/)
-- [Nuxt 3](https://nuxt.com)
-- Prisma ORM
-- nuxt-auth
-- tRPC 10
-- trpc-nuxt
-- tailwindcss
-- shadcn-vue
-- nuxt-i18n
-- nuxt-pinia
-- nuxt-security
-- vueuse/core
-- socket.io
-- tiptap editor with custom extensions
-- zod
-- vee-validate & vee-zod
-- bullmq
-- tiktoken
-- stripe
-- slack-notify
-- redis-client
-- vercel ai sdk
+This project uses modern technologies for a robust, scalable platform:
 
-Info: do not use @vueuse/nuxt, because it is not compatible with this project.
+- **Frontend**: [Nuxt 3](https://nuxt.com) with TypeScript
+- **Styling**: TailwindCSS with [shadcn-vue](https://www.shadcn-vue.com/) components
+- **Database**: PostgreSQL with [Prisma ORM](https://prisma.io/)
+- **Authentication**: NextAuth.js with multiple providers
+- **API**: tRPC for type-safe APIs
+- **Real-time**: Socket.io for live features
+- **Queue Management**: BullMQ with Redis
+- **AI Integration**: Vercel AI SDK
+- **Payment Processing**: Stripe integration
+- **Deployment**: Docker with multi-stage builds
 
-## Getting Started
+## 📋 Prerequisites
 
-### Setup
+- Node.js 20+
+- Docker and Docker Compose
 
-Requires **next-auth@4.21.1**. If you are using a newer version, you will need to downgrade.
+## 🚀 Quick Start
+
+### 1. Clone the repository
 
 ```bash
-npm install next-auth@4.21.1
+git clone https://github.com/yourusername/ragna-cloud.git
+cd ragna-cloud
 ```
 
-Make sure to install the project dependencies:
+### 2. Install dependencies
 
 ```bash
 npm install
 ```
 
-### Development Server
+### 3. Environment Setup
 
-Docker build for development:
+Copy the example environment file and configure your settings:
 
 ```bash
-docker build -t ragna/cloud-platform-dev -f Dockerfile .
+cp .env.exmaple .env
 ```
 
-Start the development server on http://localhost:3000
+Edit `.env` and configure the required environment variables (see [Environment Variables](#environment-variables) section).
+
+### 5. Start Development Server
 
 ```bash
 npm run dev
 ```
 
+Visit [http://localhost:3000](http://localhost:3000) to see the application.
+
+## 🐳 Docker Deployment
+
+### Development
+
+```bash
+docker-compose -f docker-compose.dev.yml up
+```
+
 ### Production
 
-Docker build for production:
-
 ```bash
-docker build -t ragna/cloud-platform -f Dockerfile.prod .
+docker-compose -f docker-compose.production.yml up -d
 ```
 
-Build the application for production:
+## ⚙️ Environment Variables
 
-```bash
-npm run build
+The application requires several environment variables. Copy `.env.exmaple` to `.env` and configure:
+
+### Project Structure
+
+```
+├── components/          # Vue components organized by feature
+├── composables/         # Vue composables for shared logic
+├── pages/              # File-based routing
+├── server/             # API routes and server logic
+├── stores/             # Pinia stores for state management
+├── prisma/             # Database schema and migrations
+├── assets/             # Static assets
+└── public/             # Public files
 ```
 
-Locally preview production build:
+## 🤝 Contributing
 
-```bash
-npm run preview
-```
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
+## 📄 License
 
-"seed": "ts-node --compiler-options {\"module\":\"CommonJS\",\"verbatimModuleSyntax\":false,\"types\":[\"node\"]} prisma/seed.ts"
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+Built with [sidebase merino](https://sidebase.io/) - A modern, full-stack Nuxt 3 template.
+
+## 📞 Support
+
+- 📖 Documentation: [Coming Soon]
+- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/ragna-cloud/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/ragna-cloud/discussions)
+
+---
+
+Made with ❤️ by [Sven Stadhouders](https://github.com/yourusername)
