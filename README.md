@@ -1,5 +1,7 @@
 # RAGNA Cloud Platform
 
+> ⚠️ **ARCHIVED PROJECT** - This project is no longer actively maintained or developed. It remains available for reference and educational purposes.
+
 An intelligent AI-powered cloud platform built with Nuxt 3, providing advanced document processing, conversational AI, and workflow automation capabilities.
 
 ## 🚀 Features
@@ -98,7 +100,9 @@ The application requires several environment variables. Copy `.env.exmaple` to `
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+**Note**: This project is archived and no longer accepting contributions. The code remains available for reference and learning purposes.
+
+Please see our [Contributing Guide](CONTRIBUTING.md) for historical information about the project's development practices.
 
 ## 📄 License
 
@@ -110,9 +114,11 @@ Built with [sidebase merino](https://sidebase.io/) - A modern, full-stack Nuxt 3
 
 ## 📞 Support
 
+**Note**: As this project is archived, active support is no longer provided.
+
 - 📖 Documentation: [Coming Soon]
-- 🐛 Issues: [GitHub Issues](https://github.com/yourusername/ragna-cloud/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/yourusername/ragna-cloud/discussions)
+- 🐛 Issues: Historical issues available at [GitHub Issues](https://github.com/yourusername/ragna-cloud/issues)
+- 💬 Discussions: Historical discussions available at [GitHub Discussions](https://github.com/yourusername/ragna-cloud/discussions)
 
 ---
 
